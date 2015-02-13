@@ -43,10 +43,12 @@
 #'
 #'
 #' @examples
+#' \donttest{
 #' data(BankingCrisesDistances)
 #' res<-cops(BankingCrisesDistances[,1:69])
 #' res
 #' plot(res)
+#' }
 #' 
 #' @docType package
 #' @name stops
