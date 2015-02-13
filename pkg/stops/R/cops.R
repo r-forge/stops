@@ -648,10 +648,10 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
-#' @param s number of particles if pso is used
-#' @param ... additional arguments to be passed to the optimization procedure
+#'@param s number of particles if pso is used
+#'@param ... additional arguments to be passed to the optimization procedure
 #'
-#' @return A list with the components
+#'@return A list with the components
 #'         \itemize{
 #'         \item coploss: the weighted loss value
 #'         \item OC: the Optics cordillera
@@ -662,13 +662,15 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
-#' @examples
-#' data(BankingCrisesDistances)
-#' res1<-cops(BankingCrisesDistances[,1:69],loss="strain",verbose=0)
-#' res1
-#'
-#' @keywords clustering multivariate
-#' @export
+#' 
+#'@examples
+#'\donttest{
+#'data(BankingCrisesDistances)
+#'res1<-cops(BankingCrisesDistances[,1:69],loss="strain",verbose=0)
+#'res1
+#'}
+#'@keywords clustering multivariate
+#'@export
 cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powerstress","sstress","elastic","powersammon","powerelastic"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(0.75,0.75),upper=c(5,5),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
     {
       if(missing(loss)) loss <- "strain"

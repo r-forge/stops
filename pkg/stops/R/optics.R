@@ -17,12 +17,13 @@
 #'
 #' @keywords clustering multivariate
 #' @examples
+#' \donttest{
 #' data(iris)
 #' res<-optics(iris[,1:4],minpts=2,epsilon=100)
 #' print(res)
 #' summary(res)
 #' plot(res,withlabels=TRUE)
-#' 
+#' }
 #' @export
 optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
   {

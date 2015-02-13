@@ -1,13 +1,13 @@
 Package: stops
 Title: A package for "structure optimized proximity scaling" (STOPS)
 Version: 0.0-8
-Date: 2015-02-10
+Date: 2015-02-12
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
 Description: A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. This includes the COPS method. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models (classical scaling, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powerstress, power elastic scaling and power sammon mapping), metaheuristics of multi-objective optimization, functions for various structuredness indices (including the OPTICS cordillera) and an interface to ELKI's OPTICS.   
 Depends: R (>= 3.1.2), smacof, rgl
-SystemRequirements: ELKI (>=0.6.0-2)
+SystemRequirements: ELKI (>=0.6.0)
 Imports: MASS, pso, scatterplot3d 
 Enhances: stats
 License: GPL-2

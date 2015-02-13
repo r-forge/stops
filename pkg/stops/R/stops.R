@@ -9,10 +9,11 @@
 #' @return see \code{\link{cops}}
 #' 
 #' @examples
+#' \donttest{
 #' data(BankingCrisesDistances)
 #' res1<-stops(BankingCrisesDistances[,1:69],structure="clusteredness",loss="strain",verbose=0)
 #' res1
-#'
+#'}
 #' @keywords clustering multivariate
 #' @export
 stops <- function(dis,structure="clusteredness",...)

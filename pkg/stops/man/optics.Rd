@@ -30,11 +30,13 @@ A rudimentary I/O interface to OPTICS in ELKI reroots intput from R to elki via 
 needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed (will be with release 1.0.0)
 }
 \examples{
+\donttest{
 data(iris)
 res<-optics(iris[,1:4],minpts=2,epsilon=100)
 print(res)
 summary(res)
 plot(res,withlabels=TRUE)
+}
 }
 \keyword{clustering}
 \keyword{multivariate}

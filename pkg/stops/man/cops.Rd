@@ -77,9 +77,11 @@ A list with the components
 High Level COPS Function
 }
 \examples{
+\donttest{
 data(BankingCrisesDistances)
 res1<-cops(BankingCrisesDistances[,1:69],loss="strain",verbose=0)
 res1
+}
 }
 \keyword{clustering}
 \keyword{multivariate}

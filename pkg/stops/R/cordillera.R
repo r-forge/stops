@@ -26,14 +26,15 @@
 #' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 #' @keywords clustering multivariate
 #' 
-#' @examples 
+#' @examples
+#' \donttest{
 #' data(BankingCrisesDistances)
 #' res<-cmdscale(BankingCrisesDistances[,1:69])
 #' cres<-cordillera(res$points) #goodness of clusteredness is 0.176
 #' cres
 #' summary(cres)
 #' plot(cres)
-#' 
+#' }
 #' @export
 cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=getwd(),plot=FALSE,ylim,scale=TRUE,...)
     {

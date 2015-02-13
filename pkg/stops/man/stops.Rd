@@ -68,9 +68,11 @@ data(BankingCrisesDistances)
 res<-cops(BankingCrisesDistances[,1:69])
 res
 plot(res)
+\donttest{
 data(BankingCrisesDistances)
 res1<-stops(BankingCrisesDistances[,1:69],structure="clusteredness",loss="strain",verbose=0)
 res1
+}
 }
 \keyword{clustering}
 \keyword{multivariate}
