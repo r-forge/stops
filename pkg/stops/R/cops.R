@@ -211,7 +211,7 @@ cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stre
   if(length(theta)>2) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==2L) lambda <- theta[2]
-  if(is.null(init)) init <- cmdscale(dis^lambda,k=ndim)
+ # if(is.null(init)) init <- stops::cmdscale(dis^lambda,k=ndim)$points
   fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
   fit$lambda <- lambda
   fit$kappa <- 1
