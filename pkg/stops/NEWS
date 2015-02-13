@@ -1,0 +1,31 @@
+Version 0.0-8
+
+- New author contributions in DESCRIPTION, added a plot method for cops objects
+
+Version 0.0-7
+
+- Added elastic scaling and sstress MDS models and fitted power versions of elastic scaling and sammon mapping; added simulated annealing optimization
+
+Version 0.0-6
+
+- Added procrustes and adjustment of configurations; improved the automatic handling of missing parameters in COPS
+
+Version 0.0-5 
+
+- Added 3D plots and devel snippets to be used in stops eventually
+
+Version 0.0-4
+
+- Added a STOPS high-level function to be filled with snippets later 
+
+Version 0.0-3
+
+- Added wrappers with S3 classes and methods to cmdscale, sammon. stops now enhances MASS and stats therefore.
+
+Version 0.0-2 
+
+- Added S3 classes and methods to cordillera, optics, powerStressMin and cops.
+
+Version 0.0-1 
+
+- Initial version. Successful prototypes.  

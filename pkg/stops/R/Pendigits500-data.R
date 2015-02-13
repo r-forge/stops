@@ -1,0 +1,15 @@
+#' Pen digits
+#'
+#' These data are a random sample of 500 of the 10992 pendigits data from Alimoglu (1996). The original data were from 44 writers who handwrote 250 times the digits 0,...,9. The digits were written inside a rectangular box with a resolution of 500 x 500 pixels and the first 10 per writer were ignored for further analysis. This led to 10992 digits. They were recorded in small time intervals by following the trajectory of the pen on the 500 x 500 grid and then normalized. From the normalized trajectory 8 points (x and y axis position) were randomly selected for each handwritten digit, leading to 16 predictors variables. We extarcted a random sample of 500 of them. 
+#'
+#' The variables are
+#' \itemize{
+#' \item The rownames of Pendigits500 refer to the data point of the 10992 original data
+#' \item V1-V16: trajectory points (x, y coordinate) of the grid
+#' \item digits: The digit actually written (the label)
+#' }
+#' 
+#' @format A data frame with 500 rows and 17 variables
+#' @source From A. Izenman (2010) Modern multivariate statistical techniques. Springer. \url{http://astro.temple.edu/~alan/pendigits.txt}
+#' @name Pendigits500
+NULL
