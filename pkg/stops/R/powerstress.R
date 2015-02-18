@@ -226,6 +226,13 @@ secularEq<-function(a,b) {
 #' 
 #'@param x an object of class cops
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot", "Shepard", "stressplot","NLShepard" (see details)
+#'@param plot.dim  dimesnions to be ploted in confplot; defaults to c(1, 2)
+#'@param main plot title
+#'@param xlab label of x axis
+#'@param ylab label of y axis
+#'@param xlim scale of x axis
+#'@param ylim scale of y axis
+#'@param col vector of colors for the points  
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:
@@ -239,7 +246,7 @@ secularEq<-function(a,b) {
 #' - Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #' 
 #'@export 
-plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), sphere = TRUE, bubscale = 3, col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, ...) 
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), main, xlab, ylab, xlim, ylim, col, ...) 
 {
     if (plot.type %in% c("Shepard","resplot")) {
         if (missing(main)) 
@@ -264,7 +271,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), sphere 
          }
          abline(lm(x$confdiss~x$delta))
     } else if (plot.type == "NLShepard") {
-             col=c("grey40","grey70")
+             if(missing(col)) col <- c("grey40","grey70")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
@@ -290,8 +297,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), sphere 
             lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
             legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
           } else {
-                  smacof:::plot.smacof(x,plot.type=plot.type, plot.dim = c(1, 2), sphere = TRUE, bubscale = 3, col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
-              }
+                smacof:::plot.smacof(x,plot.type=plot.type, plot.dim = plot.dim, col = col, main, xlab, ylab, xlim, ylim,...)
+    }
 }
 
 
