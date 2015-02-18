@@ -12,6 +12,8 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      out <- stats::cmdscale(d,k=k,eig=eig,...)
      colnames(out$points) <- paste("D",1:k,sep="")
      out$call <- match.call()
+     out$delta <- as.dist(d)
+     out$confdiss <- dist(out$points)
      class(out) <- "cmdscale"
      out
  }
@@ -31,6 +33,8 @@ sammon <- function(d,y=NULL,k=2,...)
      out <- MASS::sammon(d,y=as.matrix(y),k=k,...)
      colnames(out$points) <- paste("D",1:k,sep="") 
      out$call <- match.call()
+     out$delta <- as.dist(d)
+     out$confdiss <- dist(out$points)
      class(out) <- c("sammon","cmdscale")
      out
  }
@@ -77,7 +81,7 @@ summary.sammon <- function(object,...)
     }
 
 #'@export
-plot.cmdscale <- function(x, plot.type = "confplot", plot.dim = c(1, 2), col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, ...)
+plot.cmdscale <- function(x, plot.type = c("confplot","resplot","Shepard","NLShepard"), plot.dim = c(1, 2), col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
     {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -108,14 +112,56 @@ plot.cmdscale <- function(x, plot.type = "confplot", plot.dim = c(1, 2), col = 1
                 cex = label.conf$cex, pos = label.conf$cex, col = label.conf$col)
         }
     }
-    if (plot.type == "Shepard") {
-        plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
-        replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
+    if (plot.type %in% c("Shepard","resplot")) {
+        if (missing(main)) 
+            main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- "Transformed Dissimilarities"
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- "Transformed Configuration Distances"
+        else ylab <- ylab
+        if (missing(xlim)) 
+            xlim <- range(as.vector(x$delta))
+        if (missing(ylim)) 
+            ylim <- range(as.vector(x$confdiss))
+        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
+            type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
+            col = "grey60", xlim = xlim, ylim = ylim, ...)
+        if(plot.type=="Shepard") {
+             pt <- predict(loess(x$confdiss~x$delta))
+             lines(x$delta[order(x$delta)],pt[order(x$delta)],col="grey60",type="b",pch=20,cex=0.5)
+         }
+     abline(lm(x$confdiss~x$delta))
     }
-    if (plot.type == "resplot") {
-        plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
-        replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
-    }
+    if (plot.type == "NLShepard") {
+             col=c("grey40","grey70")
+             if(is.null(x$lambda)) x$lambda <- 1
+             deltao <- as.vector(x$delta^(1/x$lambda))
+             deltat <- as.vector(x$delta)
+             dreal <- as.vector(x$confdiss)
+             if (missing(main)) 
+                main <- paste("Nonlinear Shepard Diagram")
+             else main <- main
+             if (missing(xlab)) 
+                xlab <- "Dissimilarities"
+             else xlab <- xlab
+             if (missing(ylab)) 
+                ylab <- "Configuration Distances"
+             else ylab <- ylab
+             if (missing(xlim)) 
+                xlim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(ylim)) 
+                ylim <- range(as.vector(dreal))
+            plot(deltat, dreal, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+            points(deltao, dreal, type = "p", pch = 20, cex = 0.75, col = col[2])
+            pt <- predict(stats::loess(dreal~deltat))
+            po <- predict(stats::loess(dreal~deltao))
+            lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
+            lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+            legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
+         }
     if (plot.type == "stressplot") {
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
@@ -124,6 +170,7 @@ plot.cmdscale <- function(x, plot.type = "confplot", plot.dim = c(1, 2), col = 1
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
     }
+    invisible()
 }
 
 #' 3D plots: plot3d method for class cmdscale

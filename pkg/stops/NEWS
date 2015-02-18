@@ -1,3 +1,7 @@
+Version 0.0-9
+
+- Added linearized (Shepard) and nonlinear shepard plots (NLShepard) for cops, smacofP, and cmdscale objects; made a new plot method for smacofP objects which is the class that powerStressMin returns;    
+
 Version 0.0-8
 
 - New author contributions in DESCRIPTION, added a plot method for cops objects

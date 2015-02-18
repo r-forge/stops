@@ -218,7 +218,7 @@ cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stre
   fit$stress.m <- fit$stress/sum(dis^(2*lambda))
   fit$conf <- fit$points
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
-  list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
 
 #' COPS versions of Sammon mapping models (via smacofSym)
@@ -785,7 +785,8 @@ summary.cops <- function(object,...)
 #'S3 plot method for cops objects
 #' 
 #'@param x an object of class cops
-#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot", "Shepard", "stressplot" (see details)
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","NLShepard", "Shepard", "stressplot" (see details)
+#'@param main the main title of the plot
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:
@@ -793,17 +794,25 @@ summary.cops <- function(object,...)
 #' - Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
 #' - Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
 #' - Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#' - Shepard diagram (plot.type = "Shepard"): Diagram with the observed dissimilarities against the fitted distances including (isotonic) regression line.
+#' - Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
+#' - Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
 #' - Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #' - Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #' 
 #'@export 
-plot.cops <- function(x,plot.type=c("confplot","reachplot","Shepard","resplot","stressplot","bubbleplot"),...)
+plot.cops <- function(x,plot.type=c("confplot","reachplot","NLShepard","Shepard","resplot","bubbleplot","stressplot"), main,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
-         plot(x$OC,...)
-     } else {
-         plot(x$fit,plot.type=plot.type,...)
+        if(missing(main)) main <- paste("Reachability plot")
+        else main <- main
+        plot(x$OC,main=main,...)
+     } else if(inherits(x$fit,"smacofB") && plot.type=="NLShepard" ){
+         x$fit$pars <- c(1,x$fit$lambda)
+         x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
+         plot.smacofP(x$fit,plot.type="NLShepard",...)
      }
-}
+     else {      
+       plot(x$fit,plot.type=plot.type,...)
+   }
+ }

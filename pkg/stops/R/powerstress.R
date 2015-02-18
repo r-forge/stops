@@ -13,7 +13,7 @@
 #' @param stresstype the stress type to be reported by default; defaults to stress-1 for smacof compatibility
 #' @param lambdamax the maximum power of the transformation of the proximities if there are more than one lambda - an upper bound idea; defaults to lambda
 #' 
-#' @return a smacofB object (see \code{\link{smacofSym}}). It is a list with the components
+#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed dissimilarities, normalized
@@ -129,8 +129,9 @@ powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightma
      stresscor <- cor(as.vector(weightmat*dout),as.vector(weightmat*deltaold)) #correlation of fitted and observed; is this good?
      stresscore <- cor(as.vector(weightmat*dout),as.vector(weightmat*delta)) #correlation of fitted and observed
      if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; bstress:",stressb,"; estress:",stresse,"; estress1:",stresse1,"; bestress:",stressbe,"stresscor:",stresscor,"stresscore:",stresscore,"\n")
+     
      out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr, stress.n=stressn, stress.1=stress1, stress.b=stressb, stress.e=stresse,stress.e1=stresse1,stress.be=stressbe,stress.co=stresscor, deltaorig=as.dist(deltaorig),resmat=resmat)
-    class(out) <- c("smacofB","smacof")
+    class(out) <- c("smacofP","smacofB","smacof")
     out
  }
 #' Torgerson scaling
@@ -220,3 +221,77 @@ secularEq<-function(a,b) {
     cve<-beta/(eva+rot)
     return(drop(eve%*%cve))
 }    
+
+#'S3 plot method for smacofP objects
+#' 
+#'@param x an object of class cops
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot", "Shepard", "stressplot","NLShepard" (see details)
+#'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
+#' 
+#'Details:
+#' 
+#' - Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+#' - Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
+#' - Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+#' - Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
+#' - Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
+#' - Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+#' - Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+#' 
+#'@export 
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), sphere = TRUE, bubscale = 3, col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, ...) 
+{
+    if (plot.type %in% c("Shepard","resplot")) {
+        if (missing(main)) 
+            main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- "Transformed Dissimilarities"
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- "Transformed Configuration Distances"
+        else ylab <- ylab
+        if (missing(xlim)) 
+            xlim <- range(as.vector(x$delta))
+        if (missing(ylim)) 
+            ylim <- range(as.vector(x$confdiss))
+        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
+            type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
+            col = "grey60", xlim = xlim, ylim = ylim, ...)
+        if(plot.type=="Shepard") {
+             pt <- predict(loess(x$confdiss~x$delta))
+             lines(x$delta[order(x$delta)],pt[order(x$delta)],col="grey60",type="b",pch=20,cex=0.5)
+         }
+         abline(lm(x$confdiss~x$delta))
+    } else if (plot.type == "NLShepard") {
+             col=c("grey40","grey70")
+             kappa <- x$pars[1]
+             deltao <- as.vector(x$deltaorig)
+             deltat <- as.vector(x$delta)
+             dreal <- as.vector(x$confdiss)^(1/kappa)
+             if (missing(main)) 
+                main <- paste("Nonlinear Shepard Diagram")
+             else main <- main
+             if (missing(xlab)) 
+                xlab <- "Dissimilarities"
+             else xlab <- xlab
+             if (missing(ylab)) 
+                ylab <- "Untransformed Configuration Distances"
+             else ylab <- ylab
+             if (missing(xlim)) 
+                xlim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(ylim)) 
+                ylim <- range(as.vector(dreal))
+            plot(deltat, dreal, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+            points(deltao, dreal, type = "p", pch = 20, cex = 0.75, col = col[2])
+            pt <- predict(stats::loess(dreal~deltat))
+            po <- predict(stats::loess(dreal~deltao))
+            lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
+            lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+            legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
+          } else {
+                  smacof:::plot.smacof(x,plot.type=plot.type, plot.dim = c(1, 2), sphere = TRUE, bubscale = 3, col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
+              }
+}
+
+

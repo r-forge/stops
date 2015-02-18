@@ -32,7 +32,7 @@ powerStressMin(delta, kappa = 1, lambda = 1, lambdamax = lambda,
 \item{stresstype}{the stress type to be reported by default; defaults to stress-1 for smacof compatibility}
 }
 \value{
-a smacofB object (see \code{\link{smacofSym}}). It is a list with the components
+a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed dissimilarities, not normalized
 \item obsdiss: Observed dissimilarities, normalized
