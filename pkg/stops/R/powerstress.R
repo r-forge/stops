@@ -224,33 +224,67 @@ secularEq<-function(a,b) {
 
 #'S3 plot method for smacofP objects
 #' 
-#'@param x an object of class cops
-#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot", "Shepard", "stressplot","NLShepard" (see details)
-#'@param plot.dim  dimesnions to be ploted in confplot; defaults to c(1, 2)
+#'@param x an object of class smacofP 
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","NLShepard", "bubbleplot" (see details)
+#'@param plot.dim  dimensions to be plotted in confplot; defaults to c(1, 2)
 #'@param main plot title
 #'@param xlab label of x axis
 #'@param ylab label of y axis
 #'@param xlim scale of x axis
 #'@param ylim scale of y axis
-#'@param col vector of colors for the points  
+#'@param col vector of colors for the points
+#'@param bubscale Scaling factor (size) for the bubble plot
+#'@param label.conf List with arguments for plotting the labels of the configurations in a configuration plot (logical value whether to plot labels or not, label position, label color)
+#'@param identify If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click
+#'@param type What type of plot should be drawn (see also 'plot')
+#'@param pch  Plot symbol
+#'@param asp  Aspect ratio
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:
-#' 
-#' - Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#' - Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
-#' - Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#' - Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-#' - Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
-#' - Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-#' - Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#' 
+#' \itemize{
+#' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+#'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
+#'  \item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess curve 
+#'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+#'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+#' }
 #'@export 
-plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), main, xlab, ylab, xlim, ylim, col, ...) 
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, ...)
 {
-    if (plot.type %in% c("Shepard","resplot")) {
+    x1 <- plot.dim[1]
+    y1 <- plot.dim[2]
+    if (type == "n") 
+        label.conf$pos <- NULL
+    if (plot.type == "confplot") {
+        if(missing(col)) col <- 1
         if (missing(main)) 
-            main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
+            main <- paste("Configuration Plot")
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- paste("Configurations D", x1, sep = "")
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- paste("Configurations D", y1, sep = "")
+        else ylab <- ylab
+        if (missing(xlim)) xlim <- range(x$conf[, x1])
+        if (missing(ylim)) ylim <- range(x$conf[, y1]) 
+        plot(x$conf[, x1], x$conf[, y1], main = main, type = type, 
+            xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
+            pch = pch, asp = asp, col = col, ...)
+        if (label.conf[[1]]) 
+            text(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
+                cex = label.conf$cex, pos = label.conf$pos, col = label.conf$col)
+        if (identify) {
+            identify(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
+                cex = label.conf$cex, pos = label.conf$cex, col = label.conf$col)
+        }
+    }
+    if (plot.type == "Shepard") {
+        if(missing(col)) col <- "grey60"
+        if (missing(main)) 
+            main <- paste("Linearized Shepard Diagram")
         else main <- main
         if (missing(xlab)) 
             xlab <- "Transformed Dissimilarities"
@@ -260,45 +294,106 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), main, x
         else ylab <- ylab
         if (missing(xlim)) 
             xlim <- range(as.vector(x$delta))
-        if (missing(ylim)) 
+        if (missing(ylim))
             ylim <- range(as.vector(x$confdiss))
-        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
-            type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
-            col = "grey60", xlim = xlim, ylim = ylim, ...)
-        if(plot.type=="Shepard") {
-             pt <- predict(loess(x$confdiss~x$delta))
-             lines(x$delta[order(x$delta)],pt[order(x$delta)],col="grey60",type="b",pch=20,cex=0.5)
-         }
-         abline(lm(x$confdiss~x$delta))
-    } else if (plot.type == "NLShepard") {
+        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col, xlim = xlim, ylim = ylim, ...)
+        pt <- predict(loess(x$confdiss~x$delta))
+        lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col,type="b",pch=20,cex=0.5)
+        abline(lm(x$confdiss~x$delta))
+    }
+    if (plot.type == "NLShepard") {
              if(missing(col)) col <- c("grey40","grey70")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
              dreal <- as.vector(x$confdiss)^(1/kappa)
-             if (missing(main)) 
-                main <- paste("Nonlinear Shepard Diagram")
+             if (missing(main)) main <- paste("Nonlinear Shepard Diagram")
              else main <- main
-             if (missing(xlab)) 
-                xlab <- "Dissimilarities"
-             else xlab <- xlab
-             if (missing(ylab)) 
-                ylab <- "Untransformed Configuration Distances"
+             if (missing(ylab)) ylab <- "Dissimilarities"
+             else xlab <- ylab
+             if (missing(xlab))  xlab <- "Untransformed Configuration Distances"
              else ylab <- ylab
-             if (missing(xlim)) 
-                xlim <- c(min(deltat,deltao),max(deltat,deltao))
-             if (missing(ylim)) 
-                ylim <- range(as.vector(dreal))
-            plot(deltat, dreal, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-            points(deltao, dreal, type = "p", pch = 20, cex = 0.75, col = col[2])
-            pt <- predict(stats::loess(dreal~deltat))
-            po <- predict(stats::loess(dreal~deltao))
-            lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
-            lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+             if (missing(ylim))  ylim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(xlim))  xlim <- range(as.vector(dreal))
+            plot(dreal, deltat, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+            points(dreal, deltao, type = "p", pch = 20, cex = 0.75, col = col[2])
+            pt <- predict(stats::loess(deltat~dreal))
+            po <- predict(stats::loess(deltao~dreal))
+            #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
+            #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],pt[order(dreal)],col=col[1],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],po[order(dreal)],col=col[2],type="b",pch=20,cex=0.5) 
             legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
-          } else {
-                smacof:::plot.smacof(x,plot.type=plot.type, plot.dim = plot.dim, col = col, main, xlab, ylab, xlim, ylim,...)
+         }
+     if (plot.type == "resplot") {
+        if(missing(col)) col <- "darkgrey" 
+        if (missing(main)) 
+            main <- paste("Residual plot")
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- "Normalized Dissimilarities (d-hats)"
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- "Configuration Distances"
+        else ylab <- ylab
+        if (missing(xlim)) 
+            xlim <- range(as.vector(x$obsdiss))
+        if (missing(ylim)) 
+            ylim <- range(as.vector(x$confdiss))
+        plot(as.vector(x$obsdiss), as.vector(x$confdiss), main = main, 
+            type = "p", col = col, xlab = xlab, ylab = ylab, 
+            xlim = xlim, ylim = ylim, ...)
+        abline(lm(x$confdiss~x$obsdiss),col=col)
     }
-}
+    if (plot.type == "stressplot") {
+        if(missing(col)) col <- "lightgray"
+        if (missing(main)) 
+            main <- paste("Stress Decomposition Chart")
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- "Objects"
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- "Stress Proportion (%)"
+        else ylab <- ylab
+        spp.perc <- sort((x$spp/sum(x$spp) * 100), decreasing = TRUE)
+        xaxlab <- names(spp.perc)
+        if (missing(xlim)) 
+            xlim1 <- c(1, length(spp.perc))
+        else xlim1 <- xlim
+        if (missing(ylim)) 
+            ylim1 <- range(spp.perc)
+        else ylim1 <- ylim
+        plot(1:length(spp.perc), spp.perc, xaxt = "n", type = "p", 
+            xlab = xlab, ylab = ylab, main = main, xlim = xlim1, 
+            ylim = ylim1, ...)
+        text(1:length(spp.perc), spp.perc, labels = xaxlab, pos = 3, cex = 0.8)
+        for (i in 1:length(spp.perc)) lines(c(i, i), c(spp.perc[i],0), col=col, lty = 2)
+    }
+    if (plot.type == "bubbleplot") {
+        if(missing(col)) col <- 1
+        if (missing(main)) 
+            main <- paste("Bubble Plot")
+        else main <- main
+        if (missing(xlab)) 
+            xlab <- paste("Configurations D", x1, sep = "")
+        else xlab <- xlab
+        if (missing(ylab)) 
+            ylab <- paste("Configurations D", y1, sep = "")
+        else ylab <- ylab
+        if (missing(xlim)) 
+            xlim <- range(x$conf[, x1]) * 1.1
+        if (missing(ylim)) 
+            ylim <- range(x$conf[, y1]) * 1.1
+        spp.perc <- x$spp/sum(x$spp) * 100
+        bubsize <- (max(spp.perc) - spp.perc + 1)/length(spp.perc) * bubscale
+        plot(x$conf, cex = bubsize, main = main, xlab = xlab, 
+            ylab = ylab, xlim = xlim, ylim = ylim, ...)
+        xylabels <- x$conf
+        ysigns <- sign(x$conf[, y1])
+        xylabels[, 2] <- (abs(x$conf[, y1]) - (x$conf[, y1] * (bubsize/50))) * ysigns
+        text(xylabels, rownames(x$conf), pos = 1, cex = 0.7)
+    }
+ }
 
 

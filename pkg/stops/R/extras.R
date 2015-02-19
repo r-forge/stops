@@ -81,7 +81,7 @@ summary.sammon <- function(object,...)
     }
 
 #'@export
-plot.cmdscale <- function(x, plot.type = c("confplot","resplot","Shepard","NLShepard"), plot.dim = c(1, 2), col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
+plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
     {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -144,22 +144,24 @@ plot.cmdscale <- function(x, plot.type = c("confplot","resplot","Shepard","NLShe
              if (missing(main)) 
                 main <- paste("Nonlinear Shepard Diagram")
              else main <- main
-             if (missing(xlab)) 
-                xlab <- "Dissimilarities"
-             else xlab <- xlab
              if (missing(ylab)) 
-                ylab <- "Configuration Distances"
+                ylab <- "Dissimilarities"
              else ylab <- ylab
-             if (missing(xlim)) 
-                xlim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(xlab)) 
+                xlab <- "Configuration Distances"
+             else xlab <- xlab
              if (missing(ylim)) 
-                ylim <- range(as.vector(dreal))
-            plot(deltat, dreal, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-            points(deltao, dreal, type = "p", pch = 20, cex = 0.75, col = col[2])
-            pt <- predict(stats::loess(dreal~deltat))
-            po <- predict(stats::loess(dreal~deltao))
-            lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
-            lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+                ylim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(xlim)) 
+                xlim <- range(as.vector(dreal))
+            plot(dreal, deltat, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+            points(dreal, deltao, type = "p", pch = 20, cex = 0.75, col = col[2])
+            pt <- predict(stats::loess(deltat~dreal))
+            po <- predict(stats::loess(deltao~dreal))
+            #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
+            #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],pt[order(dreal)],col=col[1],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],po[order(dreal)],col=col[2],type="b",pch=20,cex=0.5) 
             legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
          }
     if (plot.type == "stressplot") {
@@ -170,7 +172,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot","resplot","Shepard","NLShe
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
     }
-    invisible()
+    invisible() #not sure why I need this here but without this it returns a list of NULLS
 }
 
 #' 3D plots: plot3d method for class cmdscale

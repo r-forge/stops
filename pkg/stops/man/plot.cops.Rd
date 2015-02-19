@@ -4,8 +4,7 @@
 \alias{plot.cops}
 \title{S3 plot method for cops objects}
 \usage{
-\method{plot}{cops}(x, plot.type = c("confplot", "reachplot", "NLShepard",
-  "Shepard", "resplot", "bubbleplot", "stressplot"), main, ...)
+\method{plot}{cops}(x, plot.type = c("confplot"), main, ...)
 }
 \arguments{
 \item{x}{an object of class cops}
@@ -17,14 +16,15 @@
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 
 Details:
-
-- Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-- Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera
-- Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-- Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-- Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines
-- Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-- Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.}
+\itemize{
+\item Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+\item  Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera
+\item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+\item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
+\item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines
+\item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+\item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+}}
 }
 \description{
 S3 plot method for cops objects

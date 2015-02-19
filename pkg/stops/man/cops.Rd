@@ -8,9 +8,9 @@ cops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
   "rstress", "powerstress", "sstress", "elastic", "powersammon",
   "powerelastic"), weightmat = 1 - diag(nrow(dis)), ndim = 2, init = NULL,
   theta = c(1, 1), stressweight = 1, cordweight, q = 1, minpts = 2,
-  epsilon = 10, rang, optimmethod = c("ALJ", "pso", "SANN"),
-  lower = c(0.75, 0.75), upper = c(5, 5), verbose = 0, plot = FALSE,
-  scale = TRUE, normed = TRUE, s = 4, ...)
+  epsilon = 10, rang, optimmethod = c("ALJ", "pso", "SANN"), lower = c(1,
+  1), upper = c(5, 5), verbose = 0, plot = FALSE, scale = TRUE,
+  normed = TRUE, s = 4, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

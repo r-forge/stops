@@ -671,7 +671,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'}
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powerstress","sstress","elastic","powersammon","powerelastic"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(0.75,0.75),upper=c(5,5),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
+cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powerstress","sstress","elastic","powersammon","powerelastic"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1),upper=c(5,5),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
     {
       if(missing(loss)) loss <- "strain"
       .confin <- init #initialize a configuration
@@ -790,17 +790,17 @@ summary.cops <- function(object,...)
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:
-#' 
-#' - Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#' - Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
-#' - Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#' - Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-#' - Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
-#' - Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-#' - Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#' 
+#' \itemize{
+#' \item Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+#' \item  Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
+#' \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+#' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
+#' \item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
+#' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+#' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+#'} 
 #'@export 
-plot.cops <- function(x,plot.type=c("confplot","reachplot","NLShepard","Shepard","resplot","bubbleplot","stressplot"), main,...)
+plot.cops <- function(x,plot.type=c("confplot"), main,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
@@ -808,11 +808,12 @@ plot.cops <- function(x,plot.type=c("confplot","reachplot","NLShepard","Shepard"
         else main <- main
         plot(x$OC,main=main,...)
      } else if(inherits(x$fit,"smacofB") && plot.type=="NLShepard" ){
+         if(missing(main)) main <- paste("Nonlinear Shepard Diagram")
          x$fit$pars <- c(1,x$fit$lambda)
          x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
          plot.smacofP(x$fit,plot.type="NLShepard",...)
      }
      else {      
-       plot(x$fit,plot.type=plot.type,...)
+       plot(x$fit,plot.type=plot.type,main=main,...)
    }
  }

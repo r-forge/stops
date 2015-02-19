@@ -4,15 +4,31 @@
 \alias{plot.smacofP}
 \title{S3 plot method for smacofP objects}
 \usage{
-\method{plot}{smacofP}(x, plot.type = "confplot", plot.dim = c(1, 2), main,
-  xlab, ylab, xlim, ylim, col, ...)
+\method{plot}{smacofP}(x, plot.type = "confplot", plot.dim = c(1, 2),
+  bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex =
+  0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab,
+  ylab, xlim, ylim, ...)
 }
 \arguments{
-\item{x}{an object of class cops}
+\item{x}{an object of class smacofP}
 
-\item{plot.type}{String indicating which type of plot to be produced: "confplot", "reachplot", "resplot", "Shepard", "stressplot","NLShepard" (see details)}
+\item{plot.type}{String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","NLShepard", "bubbleplot" (see details)}
 
-\item{plot.dim}{dimesnions to be ploted in confplot; defaults to c(1, 2)}
+\item{plot.dim}{dimensions to be plotted in confplot; defaults to c(1, 2)}
+
+\item{bubscale}{Scaling factor (size) for the bubble plot}
+
+\item{col}{vector of colors for the points}
+
+\item{label.conf}{List with arguments for plotting the labels of the configurations in a configuration plot (logical value whether to plot labels or not, label position, label color)}
+
+\item{identify}{If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click}
+
+\item{type}{What type of plot should be drawn (see also 'plot')}
+
+\item{pch}{Plot symbol}
+
+\item{asp}{Aspect ratio}
 
 \item{main}{plot title}
 
@@ -24,19 +40,17 @@
 
 \item{ylim}{scale of y axis}
 
-\item{col}{vector of colors for the points}
-
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 
 Details:
-
-- Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-- Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera
-- Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-- Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-- Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines
-- Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-- Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.}
+\itemize{
+\item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+ \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+ \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
+ \item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess curve
+ \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+ \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+}}
 }
 \description{
 S3 plot method for smacofP objects
