@@ -302,7 +302,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         abline(lm(x$confdiss~x$delta))
     }
     if (plot.type == "NLShepard") {
-             if(missing(col)) col <- c("grey40","grey70","grey30","grey60"))
+             if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
