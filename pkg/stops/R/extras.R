@@ -113,6 +113,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col 
         }
     }
     if (plot.type %in% c("Shepard","resplot")) {
+        if(missing(col)) col <- c("grey60","grey650") 
         if (missing(main)) 
             main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
         else main <- main
@@ -128,15 +129,15 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col 
             ylim <- range(as.vector(x$confdiss))
         plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
             type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
-            col = "grey60", xlim = xlim, ylim = ylim, ...)
+            col = col[1], xlim = xlim, ylim = ylim, ...)
         if(plot.type=="Shepard") {
              pt <- predict(loess(x$confdiss~x$delta))
-             lines(x$delta[order(x$delta)],pt[order(x$delta)],col="grey60",type="b",pch=20,cex=0.5)
+             lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
          }
      abline(lm(x$confdiss~x$delta))
     }
     if (plot.type == "NLShepard") {
-             col=c("grey40","grey70")
+             col=c("grey40","grey70","grey30","grey60")
              if(is.null(x$lambda)) x$lambda <- 1
              deltao <- as.vector(x$delta^(1/x$lambda))
              deltat <- as.vector(x$delta)
@@ -160,9 +161,9 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col 
             po <- predict(stats::loess(deltao~dreal))
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],pt[order(dreal)],col=col[1],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],po[order(dreal)],col=col[2],type="b",pch=20,cex=0.5) 
-            legend("topleft",legend=c("Transformed","Untransformed"),col=col,lty=1)
+            lines(dreal[order(dreal)],pt[order(dreal)],col=col[3],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=20,cex=0.5) 
+            legend("topleft",legend=c("Transformed","Untransformed"),col=col[3:4],lty=1)
          }
     if (plot.type == "stressplot") {
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
