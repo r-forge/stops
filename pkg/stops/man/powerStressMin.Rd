@@ -35,9 +35,9 @@ powerStressMin(delta, kappa = 1, lambda = 1, lambdamax = lambda,
 a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed dissimilarities, not normalized
-\item obsdiss: Observed dissimilarities, normalized
+\item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
 \item confdiss: Configuration dissimilarities
-\item conf: Matrix of fitted configurations
+\item conf: Matrix of fitted configuration
 \item stress: Default stresstype
 \item spp: Stress per point
 \item ndim: Number of dimensions
@@ -62,11 +62,11 @@ and some additional components
 }
 }
 \description{
-A rudimentary implemenation to minimize power stress
+An implemenation to minimize power stress
 }
 \examples{
 library(smacof)
-data(kinshipdata)
+data(kinshipdelta)
 res<-powerStressMin(as.matrix(kinshipdelta),kappa=2,lambda=1.5)
 res
 summary(res)

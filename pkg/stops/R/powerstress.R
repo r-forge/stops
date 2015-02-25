@@ -1,6 +1,6 @@
 #' Power stress
 #'
-#' A rudimentary implemenation to minimize power stress
+#' An implemenation to minimize power stress
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
 #' @param lambda the power of the transformation of the proximities; defaults to 1
@@ -16,9 +16,9 @@
 #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
-#' \item obsdiss: Observed dissimilarities, normalized
+#' \item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
 #' \item confdiss: Configuration dissimilarities
-#' \item conf: Matrix of fitted configurations
+#' \item conf: Matrix of fitted configuration
 #' \item stress: Default stresstype 
 #' \item spp: Stress per point
 #' \item ndim: Number of dimensions
@@ -46,7 +46,7 @@
 #' 
 #' @examples
 #' library(smacof)
-#' data(kinshipdata)
+#' data(kinshipdelta)
 #' res<-powerStressMin(as.matrix(kinshipdelta),kappa=2,lambda=1.5)
 #' res
 #' summary(res)
@@ -397,3 +397,25 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
  }
 
 
+#'@export
+summary.smacofP <- function(object,...)
+    {
+      spp.perc <- object$spp/sum(object$spp) * 100
+      sppmat <- cbind(sort(object$spp), sort(spp.perc))
+      colnames(sppmat) <- c("SPP", "SPP(%)") 
+      res <- list(conf=object$conf,sppmat=sppmat)
+      class(res) <- "summary.smacofP"
+      res
+    }
+
+#'@export
+print.summary.smacofP <- function(x,...)
+    {
+    cat("\n")
+    cat("Configurations:\n")
+    print(round(x$conf, 4))
+    cat("\n\n")
+    cat("Stress per point:\n")
+    print(round(x$sppmat, 4))
+    cat("\n")
+    }

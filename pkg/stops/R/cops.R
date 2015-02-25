@@ -764,23 +764,38 @@ coef.cops <- function(object,...)
     return(c(kappa=object$par[1],lambda=object$par[2]))
     }
 
-#'@export
-summary.cops <- function(object,...)
-    {
-    cat("\n")
-    cat("Configurations:\n")
-    print(round(object$fit$conf, 4))
-    cat("\n\n")
-    if(!is.null(object$fit$spp))
-     {   
-      cat("Stress per point:\n")
-      spp.perc <- object$fit$spp/sum(object$spp) * 100
-      sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
-      colnames(sppmat) <- c("SPP", "SPP(%)")
-      print(round(sppmat, 4))
-      cat("\n")
-     }
-    }
+
+#summary.cops <- function(object,...)
+#    {
+#      sppmat <- NULL
+#      if(!is.null(object$fit$spp))
+#      { 
+#           spp.perc <- object$fit$spp/sum(object$spp) * 100
+#           sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
+#           colnames(sppmat) <- c("SPP", "SPP(%)")
+#      } 
+#      list(conf=object$fit$conf,sppmat=sppmat)
+#    }
+
+
+#print.summary.cops <- function(x,...)
+#    {
+#    cat("\n")
+#    cat("Configurations:\n")
+#    print(round(object$fit$conf, 4))
+#    cat("\n\n")
+#    if(!is.null(object$fit$spp))
+#     {   
+#      cat("Stress per point:\n")
+#      spp.perc <- object$fit$spp/sum(object$spp) * 100
+#      sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
+#      colnames(sppmat) <- c("SPP", "SPP(%)")
+#      print(round(sppmat, 4))
+#      cat("\n")
+#     }
+#    }
+
+
 
 #'S3 plot method for cops objects
 #' 

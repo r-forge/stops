@@ -1,3 +1,7 @@
+Version 0.0-10
+
+- Added S3 object orientation to summary functions and bmade summary.stops and summary.smacofP and the according print functions
+
 Version 0.0-9
 
 - Added linearized (Shepard) and nonlinear shepard plots (NLShepard) for cops, smacofP, and cmdscale objects; made a new plot method for smacofP objects which is the class that powerStressMin returns;    

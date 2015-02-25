@@ -25,8 +25,8 @@ stops <- function(dis,structure="clusteredness",...)
              return(out)
          } else
              {
-                 cat(" Only c-clusteredness STOPS models (COPS) have yet been implemented \n")
-             return(NULL)   
+              cat(" Only c-clusteredness STOPS models (COPS) have yet been implemented \n")
+              return(NULL)   
              }
  }
 
@@ -84,8 +84,37 @@ coef.stops <- function(object,...)
      coef(object,...)
     }
 
+#summary.stops <- function(object,...)
+#    {
+#    summary(object,...)
+#    }
+
 #'@export
 summary.stops <- function(object,...)
     {
-    summary(object,...)
+      sppmat <- NULL
+      if(!is.null(object$fit$spp))
+      { 
+           spp.perc <- object$fit$spp/sum(object$spp) * 100
+           sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
+           colnames(sppmat) <- c("SPP", "SPP(%)")
+      } 
+      res <- list(conf=object$fit$conf,sppmat=sppmat)
+      class(res) <- "summary.stops"
+      res
+    }
+
+#'@export
+print.summary.stops <- function(x,...)
+    {
+    cat("\n")
+    cat("Configurations:\n")
+    print(round(x$conf, 4))
+    cat("\n\n")
+    if(!is.null(x$sppmat))
+     {   
+      cat("Stress per point:\n")
+      print(round(x$sppmat, 4))
+      cat("\n")
+     }
     }
