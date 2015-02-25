@@ -43,27 +43,27 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> This is the (preliminary) homepage of the Structure Optimized Proximity Scaling (STOPS) project. </p>
-<p> On this page you can find links to papers, talks, data and software related to STOPS. </p>
+<p> This is the (preliminary) homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. We will also add a tutorial.</p>
 
-<head>Papers:</head>
-<p><a href="http://epub.wu.ac.at/4465/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> 
+<h3>Papers:</h3>
+<p><a href="http://epub.wu.ac.at/4465/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
 
-<head>Talks:</head>
-<p>
-<a href="http://epub.wu.ac.at/4465/">Psychoco 2015, 12.02.2015-13.02.2015, Amsterdam, The Netherlands</a> 
-<a href="http://epub.wu.ac.at/4465/">CFE-ERCIM 2014, 06.12.2014-09.12.2014, Pisa, Italy</a> 
-</p>
+<h3>Talks:</h3>
+<table>
+<tr><th>Talk<\th><th>Date<\th><th>Place<\th></tr> 
+<tr><td><a href="http://epub.wu.ac.at/4465/">Psychoco 2015</a></td><td>12.02.2015-13.02.2015</td><td> Amsterdam, The Netherlands</td><\tr> 
+<tr><td><a href="http://epub.wu.ac.at/4465/">CFE-ERCIM 2014</a></td><td>06.12.2014-09.12.2014</td><td>Pisa, Italy</td><\tr> 
+<table>
 
-<head>People:</head>
-<p>
-<a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a> 
-<a href="http://scholar.harvard.edu/mair/home">Patrick Mair</a> 
-<a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a> 
-<a href="http://gifi.stat.ucla.edu/">Jan de Leeuw</a> 
-</p>
-
-<head>Software:</head>
+<h3>Software:</h3>
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+
+<h3>People:</h3>
+<dl>
+<li><a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a></li> 
+<li><a href="http://scholar.harvard.edu/mair/home">Patrick Mair</a></li>
+<li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a></li> 
+<li><a href="http://gifi.stat.ucla.edu/">Jan de Leeuw</a></li>
+</dl>
 </body>
 </html>
