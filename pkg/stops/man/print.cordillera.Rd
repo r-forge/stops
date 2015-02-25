@@ -11,9 +11,6 @@
 
 \item{...}{additional arguments passed to print}
 }
-\value{
-a numeric vector data with raw and normalized cordillera (invisible)
-}
 \description{
 Prints the raw and normalized cordillera
 }

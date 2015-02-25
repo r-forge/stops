@@ -6,7 +6,7 @@
 #' @param q  the norm of the cordillera. Defaults to 1.
 #' @param minpts the minpts argument to elki. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
-#' @param rang  A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness of structure" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.
+#' @param rang  A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.
 #' @param ylim The borders for the cordillera plot
 #' @param plot plot the reachability and the raw cordillera
 #' @param digits round the raw corrdilrra and the norm factor to these digits. Defaults to 10.
@@ -81,38 +81,36 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=getwd
        class(out) <- "cordillera"
        out
     }
+
 #' Print method for OPTICs cordilleras 
 #'
 #' Prints the raw and normalized cordillera
 #' 
 #' @param x an object of class optics
 #' @param ... additional arguments passed to print
-#'
-#' @return a numeric vector data with raw and normalized cordillera (invisible)
 #' 
 #' @export
 print.cordillera <- function(x,...)
     {
       out <- c(raw=x$raw,normed=x$normed)
       print(out)
-      invisible(out)
     }
 
-#' Summary method for OPTICS cordilleras 
-#'
-#' Displays a summary of the cordillera (OC), including information on OPTICS, the Raw OC, the normalisation factor and  the normalized cordillera
-#'
-#' 
-#' @param object an object of class optics
-#' @param ... additional arguments passed to summary or stem
-#'
 #' @export
 summary.cordillera <- function(object,...)
     {
+      out <- list(raw=object$raw,normed=object$normed,normalization=object$norm,minpts=object$optics$minpts,epsilon=object$optics$eps)
+      class(out) <- "summary.cordillera"
+      out
+    }
+
+#' @export
+print.summary.cordillera <- function(x,...)
+    {
         cat("\n")
-        cat("  OPTICS cordillera values with minpts=",object$optics$minpts,"and epsilon=",object$optics$eps,"\n")
+        cat("  OPTICS cordillera values with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n")
         cat("\n")
-        cat("   Raw OC:",object$raw,"\n","  Normalization:",object$norm,"\n","  Normed OC:",object$normed,"\n")
+        cat("   Raw OC:",x$raw,"\n","  Normalization:",x$norm,"\n","  Normed OC:",x$normed,"\n")
         cat("\n")
     }
 

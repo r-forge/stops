@@ -4,19 +4,15 @@
 \alias{summary.optics}
 \title{Summary method for OPTICs results}
 \usage{
-\method{summary}{optics}(object, fiven = TRUE, stemd = TRUE, ...)
+\method{summary}{optics}(object, ...)
 }
 \arguments{
 \item{object}{an object of class optics}
 
-\item{fiven}{flags whether the 5-point summary should be printed. Defaults to TRUE.}
-
-\item{stemd}{flags whether the stem an leaf display should be printed. Defaults to TRUE.}
-
-\item{...}{additional arguments passed to summary or stem}
+\item{...}{additional arguments passed to summary.numeric}
 }
 \value{
-invisibly returns the reachabilities as a numeric vector
+an object of class summary.optics wit the reachabilities, the summary and minpts and epsilon parameters
 }
 \description{
 Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the altter, use plot().

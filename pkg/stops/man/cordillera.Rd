@@ -16,7 +16,7 @@ cordillera(confs, q = 1, minpts = 2, epsilon, rang = NULL, digits = 10,
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
-\item{rang}{A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness of structure" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.}
+\item{rang}{A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.}
 
 \item{digits}{round the raw corrdilrra and the norm factor to these digits. Defaults to 10.}
 

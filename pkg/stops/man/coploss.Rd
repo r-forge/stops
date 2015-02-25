@@ -23,7 +23,7 @@ coploss(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
-\item{rang}{range of the distances (min distance minus max distance)}
+\item{rang}{range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose (coploss level), >3 is extremely (up to MDS optimization level)}
 

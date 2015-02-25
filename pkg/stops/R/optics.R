@@ -62,35 +62,50 @@ print.optics <- function(x,...)
 #'
 #' Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the altter, use plot().
 #' @param object an object of class optics
-#' @param fiven flags whether the 5-point summary should be printed. Defaults to TRUE.
-#' @param stemd flags whether the stem an leaf display should be printed. Defaults to TRUE.
-#' @param ... additional arguments passed to summary or stem
+#' @param ... additional arguments passed to summary.numeric
 #'
-#' @return invisibly returns the reachabilities as a numeric vector
+#' @return an object of class summary.optics wit the reachabilities, the summary and minpts and epsilon parameters 
 #' 
 #' @export
-summary.optics <- function(object,fiven=TRUE,stemd=TRUE,...)
+summary.optics <- function(object,...)
     {
         res <- object[["clusterobjectorder"]] 
         reachind <- pmatch("reachability",res[1,]) #check where the reachabilty values are to be found 
         tmp <- sapply(strsplit(res[,reachind],split='=',fixed=TRUE), function(x) x[2]) #extract the numeric values
         tmp <- suppressWarnings(as.numeric(tmp))
+        minpts <- object$minpts
+        eps <- object$eps
+        summs <- summary(tmp,...)
+        out <- list(reachabilities=tmp,summ=summs,minpts=minpts,epsilon=eps)
+        class(out) <- "summary.optics"
+        out
+    }
+#' Print method for OPTICS summary 
+#' Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot()
+#' @param x an object of class summary.optics
+#' @param fiven should the 5 point summary be printed. Default is TRUE.
+#' @param stemd should the stema dn leaf plot be printed. Default is TRUE.
+#' @param ... additional arguments passed to \code{\link{stem}}
+#' 
+#'@export
+print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
+    {
         cat("\n")
-        cat(" An OPTICS results with minpts=",object$minpts,"and epsilon=",object$eps,"\n",fill=TRUE)
+        cat(" An OPTICS results with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n",fill=TRUE)
         if(fiven)
             {
              cat(" Five Point Summary of the Minimum Reachabilities:",fill=TRUE)
-             print(summary(tmp,...))
+             print(x$summ)
              cat("\n")
          }
         if(stemd)
             {
              cat(" Stem and Leaf Display of the Minimum Reachabilities:",fill=TRUE)
-             graphics::stem(tmp,...)
+             graphics::stem(x$tmp,...)
              cat("\n")
-         }
-        invisible(tmp)
+          }
     }
+
 #' Plot method for OPTICs results
 #'
 #' Displays the reachability plot. Points with undefined/infinite minimum reachabilities are colored lighter by default.

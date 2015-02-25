@@ -10,7 +10,7 @@
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -68,7 +68,7 @@ cop_smacofSym <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,s
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -129,7 +129,7 @@ cop_elastic <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -188,7 +188,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -233,7 +233,7 @@ cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stre
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -294,7 +294,7 @@ cop_sammon2 <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -340,7 +340,7 @@ cop_cmdscale <- function(dis,theta=c(1,1),weightmat=NULL,ndim=2,init=NULL,...,st
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -390,7 +390,7 @@ cop_rstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,n
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -441,7 +441,7 @@ cop_sstress <- function(dis,theta=c(2,1),weightmat=1-diag(nrow(dis)),init=NULL,n
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -489,7 +489,7 @@ cop_powerstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NU
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -540,7 +540,7 @@ cop_powersammon <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NU
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -587,7 +587,7 @@ cop_powerelastic <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=N
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness. 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose (coploss level), >3 is extremely (up to MDS optimization level)
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
@@ -640,7 +640,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1) 
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
 #' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"). We recommend not using the later with the rstress, sstress and the power stress models. 
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
@@ -691,6 +691,7 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
             if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
            #.confin <- initsol$fit$conf
            }
+      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
       if(missing(cordweight))
                {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
@@ -763,38 +764,6 @@ coef.cops <- function(object,...)
     {
     return(c(kappa=object$par[1],lambda=object$par[2]))
     }
-
-
-#summary.cops <- function(object,...)
-#    {
-#      sppmat <- NULL
-#      if(!is.null(object$fit$spp))
-#      { 
-#           spp.perc <- object$fit$spp/sum(object$spp) * 100
-#           sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
-#           colnames(sppmat) <- c("SPP", "SPP(%)")
-#      } 
-#      list(conf=object$fit$conf,sppmat=sppmat)
-#    }
-
-
-#print.summary.cops <- function(x,...)
-#    {
-#    cat("\n")
-#    cat("Configurations:\n")
-#    print(round(object$fit$conf, 4))
-#    cat("\n\n")
-#    if(!is.null(object$fit$spp))
-#     {   
-#      cat("Stress per point:\n")
-#      spp.perc <- object$fit$spp/sum(object$spp) * 100
-#      sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
-#      colnames(sppmat) <- c("SPP", "SPP(%)")
-#      print(round(sppmat, 4))
-#      cat("\n")
-#     }
-#    }
-
 
 
 #'S3 plot method for cops objects

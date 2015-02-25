@@ -33,7 +33,7 @@ cop_powerstress(dis, theta = c(1, 1), weightmat = 1 - diag(nrow(dis)),
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
-\item{rang}{range of the distances (min distance minus max distance)}
+\item{rang}{range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
