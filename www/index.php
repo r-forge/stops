@@ -50,10 +50,22 @@ echo $contents; } ?>
 
 <h3>Talks:</h3>
 <table>
-<tr><th>Talk<\th><th>Date<\th><th>Place<\th></tr> 
-<tr><td><a href="http://epub.wu.ac.at/4465/">Psychoco 2015</a></td><td>12.02.2015-13.02.2015</td><td> Amsterdam, The Netherlands</td><\tr> 
-<tr><td><a href="http://epub.wu.ac.at/4465/">CFE-ERCIM 2014</a></td><td>06.12.2014-09.12.2014</td><td>Pisa, Italy</td><\tr> 
-<table>
+<tr>
+  <th>Talk</th>
+  <th>Date</th>
+  <th>Place</th>
+</tr> 
+<tr>
+  <td><a href="http://epub.wu.ac.at/4465/">Psychoco 2015</a></td>
+  <td>12.02.2015-13.02.2015</td>
+  <td>Amsterdam, The Netherlands</td>
+</tr> 
+<tr>
+  <td><a href="http://epub.wu.ac.at/4465/">CFE-ERCIM 2014</a></td>
+  <td>06.12.2014-09.12.2014</td>
+  <td>Pisa, Italy</td>
+</tr> 
+</table>
 
 <h3>Software:</h3>
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
