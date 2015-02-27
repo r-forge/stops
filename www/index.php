@@ -46,7 +46,7 @@ echo $contents; } ?>
 <p> This is the (preliminary) homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. We will also add a tutorial.</p>
 
 <h3>Papers:</h3>
-<p><a href="http://epub.wu.ac.at/4465/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
+<p><a href="http://epub.wu.ac.at/4476/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
 
 <h3>Talks:</h3>
 <table>
@@ -56,13 +56,13 @@ echo $contents; } ?>
   <th>Place</th>
 </tr> 
 <tr>
-  <td><a href="http://epub.wu.ac.at/4465/">Psychoco 2015</a></td>
+  <td>Psychoco 2015 (<a href="http://epub.wu.ac.at/4478/">slides</a>)</td>
   <td>12.02.2015-13.02.2015</td>
   <td>Amsterdam, The Netherlands</td>
 </tr> 
 <tr>
-  <td><a href="http://epub.wu.ac.at/4465/">CFE-ERCIM 2014</a></td>
-  <td>06.12.2014-09.12.2014</td>
+  <td>CFE-ERCIM 2014(<a href="http://epub.wu.ac.at/4477/">slides</a>)</td>
+  <td>06.12.2014-08.12.2014</td>
   <td>Pisa, Italy</td>
 </tr> 
 </table>
