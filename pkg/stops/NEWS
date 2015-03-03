@@ -1,6 +1,10 @@
+Version 0.0-11
+
+- Added CITATION info
+
 Version 0.0-10
 
-- Added S3 object orientation to summary functions and bmade summary.stops and summary.smacofP and the according print functions
+- Added S3 object orientation to summary functions and made summary.stops and summary.smacofP and the according print functions
 
 Version 0.0-9
 
