@@ -34,11 +34,8 @@
 #' \item stress.m: explicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
-#' \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.e: raw stress on the normalized, transformed dissimilarities
 #' \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
-#' \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
-#' \item stress.co: correlation of dissimilarities and fitted distances
 #' \item deltaorig: observed, untransformed dissimilarities
 #'}
 #'
@@ -117,20 +114,25 @@ powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightma
      spp <- colMeans(resmat)
      weightmatm <-weightmat
      weightmat <- as.dist(weightmatm)
-     stresso <- sum(weightmat*(dout-deltaorig^lambdamax)^2) #orig stress mit max lambda
+    # stresso <- sum(weightmat*(dout-deltaorig^lambdamax)^2) #orig stress mit max lambda
      stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress
      stresse <- sum(weightmat*(dout-delta)^2) #enormed raw stress
      stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #implicitly normed stress for original data 
      stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #implicitly normed stress for enormed data
      stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant
-     stressno <- stresso/(sum(weightmat*deltaorig^(2*lambdamax)))  #normalized to the maximum lambda; perhaps for optimization
-     stressb <-stressr/(sum(weightmat*deltaold^2)*sum(weightmat*dout^2))  #normalized to both d and delta for the real observations 
-     stressbe <-stressr/(sum(weightmat*delta^2)*sum(weightmat*dout^2))#normalized to both d and delta for delta
-     stresscor <- cor(as.vector(weightmat*dout),as.vector(weightmat*deltaold)) #correlation of fitted and observed; is this good?
-     stresscore <- cor(as.vector(weightmat*dout),as.vector(weightmat*delta)) #correlation of fitted and observed
-     if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; bstress:",stressb,"; estress:",stresse,"; estress1:",stresse1,"; bestress:",stressbe,"stresscor:",stresscor,"stresscore:",stresscore,"\n")
-     
-     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr, stress.n=stressn, stress.1=stress1, stress.b=stressb, stress.e=stresse,stress.e1=stresse1,stress.be=stressbe,stress.co=stresscor, deltaorig=as.dist(deltaorig),resmat=resmat)
+    # stressno <- stresso/(sum(weightmat*deltaorig^(2*lambdamax)))  #normalized to the maximum lambda; perhaps for optimization
+    # stressb <-stressr/(sum(weightmat*deltaold^2)*sum(weightmat*dout^2))  #normalized to both d and delta for the real observations 
+    # stressbe <-stressr/(sum(weightmat*delta^2)*sum(weightmat*dout^2))#normalized to both d and delta for delta
+    # stresscor <- cor(as.vector(weightmat*dout),as.vector(weightmat*deltaold)) #correlation of fitted and observed; is this good?
+    # stresscore <- cor(as.vector(weightmat*dout),as.vector(weightmat*delta)) #correlation of fitted and observed
+    # if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; bstress:",stressb,"; estress:",stresse,"; estress1:",stresse1,"; bestress:",stressbe,"stresscor:",stresscor,"stresscore:",stresscore,"\n")
+    if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; estress:",stresse,"; estress1:",stresse1,"\n")   
+    #out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr, stress.n=stressn, stress.1=stress1, stress.b=stressb, stress.e=stresse,stress.e1=stresse1,stress.be=stressbe,stress.co=stresscor, deltaorig=as.dist(deltaorig),resmat=resmat)
+    # add this to documentation if used
+    # \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
+    # \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
+    # \item stress.co: correlation of dissimilarities and fitted distances
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
  }
@@ -238,7 +240,7 @@ secularEq<-function(a,b) {
 #'@param identify If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click
 #'@param type What type of plot should be drawn (see also 'plot')
 #'@param pch  Plot symbol
-#'@param asp  Aspect ratio
+#'@param asp  Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:

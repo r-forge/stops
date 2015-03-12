@@ -53,11 +53,8 @@ and some additional components
 \item stress.m: explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
-\item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
 \item stress.e: raw stress on the normalized, transformed dissimilarities
 \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
-\item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
-\item stress.co: correlation of dissimilarities and fitted distances
 \item deltaorig: observed, untransformed dissimilarities
 }
 }

@@ -6,12 +6,12 @@ vers <- paste("R package version", meta$Version)
 citEntry(entry="Manual",
          title = "stops: STructure Optimized Proximity Scaling",
          author = personList(as.person("Thomas Rusch"),
-                             as.person("Patrick Mair"),
-                             as.person("Jan de Leeuw")),
+                             as.person("Jan de Leeuw"),
+                             as.person("Patrick Mair")),
          year = year,
          note = vers,
          textVersion =
-         paste("Rusch, Thomas and Mair, Patrick and De Leeuw, Jan (", year,"). stops: STructure Optimized Proximity Scaling. ", vers, ".", sep=""))
+         paste("Rusch, Thomas and De Leeuw, Jan and Mair, Patrick (", year,"). stops: STructure Optimized Proximity Scaling. ", vers, ".", sep=""))
 
 
 citEntry(entry = "TechReport", 
@@ -26,6 +26,6 @@ citEntry(entry = "TechReport",
     author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 
     url = "http://gifi.stat.ucla.edu/janspubs/2014/notes/deleeuw_U_14c.pdf", 
     textVersion = paste("De Leeuw, Jan (2014)", 
-    "Minimizing rstress using nested majorisation","UCLA Statistics Preprint Series","UCLA, Los Angeles"),
+    "Minimizing r-stress using nested majorisation.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
     header="If powerStressMin() is used, please cite:")
 

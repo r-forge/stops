@@ -28,7 +28,7 @@
 
 \item{pch}{Plot symbol}
 
-\item{asp}{Aspect ratio}
+\item{asp}{Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate}
 
 \item{main}{plot title}
 

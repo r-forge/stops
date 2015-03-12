@@ -784,7 +784,7 @@ coef.cops <- function(object,...)
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'} 
 #'@export 
-plot.cops <- function(x,plot.type=c("confplot"), main,...)
+plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
@@ -795,9 +795,9 @@ plot.cops <- function(x,plot.type=c("confplot"), main,...)
          if(missing(main)) main <- paste("Nonlinear Shepard Diagram")
          x$fit$pars <- c(1,x$fit$lambda)
          x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
-         plot.smacofP(x$fit,plot.type="NLShepard",...)
+         stops::plot.smacofP(x$fit,plot.type="NLShepard",...)
      }
      else {      
-       plot(x$fit,plot.type=plot.type,main=main,...)
+       plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)
    }
  }

@@ -4,7 +4,7 @@
 \alias{plot.cops}
 \title{S3 plot method for cops objects}
 \usage{
-\method{plot}{cops}(x, plot.type = c("confplot"), main, ...)
+\method{plot}{cops}(x, plot.type = c("confplot"), main, asp = NA, ...)
 }
 \arguments{
 \item{x}{an object of class cops}
