@@ -771,6 +771,7 @@ coef.cops <- function(object,...)
 #'@param x an object of class cops
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","NLShepard", "Shepard", "stressplot" (see details)
 #'@param main the main title of the plot
+#'@param asp aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances. 
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
 #'Details:
@@ -795,7 +796,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
          if(missing(main)) main <- paste("Nonlinear Shepard Diagram")
          x$fit$pars <- c(1,x$fit$lambda)
          x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
-         stops::plot.smacofP(x$fit,plot.type="NLShepard",...)
+         plot.smacofP(x$fit,plot.type="NLShepard",...)
      }
      else {      
        plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)

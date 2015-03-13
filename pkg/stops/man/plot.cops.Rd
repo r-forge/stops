@@ -13,6 +13,8 @@
 
 \item{main}{the main title of the plot}
 
+\item{asp}{aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances.}
+
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 
 Details:
