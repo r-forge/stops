@@ -239,6 +239,7 @@ secularEq<-function(a,b) {
 #'@param label.conf List with arguments for plotting the labels of the configurations in a configuration plot (logical value whether to plot labels or not, label position, label color)
 #'@param identify If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click
 #'@param type What type of plot should be drawn (see also 'plot')
+#'@param legpos Position of legend in plots with legends 
 #'@param pch  Plot symbol
 #'@param asp  Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
@@ -248,12 +249,12 @@ secularEq<-function(a,b) {
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
 #'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
-#'  \item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess curve 
+#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess curve 
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #' }
 #'@export 
-plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, ...)
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
 {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -303,29 +304,30 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
         abline(lm(x$confdiss~x$delta))
     }
-    if (plot.type == "NLShepard") {
+    if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
              dreal <- as.vector(x$confdiss)^(1/kappa)
-             if (missing(main)) main <- paste("Nonlinear Shepard Diagram")
+             if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
              if (missing(ylab)) ylab <- "Dissimilarities"
-             else xlab <- ylab
+             else xlab <- xlab
              if (missing(xlab))  xlab <- "Untransformed Configuration Distances"
              else ylab <- ylab
              if (missing(ylim))  ylim <- c(min(deltat,deltao),max(deltat,deltao))
              if (missing(xlim))  xlim <- range(as.vector(dreal))
-            plot(dreal, deltat, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-            points(dreal, deltao, type = "p", pch = 20, cex = 0.75, col = col[2])
+            plot(dreal, deltao, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
+            points(dreal, deltat, type = "p", pch = 20, cex = 0.75, col = col[1])
             pt <- predict(stats::loess(deltat~dreal))
             po <- predict(stats::loess(deltao~dreal))
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
+            lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=20,cex=0.5)
             lines(dreal[order(dreal)],pt[order(dreal)],col=col[3],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=20,cex=0.5) 
-            legend("topleft",legend=c("Transformed","Untransformed"),col=col[3:4],lty=1)
+            if(missing(legpos)) legpos <- "topleft" 
+            legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=20)
          }
      if (plot.type == "resplot") {
         if(missing(col)) col <- "darkgrey" 

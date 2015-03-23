@@ -769,7 +769,7 @@ coef.cops <- function(object,...)
 #'S3 plot method for cops objects
 #' 
 #'@param x an object of class cops
-#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","NLShepard", "Shepard", "stressplot" (see details)
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","transplot", "Shepard", "stressplot" (see details)
 #'@param main the main title of the plot
 #'@param asp aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances. 
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
@@ -780,7 +780,7 @@ coef.cops <- function(object,...)
 #' \item  Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
 #' \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
 #' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-#' \item Nonlinear Shepard diagram (plot.type = "NLShepard"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
+#' \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
 #' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'} 
@@ -792,11 +792,11 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
         if(missing(main)) main <- paste("Reachability plot")
         else main <- main
         plot(x$OC,main=main,...)
-     } else if(inherits(x$fit,"smacofB") && plot.type=="NLShepard" ){
-         if(missing(main)) main <- paste("Nonlinear Shepard Diagram")
+     } else if(inherits(x$fit,"smacofB") && plot.type=="transplot" ){
+         if(missing(main)) main <- paste("Transformation Plot")
          x$fit$pars <- c(1,x$fit$lambda)
          x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
-         plot.smacofP(x$fit,plot.type="NLShepard",...)
+         plot.smacofP(x$fit,plot.type="transplot",...)
      }
      else {      
        plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)
