@@ -12,7 +12,7 @@
 \arguments{
 \item{x}{an object of class smacofP}
 
-\item{plot.type}{String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","NLShepard", "bubbleplot" (see details)}
+\item{plot.type}{String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","transplot", "bubbleplot" (see details)}
 
 \item{plot.dim}{dimensions to be plotted in confplot; defaults to c(1, 2)}
 
@@ -49,7 +49,7 @@ Details:
 \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
- \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess curve
+ \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve
  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 }}
