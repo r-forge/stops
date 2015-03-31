@@ -62,9 +62,8 @@ and some additional components
 An implemenation to minimize power stress
 }
 \examples{
-library(smacof)
-data(kinshipdelta)
-res<-powerStressMin(as.matrix(kinshipdelta),kappa=2,lambda=1.5)
+dis<-smacof::kinshipdelta
+res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5)
 res
 summary(res)
 plot(res)

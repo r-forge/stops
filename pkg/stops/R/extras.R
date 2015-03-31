@@ -81,7 +81,7 @@ summary.sammon <- function(object,...)
     }
 
 #'@export
-plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col = 1, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim,...)
+plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
     {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -136,34 +136,28 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col 
          }
      abline(lm(x$confdiss~x$delta))
     }
-    if (plot.type == "NLShepard") {
-             col=c("grey40","grey70","grey30","grey60")
+    if (plot.type == "transplot") {
+             if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
              if(is.null(x$lambda)) x$lambda <- 1
              deltao <- as.vector(x$delta^(1/x$lambda))
              deltat <- as.vector(x$delta)
              dreal <- as.vector(x$confdiss)
-             if (missing(main)) 
-                main <- paste("Nonlinear Shepard Diagram")
+             if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
-             if (missing(ylab)) 
-                ylab <- "Dissimilarities"
+             if (missing(ylab)) ylab <- "Dissimilarities"
              else ylab <- ylab
-             if (missing(xlab)) 
-                xlab <- "Configuration Distances"
+             if (missing(xlab)) xlab <- "Configuration Distances"
              else xlab <- xlab
-             if (missing(ylim)) 
-                ylim <- c(min(deltat,deltao),max(deltat,deltao))
-             if (missing(xlim)) 
-                xlim <- range(as.vector(dreal))
-            plot(dreal, deltat, main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-            points(dreal, deltao, type = "p", pch = 20, cex = 0.75, col = col[2])
-            pt <- predict(stats::loess(deltat~dreal))
-            po <- predict(stats::loess(deltao~dreal))
-            #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
-            #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],pt[order(dreal)],col=col[3],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=20,cex=0.5) 
-            legend("topleft",legend=c("Transformed","Untransformed"),col=col[3:4],lty=1)
+             if (missing(ylim)) ylim <- c(min(deltat,deltao),max(deltat,deltao))
+             if (missing(xlim)) xlim <- range(as.vector(dreal))
+            plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
+            points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
+            pt <- predict(stats::lm(deltat~dreal))
+            po <- predict(stats::lm(deltao~dreal))
+            lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
+            lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
+            if(missing(legpos)) legpos <- "topleft" 
+            legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
          }
     if (plot.type == "stressplot") {
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")

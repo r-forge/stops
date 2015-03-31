@@ -664,11 +664,13 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' }
 #' 
 #'@examples
-#'\donttest{
-#'data(BankingCrisesDistances)
-#'res1<-cops(BankingCrisesDistances[,1:69],loss="strain",verbose=0)
+#'dis<-as.matrix(smacof::kinshipdelta)
+#'res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 #'res1
-#'}
+#'summary(res1)
+#'
+#'
+#' 
 #'@keywords clustering multivariate
 #'@export
 cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powerstress","sstress","elastic","powersammon","powerelastic"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1),upper=c(5,5),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)

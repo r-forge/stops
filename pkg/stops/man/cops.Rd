@@ -77,11 +77,10 @@ A list with the components
 High Level COPS Function
 }
 \examples{
-\donttest{
-data(BankingCrisesDistances)
-res1<-cops(BankingCrisesDistances[,1:69],loss="strain",verbose=0)
+dis<-as.matrix(smacof::kinshipdelta)
+res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 res1
-}
+summary(res1)
 }
 \keyword{clustering}
 \keyword{multivariate}

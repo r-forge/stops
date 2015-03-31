@@ -30,11 +30,13 @@
 #' 100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 #' }
 #' res1<-ljoptim(c(-1.2,1),fbana,lower=-5,upper=5,accd=1e-16,acc=1e-16)
+#' res1
 #' 
 #' fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 #' plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")
 #' res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
 #' points(res2$par,res2$value,col="red",pch=19)
+#' res2
 #' 
 #' @export
 ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-6,accd=1e-4,itmax=1000,verbose=0,adaptive=TRUE) {

@@ -7,7 +7,7 @@
 #' Models & Algorithms:
 #' \itemize{
 #' \item cops() and stops() ... which fit COPS and STOPS models as described in Rusch et al. (2015a) and Rusch et al. (2015b). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
-#' \item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), powerStress (e.g., Rusch et al., 2015a), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight,strucweight=0 or by the dedicated functions starting with cops_XXXXX where XXX is the method and setting stressweight=1 and cordweight=0). It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
+#' \item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), powerStress (e.g., Rusch et al., 2015a), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with cops_XXX where XXX is the method and setting stressweight=1 and cordweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
 #' \item optics() ... An interface to ELKI's implementation of the OPTICS
 #' }
 #'

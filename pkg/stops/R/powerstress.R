@@ -42,15 +42,15 @@
 #' @seealso \code{\link{smacofSym}}
 #' 
 #' @examples
-#' library(smacof)
-#' data(kinshipdelta)
-#' res<-powerStressMin(as.matrix(kinshipdelta),kappa=2,lambda=1.5)
+#' dis<-smacof::kinshipdelta
+#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stresse1) { 
+powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stresse1) {
+    #TODO: This function is not compatible with smacofSym as the stress and normalizations are calculated very differently; perhaps that should be made so as to be similar (Patrick?)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"\n")
