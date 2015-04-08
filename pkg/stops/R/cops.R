@@ -664,11 +664,12 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' }
 #' 
 #'@examples
+#'\donttest{ 
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 #'res1
 #'summary(res1)
-#'
+#'}
 #'
 #' 
 #'@keywords clustering multivariate
