@@ -106,7 +106,7 @@ print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
           }
     }
 
-#' Plot method for OPTICs results
+#' Plot method for OPTICS results
 #'
 #' Displays the reachability plot. Points with undefined/infinite minimum reachabilities are colored lighter by default.
 #' @param x an object of class optics

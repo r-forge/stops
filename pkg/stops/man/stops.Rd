@@ -66,9 +66,27 @@ Maintainer: Thomas Rusch
 \examples{
 \donttest{
 data(BankingCrisesDistances)
+
+#COPS
 res<-cops(BankingCrisesDistances[,1:69])
 res
+summary(res)
 plot(res)
+plot(res,"reachplot")
+plot(res,"transplot")
+plot(res,"Shepard")
+
+#OPTICS
+ores<-optics(res$points,minpts=2,epsilon=100)
+ores
+summary(ores)
+plot(ores)
+
+#OPTICS cordillera
+cres<-cordillera(res$points)
+cres
+summary(cres)
+plot(cres)
 }
 \donttest{
 data(BankingCrisesDistances)

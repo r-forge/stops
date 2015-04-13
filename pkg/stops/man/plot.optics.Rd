@@ -2,7 +2,7 @@
 % Please edit documentation in R/optics.R
 \name{plot.optics}
 \alias{plot.optics}
-\title{Plot method for OPTICs results}
+\title{Plot method for OPTICS results}
 \usage{
 \method{plot}{optics}(x, withlabels = FALSE, col = "grey55",
   colna = "grey80", border = par("bg"), names.arg, ...)
