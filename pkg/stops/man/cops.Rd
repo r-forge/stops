@@ -83,12 +83,14 @@ res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 res1
 summary(res1)
 plot(res1)
-res2<-cops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #only use cordillera for finding the parameters; optimum around lambda=0.156
+#only use cordillera for finding the parameters;
+res2<-cops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
 res2
 summary(res2)
 plot(res2)
 
-#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered; the reason is the distance between sister and son
+#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
+#the reason is the distance between sister and son
 
 #procrustes adjusted
 resadj<-conf_adjust(res2$points,res1$points)
