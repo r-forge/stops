@@ -88,6 +88,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
     if (type == "n") 
         label.conf$pos <- NULL
     if (plot.type == "confplot") {
+        if(missing(col)) col <- 1
         if (missing(main)) 
             main <- paste("Configuration Plot")
         else main <- main
@@ -167,7 +168,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
     }
-    invisible() #not sure why I need this here but without this it returns a list of NULLS
+   # invisible() #not sure why I need this here but without this it returns a list of NULLS
 }
 
 #' 3D plots: plot3d method for class cmdscale
