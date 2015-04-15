@@ -295,6 +295,27 @@ plot(optpowerstress)
 plot(optpowersammon)
 plot(optpowerelastic)
 })
-          
 
+test_that("Initsol for cops",{
+               initsol <- powerStressMin(dis,kappa=1,lambda=1,verbose=0)
+               expect_equal_to_reference(initsol)
+               #expect parameters to be 1
+            })
 
+test_that("Powerstress COPS Kinship",{
+              teso <- cops(dis,loss="powerstress",q=q,minpts=minpts,epsilon=eps,rang=rang,verbose=0,plot=FALSE,scale=scale,lower=c(0.75,0.75),upper=c(4,4),itmax)
+             #expect class
+             #expect a value
+              expect_equal_to_reference(teso)
+          })
+
+test_that("Finding cordweight",{
+         dis <- as.matrix(smacof::kinshipdelta)
+         rang <- c(0,1.2) #fixed range 
+         minpts <- 2
+         eps <- 10
+         q <- 1
+         initcorrd <- cordillera(initsol$conf,rang=rang,q=q,minpts=minpts,plot=TRUE,scale=scale)
+         a <- initsol$stress.m/initcorrd$normed
+         expect_equal(teso$cordweight,a)
+     })

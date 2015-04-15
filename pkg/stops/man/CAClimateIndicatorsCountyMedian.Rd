@@ -3,18 +3,19 @@
 \name{CAClimateIndicatorsCountyMedian}
 \alias{CAClimateIndicatorsCountyMedian}
 \title{Climate Change Indicators of Californian Counties}
-\format{A data frame with 58 rows and 51 variables}
+\format{A data frame with 58 rows and 52 variables}
 \source{
 Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \url{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
 }
 \description{
-A dataset containing various observed and projected indicators of climate change related natural hazards for 58 Californian counties. The values are actually the medians of the distribution over all spatial measurement points. It is a compiled data set from three sources and aggregated them to the county level. The projected data were derived under two different scenarios (A2, the high emission scenario and B1, the moderate emission scenario)
+A dataset containing various observed and projected indicators of climate change related natural hazards for 58 Californian counties. The values are actually the medians of the distribution over all spatial measurement points. It is a compiled data set from three sources and aggregated them to the county level. The projected data were derived under two different scenarios (A2, the high emission scenario and B1, the moderate emission scenario). It further contains the county value of the California social vulnerability index.
 }
 \details{
-Overall there are 50 indicators and 1 identifier which were:
+Overall there are 50 indicators of natural hazard, one indicator of social vulnerability and 1 identifier of the county which were:
 
 \itemize{
-\item The county name identifier
+\item county The county name identifier
+\item vuln_CA the vulnerability index
  \item County average 95th percentile daily maximum temperature in Fahrenheit from May 1 to September 30 over the historical period (1971-2000) under the two climate scenarios A2 and B1. These are averaged values for 4 different climate models. The source was Table 7 of Cooley (2012). The variables are degFA2 and degFB1.
 \item Projected average number of days where the daily maximum temperature exceeds the high-heat threshold (see above) over periods 2010-2039, 2040-2069 and 2070-2099. Projections are based on the A2 and B1 scenarios and are averaged for four downscaled climate models. The source was Table 7 of Cooley (2012). The variables are heatS_FYY_TYY, where S is the scenario, FYY the "from year" and TYY the "to year", so heatB1_71_00 is the value of a county under B1 from 1971 to 2000.
 \item The percentage of a county's census block area vulnerable to unimpeded coastal flooding under baseline conditions (2000) and with a 1.4-meter (55-inch) sea-level rise (projected for 2100). The raw data were obtained from Heberger (2009) . From the census block areas we computed an area-weighted percentage for each county. The variables are flood_2000 for 2000 and flood_2100 projected for 2100.

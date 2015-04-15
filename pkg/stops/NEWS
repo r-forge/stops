@@ -1,6 +1,10 @@
+Version 0.0-13
+
+- Recalculated the CA Climate data set. Added more tests. 
+
 Version 0.0-12
 
-- Added more examples; added unit tests
+- Added more examples; added unit tests (rudimentary though, more and better tests will be added over time) 
 
 Version 0.0-11
 
