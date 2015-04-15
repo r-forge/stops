@@ -132,7 +132,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightma
     # \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
     # \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
     # \item stress.co: correlation of dissimilarities and fitted distances
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
  }
