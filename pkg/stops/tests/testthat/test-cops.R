@@ -107,14 +107,34 @@ test_that("Finding cordweight",{
          expect_equal(teso$cordweight,a)
      })
 
-test_that("cops transplot equals powerstress transplot",{
+test_that("cops transplot had side effect",{
      testp <- cops(dis,loss="stress",theta=c(1,2),itmax=1)
      testp2 <- smacofSym(dis^2)
-     expect_that(testp$fit,equals(testp2))
+     expect_that(testp$fit[1:6],equals(testp2[1:6])) 
+
      plot(testp,"Shepard") #no side effect
-     expect_that(testp$fit,equals(testp2))
-     plot(testp,"transplot") #has the side effect of changing the smacof object in testp$fit
-     expect_error(all.equal(testp$fit,testp2)))
+     expect_that(testp$fit[1:6],equals(testp2[1:6]))
+
+     plot(testp,"transplot") #had the side effect of changing the smacof object in testp$fit
+     expect_that(testp$fit[1:6],equals(testp2[1:6])) #was not fullfilled before bug was fixed
+
+     testp <- cops(dis,loss="stress",theta=c(2,2),itmax=1)
+     testp2 <- powerstressMin(dis,kappa=2,lambda=2)
+     expect_that(testp$fit[1:6],equals(testp2[1:6]))
+
+     plot(testp,"Shepard") #no side effect
+     expect_that(testp$fit[1:6],equals(testp2[1:6]))
+
+     plot(testp,"transplot") #had the side effect of changing the smacof object in testp$fit
+     expect_that(testp$fit[1:6],equals(testp2[1:6])) #was not fullfilled before bug was fixed
+  
+)}
+
+test_that("cops transplot equals powerstress transplot",{
+     testp <- cops(dis,loss="stress",theta=c(2,2),itmax=1)
+     testp3 <- powerstressMin(dis,kappa=2,lambda=2) 
+     plot(testp,"transplot") #how to test if two plots are the same?
+     plot(testp3,"transplot")
 })
 
 ## library(MASS)
