@@ -8,9 +8,11 @@ context("COPS tests")
 #test match call
 #test cops arguments
 
+dis <- kinshipdelta
+test1 <- cops(dis)
+
 test_that("cops runs in default mode",{
 #cops
-dis <- kinshipdelta
 expect_equal_to_reference(test1 <- cops(dis))
 })
 
@@ -105,7 +107,15 @@ test_that("Finding cordweight",{
          expect_equal(teso$cordweight,a)
      })
 
-
+test_that("cops transplot equals powerstress transplot",{
+     testp <- cops(dis,loss="stress",theta=c(1,2),itmax=1)
+     testp2 <- smacofSym(dis^2)
+     expect_that(testp$fit,equals(testp2))
+     plot(testp,"Shepard") #no side effect
+     expect_that(testp$fit,equals(testp2))
+     plot(testp,"transplot") #has the side effect of changing the smacof object in testp$fit
+     expect_error(all.equal(testp$fit,testp2)))
+})
 
 ## library(MASS)
 ## library(stops)

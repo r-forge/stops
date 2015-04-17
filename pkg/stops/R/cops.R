@@ -24,7 +24,7 @@
 #'         \item{coploss:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (kappa, lambda)
-#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements and some more
 #'         \item{cordillera:} the cordillera object
 #' }
 #' 
@@ -51,6 +51,8 @@ cop_smacofSym <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,s
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$pars <- c(kappa,lambda)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)   
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
@@ -111,6 +113,8 @@ cop_elastic <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
   delts <- as.matrix(fit$delta) #TR: That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$pars <- c(kappa,lambda)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
@@ -170,6 +174,8 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$pars <- c(kappa,lambda)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
@@ -217,6 +223,9 @@ cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stre
   fit$kappa <- 1
   fit$stress.m <- fit$stress/sum(dis^(2*lambda))
   fit$conf <- fit$points
+  fit$pars <- c(kappa,lambda)
+ # delta <- 
+ # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
@@ -275,6 +284,8 @@ cop_sammon2 <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
   delts <- as.matrix(fit$delta) #TR: That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$pars <- c(kappa,lambda)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
@@ -372,6 +383,8 @@ cop_rstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- theta[1]
   fit$lambda <- 1
+ # fit$pars <- c(kappa,lambda)
+ # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
@@ -813,11 +826,11 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
         if(missing(main)) main <- paste("Reachability plot")
         else main <- main
         plot(x$OC,main=main,...)
-     } else if(inherits(x$fit,"smacofB") && plot.type=="transplot" ){
-         if(missing(main)) main <- paste("Transformation Plot")
-         x$fit$pars <- c(1,x$fit$lambda)
-         x$fit$deltaorig <- x$fit$delta^(1/x$fit$lambda)    
-         plot.smacofP(x$fit,plot.type="transplot",...)
+     } else if(inherits(x$fit,"smacofB") && !inherits(x$fit,"smacofP") && plot.type=="transplot"){
+     #ok, old code here has side effects: it changes the smacof object in the cops object; not sure we should do that  
+       if(missing(main)) main <- paste("Transformation Plot") 
+       plot.smacofP(x$fit,plot.type="transplot",...)
+     # invisible(tmp) #I give the changed smacof object back
      }
      else {      
        plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)

@@ -318,8 +318,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
              if (missing(xlab))  xlab <- "Untransformed Configuration Distances"
              else ylab <- ylab
              if (missing(ylim))  ylim <- c(min(deltat,deltao),max(deltat,deltao))
-             if (missing(xlim))  xlim <- range(as.vector(dreal))
-            plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
+             if (missing(xlim))  xlim <- c(min(dreal^kappa,dreal),max(dreal^kappa,dreal))
+            plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,...)
             points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
             pt <- predict(stats::lm(deltat~-1+I(dreal^kappa))) #no intercept
             po <- predict(stats::lm(deltao~-1+I(dreal^kappa))) #no intercept

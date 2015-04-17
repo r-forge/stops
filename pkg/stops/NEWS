@@ -1,3 +1,7 @@
+Version 0.0-14
+
+- Fixed bug in plot.cops for argument transplot and objects of type smacofP. Wrote a test to check that. Removed a side effect for smacofB objects introduced by plot.cops. Added new slots to cop_smacofXX functions so one can plot.smacofP them  without the side effect. Needs to be tested further.
+
 Version 0.0-13
 
 - Recalculated the CA Climate data set. Added more tests. removed intercept in fitted model of transplots. 
