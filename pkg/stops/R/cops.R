@@ -798,7 +798,7 @@ coef.cops <- function(object,...)
 #'Details:
 #' \itemize{
 #' \item Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#' \item  Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
+#' \item Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
 #' \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
 #' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
 #' \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 

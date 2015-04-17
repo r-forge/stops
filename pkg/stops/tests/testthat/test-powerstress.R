@@ -1,6 +1,6 @@
-content("powerstress tests")
+context("Powerstress")
 
-source("rstress.R")
+library(stops)
 ekman <-
 structure(c(0.86, 0.42, 0.42, 0.18, 0.06, 0.07, 0.04, 0.02, 0.07,
 0.09, 0.12, 0.13, 0.16, 0.5, 0.44, 0.22, 0.09, 0.07, 0.07, 0.02,
@@ -18,59 +18,47 @@ Diag = FALSE, Upper = FALSE, Labels = c(434,
 ekman <- as.matrix (1-ekman)
 wave <- row.names(ekman)
 
+e2<-powerStressMin(ekman,kappa=2*1,lambda=1)
+e1<-powerStressMin(ekman,kappa=2*0.5,lambda=1)
+e05<-powerStressMin(ekman,kappa=2*0.25,lambda=1)
 
-test_that("ekman example",{
-
-ekman <-
-structure(c(0.86, 0.42, 0.42, 0.18, 0.06, 0.07, 0.04, 0.02, 0.07,
-0.09, 0.12, 0.13, 0.16, 0.5, 0.44, 0.22, 0.09, 0.07, 0.07, 0.02,
-0.04, 0.07, 0.11, 0.13, 0.14, 0.81, 0.47, 0.17, 0.1, 0.08, 0.02,
-0.01, 0.02, 0.01, 0.05, 0.03, 0.54, 0.25, 0.1, 0.09, 0.02, 0.01,
-0, 0.01, 0.02, 0.04, 0.61, 0.31, 0.26, 0.07, 0.02, 0.02, 0.01,
-0.02, 0, 0.62, 0.45, 0.14, 0.08, 0.02, 0.02, 0.02, 0.01, 0.73,
-0.22, 0.14, 0.05, 0.02, 0.02, 0, 0.33, 0.19, 0.04, 0.03, 0.02,
-0.02, 0.58, 0.37, 0.27, 0.2, 0.23, 0.74, 0.5, 0.41, 0.28, 0.76,
-0.62, 0.55, 0.85, 0.68, 0.76), Size = 14L,
-call = quote(as.dist.default(m = b)), class = "dist",
-Diag = FALSE, Upper = FALSE, Labels = c(434,
-445, 465, 472, 490, 504, 537, 555, 584, 600, 610, 628, 651, 674
-))
-ekman <- as.matrix (1-ekman)
-wave <- row.names(ekman)
-
-              
+test_that("Power stress for Ekman data works",{
 #these are r stresses 
-e05<-powerStressMin(ekman,kappa=2*0.1,lambda=1,verbose=2,eps=1e-8)
-e05
-shep(e05)
-plot(e05$conf,type="n")
-text(e05$conf,labels=row.names(ekman))
-e10<-powerStressMin(ekman,lambda=1,kappa=2*.10,verbose=2,eps=1e-10)
-e10
-shep(e10)
-e25<-powerStressMin(ekman,kappa=2*0.25,lambda=1,verbose=2)
-e25
-
-e25<-powerStressMin(ekman,kappa=2*0.5,lambda=1,verbose=1)
-e25
-
-e25s<-smacofSym(ekman)
-e25s
-
-k1 <- smacofSym(kinshipdelta)
-k2 <- powerStressMin(kinshipdelta,verbose=2)
-delt
-k2 <- powerStressMin(delt,verbose=2)
-
-
-k1
-k2
-plot(k1)
-dev.new()
-plot(k2)
-summary(k1)
-summary(k2)
+expect_equal_to_reference(e05<-powerStressMin(ekman,kappa=2*0.25,lambda=1))
+expect_that(e05,is_a("smacofP"))
 })
+
+
+test_that("summary of power stress works",{
+expect_that(summary(e05),is_a("summary.smacofP"))
+expect_that(str(summary(e05)),prints_text("List of 2"))
+expect_that(str(summary(e05)),prints_text("$ conf",fixed=TRUE))
+expect_that(str(summary(e05)),prints_text("$ sppmat",fixed=TRUE))
+})
+
+
+test_that("output is verbose",{
+              expect_that(e2 <- powerStressMin(ekman,kappa=1,lambda=1,verbose=0),not(prints_text("Minimizing powerStress with kappa= 1 lambda= 1")))
+              expect_that(e2 <- powerStressMin(ekman,kappa=1,lambda=1,verbose=1),prints_text("Minimizing powerStress with kappa= 1 lambda= 1"))
+              expect_that(e2 <- powerStressMin(ekman,kappa=1,lambda=1,verbose=2),prints_text("Minimizing powerStress with kappa= 1 lambda= 1"))
+              expect_that(e2 <- powerStressMin(ekman,kappa=1,lambda=1,verbose=2),prints_text("raw stress:",fixed=TRUE))
+          })
+              
+
+test_that("Transformation and Shepard Plots work correctly",{
+              expect_that(cor(e05$confdiss,e05$delta),equals(0.9905080545))
+              expect_that(cor(e05$confdiss,e05$delta),is_more_than(cor(e1$confdiss,e1$delta)))
+              expect_that(cor(e05$confdiss,e05$delta),is_more_than(cor(e2$confdiss,e2$delta)))
+            #  expect_that(expect_that(plot(e06,plot.type="NLShepard"),throws_error()),throws_error())
+              plot(e1,"transplot")
+              plot(e2,"transplot")
+              plot(e05,"Shepard")
+              plot(e1,"Shepard")
+              plot(e2,"Shepard")
+          })
+
+
+
 
 
 #these are r stresses 

@@ -56,6 +56,7 @@ and some additional components
 \item stress.e: raw stress on the normalized, transformed dissimilarities
 \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
 \item deltaorig: observed, untransformed dissimilarities
+\item weightmat: weighting matrix
 }
 }
 \description{

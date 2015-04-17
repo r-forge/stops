@@ -1,6 +1,6 @@
 Version 0.0-13
 
-- Recalculated the CA Climate data set. Added more tests. 
+- Recalculated the CA Climate data set. Added more tests. removed intercept in fitted model of transplots. 
 
 Version 0.0-12
 

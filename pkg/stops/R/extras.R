@@ -135,7 +135,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
              pt <- predict(loess(x$confdiss~x$delta))
              lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
          }
-     abline(lm(x$confdiss~x$delta))
+     abline(lm(x$confdiss~-1+x$delta))
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -153,8 +153,8 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
              if (missing(xlim)) xlim <- range(as.vector(dreal))
             plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
             points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
-            pt <- predict(stats::lm(deltat~dreal))
-            po <- predict(stats::lm(deltao~dreal))
+            pt <- predict(stats::lm(deltat~-1+dreal))
+            po <- predict(stats::lm(deltao~-1+dreal))
             lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
             lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
             if(missing(legpos)) legpos <- "topleft" 

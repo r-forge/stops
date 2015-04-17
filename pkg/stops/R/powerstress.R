@@ -37,6 +37,7 @@
 #' \item stress.e: raw stress on the normalized, transformed dissimilarities
 #' \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
 #' \item deltaorig: observed, untransformed dissimilarities
+#' \item weightmat: weighting matrix 
 #'}
 #'
 #' @seealso \code{\link{smacofSym}}
@@ -302,7 +303,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
         pt <- predict(loess(x$confdiss~x$delta))
         lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
-        abline(lm(x$confdiss~x$delta))
+        abline(lm(x$confdiss~-1+x$delta)) #no intercept for fitting
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -320,8 +321,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
              if (missing(xlim))  xlim <- range(as.vector(dreal))
             plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
             points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
-            pt <- predict(stats::lm(deltat~I(dreal^kappa)))
-            po <- predict(stats::lm(deltao~I(dreal^kappa)))
+            pt <- predict(stats::lm(deltat~-1+I(dreal^kappa))) #no intercept
+            po <- predict(stats::lm(deltao~-1+I(dreal^kappa))) #no intercept
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
             lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
