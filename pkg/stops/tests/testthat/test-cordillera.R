@@ -1,59 +1,20 @@
 content("OPTICS cordillera")
 
-test_that("cordillera works",{
-              library(MASS)
-              par(mfrow=c(3,2))
               q <- 1
               eps <- 2
-              x <- c(-0.375,-0.125,0.125,0.375,-0.375,-0.125,0.125,0.375)
-              x <- x*2
-              y <- c(-0.125,-0.125,-0.125,-0.125,0.125,0.125,0.125,0.125)
-              y <- y*2
-              c1 <- cordillera(cbind(x,y),eps=eps,q=q)
-              eqscplot(cbind(x,y),ylim=c(-1,1),xlim=c(-1,1),pch=19,main=paste("normed structure=",round(c1$normed,2)),xlab="D1",ylab="D2")
+             
+test_that("cordillera works",{
+          data(iris)
+          expect_equal_to_reference(res<-cordillera(iris[,1:4],minpts=2,epsilon=100))
+          expect_that(print(res),not(throws_error()))
+        #  expect_that(print(res),matches("        raw      normed  16.51312758  0.07134626",fixed=TRUE))
+          expect_that(summary(res),not(throws_error()))
+          #expect_that(summary(res),matches("OPTICS cordillera values with minpts= 2 and epsilon= 100",fixed=TRUE)) 
+          expect_that(plot(res),not(throws_error()))
+          expect_that(plot(res,withlabels=TRUE),gives_warning())
+  }
 
-              obj <- 8
-              mat <- matrix(rep(1,obj^2),ncol=obj)
-              diag(mat) <- 0
-              mds <- smacofSym(mat)
-              mdsmat <-as.matrix(mds$conf)
-              confdiss <- as.matrix(mds$confdiss)
-              c1 <- cordillera(mdsmat,eps=eps,q=q)
-              eqscplot(mdsmat,ylim=c(-1,1),xlim=c(-1,1),pch=19,main=paste("normed structure=",round(c1$normed,2)),xlab="D1",ylab="D2")
-                                        #more strcuture
-
-              mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
-              set.seed(123)
-              mdsmat <- jitter(mdsmat,factor=3.5)
-              c1 <- cordillera(mdsmat,eps=eps,q=q)
-              eqscplot(mdsmat,ylim=c(-1,1),xlim=c(-1,1),pch=19,main=paste("normed structure=",round(c1$normed,2)),xlab="D1",ylab="D2")
-              mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
-              set.seed(123)
-              mdsmat <- jitter(mdsmat,factor=1.7)
-              c1 <- cordillera(mdsmat,eps=eps,q=q)
-              eqscplot(mdsmat,ylim=c(-1,1),xlim=c(-1,1),pch=19,main=paste("normed structure=",round(c1$normed,2)),xlab="D1",ylab="D2")
-
-              mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
-              set.seed(210485)
-              mdsmat <- jitter(mdsmat,factor=1)
-              c1 <- cordillera(mdsmat,eps=eps,q=q)
-              eqscplot(mdsmat,ylim=c(-1,1),xlim=c(-1,1),pch=19,xlab="D1",ylab="D2",main=paste("normed structure=",round(c1$normed,2)))
-              ind <- matrix(c(1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1),ncol=8)
-              fake <- matrix(1,nrow=8,ncol=8)
-              dissi <- fake*(1-ind)
-              exdiss <- as.dist(dissi)
-              exmds <- smacofSym(exdiss)
-              mdsmat <- exmds$conf
-              c1 <- cordillera(mdsmat,q=q,eps=eps)
-              eqscplot(mdsmat,ylim=c(-1,1),xlim=c(-1,1),pch=19,cex=2,xlab="D1",ylab="D2",main=paste("normed structure=",round(c1$normed,2)))
-          })
-
-
-test_that("cordillera tests",{
-          data(smacof::kinshipdelta)
-          dis <- kinshipdelta
-          rescoy <- smacofSym(dis^lamb, itmax = 5000)
-          confs <- rescoy$conf #make matrix from fitted distances; the diagonal is zero
+ test_that("cordillera arguments work",{
           c1 <- cordillera(confs)
           c1
           c2 <- cordillera(confs,epsilon=eps)
@@ -71,6 +32,89 @@ test_that("cordillera tests",{
           c8 <- cordillera(confs,digits=1,minpts=3,path="~")
           c8
       })         
+
+q <- 1
+eps <- 2
+range <- c(0,0.9225246)
+test_that("cordillera calculates correctly",{
+              #from the paper
+library(stops)
+#row 1
+x <- c(-0.375,-0.125,0.125,0.375,-0.375,-0.125,0.125,0.375)
+x <- x*2
+y <- c(-0.125,-0.125,-0.125,-0.125,0.125,0.125,0.125,0.125)
+y <- y*2
+c1 <- cordillera(cbind(x,y),epsilon=eps,q=q,rang=range,scale=FALSE)
+expect_that(c1$raw,equals(0))
+expect_that(c1$normed,equals(0))
+expect_that(c1$normfac,equals(8))
+expect_that(c1$dmax,equals(max(range)))
+
+#row 2
+obj <- 8
+set.seed(210485)
+mat <- matrix(rep(1,obj^2),ncol=obj)+rnorm(64,sd=0.0001)
+diag(mat) <- 0
+mds <- smacofSym(mat)
+mdsmat <-as.matrix(mds$conf)
+confdiss <- as.matrix(mds$confdiss)
+c2 <- cordillera(mdsmat,epsilon=eps,q=q,rang=range,scale=FALSE)
+expect_that(c2$raw,equals(0.16612214))
+expect_that(c2$normed,equals(0.0257247712))
+expect_that(c2$normfac,equals(8))
+expect_that(c2$dmax,equals(max(range)))
+
+#row 3
+mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
+set.seed(123)
+mdsmat <- jitter(mdsmat,factor=3.5) 
+c3 <- cordillera(mdsmat,epsilon=eps,q=q,rang=range,scale=FALSE)
+expect_that(c3$raw,equals(1.46845612))
+expect_that(c3$normed,equals(0.22739712926277))
+expect_that(c3$normfac,equals(8))
+expect_that(c3$dmax,equals(max(range)))
+
+#row 4
+mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
+set.seed(123)
+mdsmat <- jitter(mdsmat,factor=1.7) 
+c4 <- cordillera(mdsmat,epsilon=eps,q=q,rang=range,scale=FALSE)
+expect_that(c4$raw,equals(2.35424102))
+expect_that(c4$normed,equals(0.3645649619688))
+expect_that(c4$normfac,equals(8))
+expect_that(c4$dmax,equals(max(range)))
+
+#row 5
+mdsmat <- cbind(rep(c(0,0,-0.5,0.5),2),rep(c(0.5,-0.5,0,0),2))
+set.seed(210485)
+mdsmat <- jitter(mdsmat,factor=1) 
+c5 <- cordillera(mdsmat,epsilon=eps,q=q,rang=range,scale=FALSE)
+expect_that(c5$raw,equals(3.92984969))
+expect_that(c5$normed,equals(0.60855515242783))
+expect_that(c5$normfac,equals(8))
+expect_that(c5$dmax,equals(max(range)))
+
+
+#row 6
+ind <- matrix(c(1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,
+                0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,
+                0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1),ncol=8)
+fake <- matrix(1,nrow=8,ncol=8)
+dissi <- fake*(1-ind)
+exdiss <- as.dist(dissi)
+exmds <- smacofSym(exdiss)
+mdsmat <- exmds$conf
+c6 <- cordillera(mdsmat,q=q,rang=range,epsilon=eps,scale=FALSE)
+expect_that(c6$raw,equals(6.4530180))
+expect_that(c6$normed,equals(0.999279275))
+expect_that(c6$normfac,equals(8))
+expect_that(c6$dmax,equals(max(range)))
+
+#use the original length; in cordillera there is some rounding, so perhaps undo the rounding?  
+range2 <- c(0,0.92136105)
+c6 <- cordillera(mdsmat,q=q,rang=range2,epsilon=eps,scale=FALSE)
+expect_that(c6$normed,equals(1))
+})
 
 
 test_that("some comparisons",{
