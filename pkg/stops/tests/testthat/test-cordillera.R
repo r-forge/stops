@@ -114,6 +114,52 @@ expect_that(c6$dmax,equals(max(range)))
 range2 <- c(0,0.92136105)
 c6 <- cordillera(mdsmat,q=q,rang=range2,epsilon=eps,scale=FALSE)
 expect_that(c6$normed,equals(1))
+
+#new types
+#n=9 k=3
+ind <- matrix(c(1,1,1,0,0,0,0,0,0,
+                1,1,1,0,0,0,0,0,0,
+                1,1,1,0,0,0,0,0,0,
+                0,0,0,1,1,1,0,0,0,
+                0,0,0,1,1,1,0,0,0,
+                0,0,0,1,1,1,0,0,0,
+                0,0,0,0,0,0,1,1,1,
+                0,0,0,0,0,0,1,1,1,
+                0,0,0,0,0,0,1,1,1)
+                ,ncol=9)
+fake <- matrix(1,nrow=9,ncol=9)
+dissi <- fake*(1-ind)
+exdiss <- as.dist(dissi)
+exmds <- smacofSym(exdiss)
+mdsmat <- exmds$conf
+c7 <- cordillera(mdsmat,q=1,minpts=2,epsilon=100,scale=FALSE)
+expect_that(c7$raw,equals(5.773502699))
+expect_that(c7$normed,equals(0.625)) #roughly two thirds 
+expect_that(c7$normfac,equals(9-1)) 
+expect_that(c7$dmax,equals(1.15470054))
+#c7
+#plot(c7)
+c8 <- cordillera(mdsmat,q=1,minpts=3,epsilon=100,scale=FALSE)
+expect_that(c8$raw,equals(5.773502699))
+expect_that(c8$normed,equals(1))
+expect_that(c8$normfac,equals((6)))
+expect_that(c8$dmax,equals(1.15470054))
+#c8
+#plot(c8)
+c9 <- cordillera(mdsmat,q=1,minpts=4,epsilon=100,scale=FALSE)
+expect_that(c9$raw,equals(0))
+expect_that(c9$normed,equals(0))
+expect_that(c9$normfac,equals(4))
+expect_that(c9$dmax,equals(1.15470054))
+#c9
+#plot(c9)
+#setup is 3 times 3 points coinciding; c8 is perfectly clustered, c7 is ok, c9 is not at all (as k=4) 
+expect_that(c9$normed,is_less_than(c7$normed))
+expect_that(c7$normed,is_less_than(c8$normed))
+expect_that(c8$normed,not(is_less_than(c9$normed)))
+expect_that(c9$raw,is_less_than(c7$raw))
+expect_that(c7$raw,equals(c8$raw)) #raw for k=2 and k=3 must be equal but normed not 
+expect_that(c8$raw,not(is_less_than(c9$raw)))
 })
 
 
