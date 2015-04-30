@@ -1,3 +1,7 @@
+Version 0.0-15
+
+- Added the three parameter version of power stress (also optimizing over weights). We can now fit smacof models, strain models, sammon models, rstress, sstress (all one parameter models optimization over kappa or lambda), powermds, powerelastic, powersammon (two-parameter models optimization over kappa and lambda) and powerstress (three-parameter model optimization over kappa and lambda and nu). Not possible (and perhaps never to be implemented) are the two-parameter models that optimize over (lambda, nu) or (kappa, nu). 
+
 Version 0.0-14
 
 - Fixed bug in plot.cops for argument transplot and objects of type smacofP. Wrote a test to check that. Removed a side effect for smacofB objects introduced by plot.cops. Added new slots to cop_smacofXX functions so one can plot.smacofP them  without the side effect. Needs to be tested further.

@@ -30,19 +30,20 @@
 #' 
 #'@keywords multivariate
 #'@export
-cop_smacofSym <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
+cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
   addargs <- list(...)
   addargs
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
+  fit$nu <- 1
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -90,22 +91,24 @@ cop_smacofSym <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,s
 #' 
 #'@keywords multivariate
 #'@export
-cop_elastic <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
+cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- theta[3]
   addargs <- list(...)
   addargs
-  elscalw <- dis^(-2*lambda) #the weighting in elastic scaling
+  elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
+  fit$nu <- nu
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -113,7 +116,7 @@ cop_elastic <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
   delts <- as.matrix(fit$delta) #TR: That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
-  fit$pars <- c(kappa,lambda)
+  fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
@@ -213,17 +216,19 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' }
 #' @keywords multivariate
 #' @export
-cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE) {
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE) {
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- -1
  # if(is.null(init)) init <- stops::cmdscale(dis^lambda,k=ndim)$points
   fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
   fit$lambda <- lambda
   fit$kappa <- 1
+  fit$nu <- -1
   fit$stress.m <- fit$stress/sum(dis^(2*lambda))
   fit$conf <- fit$points
-  fit$pars <- c(kappa,lambda)
+  fit$pars <- c(kappa,lambda,nu)
  # delta <- 
  # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
@@ -262,21 +267,23 @@ cop_sammon <- function(dis,theta=c(1,1),ndim=2,init=NULL,weightmat=NULL,...,stre
 #' 
 #'@keywords multivariate
 #'@export
-cop_sammon2 <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
+cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE) {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- theta[3]
   addargs <- list(...)
   addargs
-  elscalw <- dis^(-lambda) #the weighting in elastic scaling
+  elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
+  fit$nu <- nu
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -324,13 +331,14 @@ cop_sammon2 <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,str
 #' }
 #' @keywords multivariate
 #' @export
-cop_cmdscale <- function(dis,theta=c(1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE) {
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE) {
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2] 
+  if(length(theta)==3L) lambda <- theta[2]
   fit <- stops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
   fit$lambda <- lambda
   fit$kappa <- 1
+  fit$nu <- 1
   fitdis <- 2*sqrt(sqdist(fit$points))
   fit$stress <- sum((dis^lambda-fitdis)^2)
   fit$stress.m <- sum((dis^lambda-fitdis)^2)/sum(dis^(2*lambda))
@@ -371,18 +379,19 @@ cop_cmdscale <- function(dis,theta=c(1,1),weightmat=NULL,ndim=2,init=NULL,...,st
 #' }
 #' @keywords multivariate
 #' @export
-cop_rstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
   if(missing(stresstype)) stresstype <- "normstress"  
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   kappa <- theta
-  if(length(theta)==2L) kappa <- theta[1] 
-  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(length(theta)==3L) kappa <- theta[1] 
+  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- theta[1]
   fit$lambda <- 1
+  fit$nu <- 1
  # fit$pars <- c(kappa,lambda)
  # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
@@ -423,26 +432,27 @@ cop_rstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,n
 #' }
 #' @keywords multivariate
 #' @export
-cop_sstress <- function(dis,theta=c(2,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
   if(missing(stresstype)) stresstype <- "normstress"  
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
-  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- 2
-  fit$lambda <- lambda 
+  fit$lambda <- lambda
+  fit$nu <- 1
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
 }
 
 
-#' COPS version of powerstress
+#' COPS version of powermds
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1 1.
@@ -474,17 +484,18 @@ cop_sstress <- function(dis,theta=c(2,1),weightmat=1-diag(nrow(dis)),init=NULL,n
 #' }
 #' @keywords multivariate
 #' @export
-cop_powerstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
   if(missing(stresstype)) stresstype <- "normstress"
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
+  fit$nu <- 1
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
@@ -522,20 +533,22 @@ cop_powerstress <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NU
 #' }
 #' @keywords multivariate
 #' @export
-cop_powersammon <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
   if(missing(stresstype)) stresstype <- "normstress"
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
-  sammwght <-dis^(-theta[2])
+  nu <- -1
+  sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
   combwght <- sammwght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
+  fit$nu <- nu
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
@@ -573,20 +586,73 @@ cop_powersammon <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NU
 #' }
 #' @keywords multivariate
 #' @export
-cop_powerelastic <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
   if(missing(stresstype)) stresstype <- "normstress"
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
-  elawght <- dis^(-2*theta[2])
+  nu <- -2
+  elawght <- dis^(theta[2])
   diag(elawght) <- 1
   combwght <- elawght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=-2,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="bstress") fit$stress.m <- fit$stress.b
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
+  fit$nu <- nu
+  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
+  out 
+}
+
+#' COPS version of powerstress
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param cordweight weight to be used for the cordillera; defaults to 0.5
+#' @param q the norm of the corrdillera; defaults to 1
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param plot plot the cordillera
+#' @param normed should the cordillera be normed; defaults to TRUE
+#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param stresstype which stress to report? Defaults to explicitly normed stress
+#' @param ... additional arguments to be passed to the fitting procedure
+#'
+#' @return A list with the components
+#' \itemize{
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item coploss: the weighted loss value
+#'         \item OC: the Optics cordillera value
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#'         \item cordillera: the cordillera object
+#' }
+#' @keywords multivariate
+#' @export
+cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "normstress"
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,3)
+  wght <- weightmat
+  diag(wght) <- 1
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  if(stresstype=="bstress") fit$stress.m <- fit$stress.b
+  fit$kappa <- theta[1]
+  fit$lambda <- theta[2]
+  fit$nu <- theta[3]
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
@@ -594,7 +660,7 @@ cop_powerelastic <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=N
 
 #' Calculates coploss for given MDS object 
 #'
-#' @param obj MDS object (supported are sammon, cmdscale, smacof, rstress, powerstress)
+#' @param obj MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
 #' @param q the norm of the corrdillera; defaults to 1
@@ -621,6 +687,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
         stressi <- obj$stress.m
         kappa <- obj$kappa
         lambda <- obj$lambda
+        nu <- obj$nu
         confs <- obj$conf 
         corrd <- cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
         struc <- corrd$raw
@@ -630,8 +697,8 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
                    maxstruc <- 1
                    }
         ic <- stressweight*stressi - cordweight*struc
-        if(verbose>0) cat(paste("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"\n"))
-        out <- list(coploss=ic,OC=struc,parameters=c(kappa=kappa,lambda=lambda),cordillera=corrd)
+        if(verbose>0) cat(paste("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n"))
+        out <- list(coploss=ic,OC=struc,parameters=c(kappa=kappa,lambda=lambda,nu=nu),cordillera=corrd)
         out
      }
 
@@ -642,9 +709,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' \itemize{
 #' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane's S-Stress \code{sstress} (workhorse is powerStressMin)
 #' \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerStressMin)
-#' \item Power transformations of fitted distances and observed proximities: Powerstress \code{powerstress}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}; workhorse is powerStressMin)
+#' \item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}; workhorse is powerStressMin)
 #' }
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist). If a scalar is given as argument, it will take the role designated by the loss argument. Defaults to 1 1
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If a scalar is given as argument, it will take the role designated by the loss argument. Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
@@ -705,16 +772,16 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powerstress","sstress","elastic","powersammon","powerelastic"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1),upper=c(5,5),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
+cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,1),upper=c(5,5,1),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
     {
       if(missing(loss)) loss <- "strain"
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
+      psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(missing(rang)) 
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed))
+           initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed))
            init0 <- initsol$fit$conf
            if(isTRUE(scale)) init0 <- scale(init0)
            crp <- cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
@@ -729,7 +796,7 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
       if(missing(cordweight))
                {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed))  
+                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed))  
                  initcorrd <- cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
                  if(identical(normed,FALSE)) initcorrd <- cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
                 cordweight <- initsol$stress.m/initcorrd  
@@ -782,7 +849,7 @@ print.cops <- function(x,...)
     cat("\nCall: ")
     print(x$call)
     cat("\n")
-    cat("Model: COPS with", x$loss,"loss function and parameters kappa=",x$par[1],"lambda=",x$par[2],"\n")
+    cat("Model: COPS with", x$loss,"loss function and parameters kappa=",x$par[1],"lambda=",x$par[2],"nu=",x$par[3],"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
     cat("MDS loss value:", x$stress.m, "\n")
@@ -796,7 +863,7 @@ print.cops <- function(x,...)
 #'@export
 coef.cops <- function(object,...)
     {
-    return(c(kappa=object$par[1],lambda=object$par[2]))
+    return(c(kappa=object$par[1],lambda=object$par[2],nu=object$par[3]))
     }
 
 

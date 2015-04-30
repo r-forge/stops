@@ -4,6 +4,7 @@
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
 #' @param lambda the power of the transformation of the proximities; defaults to 1
+#' @param nu the power of the transformation for weightmat; defaults to 1 
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
@@ -50,7 +51,7 @@
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stresse1) {
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stresse1) {
     #TODO: This function is not compatible with smacofSym as the stress and normalizations are calculated very differently; perhaps that should be made so as to be similar (Patrick?)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -59,6 +60,8 @@ powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightma
     p <- ndim
     deltaorig <- delta
     delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
@@ -133,7 +136,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, lambdamax=lambda, weightma
     # \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
     # \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
     # \item stress.co: correlation of dissimilarities and fitted distances
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
  }

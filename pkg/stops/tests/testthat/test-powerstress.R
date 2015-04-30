@@ -58,8 +58,20 @@ test_that("Transformation and Shepard Plots work correctly",{
           })
 
 
+test_that("Power stresses are similar when nu is used versus direct weighting",{
+              e2<-powerStressMin(ekman,kappa=2*1,lambda=1,nu=1)
+              e1<-powerStressMin(ekman,kappa=2*1,lambda=1)
+              expect_equal(e1$conf,e2$conf)
 
+              e2<-powerStressMin(ekman,kappa=2*1,lambda=2,nu=-1,weightmat=ekman)
+              e1<-powerStressMin(ekman,kappa=2*1,lambda=2,weighmat=1/ekman)
+              expect_equal(e1$conf,e2$conf)
 
+              e2<-powerStressMin(ekman,kappa=2*1,lambda=2,nu=-2,weightmat=ekman)
+              e1<-powerStressMin(ekman,kappa=2*1,lambda=2,weighmat=1/ekman^2)
+              expect_equal(e1$conf,e2$conf)
+          })
+ 
 
 #these are r stresses 
 e05<-powerStressMin(ekman,kappa=2*0.05,lambda=1,verbose=2,eps=1e-8)
