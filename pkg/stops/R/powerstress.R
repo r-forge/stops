@@ -55,13 +55,14 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     #TODO: This function is not compatible with smacofSym as the stress and normalizations are calculated very differently; perhaps that should be made so as to be similar (Patrick?)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"\n")
+    if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     r <- kappa/2
     p <- ndim
     deltaorig <- delta
     delta <- delta^lambda
     weightmato <- weightmat
     weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 0 #new
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat)
     itel <- 1

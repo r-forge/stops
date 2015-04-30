@@ -9,7 +9,8 @@ context("COPS tests")
 #test cops arguments
 
 dis <- kinshipdelta
-test1 <- cops(dis)
+dis <- as.matrix(dis)
+test1 <- cops(dis,verbose=4)
 
 test_that("cops runs in default mode",{
 #cops
@@ -20,9 +21,7 @@ test_that("cops loss argument work right",{
         test2 <- cops(dis,loss="strain")
         expect_that(test2$fit,is_a("cmdscale"))
         test3 <- cops(dis,loss="stress")
-        expect_that(test2$fit,is_a("smacofB"))
-        test3 <- cops(dis,loss="powerstress")
-        expect_that(test3$fit,is_a("smacofP"))
+        expect_that(test3$fit,is_a("smacofB"))
         test4 <- cops(dis,loss="powerelastic")
         expect_that(test4$fit,is_a("smacofP"))
         expect_that(test4$fit$weightmat,equals(dis^(-2*test4$par[2])))
@@ -40,7 +39,11 @@ test_that("cops loss argument work right",{
         test10 <- cops(dis,loss="smacofSym")
         expect_that(test10$fit,is_a("smacofB"))
         test11 <- cops(dis,loss="sstress")
-        expect_that(test11$fit,is_a("smacofP"))            
+        expect_that(test11$fit,is_a("smacofP"))
+        test12 <- cops(dis,loss="powermds")
+        expect_that(test12$fit,is_a("smacofP"))
+        test13 <- cops(dis,loss="powerstress",verbose=4)
+        expect_that(test13$fit,is_a("smacofP"))
     })
 
 test_that("cops ndim argument"{
@@ -90,7 +93,7 @@ test_that("Initsol for cops",{
             })
 
 test_that("Powerstress COPS Kinship",{
-              teso <- cops(dis,loss="powerstress",q=q,minpts=minpts,epsilon=eps,rang=rang,verbose=0,plot=FALSE,scale=scale,lower=c(0.75,0.75),upper=c(4,4),itmax)
+              teso <- cops(dis,loss="powerstress",q=q,minpts=minpts,epsilon=eps,rang=rang,verbose=0,plot=FALSE,scale=scale,lower=c(0.75,0.75,0.5),upper=c(4,4,2),itmax)
              #expect class
              #expect a value
               expect_equal_to_reference(teso)

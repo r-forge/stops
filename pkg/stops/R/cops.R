@@ -772,7 +772,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,1),upper=c(5,5,1),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
+cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,...)
     {
       if(missing(loss)) loss <- "strain"
       .confin <- init #initialize a configuration
