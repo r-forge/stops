@@ -62,7 +62,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     delta <- delta^lambda
     weightmato <- weightmat
     weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 0 #new
+    weightmat[!is.finite(weightmat)] <- 1 #new
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat)
     itel <- 1

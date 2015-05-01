@@ -594,7 +594,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   elawght <- dis^(theta[2])
   diag(elawght) <- 1
   combwght <- elawght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=-2,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n

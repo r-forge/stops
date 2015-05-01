@@ -29,7 +29,7 @@ test_that("cops loss argument work right",{
         expect_that(test5$fit,is_a("smacofP"))            
         test6 <- cops(dis,loss="sammon")
         expect_that(test6$fit,is_a("cmdscale"))            
-        test7 <- cops(dis,loss="powersammon")
+        test7 <- cops(dis,loss="powersammon",verbose=4)
         expect_that(test6$fit,is_a("smacofP"))
         expact_that(test6$fit$weightmat,equals(dis^(-test6$par[2])))
         test8 <- cops(dis,loss="smacofSphere")
