@@ -72,7 +72,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
           formatC (fnew, digits = 10, width = 13, format = "f"),
           formatC (d, digits = 10, width = 13, format = "f"), "\n")
       }  
-     if ((itel == itmax) || (abs(fold - fnew) < acc) || (min(d) < accd)) {
+     if ((itel == itmax) || (abs(fold - fnew) < acc) || (max(d) < accd)) {
          convo <- 0L
          if(itel==itmax) convo <- 1L
          break ()

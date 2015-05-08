@@ -469,7 +469,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
-#' @param stresstype which stress to report? Defaults to explicitly normed stress
+#' @param stresstype which stress to report? Defaults to whatever whim is my default (currently square root explicitly normed stress)
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
 #' @return A list with the components
@@ -484,11 +484,12 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @export
-cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"
+cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n

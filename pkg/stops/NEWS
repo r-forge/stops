@@ -1,5 +1,9 @@
 Version 0.0-15
 
+- Changed default stress measure in powerStressMin to sqrt(sum((d-delta)^2)/sum(delta^2)) (was non square rooted before). 
+
+Version 0.0-15
+
 - Added the three parameter version of power stress (also optimizing over weights). We can now fit smacof models, strain models, sammon models, rstress, sstress (all one parameter models optimization over kappa or lambda), powermds, powerelastic, powersammon (two-parameter models optimization over kappa and lambda) and powerstress (three-parameter model optimization over kappa and lambda and nu). Not possible (and perhaps never to be implemented) are the two-parameter models that optimize over (lambda, nu) or (kappa, nu). 
 
 Version 0.0-14
