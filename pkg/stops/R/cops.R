@@ -379,12 +379,13 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #' }
 #' @keywords multivariate
 #' @export
-cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"  
+cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   kappa <- theta
   if(length(theta)==3L) kappa <- theta[1] 
   fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
@@ -432,13 +433,14 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @export
-cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"  
+cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
@@ -455,7 +457,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' COPS version of powermds
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1 1.
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), nu is fixed to 1. If a scalar is given it is recycled.  Defaults to 1 1.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -469,7 +471,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
-#' @param stresstype which stress to report? Defaults to whatever whim is my default (currently square root explicitly normed stress)
+#' @param stresstype which stress to report? Defaults to whatever whim is my default (currently explicitly normed stress)
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
 #' @return A list with the components
@@ -534,8 +536,8 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @keywords multivariate
 #' @export
-cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"
+cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
   nu <- -1
@@ -543,6 +545,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
   diag(sammwght) <- 1
   combwght <- sammwght*weightmat
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
@@ -587,8 +590,8 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' }
 #' @keywords multivariate
 #' @export
-cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"
+cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
   nu <- -2
@@ -596,6 +599,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   diag(elawght) <- 1
   combwght <- elawght*weightmat
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
@@ -640,13 +644,14 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' }
 #' @keywords multivariate
 #' @export
-cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("stress1","rawstress","normstress","bstress")) {
-  if(missing(stresstype)) stresstype <- "normstress"
+cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","bstress")) {
+  if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,3)
   wght <- weightmat
   diag(wght) <- 1
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
@@ -761,7 +766,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'#the reason is the distance between sister and son
 #' 
 #'#procrustes adjusted
-#'resadj<-conf_adjust(res2$points,res1$points)
+#'resadj<-conf_adjust(res2$fit$points,res1$fit$points)
 #'plot(resadj$ref.conf) #res 2
 #'plot(resadj$other.conf) #res 1
 #' 

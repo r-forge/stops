@@ -1,6 +1,6 @@
 Version 0.0-15
 
-- Changed default stress measure in powerStressMin to sqrt(sum((d-delta)^2)/sum(delta^2)) (was non square rooted before). 
+- Changed default stress measure in powerStressMin to sqrt(sum((d-delta)^2)/sum(delta^2)) (was non square rooted before). Fixed bug in print.summary.optics for displaying the stem and leaf plot.  
 
 Version 0.0-15
 

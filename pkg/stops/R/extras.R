@@ -114,7 +114,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         }
     }
     if (plot.type %in% c("Shepard","resplot")) {
-        if(missing(col)) col <- c("grey60","grey650") 
+        if(missing(col)) col <- c("grey60","grey65") 
         if (missing(main)) 
             main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
         else main <- main

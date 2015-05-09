@@ -101,7 +101,7 @@ print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
         if(stemd)
             {
              cat(" Stem and Leaf Display of the Minimum Reachabilities:",fill=TRUE)
-             graphics::stem(x$tmp,...)
+             graphics::stem(x$reachabilities,...)
              cat("\n")
           }
     }

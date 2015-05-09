@@ -51,8 +51,9 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 and some additional components
 \itemize{
 \item gamma: The majorizing function at convergence
+\item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.r: raw stress on the observed, transformed dissimilarities
-\item stress.m: square root of the explicitly normalized stress on the observed, transformed dissimilarities
+\item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
 \item stress.e: raw stress on the normalized, transformed dissimilarities

@@ -56,13 +56,13 @@
 #' plot(res,"Shepard")
 #'
 #' #OPTICS
-#' ores<-optics(res$points,minpts=2,epsilon=100)
+#' ores<-optics(res$fit$points,minpts=2,epsilon=100)
 #' ores
 #' summary(ores)
 #' plot(ores)
 #' 
 #' #OPTICS cordillera
-#' cres<-cordillera(res$points)
+#' cres<-cordillera(res$fit$points)
 #' cres
 #' summary(cres)
 #' plot(cres)

@@ -93,7 +93,7 @@ plot(res2)
 #the reason is the distance between sister and son
 
 #procrustes adjusted
-resadj<-conf_adjust(res2$points,res1$points)
+resadj<-conf_adjust(res2$fit$points,res1$fit$points)
 plot(resadj$ref.conf) #res 2
 plot(resadj$other.conf) #res 1
 
