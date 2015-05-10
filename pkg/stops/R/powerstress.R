@@ -20,8 +20,8 @@
 #' \item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
 #' \item confdiss: Configuration dissimilarities
 #' \item conf: Matrix of fitted configuration
-#' \item stress: Default stresstype 
-#' \item spp: Stress per point
+#' \item stress: Default stress  
+#' \item spp: Stress per point (based on stress.en) 
 #' \item ndim: Number of dimensions
 #' \item model: Name of smacof model
 #' \item niter: Number of iterations
@@ -31,12 +31,14 @@
 #' and some additional components
 #' \itemize{
 #' \item gamma: The majorizing function at convergence
-#' \item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the observed, transformed dissimilarities
+#' \item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the normalized, transformed dissimilarities
 #' \item stress.r: raw stress on the observed, transformed dissimilarities
 #' \item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
 #' \item stress.e: raw stress on the normalized, transformed dissimilarities
+#' \item stress.en: stress on the normalized, transformed dissimilarities and normalized transformed distances
+#' \item stress.en1: stress 1 on the normalized, transformed dissimilarities and normalized transformed distances; this is reported by the print ,ethod
 #' \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
 #' \item deltaorig: observed, untransformed dissimilarities
 #' \item weightmat: weighting matrix 
@@ -52,7 +54,7 @@
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stresse1) {
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stressen1) {
     #TODO: This function is not compatible with smacofSym as the stress and normalizations are calculated very differently; perhaps that should be made so as to be similar (Patrick?)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -115,14 +117,18 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
      delta <- as.dist(delta)
      deltaorig <- as.dist(deltaorig)
      deltaold <- as.dist(deltaold)
+     doute <- doutm/enorm(doutm)
+     doute <- as.dist(doute)
      dout <- as.dist(doutm)
-     resmat <- as.matrix(delta - dout)^2
+     resmat <- as.matrix(delta - doute)^2
      spp <- colMeans(resmat)
      weightmatm <-weightmat
      weightmat <- as.dist(weightmatm)
     # stresso <- sum(weightmat*(dout-deltaorig^lambdamax)^2) #orig stress mit max lambda
      stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress
      stresse <- sum(weightmat*(dout-delta)^2) #enormed raw stress
+     stressen <- sum(weightmat*(doute-delta)^2) #enormed raw stress
+     stressen1 <- sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2)) #stress 1 on the normalized transformed dissis
      stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #implicitly normed stress for original data 
      stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #implicitly normed stress for enormed data
      stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant
@@ -133,13 +139,13 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     # stresscor <- cor(as.vector(weightmat*dout),as.vector(weightmat*deltaold)) #correlation of fitted and observed; is this good?
     # stresscore <- cor(as.vector(weightmat*dout),as.vector(weightmat*delta)) #correlation of fitted and observed
     # if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; bstress:",stressb,"; estress:",stresse,"; estress1:",stresse1,"; bestress:",stressbe,"stresscor:",stresscor,"stresscore:",stresscore,"\n")
-    if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; sqrt enormed stress:",stresss,"; estress:",stresse,"; estress1:",stresse1,"\n")   
+    if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; sqrt enormed stress:",stresss,"; estress:",stresse,"; normed estress:",stressen,";sqrt normed estress:",stressen,"; estress1:",stresse1,"; normed estress 1:",stressen,"\n")   
     #out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr, stress.n=stressn, stress.1=stress1, stress.b=stressb, stress.e=stresse,stress.e1=stresse1,stress.be=stressbe,stress.co=stresscor, deltaorig=as.dist(deltaorig),resmat=resmat)
     # add this to documentation if used
     # \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
     # \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
     # \item stress.co: correlation of dissimilarities and fitted distances
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stresss, stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.e=stresse, stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=sqrt(stressen), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
  }

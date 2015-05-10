@@ -6,7 +6,7 @@
 \usage{
 powerStressMin(delta, kappa = 1, lambda = 1, nu = 1, lambdamax = lambda,
   weightmat = 1 - diag(nrow(delta)), init = NULL, ndim = 2, eps = 1e-10,
-  itmax = 1e+05, verbose = FALSE, stresstype = stresse1)
+  itmax = 1e+05, verbose = FALSE, stresstype = stressen1)
 }
 \arguments{
 \item{delta}{dist object or a symmetric, numeric data.frame or matrix of distances}
@@ -40,8 +40,8 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 \item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
 \item confdiss: Configuration dissimilarities
 \item conf: Matrix of fitted configuration
-\item stress: Default stresstype
-\item spp: Stress per point
+\item stress: Default stress
+\item spp: Stress per point (based on stress.en)
 \item ndim: Number of dimensions
 \item model: Name of smacof model
 \item niter: Number of iterations
@@ -51,12 +51,14 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 and some additional components
 \itemize{
 \item gamma: The majorizing function at convergence
-\item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the observed, transformed dissimilarities
+\item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the normalized, transformed dissimilarities
 \item stress.r: raw stress on the observed, transformed dissimilarities
 \item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
 \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
 \item stress.e: raw stress on the normalized, transformed dissimilarities
+\item stress.en: stress on the normalized, transformed dissimilarities and normalized transformed distances
+\item stress.en1: stress 1 on the normalized, transformed dissimilarities and normalized transformed distances; this is reported by the print ,ethod
 \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
 \item deltaorig: observed, untransformed dissimilarities
 \item weightmat: weighting matrix
