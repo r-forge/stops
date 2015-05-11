@@ -17,9 +17,9 @@
 #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
-#' \item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
-#' \item confdiss: Configuration dissimilarities
-#' \item conf: Matrix of fitted configuration
+#' \item obsdiss: Observed dissimilarities, normalized 
+#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
 #' \item stress: Default stress  
 #' \item spp: Stress per point (based on stress.en) 
 #' \item ndim: Number of dimensions
@@ -55,7 +55,7 @@
 #' 
 #' @export
 powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, stresstype=stressen1) {
-    #TODO: This function is not compatible with smacofSym as the stress and normalizations are calculated very differently; perhaps that should be made so as to be similar (Patrick?)
+    #TODO: I think this function is now largely compatible with smacofSym; the stress values coincide. Normalizations on the configuration and disatnces however is still calculated differently; perhaps that should be made so as to be similar (Patrick?)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
@@ -110,7 +110,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
        lold <- lnew
      }
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
-     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two as is convention
+     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
      deltam <- delta
      deltaorigm <- deltaorig
      deltaoldm <- deltaold

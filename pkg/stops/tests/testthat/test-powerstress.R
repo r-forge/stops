@@ -71,7 +71,14 @@ test_that("Power stresses are similar when nu is used versus direct weighting",{
               e1<-powerStressMin(ekman,kappa=2*1,lambda=2,weighmat=1/ekman^2)
               expect_equal(e1$conf,e2$conf)
           })
- 
+
+test_that("Power stresses are equal when nu is used as 0 with identity matrix for w",{
+              e2<-powerStressMin(ekman,kappa=2*1,lambda=1,nu=0)
+              e1<-powerStressMin(ekman,kappa=2*1,lambda=1,nu=1,weightmat=1-diag(14))
+              expect_equal(e1$conf,e2$conf)
+          })
+
+
 
 #these are r stresses 
 e05<-powerStressMin(ekman,kappa=2*0.05,lambda=1,verbose=2,eps=1e-8)
