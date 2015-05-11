@@ -124,27 +124,16 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
      spp <- colMeans(resmat)
      weightmatm <-weightmat
      weightmat <- as.dist(weightmatm)
-    # stresso <- sum(weightmat*(dout-deltaorig^lambdamax)^2) #orig stress mit max lambda
-     stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress
-     stresse <- sum(weightmat*(dout-delta)^2) #enormed raw stress
-     stressen <- sum(weightmat*(doute-delta)^2) #enormed raw stress
-     stressen1 <- sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2)) #stress 1 on the normalized transformed dissis
-     stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #implicitly normed stress for original data 
-     stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #implicitly normed stress for enormed data
-     stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant
-     stresss <- sqrt(stressn) #normalized to the maximum stress delta^2*lambda as the normalizing constant
-    # stressno <- stresso/(sum(weightmat*deltaorig^(2*lambdamax)))  #normalized to the maximum lambda; perhaps for optimization
-    # stressb <-stressr/(sum(weightmat*deltaold^2)*sum(weightmat*dout^2))  #normalized to both d and delta for the real observations 
-    # stressbe <-stressr/(sum(weightmat*delta^2)*sum(weightmat*dout^2))#normalized to both d and delta for delta
-    # stresscor <- cor(as.vector(weightmat*dout),as.vector(weightmat*deltaold)) #correlation of fitted and observed; is this good?
-    # stresscore <- cor(as.vector(weightmat*dout),as.vector(weightmat*delta)) #correlation of fitted and observed
-    # if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; bstress:",stressb,"; estress:",stresse,"; estress1:",stresse1,"; bestress:",stressbe,"stresscor:",stresscor,"stresscore:",stresscore,"\n")
-    if(verbose>1) cat("***raw stress:",stressr,"; stress1:",stress1,"; enormed stress:",stressn,"; sqrt enormed stress:",stresss,"; estress:",stresse,"; normed estress:",stressen,";sqrt normed estress:",stressen,"; estress1:",stresse1,"; normed estress 1:",stressen,"\n")   
-    #out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=stressn, stress.r=stressr, stress.n=stressn, stress.1=stress1, stress.b=stressb, stress.e=stresse,stress.e1=stresse1,stress.be=stressbe,stress.co=stresscor, deltaorig=as.dist(deltaorig),resmat=resmat)
-    # add this to documentation if used
-    # \item stress.b: explicitly and implicitly normalized stress on the observed, transformed dissimilarities
-    # \item stress.be: explicitly and implicitly normalized stress on the normalized, transformed dissimilarities
-    # \item stress.co: correlation of dissimilarities and fitted distances
+     #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
+     stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
+     stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
+     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
+     stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+     stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #stress 1 on the original proximities 
+     stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
+     stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
+     stresss <- sqrt(stressn) #sqrt of stressn
+     if(verbose>1) cat("*** raw stress (both normalized):",stressen,"; stress 1 (both normalized):",stressen1,"; sqrt raw stress (both normlaized):",sqrt(stressen),"raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"\n")   
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=sqrt(stressen), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
