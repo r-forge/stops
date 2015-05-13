@@ -1,6 +1,7 @@
 context("Powerstress")
 
 library(stops)
+library(smacof)
 ekman <-
 structure(c(0.86, 0.42, 0.42, 0.18, 0.06, 0.07, 0.04, 0.02, 0.07,
 0.09, 0.12, 0.13, 0.16, 0.5, 0.44, 0.22, 0.09, 0.07, 0.07, 0.02,
@@ -26,6 +27,11 @@ test_that("Power stress for Ekman data works",{
 #these are r stresses 
 expect_equal_to_reference(e05<-powerStressMin(ekman,kappa=2*0.25,lambda=1))
 expect_that(e05,is_a("smacofP"))
+})
+
+test_that("PowerStress equals smacofSym stress to the third digit",{
+s1 <- smacofSym(ekman)
+expect_that(round(e1$stress.en1,3),equals(round(s1$stress,3)))
 })
 
 
