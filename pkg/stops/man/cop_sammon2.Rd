@@ -7,7 +7,7 @@
 cop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
   minpts = 2, epsilon = 10, rang = NULL, verbose = 0, plot = FALSE,
-  normed = TRUE, scale = TRUE)
+  normed = TRUE, scale = TRUE, stresstype = "default")
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -41,6 +41,8 @@ cop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
 \item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
+
+\item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }
 \value{
 A list with the components

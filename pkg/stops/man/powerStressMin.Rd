@@ -6,7 +6,7 @@
 \usage{
 powerStressMin(delta, kappa = 1, lambda = 1, nu = 1, lambdamax = lambda,
   weightmat = 1 - diag(nrow(delta)), init = NULL, ndim = 2, eps = 1e-10,
-  itmax = 1e+05, verbose = FALSE, stresstype = stressen1)
+  itmax = 1e+05, verbose = FALSE, defaultstress = stressen1)
 }
 \arguments{
 \item{delta}{dist object or a symmetric, numeric data.frame or matrix of distances}
@@ -31,15 +31,15 @@ powerStressMin(delta, kappa = 1, lambda = 1, nu = 1, lambdamax = lambda,
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 
-\item{stresstype}{the stress type to be reported by default; defaults to stress-1 for smacof compatibility}
+\item{defaultstress}{the stress type to be reported by default; defaults to stress-1 for smacof compatibility}
 }
 \value{
 a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed dissimilarities, not normalized
-\item obsdiss: Observed dissimilarities, normalized to sum*w*delta=1
-\item confdiss: Configuration dissimilarities
-\item conf: Matrix of fitted configuration
+\item obsdiss: Observed dissimilarities, normalized
+\item confdiss: Configuration dissimilarities, NOT normalized
+\item conf: Matrix of fitted configuration, NOT normalized
 \item stress: Default stress
 \item spp: Stress per point (based on stress.en)
 \item ndim: Number of dimensions

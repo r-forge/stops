@@ -8,12 +8,12 @@ cop_sstress(dis, theta = c(2, 1, 1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
   q = 1, minpts = 2, epsilon = 10, rang = NULL, verbose = 0,
   plot = FALSE, scale = TRUE, normed = TRUE, stresstype = c("default",
-  "stress1", "rawstress", "normstress", "bstress"))
+  "stress1", "rawstress", "normstress", "enormstress", "enormstress1"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument. Defaults to 2 1}
+\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

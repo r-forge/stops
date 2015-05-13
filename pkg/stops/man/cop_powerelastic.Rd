@@ -8,12 +8,12 @@ cop_powerelastic(dis, theta = c(1, 1, -2), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
   q = 1, minpts = 2, epsilon = 10, rang = NULL, verbose = 0,
   plot = FALSE, scale = TRUE, normed = TRUE, stresstype = c("default",
-  "stress1", "rawstress", "normstress", "bstress"))
+  "stress1", "rawstress", "normstress", "enormstress", "enormstress1"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1 1.}
+\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

@@ -8,7 +8,7 @@ cop_powerstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
   q = 1, minpts = 2, epsilon = 10, rang = NULL, verbose = 0,
   plot = FALSE, scale = TRUE, normed = TRUE, stresstype = c("default",
-  "stress1", "rawstress", "normstress", "bstress"))
+  "stress1", "rawstress", "normstress", "enormstress", "enormstress1"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
