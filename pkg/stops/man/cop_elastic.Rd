@@ -16,7 +16,7 @@ cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = NULL,
 
 \item{ndim}{number of dimensions of the target space}
 
-\item{weightmat}{(optional) a matrix of nonnegative weights}
+\item{weightmat}{(optional) a matrix of nonnegative weights (NOT the elscal weights)}
 
 \item{init}{(optional) initial configuration}
 

@@ -65,7 +65,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
 #' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
@@ -93,7 +93,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #' 
 #'@keywords multivariate
 #'@export
-cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
+cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -101,7 +101,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
-  nu <- theta[3]
+  nu <- -2
   addargs <- list(...)
   addargs
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
@@ -242,9 +242,9 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #' COPS versions of Sammon mapping models (via smacofSym)
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument. Defaults to 1 1 
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1. 
 #' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param weightmat (optional) a matrix of nonnegative weights (NOT the sammon weights)
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
@@ -279,13 +279,13 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
-  nu <- theta[3]
+  nu <- -1
   addargs <- list(...)
-  addargs
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2)) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -296,7 +296,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
-  fit$pars <- c(kappa,lambda)
+  fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
@@ -726,7 +726,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
 #' \itemize{
-#' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane's S-Stress \code{sstress} (workhorse is powerStressMin)
+#' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerStressMin)
 #' \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerStressMin)
 #' \item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}; workhorse is powerStressMin)
 #' }
@@ -792,11 +792,13 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress"),weightmat=1-diag(nrow(dis)),ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
+cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
     {
+      if(inherits(dis,"dist")) dis <- as.matrix(dis)
+      if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
       if(missing(loss)) loss <- "strain"
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
+      psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(missing(rang)) 
           {
