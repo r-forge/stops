@@ -4,7 +4,7 @@
 \alias{cop_elastic}
 \title{COPS versions of elastic scaling models (via smacofSym)}
 \usage{
-cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = NULL,
+cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = 1,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
   minpts = 2, epsilon = 10, rang = NULL, verbose = 0, plot = FALSE,
   normed = TRUE, scale = TRUE, stresstype = "default")

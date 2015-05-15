@@ -222,6 +222,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' @export
 cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
@@ -230,11 +231,11 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
-  fit$stress.m <- sqrt(fit$stress)#/sum(dis^(2*lambda))
+  fit$stress.r <- fit$stress #default stress from sammon
+  fit$stress.n <- fit$stress
+  fit$stress.m <- sqrt(fit$stress)
   fit$conf <- fit$points
   fit$pars <- c(kappa,lambda,nu)
- # delta <- 
- # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
@@ -285,7 +286,6 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
-   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2)) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu

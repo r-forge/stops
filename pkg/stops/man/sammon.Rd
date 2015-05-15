@@ -16,7 +16,7 @@ sammon(d, y = NULL, k = 2, ...)
 \item{...}{Additional parameters passed to \code{sammon}, see \code{\link{sammon}}}
 }
 \value{
-See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'
+See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
 }
 \description{
 Wrapper to \code{sammon} for S3 class

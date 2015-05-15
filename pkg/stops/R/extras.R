@@ -12,7 +12,7 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      out <- stats::cmdscale(d,k=k,eig=eig,...)
      colnames(out$points) <- paste("D",1:k,sep="")
      out$call <- match.call()
-     out$delta <- as.dist(d)
+     out$delta <- as.dist(d) #FIX
      out$confdiss <- dist(out$points)
      class(out) <- "cmdscale"
      out
@@ -25,7 +25,7 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' @param k The dimension of the configuration
 #' @param ... Additional parameters passed to \code{sammon}, see \code{\link{sammon}}  
 #'
-#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'   
+#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.   
 #'@export
 sammon <- function(d,y=NULL,k=2,...)
     {
@@ -34,7 +34,9 @@ sammon <- function(d,y=NULL,k=2,...)
      colnames(out$points) <- paste("D",1:k,sep="") 
      out$call <- match.call()
      out$delta <- as.dist(d)
+     out$obsdiss <- as.dist(d/enorm(d))
      out$confdiss <- dist(out$points)
+     out$stress.m <- sqrt(out$stress)
      class(out) <- c("sammon","cmdscale")
      out
  }
