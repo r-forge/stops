@@ -138,14 +138,14 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     class(out) <- c("smacofP","smacofB","smacof")
     out
  }
-#' Torgerson scaling
+
+
+#' double centering 
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
 #'
-#' @export
-torgerson <- function(delta, p = 2) {
-    doubleCenter <- function(x) {
+doubleCenter <- function(x) {
         n <- dim(x)[1]
         m <- dim(x)[2]
         s <- sum(x)/(n*m)
@@ -153,6 +153,14 @@ torgerson <- function(delta, p = 2) {
         xc <- colSums(x)/n
         return((x-outer(xr,xc,"+"))+s)
     }
+
+#' Torgerson scaling
+#'
+#' @param delta symmetric, numeric matrix of distances
+#' @param p target space dimensions
+#'
+#' @export
+torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
     v <- pmax(z$values,0)
     return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))

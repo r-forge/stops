@@ -345,9 +345,12 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- 1
-  fitdis <- 2*sqrt(sqdist(fit$points))
+  dis <- doubleCenter(dis)
+  fitdis <- crossprod(t(fit$points))
+  diag(fitdis) <- 0
+  diag(dis) <- 0
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
-  fit$stress.n <- sum((dis^lambda-fitdis)^2)/sum(dis^(2*lambda))
+  fit$stress.n <- sum((dis^lambda-fitdis)^2)/sum(fitdis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
   fit$conf <- fit$points
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
@@ -796,7 +799,7 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
     {
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
-      if(missing(loss)) loss <- "strain"
+      if(missing(loss)) loss <- "stress"
       .confin <- init #initialize a configuration
       psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
