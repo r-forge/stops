@@ -142,9 +142,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
 
 #' double centering 
 #'
-#' @param delta symmetric, numeric matrix of distances
-#' @param p target space dimensions
-#'
+#' @param x numeric matrix
 doubleCenter <- function(x) {
         n <- dim(x)[1]
         m <- dim(x)[2]

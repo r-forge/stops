@@ -223,7 +223,8 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  lambda <- theta
+  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==2L) lambda <- theta[2]
   if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
  # if(is.null(init)) init <- stops::cmdscale(dis^lambda,k=ndim)$points
@@ -231,11 +232,13 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
-  fit$stress.r <- fit$stress #default stress from sammon
-  fit$stress.n <- fit$stress
+  dis <- as.dist(dis)
+  fitdis <- dist(fit$points)
+  fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
+  fit$stress.n <- fit$stress.r/sum(dis)
   fit$stress.m <- sqrt(fit$stress)
   fit$conf <- fit$points
-  fit$pars <- c(kappa,lambda,nu)
+#  fit$pars <- c(kappa,lambda,nu)
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
@@ -339,22 +342,21 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' @export
 cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
+  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==2L) lambda <- theta[2]
   if(length(theta)==3L) lambda <- theta[2]
   fit <- stops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- 1
-  dis <- doubleCenter(dis)
-  fitdis <- crossprod(t(fit$points))
-  diag(fitdis) <- 0
-  diag(dis) <- 0
+  dis <- as.dist(dis)
+  fitdis <- dist(fit$points)
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
-  fit$stress.n <- sum((dis^lambda-fitdis)^2)/sum(fitdis^(2*lambda))
+  fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
   fit$conf <- fit$points
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
-  list(stress=fit$GOF, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  list(stress=fit$GOF,stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
 }
 
 #' COPS version of rstress
@@ -799,7 +801,7 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
     {
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
-      if(missing(loss)) loss <- "stress"
+      if(missing(loss)) loss <- "strain"
       .confin <- init #initialize a configuration
       psfunc <- switch(loss,"strain"=cop_cmdscale, "elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
