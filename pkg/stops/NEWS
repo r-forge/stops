@@ -1,5 +1,9 @@
 Version 0.0-17
 
+- Added a vignette (includes the outline of general STOPS - paper pending)
+
+Version 0.0-17
+
 - Added a new stress version to powerstress stress.en and stress.en1 (stress-1 and normalized stress are now also calculated on the normalized distances and normalized proximities this will be less confusing and more compatible for people used to smacof stresses; stress.en is also the basis for stress per point). stress.en1 is now the default for the print method and sqrt(stress.en) is the default for comparing solutions in cops and stops (as in v 0.0-16 but the d are now d/enorm(d)).    
 
 Version 0.0-16 
