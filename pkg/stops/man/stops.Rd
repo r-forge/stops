@@ -6,7 +6,7 @@
 \alias{stops-package}
 \title{stops: structure optimized proximity scaling}
 \usage{
-stops(dis, structure = "clusteredness", ...)
+stops(dis, structure = "c-clusteredness", ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -90,7 +90,7 @@ plot(cres)
 }
 \donttest{
 data(BankingCrisesDistances)
-res1<-stops(BankingCrisesDistances[,1:69],structure="clusteredness",loss="strain",verbose=0)
+res1<-stops(BankingCrisesDistances[,1:69],structure="c-clusteredness",loss="strain",verbose=0)
 res1
 }
 }

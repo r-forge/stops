@@ -11,21 +11,21 @@
 #' @examples
 #' \donttest{
 #' data(BankingCrisesDistances)
-#' res1<-stops(BankingCrisesDistances[,1:69],structure="clusteredness",loss="strain",verbose=0)
+#' res1<-stops(BankingCrisesDistances[,1:69],structure="c-clusteredness",loss="strain",verbose=0)
 #' res1
 #'}
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,structure="clusteredness",...)
+stops <- function(dis,structure="c-clusteredness",...)
     {
-     if(structure=="clusteredness")
+     if(structure=="c-clusteredness")
          {
              out <- cops(dis,...)
              out$call <- match.call()
              return(out)
          } else
              {
-              cat(" Only c-clusteredness STOPS models (COPS) have yet been implemented \n")
+              cat(" Only c-clusteredness STOPS models (COPS) have yet been implemented! \n")
               return(NULL)   
              }
  }
