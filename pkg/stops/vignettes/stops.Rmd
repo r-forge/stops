@@ -136,7 +136,7 @@ res9
 summary(res9)
 ```
 
-```{r,fig.show='hold',fig.width = 10, fig.height = 10}
+```{r,fig.show='hold',fig.width=8, fig.height = 10}
 plot(res9)
 plot(res9,"transplot")
 plot(res9,"Shepard")
@@ -168,7 +168,7 @@ resc<-cmdscale(kinshipdelta^3)
 resc
 ```
 
-```{r,fig.show='hold',fig.width = 10, fig.height = 10}
+```{r,fig.show='hold',fig.width=8, fig.height=8}
 summary(resc)
 plot(resc)
 ```
@@ -341,7 +341,7 @@ print(res)
 summary(res)
 ```
 
-```{r,fig.show='hold',fig.width=8,fig.height=8
+```{r,fig.show='hold',fig.width=8,fig.height=8}
 plot(res,withlabels=TRUE)
 ```
 
@@ -374,6 +374,7 @@ points(res2$par,res2$value,col="red",pch=19)
 
 ### Procrustes Adjustment
 We also crovide a procrustes adjustemnt to make to configuration visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
+
 ```{r,eval=FALSE}
 conf_adjust(conf1,conf2) 
 ```
