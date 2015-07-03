@@ -1,4 +1,8 @@
-Version 0.0-17
+Version 0.0-19
+
+- Added STOPS infrastructure (fitting functions and methods); added clinearity; STOPS works for clinearity and cclusteredness; minor updates to functions for COPs; updated vignette, added some tests;  
+
+Version 0.0-18
 
 - Added a vignette (includes the outline of general STOPS - paper pending)
 

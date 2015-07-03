@@ -39,8 +39,8 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
-  addargs <- list(...)
-  addargs
+ # addargs <- list(...)
+ # addargs
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
@@ -53,7 +53,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- c(kappa,lambda)
+  fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)   
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
@@ -721,7 +721,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
                    maxstruc <- 1
                    }
         ic <- stressweight*stressi - cordweight*struc
-        if(verbose>0) cat(paste("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n"))
+        if(verbose>0) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
         out <- list(coploss=ic,OC=struc,parameters=c(kappa=kappa,lambda=lambda,nu=nu),cordillera=corrd)
         out
      }
@@ -753,7 +753,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
 #'@param s number of particles if pso is used
-#'@param stresstype ... what stress to be used for comparisons between solutions 
+#'@param stresstype what stress to be used for comparisons between solutions 
 #'@param ... additional arguments to be passed to the optimization procedure
 #'
 #'@return A list with the components
@@ -832,26 +832,15 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
              }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-          opt<- optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,method="SANN",...)
+          opt<- optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,method="SANN",...)
       }
-  #    if(optimmethod=="eda") {
-  #    #eventually TODO: add EDA optimization; S4 burn in hell
-  #      setMethod("edaReport", "EDA", edaReportSimple)
-  #      setMethod("edaTerminate", "EDA", edaTerminateCombined(edaTerminateMaxGen,edaTerminateEval))
-  #      DVEDA <- VEDA(vine = "DVine", copulas = c("normal"), indepTestSigLevel = 0.01, margin = "norm",popSize = 50, maxGens = 50, fEval = 0, fEvalTol = 1e-03)
-  #     DVEDA@name <- "D-vine Estimation of Distribution Algorithm"
-  #     opt<- copulaedas::edaRun(DVEDA, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed))$coploss,lower=lower,upper=upper)
-  #     opt$value <- opt@bestEval
-  #     opt$par <- opt@bestSol
-  #     opt$counts <- c(function=opt@NumGens*opt@eda@parameters@popSize,gradient=NA)
-  #     }
       if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,control=control)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,control=control)
        }
       if(optimmethod=="ALJ") {
-      opt<- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
+      opt<- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
       }
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)

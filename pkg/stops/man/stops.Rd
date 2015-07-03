@@ -6,14 +6,52 @@
 \alias{stops-package}
 \title{stops: structure optimized proximity scaling}
 \usage{
-stops(dis, structure = "c-clusteredness", ...)
+stops(dis, loss = c("stress", "smacofSym", "powerstress"),
+  transformation = mkPower, theta, structures = c("cclusteredness",
+  "clinearity"), ndim = 2, weightmat = 1 - diag(nrow(dis)), init = NULL,
+  stressweight = 1, strucweight, strucpars, optimmethod = c("SANN", "ALJ",
+  "pso"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  type = c("additive", "multiplicative"), s = 4, stresstype = "default",
+  ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{structure}{what structuredness should be considered}
+\item{loss}{which loss function to be used for fitting, defaults to stress}
 
-\item{...}{additional arguments to be passed to the work horses}
+\item{transformation}{function to transform the proximities and/or distances; need to be parameterized by theta; currently not used}
+
+\item{theta}{parameters for the proximiy and distance transformation}
+
+\item{structures}{what c-structuredness should be considered}
+
+\item{ndim}{number of dimensions of the target space}
+
+\item{weightmat}{(optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals}
+
+\item{init}{(optional) initial configuration}
+
+\item{stressweight}{weight to be used for the fit measure; defaults to 1}
+
+\item{strucweight}{weight to be used for the cordillera; defaults to 0.5}
+
+\item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures}
+
+\item{optimmethod}{What general purpose optimizer to use? defaults to our ALJ version}
+
+\item{lower}{The lower contraints of the search region}
+
+\item{upper}{The upper contraints of the search region}
+
+\item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
+
+\item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
+
+\item{s}{number of particles if pso is used}
+
+\item{stresstype}{what stress to be used for comparisons between solutions}
+
+\item{...}{additional arguments to be passed to the optimization procedure}
 }
 \value{
 see \code{\link{cops}}
@@ -21,7 +59,7 @@ see \code{\link{cops}}
 \description{
 A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. This includes the COPS method. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models (classical scaling, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powerStress, sammon mapping with powers and elastic scaling with powers), metaheuristics of multi-objective optimization, functions for various structuredness indices (including the OPTICS cordillera) and an interface to ELKI's OPTICS.
 
-Currently only COPS, the STOPS model for c-clusteredness is implemented
+High Level STOPS Function
 }
 \details{
 The stops package provides five categories of important functions:
@@ -36,6 +74,7 @@ Models & Algorithms:
 Structuredness Indices:
 \itemize{
 \item cordillera() ... OPTICS cordillera
+\item c_linearity() ... Multiple correlation of a configuration
 }
 
 Optimization functions:
@@ -46,8 +85,10 @@ Wrappers and convenience functions:
 \itemize{
 \item conf_adjust(): procrustes adjustment of configurations
 \item cmdscale(), sammon(): wrappers that return S3 objects
-\item cop_smacofSym(), cop_sammon(), cop_cmdscale(), cop_rstress(), cop_powerstress(),cop_smacofSphere(), cop_sammon2(), cop_elastic(), cop_sstress(), cop_powerelastic(),cop_powersammon(): cop versions of these MDS models.
 \item coploss() ... a function to calculate coploss (Rusch et al., 2015a)
+\item cop_smacofSym(), cop_sammon(), cop_cmdscale(), cop_rstress(), cop_powerstress(),cop_smacofSphere(), cop_sammon2(), cop_elastic(), cop_sstress(), cop_powerelastic(),cop_powersammon(): cop versions of these MDS models.
+\item stop_smacofSym(), stop_powerstress(), stop_flexsmacof(): stop versions of these MDS models.
+\item stoploss() ... a function to calculate stoploss (Rusch et al., 2015b)
 }
 
 Methods:
@@ -87,12 +128,19 @@ cres<-cordillera(res$fit$points)
 cres
 summary(cres)
 plot(cres)
+
+#STOPS
+strucpars<-list(c(eps=10,mipts=2),NULL)
+res<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpars)
+res
+summary(res)
+plot(res)
+plot(res,"Shepard")
 }
-\donttest{
 data(BankingCrisesDistances)
-res1<-stops(BankingCrisesDistances[,1:69],structure="c-clusteredness",loss="strain",verbose=0)
+strucpar<-list(c(eps=10,minpts=2),NULL)
+res1<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpar,loss="stress",verbose=0)
 res1
-}
 }
 \keyword{clustering}
 \keyword{multivariate}

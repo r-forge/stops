@@ -179,34 +179,34 @@ The main usage of the `stops` package is not in solely fitting the powerstress o
 
 ### STOPS
 
-Following Rusch et al. (2015b) the general idea  is that from given observations $\Delta$ we look for a configuration $D$. This achieves this by minimizing some loss function $L(\Delta^*,D^*)$ where the $\Delta^*, D^*$ are functions of the $\Delta$ and $D$. The $D$ has properties with regards to its structural appearance, which we call _c-structuredness_ for configuration-structuredness. There are different types of c-structuredness people might be interested in (say, c-clusteredness). We developed indices for these types of c-structuredness that capture that essence in the configuration.
+Following Rusch et al. (2015b) the general idea  is that from given observations $\Delta$ we look for a configuration $X$. This achieves this by minimizing some loss function $\sigma_{MDS}(X^*;\Delta^*)$ where the $\Delta^*, X^*$ are functions of the $\Delta$ and $X$. The $X$ has properties with regards to its structural appearance, which we call _c-structuredness_ for configuration-structuredness. There are different types of c-structuredness people might be interested in (say, c-clusteredness). We developed indices for these types of c-structuredness that capture that essence in the configuration.
 
-We have as part of $\Delta^*$ and $D^*$ some transformation $f_{ij}(\delta_{ij};\theta)$ and $g_{ij}(d_{ij};\theta)$ that is parametrized (with $\theta$ either finite or infinite dimensional, e.g., a transformation applied to all observations like a power transformation or even an individual transformation per object). These transformations achieve a sort of push towards more structure, so different values for $\theta$ will in general lead to different c-structuredness.
+We have as part of $\Delta^*$ and $X^*$ some transformation $f_{ij}(\delta_{ij};\theta)$ and $g_{ij}(d_{ij};\theta)$ that is parametrized (with $\theta$ either finite or infinite dimensional, e.g., a transformation applied to all observations like a power transformation or even an individual transformation per object). These transformations achieve a sort of push towards more structure, so different values for $\theta$ will in general lead to different c-structuredness.
 
-Let us assume we have $K$ different indices $I_k(X)$ for different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
+Let us assume we have $K$ different indices $I_k(X^*)$ for different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
 \begin{equation}
-  \text{aSTOPS}(D, \theta, w_0, w_k; \Delta) = w_0 \cdot L(\Delta^*(\theta),D^*(\theta)) + \sum^K_{k=1} w_k I(D^*(\theta))
+  \text{aSTOPS}(X, \theta, w_0, w_k; \Delta) = w_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} w_k I(X^*(\theta))
 \end{equation}
  or (multiplicative STOPS)
 \begin{equation}
-  \text{mSTOPS}(D, \theta, w_0, w_k; \Delta) = L(\Delta^*(\theta),D^*(\theta))^{w_0} \cdot \prod^K_{k=1} I(D^*(\theta))^{w_k} 
+  \text{mSTOPS}(X, \theta, w_0, w_k; \Delta) = \frac{\sigma_{MDS}(X^*(\theta))^{w_0}} {\prod^K_{k=1} I(X^*(\theta))^{w_k}} 
 \end{equation}
 , which can be expressed as aSTOPS by logarithms.
 
-If we have one $I(X^*)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations we have our suggestion of COPS.    
+If we have one $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations we have our suggestion of COPS.    
 
 The job is then to find 
 \begin{equation}  
- \arg\min_{\vartheta}\ \text{aSTOPS}(D, \theta, w_0, w_k; \Delta)\quad \text{or} \quad \arg\min_{\vartheta}\ \text{mSTOPS}(D, \theta, w_0, w_k; \Delta)
+ \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, w_0, w_k; \Delta)\quad \text{or} \quad \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, w_0, w_k; \Delta)
 \end{equation} 
-where $\vartheta \subseteq \{D,\theta, w_0, w_k\}$.  Typically $\vartheta$ will be smaller than all possible parameters here. Currently, the transformations that can be used in `stops` are limited to power transformations. 
+where $\vartheta \subseteq \{X,\theta, w_0, w_k\}$.  Typically $\vartheta$ will be smaller than all possible parameters here. Currently, the transformations that can be used in `stops` are limited to power transformations. 
 
 
 Currently the following c-structuredness types are supported:
 
-* c-clusteredness: A clustered appearance of the configuration ($I_k$ is the OPTICS cordillera; COPS)
-* c-linearity: Projections lie close to a linear subspace of the configuration ($I_k$ is $R^2$) 
-* c-manifoldness: Projections lie on a sub manifold of the configuration ($I^k$ is MICE)
+* c-clusteredness (`cclusteredness`): A clustered appearance of the configuration ($I_k$ is the OPTICS cordillera; COPS)
+* c-linearity (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is multiple correlation) 
+* c-manifoldness (`cmanifoldness`): Projections lie on a sub manifold of the configuration ($I^k$ is MICE)
 * c-faithfulness: How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the overlapping of Chen \& Buja, 2014; not yet implemented)
 * c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented)
 * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
@@ -230,14 +230,14 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
  
 #### Usage 
 
-The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structure` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The MDS loss can be chosen with the argument `loss`. One can pass additional parameters to the fitting workhorses with `...`.
+The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The parameetrs for the structuredness indices should be given with `t=strcupars`, a list whose elements correspond to the each structuredness index. The MDS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
 
-`stops(dis, structure = "c-clusteredness", loss="strain",...)`
+`stops(dis, structures = c("cclusteredness","clinearity"), loss="stress", ...)`
 
 For the example
 
 ```{r}
-ress<-stops(kinshipdelta,structure="c-clusteredness",loss="strain",verbose=0)
+ress<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="multiplicative")
 ress
 ```
 

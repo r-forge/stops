@@ -58,7 +58,7 @@ cops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 
 \item{s}{number of particles if pso is used}
 
-\item{stresstype}{... what stress to be used for comparisons between solutions}
+\item{stresstype}{what stress to be used for comparisons between solutions}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }

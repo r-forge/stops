@@ -34,3 +34,61 @@ plot(optpowerstress)
 plot(optpowersammon)
 plot(optpowerelastic)
 
+
+data(kinshipdelta)
+dis <- as.matrix(kinshipdelta)
+res <- smacofSym(kinshipdelta)
+conf <- res$conf
+
+#test c_linearity
+c_linearity(conf)
+
+#test stoploss with clinearity additive
+stressweight <- 1
+structures <- c("clinearity")
+strucweight <- rep(1/length(structures),length(structures))/2
+type <- c("additive")
+verbose <- 1
+res$pars <- c(1,1,1)
+res$stress.m <- res$stress
+s1a <- stoploss(res,stressweight=stressweight,structures=structures,strucweight=strucweight,type=type,verbose=verbose)
+s1a
+#test stoploss with clinearity multiplicative
+type <- c("multiplicative")
+s1m <- stoploss(res,stressweight=stressweight,structures=structures,strucweight=strucweight,type=type,verbose=verbose)
+s1m
+
+#test with cclusteredness and clinearity additive
+structures <- c("cclusteredness","clinearity")
+strucpars <- list(c(eps=100,minpts=2),c(NULL))
+strucweight <- rep(1/length(structures),length(structures))
+type <- c("additive")
+s2a <- stoploss(res,stressweight=stressweight,structures=structures,strucpars=strucpars,strucweight=strucweight,type=type,verbose=verbose)
+s2a
+
+#multiplicative
+type <- c("multiplicative")
+s2b <- stoploss(res,stressweight=stressweight,structures=structures,strucpars=strucpars,strucweight=strucweight,type=type,verbose=verbose)
+s2b
+
+#test stop_smacofSym
+sres <- stop_smacofSym(dis,structures=structures,strucpars=strucpars)
+sres <- stop_smacofSym(dis,structures=structures,strucpars=strucpars,type="multiplicative")
+sres <- stop_smacofSym(dis,theta=c(1,2,1),structures=structures,strucpars=strucpars,type="multiplicative")
+sres <- stop_smacofSym(dis,theta=c(2,2,2),structures=structures,strucpars=strucpars,type="multiplicative")
+sres <- stop_smacofSym(dis,theta=2,structures=structures,strucpars=strucpars,type="multiplicative")
+
+#test stop_powerstress
+pres <- stop_powerstress(dis,structures=structures,strucpars=strucpars)
+pres <- stop_powerstress(dis,structures=structures,strucpars=strucpars,type="multiplicative")
+pres <- stop_powerstress(dis,theta=c(1,2,1),structures=structures,strucpars=strucpars,type="multiplicative")
+pres <- stop_powerstress(dis,theta=c(2,2,2),structures=structures,strucpars=strucpars,type="additive")
+pres <- stop_powerstress(dis,theta=2,structures=structures,strucpars=strucpars,type="multiplicative")
+pres <- stop_powerstress(dis,theta=c(2,2,-2),weightmat=dis,structures=structures,strucpars=strucpars,type="additive")
+
+#test stops
+stopres <- stops(dis,theta=c(1,1,1),structures=structures,strucpars=strucpars,verbose=4)
+stopres <- stops(dis,theta=c(1,1,1),lower=c(1,0.2,1),upper=c(1,10,1),structures=structures,strucpars=strucpars,verbose=4)
+#more weight for clinearity
+strucweights <- c(0.5,10)
+stopres <- stops(dis,theta=c(1,1,1),lower=c(1,1,1),upper=c(1,10,1),structures=structures,strucpars=strucpars,strucweight=strucweights,verbose=4)
