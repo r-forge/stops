@@ -20,6 +20,6 @@ calculates c-linearity as the multiple correlation
 x<-1:10
 y<-2+3*x+rnorm(10)
 confs<-cbind(x,y)
-clinearity(confs)
+c_linearity(confs)
 }
 

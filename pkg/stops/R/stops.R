@@ -1,26 +1,3 @@
-## #' High Level STOPS Function 
-## #'
-## #' Currently only COPS, the STOPS model for c-clusteredness is implemented
-## #' 
-## #' @param dis numeric matrix or dist object of a matrix of proximities
-## #' @param structure what structuredness should be considered 
-## #' @param ... additional arguments to be passed to the work horses
-## #
-## #' @return see \code{\link{cops}}
-## #' 
-## stops <- function(dis,structure="c-clusteredness",...)
-##     {
-##      if(structure=="c-clusteredness")
-##          {
-##              out <- cops(dis,...)
-##              out$call <- match.call()
-##              return(out)
-##          } else
-##              {
-##               cat(" Only c-clusteredness STOPS models (COPS) have yet been implemented! \n")
-##               return(NULL)   
-##              }
-##  }
 #What follows are proof of concepts for the STOPS paper 
 
 #Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoplose
@@ -126,14 +103,8 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
-#' @param q the norm of the corrdillera; defaults to 1
-#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
-#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param plot plot the cordillera
-#' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param strucpars strucpars
 #' @param ... additional arguments to be passed to the fitting
 #' 
 #' @return A list with the components
@@ -149,7 +120,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' 
 #'@keywords multivariate
 #'@export
-stop_flexsmacof <- function(dis,transformation=mkPower, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars) {
+stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   addargs <- list(...)
@@ -166,8 +137,8 @@ stop_flexsmacof <- function(dis,transformation=mkPower, theta=c(1,1), ndim=2,wei
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- theta
-  stopobj <- stoploss_w(fit,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r/2, stress.m=fit$stress.m/2, stoploss=stopobj$stoploss, strucindices=stopoobj$strucindices, parameters=stopobj$parameters,fit=fit) #target functions
+  stopobj <- stoploss(fit,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r/2, stress.m=fit$stress.m/2, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,fit=fit) #target functions
   #TODO include the objects of the indices returned as a list? indicesfull=stopobj 
   out
 }
@@ -225,8 +196,9 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
 #' MakePower
 #'
 #' @param x matrix
-#' @param r numeric (power)
-mkPower<-function(x,theta) {
+#' @param theta numeric (power)
+mkPower2<-function(x,theta) {
+    r <- theta
     if(length(theta) > 1) r <- theta[2] 
     n<-nrow(x)
     return(abs((x+diag(n))^r)-diag(n))
@@ -259,12 +231,14 @@ mkPower<-function(x,theta) {
 #' @examples
 #' data(BankingCrisesDistances)
 #' strucpar<-list(c(eps=10,minpts=2),NULL)
-#' res1<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpar,loss="stress",verbose=0)
+#' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
+#' structures=c("cclusteredness","clinearity"),
+#' strucpars=strucpar)
 #' res1
 #'
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta, structures=c("cclusteredness","clinearity"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
+stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(inherits(dis,"dist")) dis <- as.matrix(dis)

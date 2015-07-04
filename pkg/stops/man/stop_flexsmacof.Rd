@@ -4,10 +4,10 @@
 \alias{stop_flexsmacof}
 \title{STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)}
 \usage{
-stop_flexsmacof(dis, transformation = mkPower, theta = c(1, 1), ndim = 2,
+stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1), ndim = 2,
   weightmat = NULL, init = NULL, ..., structures = c("clusteredness",
   "linearity"), stressweight = 1, strucweight = rep(1/length(structures),
-  length(structures)), strucpars)
+  length(structures)), strucpars, verbose = 0)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -30,21 +30,9 @@ stop_flexsmacof(dis, transformation = mkPower, theta = c(1, 1), ndim = 2,
 
 \item{strucweight}{weight to be used for the structuredness indices; ; defaults to 1/#number of structures}
 
-\item{q}{the norm of the corrdillera; defaults to 1}
-
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
-
-\item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
-
-\item{rang}{range of the distances (min distance minus max distance)}
+\item{strucpars}{strucpars}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
-
-\item{plot}{plot the cordillera}
-
-\item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
 }
 \value{
 A list with the components

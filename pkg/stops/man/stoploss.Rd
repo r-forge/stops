@@ -2,11 +2,7 @@
 % Please edit documentation in R/stops.R
 \name{stoploss}
 \alias{stoploss}
-\title{##High Level STOPS Function
-##
-##Currently only COPS, the STOPS model for c-clusteredness is implemented
-##
-##}
+\title{Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
 stoploss(obj, stressweight = 1, structures = c("cclusteredness",
   "clinearity"), strucweight = rep(1/length(structures), length(structures)),
@@ -26,26 +22,8 @@ stoploss(obj, stressweight = 1, structures = c("cclusteredness",
 \item{type}{what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'}
 
 \item{verbose}{verbose output}
-
-\item{dis}{numeric matrix or dist object of a matrix of proximities
-##}
-
-\item{structure}{what structuredness should be considered
-##}
-
-\item{...}{additional arguments to be passed to the work horses
-##}
-}
-\value{
-see \code{\link{cops}}
-##
- Calculate the weighted multiobjective loss function used in STOPS
 }
 \description{
-##High Level STOPS Function
-##
-##Currently only COPS, the STOPS model for c-clusteredness is implemented
-##
-##
+Calculate the weighted multiobjective loss function used in STOPS
 }
 

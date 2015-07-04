@@ -7,7 +7,7 @@
 \title{stops: structure optimized proximity scaling}
 \usage{
 stops(dis, loss = c("stress", "smacofSym", "powerstress"),
-  transformation = mkPower, theta, structures = c("cclusteredness",
+  transformation = mkPower, theta = 1, structures = c("cclusteredness",
   "clinearity"), ndim = 2, weightmat = 1 - diag(nrow(dis)), init = NULL,
   stressweight = 1, strucweight, strucpars, optimmethod = c("SANN", "ALJ",
   "pso"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
@@ -131,7 +131,8 @@ plot(cres)
 
 #STOPS
 strucpars<-list(c(eps=10,mipts=2),NULL)
-res<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpars)
+res<-stops(BankingCrisesDistances[,1:69],
+structures=c("cclusteredness","clinearity"),strucpars=strucpars)
 res
 summary(res)
 plot(res)
@@ -139,7 +140,9 @@ plot(res,"Shepard")
 }
 data(BankingCrisesDistances)
 strucpar<-list(c(eps=10,minpts=2),NULL)
-res1<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpar,loss="stress",verbose=0)
+res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
+structures=c("cclusteredness","clinearity"),
+strucpars=strucpar)
 res1
 }
 \keyword{clustering}

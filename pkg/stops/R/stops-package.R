@@ -72,7 +72,8 @@
 #' 
 #' #STOPS
 #' strucpars<-list(c(eps=10,mipts=2),NULL)
-#' res<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),strucpars=strucpars)
+#' res<-stops(BankingCrisesDistances[,1:69],
+#' structures=c("cclusteredness","clinearity"),strucpars=strucpars)
 #' res
 #' summary(res)
 #' plot(res)

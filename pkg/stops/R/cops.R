@@ -53,7 +53,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- c(kappa,lambda,nu)
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)   
   copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),plot=plot,scale=scale,normed=normed)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions

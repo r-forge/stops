@@ -8,7 +8,7 @@
 #' x<-1:10
 #' y<-2+3*x+rnorm(10)
 #' confs<-cbind(x,y)
-#' clinearity(confs)
+#' c_linearity(confs)
 #' @export
 c_linearity <- function(confs,...)
     {
@@ -16,7 +16,7 @@ c_linearity <- function(confs,...)
         n <- dim(confs)[1]
         p <- dim(confs)[2]
         x <- confs[,2:p]
-        tmp <- lm(y~x)
+        tmp <- lm(y~x,...)
         out <- sqrt(summary(tmp)$r.squared)
         out
     }
