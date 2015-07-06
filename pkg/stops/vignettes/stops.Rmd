@@ -30,7 +30,7 @@ The loss function used is then minimized to find the vectors $x_1,\dots,x_N$, i.
 \label{eq:optim}
 \arg \min_{X}\ \sigma_{MDS}(X).
 \end{equation}
-There are a number of optimization techniques one can use to solve the problem in (\ref{eq:optim}). 
+There are a number of optimization techniques one can use to solve this optimization problem. 
 
 
 ### Stress Models 
@@ -39,9 +39,9 @@ The first popular type of PS supported in `stops` is based on the loss function 
 \label{eq:dist}
 d_{ij}(X) = ||x_{i}-x_{j}||_p=\left( \sum_{m=1}^M |x_{im}-x_{jm}|^p \right)^{1/p} \ i,j = 1, \dots, N.
 \end{equation}
-Typically, the norm used in Equation~(\ref{eq:dist}) is the Euclidean norm, so $p=2$. In standard MDS $g(\cdot)=f(\cdot)=I(\cdot)$, the identity function. 
+Typically, the norm used is the Euclidean norm, so $p=2$. In standard MDS $g(\cdot)=f(\cdot)=I(\cdot)$, the identity function. 
 
-The $w_{ij}$ enables one to express a rich class of PS methods as (\ref{eq:stress}), all of them are implemented in `stops`. In `stops` we allow to use specific choices for $f(\cdot)$ and $g(\cdot)$ in (\ref{eq:stress}) from the family of power transformations so one can fit the following stress models:  
+This formulation enables one to express a large number of PS methods many of which are implemented in `stops`. In `stops` we allow to use specific choices for $f(\cdot)$ and $g(\cdot)$ from the family of power transformations so one can fit the following stress models:  
 
 * **Explicitly normalized stress**: $w_{ij}=(\sum_{ij}\delta^{*2}_{ij})^{-1}$, $\delta_{ij}^*=\delta_{ij}$, $d_{ij}(X)^*=d_{ij}(X)$
 * **Stress-1**: $w_{ij}=(\sum_{ij} d^{*2}_{ij}(X))^{-1}$, $\delta_{ij}^*=\delta_{ij}$, $d_{ij}(X)^*=d_{ij}(X)$ 
@@ -51,8 +51,8 @@ The $w_{ij}$ enables one to express a rich class of PS methods as (\ref{eq:stres
 * **R-stress** (de Leeuw, 2014): $\delta^*_{ij}=\delta_{ij}$ and $d^*_{ij}=d^{2r}_{ij}$, $w_{ij}=1$  
 * **Power MDS** (Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=\delta_{ij}^\lambda$ and $d^*_{ij}=d^\kappa_{ij}$, $w_{ij}=1$
 * **Power elastic scaling** (Rusch et al. 2015a): $w_{ij}=\delta^{*-2}_{ij}$, $\delta^*_{ij}=\delta_{ij}^\lambda$ and $d^*_{ij}=d^\kappa_{ij}$
-* **Power sammon mapping** (Rusch et al. 2015a): $w_{ij}=\delta^{*-1}_{ij}$, $\delta^*_{ij}=\delta_{ij}^\lambda$ and $d^*_{ij}=d^\kappa_{ij}$ 
-* **Power Stress** (encompassing all previous models; Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=\delta_{ij}^\lambda$, $d^*_{ij}=d^\kappa_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$ (e.g., a function of the $\delta_{ij}$)
+* **Power Sammon mapping** (Rusch et al. 2015a): $w_{ij}=\delta^{*-1}_{ij}$, $\delta^*_{ij}=\delta_{ij}^\lambda$ and $d^*_{ij}=d^\kappa_{ij}$ 
+* **Powerstress** (encompassing all previous models; Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=\delta_{ij}^\lambda$, $d^*_{ij}=d^\kappa_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$ (e.g., a function of the $\delta_{ij}$)
 
 For all of these models one can use the function `powerStressMin` which uses majorization to find the solution (de Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). Note that if $z_{ij}$ and $w_{ij}$ are used, then `weightmat` must be the combination of both.  
 
@@ -66,6 +66,7 @@ The object returned from `powerStressMin` is of class `smacofP` which extends th
 |plot3d       | Dynamic 3D configuration plot |
 |plot3dstatic | Static 3D configuration plot  |
 |residuals    | Residuals                     |
+|coef         | Model Coefficients            | 
 
 Let us illustrate the usage
 
@@ -105,7 +106,7 @@ res4<-powerStressMin(dis,kappa=2,lambda=2)
 res4
 ```
 
-* An `rstress` model with (r=1)
+* An `rstress` model (with $r=1$ as $r=\kappa/2$)
 ```{r}
 res5<-powerStressMin(dis,kappa=2,lambda=1)
 res5
@@ -136,7 +137,7 @@ res9
 summary(res9)
 ```
 
-```{r,fig.show='hold',fig.width=8, fig.height = 10}
+```{r,fig.show='hold',fig.width=8, fig.height = 8}
 plot(res9)
 plot(res9,"transplot")
 plot(res9,"Shepard")
@@ -152,9 +153,9 @@ The second popular type of PS supported in `stops` is based on the loss function
 \label{eq:dist2}
 d_{ij}(X) = \langle x_{i},x_{j} \rangle
 \end{equation}
-We can thus express classical scaling as a special case of (\ref{eq:stress}) with $d_{ij}(X)$ as in (\ref{eq:dist2}), $g(\cdot) = I(\cdot)$ and $f(\cdot)=-(h \circ I)(\cdot)$.
+We can thus express classical scaling as a special case of the general PS loss with $d_{ij}(X)$ as an inner product, $g(\cdot) = I(\cdot)$ and $f(\cdot)=-(h \circ I)(\cdot)$.
 
-If we again allow power transformations for $g(\cdot)$ and $f(\cdot)$ in (\ref{eq:stress}) one can fit the following strain models with `stops` 
+If we again allow power transformations for $g(\cdot)$ and $f(\cdot)$ one can fit the following strain models with `stops` 
 
 * Classical scaling (Torgerson, 1958): $\delta^*_{ij}=-h(\delta_{ij})$ and $d^*_{ij}=d_{ij}$ 
 * Power strain (Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=-h(\delta_{ij}^\lambda)$, $d^*_{ij}=d_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$
@@ -185,11 +186,11 @@ We have as part of $\Delta^*$ and $X^*$ some transformation $f_{ij}(\delta_{ij};
 
 Let us assume we have $K$ different indices $I_k(X^*)$ for different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
 \begin{equation}
-  \text{aSTOPS}(X, \theta, w_0, w_k; \Delta) = w_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} w_k I(X^*(\theta))
+  \text{aSTOPS}(X, \theta, w_0, w_k; \Delta) = w_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} w_k I_k(X^*(\theta))
 \end{equation}
  or (multiplicative STOPS)
 \begin{equation}
-  \text{mSTOPS}(X, \theta, w_0, w_k; \Delta) = \frac{\sigma_{MDS}(X^*(\theta))^{w_0}} {\prod^K_{k=1} I(X^*(\theta))^{w_k}} 
+  \text{mSTOPS}(X, \theta, w_0, w_k; \Delta) = \frac{\sigma_{MDS}(X^*(\theta))^{w_0}} {\prod^K_{k=1} I_k(X^*(\theta))^{w_k}} 
 \end{equation}
 , which can be expressed as aSTOPS by logarithms.
 
@@ -197,7 +198,7 @@ If we have one $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the
 
 The job is then to find 
 \begin{equation}  
- \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, w_0, w_k; \Delta)\quad \text{or} \quad \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, w_0, w_k; \Delta)
+ \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, w_0, w_k; \Delta)\ \text{or} \ \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, w_0, w_k; \Delta)
 \end{equation} 
 where $\vartheta \subseteq \{X,\theta, w_0, w_k\}$.  Typically $\vartheta$ will be smaller than all possible parameters here. Currently, the transformations that can be used in `stops` are limited to power transformations. 
 
@@ -230,7 +231,7 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
  
 #### Usage 
 
-The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The parameetrs for the structuredness indices should be given with `t=strcupars`, a list whose elements correspond to the each structuredness index. The MDS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
+The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The parameetrs for the structuredness indices should be given with `strucpars`, a list whose elements correspond to the each structuredness index. The MDS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
 
 `stops(dis, structures = c("cclusteredness","clinearity"), loss="stress", ...)`
 
@@ -262,7 +263,7 @@ with $v_1,v_2 \in \mathbb{R}$ controlling how much weight should be given to the
 \label{eq:spconstant0}
 v^{0}_{1}=1, \quad v^{0}_2=\frac{\sigma_{MDS}\left(X(\theta_0),\theta_0\right)}{\text{OC}\left(X(\theta_0);\epsilon,k,q\right)},
 \end{equation}
-with $\theta_0=(1,1)^\top$ in case of loss functions derived from (\ref{eq:proxl})-(\ref{eq:fully}). Thus an increase of 1 in the MDS loss measure can be compensated by an increase of $v^0_1/v^0_2$ in c-clusteredness. Selecting $v_1=1,v_2=v^{0}_2$ this way is in line with the idea of pushing the configurations towards a more clustered appearance relative to the initial solution. 
+with $\theta_0=(1,1)^\top$ in case of loss functions with power transformations. Thus an increase of 1 in the MDS loss measure can be compensated by an increase of $v^0_1/v^0_2$ in c-clusteredness. Selecting $v_1=1,v_2=v^{0}_2$ this way is in line with the idea of pushing the configurations towards a more clustered appearance relative to the initial solution. 
 
  Another possibility is to choose them in such a way that $\text{coploss}=0$ in the optimum value, i.e., choosing $v^{opt}_{1}, v^{opt}_2$ so that 
   \begin{equation}
@@ -280,9 +281,9 @@ by doing
 \label{eq:soemdsopt}
 v_1 \cdot \sigma_{MDS}\left(X(\theta),\theta\right) - v_2 \cdot \text{OC}\left(X(\theta);\epsilon,k,q\right) \rightarrow \min_\theta! 
 \end{equation}
-For a given $\theta$ if $v_2=0$ than the result of (\ref{eq:soemdsopt}) is the same as solving the respective original PS problem. Letting $\theta$ be variable, $v_2=0$ will minimize the loss over configurations obtained from using different $\theta$.
+For a given $\theta$ if $v_2=0$ than the result of optimizing the above is the same as solving the respective original PS problem. Letting $\theta$ be variable, $v_2=0$ will minimize the loss over configurations obtained from using different $\theta$.
 
-Minimizing coploss is difficult. In `stops` we use a nested algorithm combining optimization that internally first solves (\ref{eq:soemdsopt}) for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing or particle swarm optimization and a variant of the Luus-Jaakola (LJ) procedure \citep{luus1973optimization} to be used in Step 3 that usually converges in less than 200 iterations to an acceptable solution. We suggest to use the latter.
+Minimizing coploss is difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing or particle swarm optimization and a variant of the Luus-Jaakola (LJ) procedure \citep{luus1973optimization} to be used in Step 3 that usually converges in less than 200 iterations to an acceptable solution. We suggest to use the latter.
 
 The c-clusteredness index we use is the OPTICS cordillera and measures how clustered a configuration appears. It is based on the OPTCIS algorithm that outputs an ordering together with a distance. The OPTICS cordillera is now simply an agregation of that information. Since we know what constitutes a maximally clustered result, we can derive an upper bound and normalize the index to lie between 0 and 1. If it is maximally clustered, the index gets a value of 1,and it gets 0 if all points are equidistant to their nearest neighbours (a matchstick embedding). 
 
@@ -326,7 +327,7 @@ plot(resca,main="with cordweight=0")
 plot(rescb,main="with cordweight=20")
 ```
 
-This result has more clusteredness but less fit. The higher clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observatiosn to make up a cluster `minpts=2`). 
+This result has more clusteredness but less fit. The higher clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observations to make up a cluster `minpts=2`). 
 
 ## Other Functions
 The package also provides functions that are used by the `cops` and `stops` and `powerStressMin` functions but may be of interest to a end user beyond that.
@@ -358,14 +359,16 @@ plot(cres)
 ```
 
 ### Optimization
-Since the inner optimization problem in STOPS models is hard and takes long, Rusch et al. (2015a) developed a metaheuristic for the outer optimization problem that needs typically less calls to the inner minimization than `pso` or `SANN`, albeit without the guarantees of convergence to a global minimum for non-smooth functions. It is an adaptation of the Luus-Jakola random search (Luss & Jaakola 1973). It can used with the function `ljoptim` which modeled its output after `optim`. It needs as arguments `x` a starting value, `fun` a function to optimize, a `lower` and `upper` box constraint for the search region. By using the argument `adaptive=TRUE` or `FALSE` one can switch between our adaptive version and the original LJ algorithm. Accuracy of the optimization can be controlled with the `maxit` (maximum number of iterations), `accd` (terminates after the length of the search space is below this number ) and `acc` argmunets (terminates if difference of two subsequent function values are below this value).  
+Since the inner optimization problem in STOPS models is hard and takes long, Rusch et al. (2015a) developed a metaheuristic for the outer optimization problem that needs typically less calls to the inner minimization than `pso` or `SANN`, albeit without the guarantees of convergence to a global minimum for non-smooth functions. It is an adaptation of the Luus-Jakola random search (Luus & Jaakola 1973). It can used with the function `ljoptim` which modeled its output after `optim`. It needs as arguments `x` a starting value, `fun` a function to optimize, a `lower` and `upper` box constraint for the search region. By using the argument `adaptive=TRUE` or `FALSE` one can switch between our adaptive version and the original LJ algorithm. Accuracy of the optimization can be controlled with the `maxit` (maximum number of iterations), `accd` (terminates after the length of the search space is below this number ) and `acc` arguments (terminates if difference of two subsequent function values are below this value).  
 
 We optimize the Wild Function with the non-adaptive LJ version (and numerical accuracies of at least `1e-16` for `accd` and `acc`).
  
 ```{r}
+set.seed(210485)
 fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
 res2
+```
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
 plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")

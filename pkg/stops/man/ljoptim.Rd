@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimizations.R
 \name{ljoptim}
 \alias{ljoptim}
-\title{Adaptive version of Luus-Jakola Optimization}
+\title{(Adaptive) Version of Luus-Jaakola Optimization}
 \usage{
 ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
   acc = 1e-06, accd = 1e-04, itmax = 1000, verbose = 0,
@@ -34,8 +34,8 @@ ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
 \value{
 A list with the components (\code{\link{optim}})
 \itemize{
+     \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
      \item value The value of the objective function at the optimum (min fun)
-     \item par The parameters of x at the optimum (argmin fun)
      \item counts The number of iterations performed at convergence with entries fnction for the number of iterations and gradient which is always NA at the moment
      \item convergence 0 successful completion by the accd or acc criterion, 1 indicate iteration limit was reached, 99 is a problem
      \item message is NULL (only for compatibility or future use)
@@ -53,6 +53,7 @@ x2 <- x[2]
 res1<-ljoptim(c(-1.2,1),fbana,lower=-5,upper=5,accd=1e-16,acc=1e-16)
 res1
 
+set.seed(210485)
 fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")
 res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
