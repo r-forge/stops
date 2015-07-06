@@ -28,6 +28,8 @@
 #'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements and some more
 #'         \item{cordillera:} the cordillera object
 #' }
+#'
+#'@importFrom stats dist as.dist
 #' 
 #'@keywords multivariate
 #'@export
@@ -90,7 +92,9 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #'         \item{fit:} the returned object of the fitting procedure
 #'         \item{cordillera:} the cordillera object
 #' }
-#' 
+#'
+#'
+#'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
 cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -157,7 +161,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
-#' 
+#'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
 cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -218,7 +222,12 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
+#'
+#' @importFrom stats dist as.dist
+#' 
 #' @keywords multivariate
+#'
+#' 
 #' @export
 cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -232,8 +241,8 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
-  dis <- as.dist(dis)
-  fitdis <- dist(fit$points)
+  dis <- stats::as.dist(dis)
+  fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
   fit$stress.n <- fit$stress.r/sum(dis)
   fit$stress.m <- sqrt(fit$stress)
@@ -273,6 +282,9 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #'         \item{fit:} the returned object of the fitting procedure
 #'         \item{cordillera:} the cordillera object
 #' }
+#'
+#'
+#' @importFrom stats dist as.dist
 #' 
 #'@keywords multivariate
 #'@export
@@ -338,6 +350,8 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
+#' 
+#' @importFrom stats dist as.dist
 #' @keywords multivariate
 #' @export
 cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,stresstype="default") {
@@ -349,8 +363,8 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- 1
-  dis <- as.dist(dis)
-  fitdis <- dist(fit$points)
+  dis <- stats::as.dist(dis)
+  fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
   fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
@@ -713,7 +727,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
         lambda <- obj$lambda
         nu <- obj$nu
         confs <- obj$conf 
-        corrd <- cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
+        corrd <- stops::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
         struc <- corrd$raw
         maxstruc <- corrd$normi
         if(normed) {
@@ -794,6 +808,8 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'plot(res2,"reachplot") 
 #'}
 #'
+#' @importFrom stats dist as.dist optim
+#' @importFrom pso psoptim
 #' 
 #'@keywords clustering multivariate
 #'@export
@@ -811,7 +827,7 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
            initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
            init0 <- initsol$fit$conf
            if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin) #approximate upper bound by 1.5 times the max distance in the initial config
                  #alternatives: use an adjusted boxplot idea so e.g., rang<-c(quantile(crp,0.25)-exp(-4*robustbase::mc(crp))*1.5*IQR(crp),quantile(crp,0.75)+exp(4*robustbase::mc(crp))*1.5*IQR(crp)
@@ -824,15 +840,15 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
                {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
                  initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))  
-                 initcorrd <- cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
-                 if(identical(normed,FALSE)) initcorrd <- cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
+                 initcorrd <- stops::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
+                 if(identical(normed,FALSE)) initcorrd <- stops::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
                 cordweight <- initsol$stress.m/initcorrd  
                 #cat("stress.m=",initsol$stress.m,"cord=",initcorrd,"cweight=",cordweight,"\n") 
                 if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
              }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-          opt<- optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,method="SANN",...)
+          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,method="SANN",...)
       }
       if(optimmethod=="pso") {
         addargs <- list(...)
@@ -840,12 +856,12 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
         opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,control=control)
        }
       if(optimmethod=="ALJ") {
-      opt<- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
+      opt<- stops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,plot=plot,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
       }
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
     out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed,stresstype=stresstype))
-    out$OC <- cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
+    out$OC <- stops::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
     out$coploss <- opt$value
     out$optim <- opt
     out$stressweight <- stressweight
@@ -877,6 +893,7 @@ print.cops <- function(x,...)
     }
 
 #'@export
+#'@importFrom stats coef
 coef.cops <- function(object,...)
     {
     return(c(kappa=object$par[1],lambda=object$par[2],nu=object$par[3]))
@@ -912,7 +929,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
      } else if(inherits(x$fit,"smacofB") && !inherits(x$fit,"smacofP") && plot.type=="transplot"){
      #ok, old code here has side effects: it changes the smacof object in the cops object; not sure we should do that  
        if(missing(main)) main <- paste("Transformation Plot") 
-       plot.smacofP(x$fit,plot.type="transplot",...)
+       plot(x$fit,plot.type="transplot",...)
      # invisible(tmp) #I give the changed smacof object back
      }
      else {      

@@ -15,6 +15,7 @@
 #'  \item $minpts
 #' }
 #'
+#' @importFrom utils write.table read.table
 #' @keywords clustering multivariate
 #' @examples
 #' \donttest{
@@ -24,15 +25,17 @@
 #' summary(res)
 #' plot(res,withlabels=TRUE)
 #' }
+#'
+#' 
 #' @export
 optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
   {
  # TODO: add distance function handler
  # add support for row names 
   if(missing(epsilon)) epsilon <- 2*diff(range(x))
-  write.table(x,file=paste(path,"/configs.txt",sep=""),row.names=FALSE,col.names=FALSE,quote=FALSE,sep=" ")
+  utils::write.table(x,file=paste(path,"/configs.txt",sep=""),row.names=FALSE,col.names=FALSE,quote=FALSE,sep=" ")
   system(paste("elki-cli -dbc.in ",path,"/configs.txt -algorithm clustering.OPTICS -optics.minpts ",minpts," -optics.epsilon ",epsilon," -resulthandler ResultWriter -out ",path,"/opticsout -out.silentoverwrite",sep=""))
-  cluobjord <- read.table(paste(path,"/opticsout/clusterobjectorder.txt",sep=""),header=FALSE,fill=TRUE,stringsAsFactors=FALSE)
+  cluobjord <- utils::read.table(paste(path,"/opticsout/clusterobjectorder.txt",sep=""),header=FALSE,fill=TRUE,stringsAsFactors=FALSE)
   if(!keep) {
       unlink(paste(path,"/opticsout",sep=""),recursive=TRUE)
       file.remove(paste(path,"/configs.txt",sep=""))
@@ -82,10 +85,14 @@ summary.optics <- function(object,...)
     }
 #' Print method for OPTICS summary 
 #' Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot()
+#'
+#' 
 #' @param x an object of class summary.optics
 #' @param fiven should the 5 point summary be printed. Default is TRUE.
 #' @param stemd should the stema dn leaf plot be printed. Default is TRUE.
 #' @param ... additional arguments passed to \code{\link{stem}}
+#'
+#' @importFrom graphics stem
 #' 
 #'@export
 print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
@@ -116,6 +123,8 @@ print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
 #' @param border the color of the bar borders. Defaults to par("bg")
 #' @param names.arg ... The arguments to be passed as names
 #' @param ... additional arguments passed to barplot
+#'
+#' @importFrom graphics barplot
 #' 
 #' @export
 plot.optics <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=par("bg"),names.arg,...)
@@ -128,11 +137,11 @@ plot.optics <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=pa
   naind <- is.na(reachabilities)
   reachabilities[naind] <- min(x$eps,max(reachabilities[!naind]))
   if(withlabels) {
-      barplot(reachabilities[!naind],names.arg=names.arg[!naind],border=border,col=col,...)
-      barplot(reachabilities[naind],names.arg=names.arg[naind],border=border,col=colna,add=TRUE,...) 
+      graphics::barplot(reachabilities[!naind],names.arg=names.arg[!naind],border=border,col=col,...)
+      graphics::barplot(reachabilities[naind],names.arg=names.arg[naind],border=border,col=colna,add=TRUE,...) 
   } else
       {
-      barplot(reachabilities[!naind],border=border,col=col,...)
-      barplot(reachabilities[naind],col=colna,add=TRUE,border=border,...) 
+      graphics::barplot(reachabilities[!naind],border=border,col=col,...)
+      graphics::barplot(reachabilities[naind],col=colna,add=TRUE,border=border,...) 
   }
 }

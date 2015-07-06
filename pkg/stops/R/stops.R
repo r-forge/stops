@@ -23,12 +23,12 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if("cclusteredness"%in%structures)
             {
               indst <- which(structures=="cclusteredness")  
-              cclusteredness <- do.call(cordillera,c(list(confs),strucpars[[indst]]))$normed
+              cclusteredness <- do.call(stops::cordillera,c(list(confs),strucpars[[indst]]))$normed
             }                           
         if("clinearity"%in%structures)
             {
                indst <- which(structures=="clinearity")
-               clinearity <- do.call(c_linearity,c(list(confs))) #,strucpars[[indst]])) has no strucpars
+               clinearity <- do.call(stops::c_linearity,c(list(confs))) #,strucpars[[indst]])) has no strucpars
            }
         ##TODO add more structures
         struc <- unlist(mget(structures))
@@ -236,6 +236,9 @@ mkPower2<-function(x,theta) {
 #' strucpars=strucpar)
 #' res1
 #'
+#' @importFrom stats dist as.dist optim
+#' @importFrom pso psoptim
+#' 
 #' @keywords clustering multivariate
 #' @export
 stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
@@ -256,7 +259,7 @@ stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-       opt<- optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,method="SANN",...)
+       opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,method="SANN",...)
       }
        if(optimmethod=="pso") {
         addargs <- list(...)
@@ -300,6 +303,7 @@ print.stops <- function(x,...)
     }
 
 #'@export
+#'@importFrom stats coef
 coef.stops <- function(object,...)
     {
     return(c(object$par))
@@ -321,7 +325,9 @@ coef.stops <- function(object,...)
 #' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
 #' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#'} 
+#'}
+#'
+#'@importFrom graphics plot 
 #'@export 
 plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
     {

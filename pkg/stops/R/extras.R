@@ -5,7 +5,10 @@
 #' @param eig indicates whether eigenvalues should be returned.
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'   
+#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'
+#'
+#' @importFrom stats cmdscale as.dist dist
+#' 
 #' @export
 cmdscale <- function(d,k=2,eig=TRUE,...)
     {
@@ -25,8 +28,15 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' @param k The dimension of the configuration
 #' @param ... Additional parameters passed to \code{sammon}, see \code{\link{sammon}}  
 #'
-#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.   
+#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
+#'
+#'@importFrom MASS sammon
+#'@importFrom stats as.dist dist 
+#' 
 #'@export
+#'
+#' 
+#' 
 sammon <- function(d,y=NULL,k=2,...)
     {
      if(is.null(y)) y <- stops::cmdscale(d,k,eig=TRUE)$points
@@ -83,6 +93,10 @@ summary.sammon <- function(object,...)
     }
 
 #'@export
+#'
+#'@importFrom graphics plot abline lines text identify legend points
+#'@importFrom stats predict loess lm
+#' 
 plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
     {
     x1 <- plot.dim[1]
@@ -104,14 +118,14 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
             xlim <- range(x$points[, x1])
         if (missing(ylim)) 
             ylim <- range(x$points[, y1])
-        plot(x$points[, x1], x$points[, y1], main = main, type = type, 
+        graphics::plot(x$points[, x1], x$points[, y1], main = main, type = type, 
             xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
             pch = pch, asp = asp, col = col, ...)
         if (label.conf[[1]]) 
-            text(x$points[, x1], x$points[, y1], labels = rownames(x$points), 
+            graphics::text(x$points[, x1], x$points[, y1], labels = rownames(x$points), 
                 cex = label.conf$cex, pos = label.conf$pos, col = label.conf$col)
         if (identify) {
-            identify(x$points[, x1], x$points[, y1], labels = rownames(x$points), 
+            graphics::identify(x$points[, x1], x$points[, y1], labels = rownames(x$points), 
                 cex = label.conf$cex, pos = label.conf$cex, col = label.conf$col)
         }
     }
@@ -130,14 +144,14 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
             xlim <- range(as.vector(x$delta))
         if (missing(ylim)) 
             ylim <- range(as.vector(x$confdiss))
-        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
+        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
             type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
             col = col[1], xlim = xlim, ylim = ylim, ...)
         if(plot.type=="Shepard") {
-             pt <- predict(loess(x$confdiss~x$delta))
-             lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
+             pt <- predict(stats::loess(x$confdiss~x$delta))
+             graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
          }
-     abline(lm(x$confdiss~x$delta))
+     graphics::abline(stats::lm(x$confdiss~x$delta))
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -153,14 +167,14 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
              else xlab <- xlab
              if (missing(ylim)) ylim <- c(min(deltat,deltao),max(deltat,deltao))
              if (missing(xlim)) xlim <- range(as.vector(dreal))
-            plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
-            points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
+            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
+            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
             pt <- predict(stats::lm(deltat~dreal))
             po <- predict(stats::lm(deltao~dreal))
-            lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
-            lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
+            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
+            graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
             if(missing(legpos)) legpos <- "topleft" 
-            legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
+            graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
          }
     if (plot.type == "stressplot") {
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
@@ -191,7 +205,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
 #' @param ... Further plot arguments passed: see 'plot3d' in package 'rgl' for detailed information.
 #' 
 #'@export
-#'@import rgl
+#'@import rgl 
 plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
 {
     ndim <- dim(x$points)[2]

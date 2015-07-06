@@ -24,6 +24,8 @@
 #'        \item $optics... The optics object
 #' }
 #' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
+#'
+#' @importFrom graphics barplot lines
 #' @keywords clustering multivariate
 #' 
 #' @examples
@@ -60,9 +62,9 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=getwd
             if(missing(ylim)) ylim <- c(0,max(rang))
             idind <- pmatch("ID",res[1,]) #check where the ids are
             indtmp <- as.numeric(sapply(strsplit(res[,idind],split='=',fixed=TRUE),function(x) x[2]))
-            bp <- barplot(tmp,names.arg=indtmp,col="lightgrey",border="white",ylim=ylim)
+            bp <- graphics::barplot(tmp,names.arg=indtmp,col="lightgrey",border="white",ylim=ylim)
             newpoints <- rep(c(max(tmp),min(tmp)),length.out=length(tmp))
-            lines(x=bp,y=tmp,col="black",lwd=1)
+            graphics::lines(x=bp,y=tmp,col="black",lwd=1)
         }
         reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
 #       reachdiff <- reachdiff/(max(tmp)-min(tmp))
@@ -124,6 +126,8 @@ print.summary.cordillera <- function(x,...)
 #' @param liwd width of the cordillera line
 #' @param ... additional arguments passed to barplot or lines
 #'
+#' @importFrom graphics barplot plot legend
+#' 
 #' @export
 plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
   {
@@ -133,8 +137,8 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
             res <- x$optics[["clusterobjectorder"]] 
             idind <- pmatch("ID",res[1,]) #check where the ids are
             indtmp <- as.numeric(sapply(strsplit(res[,idind],split='=',fixed=TRUE),function(x) x[2]))
-            bp <- barplot(tmp,names.arg=indtmp,col=colbp,border=par("bg"),ylim=ylim,...)
+            bp <- graphics::barplot(tmp,names.arg=indtmp,col=colbp,border=par("bg"),ylim=ylim,...)
             newpoints <- rep(c(max(tmp),min(tmp)),length.out=length(tmp))
-            lines(x=bp,y=tmp,col=coll,lwd=liwd,...)
-            legend("topright",legend="OC",col=coll,lty=1)
+            graphics::lines(x=bp,y=tmp,col=coll,lwd=liwd,...)
+            graphics::legend("topright",legend="OC",col=coll,lty=1)
      }

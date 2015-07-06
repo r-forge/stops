@@ -23,6 +23,8 @@
 #'      \item message is NULL (only for compatibility or future use)
 #' }
 #'
+#' @importFrom stats runif
+#' 
 #' @examples
 #' fbana <- function(x) {
 #' x1 <- x[1]
@@ -42,12 +44,12 @@
 #' @export
 ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-6,accd=1e-4,itmax=1000,verbose=0,adaptive=TRUE) {
     #addargs <- ...
-    x[is.na(x)] <- runif(sum(is.na(x)),min=min(lower),max=max(upper))
+    x[is.na(x)] <- stats::runif(sum(is.na(x)),min=min(lower),max=max(upper))
    # cat("------ x:",x,"\n")
        #http://en.wikipedia.org/wiki/Luus%E2%80%93Jaakola
     n <- length(x)
     d1 <- upper-lower
-    x <- ifelse(x<lower,lower+runif(length(x))*d1,ifelse(x>upper,upper-runif(length(x))*d1,x)) 
+    x <- ifelse(x<lower,lower+stats::runif(length(x))*d1,ifelse(x>upper,upper-stats::runif(length(x))*d1,x)) 
     if(verbose>2) cat("------ x:",x,"\n")
     itel <- 1
     fold <- do.call(fun,list(x,...))
@@ -60,7 +62,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
        #a <- rcauchy(n,scale=d/8)
        y <- x+addi
      #  cat("------ y:",y,"\n")
-       y <- ifelse(y<lower,lower+runif(length(y))*d1,ifelse(y>upper,upper-runif(length(y))*d1,y))
+       y <- ifelse(y<lower,lower+stats::runif(length(y))*d1,ifelse(y>upper,upper-stats::runif(length(y))*d1,y))
        if(verbose>2) cat("------ y:",y,"\n")
        fnew <- do.call(fun,list(y,...))
       # cat("fnew",fnew,"\n")

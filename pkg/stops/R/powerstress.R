@@ -13,7 +13,7 @@
 #' @param verbose should iteration output be printed; if > 1 then yes
 #' @param defaultstress the stress type to be reported by default; defaults to stress-1 for smacof compatibility
 #' @param lambdamax the maximum power of the transformation of the proximities if there are more than one lambda - an upper bound idea; defaults to lambda
-#' 
+#'
 #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
@@ -44,6 +44,8 @@
 #' \item weightmat: weighting matrix 
 #'}
 #'
+#' @importFrom stats dist as.dist
+#' 
 #' @seealso \code{\link{smacofSym}}
 #' 
 #' @examples
@@ -114,16 +116,16 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
      deltam <- delta
      deltaorigm <- deltaorig
      deltaoldm <- deltaold
-     delta <- as.dist(delta)
-     deltaorig <- as.dist(deltaorig)
-     deltaold <- as.dist(deltaold)
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
      doute <- doutm/enorm(doutm)
-     doute <- as.dist(doute)
-     dout <- as.dist(doutm)
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
      resmat <- as.matrix(delta - doute)^2
      spp <- colMeans(resmat)
      weightmatm <-weightmat
-     weightmat <- as.dist(weightmatm)
+     weightmat <- stats::as.dist(weightmatm)
      #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
      stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
      stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
@@ -215,6 +217,8 @@ mkPower<-function(x,r) {
 #'
 #' @param a matrix
 #' @param b matrix
+#'
+#' @importFrom stats uniroot
 secularEq<-function(a,b) {
     n<-dim(a)[1]
     eig<-eigen(a)
@@ -227,7 +231,7 @@ secularEq<-function(a,b) {
     lmn<-eva [n]
     uup<-sqrt(sum(b^2))-lmn
     ulw<-abs(beta [n])-lmn
-    rot<-uniroot(f,lower= ulw,upper= uup)$root
+    rot<-stats::uniroot(f,lower= ulw,upper= uup)$root
     cve<-beta/(eva+rot)
     return(drop(eve%*%cve))
 }    
@@ -261,7 +265,11 @@ secularEq<-function(a,b) {
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #' }
-#'@export 
+#'
+#' @importFrom graphics plot text identify legend
+#' @importFrom stats loess lm predict 
+#' 
+#' @export 
 plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
 {
     x1 <- plot.dim[1]
@@ -281,14 +289,14 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         else ylab <- ylab
         if (missing(xlim)) xlim <- range(x$conf[, x1])
         if (missing(ylim)) ylim <- range(x$conf[, y1]) 
-        plot(x$conf[, x1], x$conf[, y1], main = main, type = type, 
+        graphics::plot(x$conf[, x1], x$conf[, y1], main = main, type = type, 
             xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
             pch = pch, asp = asp, col = col, ...)
         if (label.conf[[1]]) 
-            text(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
+            graphics::text(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
                 cex = label.conf$cex, pos = label.conf$pos, col = label.conf$col)
         if (identify) {
-            identify(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
+            graphics::identify(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
                 cex = label.conf$cex, pos = label.conf$cex, col = label.conf$col)
         }
     }
@@ -307,10 +315,10 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             xlim <- range(as.vector(x$delta))
         if (missing(ylim))
             ylim <- range(as.vector(x$confdiss))
-        plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        pt <- predict(loess(x$confdiss~x$delta))
-        lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
-        abline(lm(x$confdiss~x$delta)) #no intercept for fitting
+        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        pt <- predict(stats::loess(x$confdiss~x$delta))
+        graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
+        graphics::abline(stats::lm(x$confdiss~x$delta)) #no intercept for fitting
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -326,16 +334,16 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
              else ylab <- ylab
              if (missing(ylim))  ylim <- c(min(deltat,deltao),max(deltat,deltao))
              if (missing(xlim))  xlim <- c(min(dreal^kappa,dreal),max(dreal^kappa,dreal))
-            plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,...)
-            points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
+            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,...)
+            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
             pt <- predict(stats::lm(deltat~I(dreal^kappa))) #with intercept not forcing thorugh 0
             po <- predict(stats::lm(deltao~I(dreal^kappa))) #with intercept
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
-            lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
-            lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
+            graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
+            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
             if(missing(legpos)) legpos <- "topleft" 
-            legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
+            graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
          }
      if (plot.type == "resplot") {
         if(missing(col)) col <- "darkgrey" 
@@ -352,7 +360,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             xlim <- range(as.vector(x$obsdiss))
         if (missing(ylim)) 
             ylim <- range(as.vector(x$confdiss))
-        plot(as.vector(x$obsdiss), as.vector(x$confdiss), main = main, 
+        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdiss), main = main, 
             type = "p", col = col, xlab = xlab, ylab = ylab, 
             xlim = xlim, ylim = ylim, ...)
         abline(lm(x$confdiss~x$obsdiss))

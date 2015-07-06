@@ -4,6 +4,9 @@
 #' @param confs a numeric matrix or data frame
 #' @param ... additional arguments to be passed to lm.fit
 #'
+#'
+#' @importFrom stats lm summary.lm
+#' 
 #' @examples
 #' x<-1:10
 #' y<-2+3*x+rnorm(10)
@@ -16,7 +19,7 @@ c_linearity <- function(confs,...)
         n <- dim(confs)[1]
         p <- dim(confs)[2]
         x <- confs[,2:p]
-        tmp <- lm(y~x,...)
+        tmp <- stats::lm(y~x,...)
         out <- sqrt(summary(tmp)$r.squared)
         out
     }
