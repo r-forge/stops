@@ -72,8 +72,7 @@ echo $contents; } ?>
 
 <p>Until the current issues with R-Forge are fixed however, you can get package binaries here too:</p> 
 <dl>
-<li><a href="stops_current.tar.gz">stops_0.0-19 Package Source</>
-<li><a href=stops_current.zip">stops_0.0-19 for Windows</>  
+<li><a href="stops_current.tar.gz">stops_0.0-19 Package Source</a>
 </dl>
 
 
