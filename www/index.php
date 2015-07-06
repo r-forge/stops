@@ -43,7 +43,7 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> This is the (preliminary) homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. We will also add a tutorial.</p>
+<p> This is the (preliminary) homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. One can also find a tutorial for COPS and STOPS and the MDS functions below.</p>
 
 <h3>Papers:</h3>
 <p><a href="http://epub.wu.ac.at/4476/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
@@ -70,6 +70,13 @@ echo $contents; } ?>
 <h3>Software:</h3>
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
+<p>Until the current issues with R-Forge are fixed however, you can get package binaries here too:</p> 
+<dl>
+<li><a href="stops_current.tar.gz">stops_0.0-19 Package Source</>
+<li><a href=stops_current.zip">stops_0.0-19 for Windows</>  
+</dl>
+
+
 <h3>People:</h3>
 <dl>
 <li><a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a></li> 
@@ -79,3 +86,8 @@ echo $contents; } ?>
 </dl>
 </body>
 </html>
+
+
+<?php 
+readfile("stops.html");
+?>
