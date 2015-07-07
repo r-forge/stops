@@ -112,7 +112,7 @@ print.summary.cordillera <- function(x,...)
         cat("\n")
         cat("  OPTICS cordillera values with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n")
         cat("\n")
-        cat("   Raw OC:",x$raw,"\n","  Normalization:",x$norm,"\n","  Normed OC:",x$normed,"\n")
+        cat("   Raw OC:",x$raw,"\n","  Normalization:",x$normalization,"\n","  Normed OC:",x$normed,"\n")
         cat("\n")
     }
 

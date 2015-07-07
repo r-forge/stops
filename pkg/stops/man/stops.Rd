@@ -33,7 +33,7 @@ stops(dis, loss = c("stress", "smacofSym", "powerstress"),
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
-\item{strucweight}{weight to be used for the cordillera; defaults to 0.5}
+\item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
 \item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures}
 

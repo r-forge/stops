@@ -9,12 +9,12 @@
 #' @param obj MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere) 
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which c-structuredness indices to be included in the loss
-#' @param strucweight the weights of the structuredness indices; defaults to 1/#number of structures
+#' @param strucweight the weights of the structuredness indices; defaults to -1/#number of structures
 #' @param strucpars a list of parameters to be passed to the c-structuredness indices in the same order as the values in structures #(alternatively a named list that has the structure name as the element name)
-#' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'
+#' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss. 
 #' @param verbose verbose output
 #' 
-stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=rep(1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
+stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
         #TODO make strucpars defaults
         stressi <- obj$stress.m
@@ -32,8 +32,8 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
            }
         ##TODO add more structures
         struc <- unlist(mget(structures))
-        ic <- stressi*stressweight - sum(struc*strucweight) 
-        if (type =="multiplicative") ic <- exp(stressweight*log(stressi) - sum(strucweight*log(struc))) #is this what we want? stress/structure or do we want stress - prod(structure)
+        ic <- stressi*stressweight + sum(struc*strucweight) 
+        if (type =="multiplicative") ic <- exp(stressweight*log(stressi) + sum(strucweight*log(struc))) #is this what we want? stress/structure or do we want stress - prod(structure)
         if(verbose>0) cat("stoploss =",ic,"mdsloss =",stressi,"structuredness =",struc,"parameters =",pars,"\n")
         #return the full combi of stress and indices or only the aggregated scalars; for aSTOPS and mSTOPS we want the latter but for a Pareto approach we want the first; get rid of the sums in ic if the first is wanted  
         out <- list(stoploss=ic,strucindices=struc,parameters=pars)
@@ -215,7 +215,7 @@ mkPower2<-function(x,theta) {
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the cordillera; defaults to 0.5
+#' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
 #' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures  
 #' @param optimmethod What general purpose optimizer to use? defaults to our ALJ version
 #' @param lower The lower contraints of the search region
@@ -253,7 +253,7 @@ stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation
       psfunc <- switch(loss, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress)# "strain"=stop_cmdscale,,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon) #choose the stress to minimize    
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
-         strucweight <- rep(1/length(structures),length(structures))
+         strucweight <- rep(-1/length(structures),length(structures))
          if(verbose>1) cat("Weights are stressweight=",stressweight,"strucweights=", strucweight,"\n")
       }
       if(missing(optimmethod)) optimmethod <- "ALJ"

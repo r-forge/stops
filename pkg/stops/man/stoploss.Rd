@@ -5,7 +5,7 @@
 \title{Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
 stoploss(obj, stressweight = 1, structures = c("cclusteredness",
-  "clinearity"), strucweight = rep(1/length(structures), length(structures)),
+  "clinearity"), strucweight = rep(-1/length(structures), length(structures)),
   strucpars, type = c("additive", "multiplicative"), verbose = 0)
 }
 \arguments{
@@ -15,11 +15,11 @@ stoploss(obj, stressweight = 1, structures = c("cclusteredness",
 
 \item{structures}{which c-structuredness indices to be included in the loss}
 
-\item{strucweight}{the weights of the structuredness indices; defaults to 1/#number of structures}
+\item{strucweight}{the weights of the structuredness indices; defaults to -1/#number of structures}
 
 \item{strucpars}{a list of parameters to be passed to the c-structuredness indices in the same order as the values in structures #(alternatively a named list that has the structure name as the element name)}
 
-\item{type}{what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'}
+\item{type}{what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss.}
 
 \item{verbose}{verbose output}
 }

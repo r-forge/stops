@@ -92,3 +92,18 @@ stopres <- stops(dis,theta=c(1,1,1),lower=c(1,0.2,1),upper=c(1,10,1),structures=
 #more weight for clinearity
 strucweights <- c(0.5,10)
 stopres <- stops(dis,theta=c(1,1,1),lower=c(1,1,1),upper=c(1,10,1),structures=structures,strucpars=strucpars,strucweight=strucweights,verbose=4)
+
+
+library(stops)
+data(kinshipdelta)
+resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="additive",strucweight=c(-0.5,-0.5))
+
+resa1<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="additive")
+
+resa2<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="additive",strucweight=c(0.5,0.5))
+
+resm<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="multiplicative")
+
+resm<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="multiplicative",strucweight=c(-0.5,-0.5))
+
+resm1<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=1000,minpts=2),NULL),type="multiplicative",strucweight=c(0.5,0.5))

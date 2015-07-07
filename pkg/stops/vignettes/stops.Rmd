@@ -21,7 +21,7 @@ For proximity scaling (PS) or multidimensional scaling (MDS) the input is typica
 This approximation $D^*(X)$ to the matrix $\Delta^*$ is found by defining a fit criterion (the loss function), $\sigma_{MDS}(X)=L(\Delta^*,D^*(X))$, that is used to measure how closely $D^*(X)$ approximates $\Delta^*$. Usually, they are closely related to the quadratic loss function. A general formulation of a loss function based on a quadratic loss is 
 \begin{equation}
  \label{eq:stress}
- \sigma_{MDS}(X)=\sum^N_{i=1}\sum^N_{j=1} z_{ij} w_{ij}\left[d^*_{ij}(X)-\delta^*_{ij}\right]^2=\sum^N_{i=1}\sum^N_{j=1} w_{ij}\left[g\left(d_{ij}(X)\right)-f(\delta_{ij})\right]^2
+ \sigma_{MDS}(X)=\sum^N_{i=1}\sum^N_{j=1} z_{ij} w_{ij}\left[d^*_{ij}(X)-\delta^*_{ij}\right]^2=\sum^N_{i=1}\sum^N_{j=1} z_{ij}w_{ij}\left[g\left(d_{ij}(X)\right)-f(\delta_{ij})\right]^2
 \end{equation}
 Here, the $w_{ij}$ and $z_{ij}$ are finite weights, with $z_{ij}=0$ if the entry is missing and $z_{ij}=1$ otherwise.  
 
@@ -54,9 +54,11 @@ This formulation enables one to express a large number of PS methods many of whi
 * **Power Sammon mapping** (Rusch et al. 2015a): $w_{ij}=\delta^{*-1}_{ij}$, $\delta^*_{ij}=\delta_{ij}^\lambda$ and $d^*_{ij}=d^\kappa_{ij}$ 
 * **Powerstress** (encompassing all previous models; Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=\delta_{ij}^\lambda$, $d^*_{ij}=d^\kappa_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$ (e.g., a function of the $\delta_{ij}$)
 
-For all of these models one can use the function `powerStressMin` which uses majorization to find the solution (de Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). Note that if $z_{ij}$ and $w_{ij}$ are used, then `weightmat` must be the combination of both.  
+For all of these models one can use the function `powerStressMin` which uses majorization to find the solution (de Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). 
 
-The object returned from `powerStressMin` is of class `smacofP` which extends the `smacof` classes (de Leeuw & Mair, 2009) to allow for the power transformations. Apart from that the objects are made so that they have maxmum comaptibility to methods from `smacof`. Accordingly, the following S3 methods are available:
+[!!] Note that if $z_{ij}$ and $w_{ij}$ are used, then `weightmat` must be the combination of both.  
+
+The object returned from `powerStressMin` is of class `smacofP` which extends the `smacof` classes (de Leeuw & Mair, 2009) to allow for the power transformations. Apart from that the objects are made so that they have maximum compatibility to methods from `smacof`. Accordingly, the following S3 methods are available:
 
 | Method      | Description                   |        
 |:------------|:------------------------------|   
@@ -80,7 +82,7 @@ res1<-powerStressMin(dis,kappa=1,lambda=1)
 res1
 ```
 
-* A `sammon` Mapping
+* A `sammon` mapping
 ```{r}
 res2<-powerStressMin(dis,kappa=1,lambda=1,nu=-1,weightmat=dis)
 res2
@@ -145,7 +147,7 @@ plot(res9,"resplot")
 plot(res9,"bubbleplot")
 ```
  
-**Word of caution:** The implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
+[!!] The implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
 
 ### Strain Models
 The second popular type of PS supported in `stops` is based on the loss function type \emph{strain}. Here the $\Delta^*$ are a transformation of the $\Delta$, $\Delta^*= f (\Delta)$ so that $f(\cdot)=-(h\circ l)(\cdot)$ where $l$ is any function and $h(\cdot)$ is a double centering operation, $h(\Delta)=\Delta-\Delta_{i.}-\Delta_{.j}+\Delta_{..}$ where $\Delta_{i.}, \Delta_{.j}, \Delta_{..}$ are matrices consisting of the row, column and grand marginal means respectively. These then get approximated by (functions of) the inner product matrices of $X$ 
@@ -157,12 +159,12 @@ We can thus express classical scaling as a special case of the general PS loss w
 
 If we again allow power transformations for $g(\cdot)$ and $f(\cdot)$ one can fit the following strain models with `stops` 
 
-* Classical scaling (Torgerson, 1958): $\delta^*_{ij}=-h(\delta_{ij})$ and $d^*_{ij}=d_{ij}$ 
-* Power strain (Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=-h(\delta_{ij}^\lambda)$, $d^*_{ij}=d_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$
+* **Classical scaling** (Torgerson, 1958): $\delta^*_{ij}=-h(\delta_{ij})$ and $d^*_{ij}=d_{ij}$ 
+* **Powerstrain** (Buja et al. 2008, Rusch et al. 2015a): $\delta^*_{ij}=-h(\delta_{ij}^\lambda)$, $d^*_{ij}=d_{ij}$ and $w_{ij}=w_{ij}^\nu$ for arbitrary $w_{ij}$
 
 In `stops` we have a wrapper to `cmdscale` (overloading the `base` function) which extend functionality by offering an object that matches `smacofP` objects with corresponding methods.
 
-A `powerstrain` model is rather easy to fit with simply subjecting the dissimilarity matrix to some power. Here we use $\lambda=3$
+A `powerstrain` model is rather easy to fit with simply subjecting the dissimilarity matrix to some power. Here we use $\lambda=3$.
 
 ```{r}
 resc<-cmdscale(kinshipdelta^3)
@@ -176,7 +178,7 @@ plot(resc)
 
 ## Augmenting MDS with structure considerations: STOPS and COPS 
 
-The main usage of the `stops` package is not in solely fitting the powerstress or powerstrain models and their varianets from above but allowing to choose the right transformation to achieve a "structured" MDS result automatically. For this, the MDS loss function is augmented to include a penalty for the type of structure one is aiming for. This combination of an MDS loss with a structure penalty is what we call "structure optimized loss" and the resulting MDS is coined Structured Optimized Proximity Scaling" (or STOPS). The prime example for a STOPS model is "Cluster Optimized Proximity Scaling" (COPS) which selects optimal parameters so that the clusteredness appearance of the configuation is improved. 
+The main usage of the `stops` package is not in solely fitting the _powerstress_ or _powerstrain_ models and their variants from above but allowing to choose the right transformation to achieve a "structured" MDS result automatically. For this, the MDS loss function is augmented to include a penalty for the type of structure one is aiming for. This combination of an MDS loss with a structure penalty is what we call "structure optimized loss" and the resulting MDS is coined Structured Optimized Proximity Scaling" (or STOPS). The prime example for a STOPS model is "Cluster Optimized Proximity Scaling" (COPS) which selects optimal parameters so that the clusteredness appearance of the configuation is improved. 
 
 ### STOPS
 
@@ -186,28 +188,30 @@ We have as part of $\Delta^*$ and $X^*$ some transformation $f_{ij}(\delta_{ij};
 
 Let us assume we have $K$ different indices $I_k(X^*)$ for different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
 \begin{equation}
-  \text{aSTOPS}(X, \theta, w_0, w_k; \Delta) = w_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} w_k I_k(X^*(\theta))
+  \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = v_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} v_k I_k(X^*(\theta))
 \end{equation}
  or (multiplicative STOPS)
 \begin{equation}
-  \text{mSTOPS}(X, \theta, w_0, w_k; \Delta) = \frac{\sigma_{MDS}(X^*(\theta))^{w_0}} {\prod^K_{k=1} I_k(X^*(\theta))^{w_k}} 
+  \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = \sigma_{MDS}(X^*(\theta))^{v_0} \cdot \prod^K_{k=1} I_k(X^*(\theta))^{v_k} 
 \end{equation}
-, which can be expressed as aSTOPS by logarithms.
+, which can be expressed as aSTOPS by logarithms. Here the $v_0,...,v_k$ are weights that determine how the individual parts (mds loss and c-structuredness indices) are aggregated. 
 
-If we have one $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations we have our suggestion of COPS.    
+[!!] Note that in this formulation the aggregation is a sum/product, so the weights must be negative if the mds loss should be penalized and a higher index stands for more structure. Alternatively, the `stressweight` can be negative and the `strucweight` positive. 
+
+If we have one $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations we have COPS.    
 
 The job is then to find 
 \begin{equation}  
- \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, w_0, w_k; \Delta)\ \text{or} \ \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, w_0, w_k; \Delta)
+ \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta)\ \text{or} \ \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta)
 \end{equation} 
-where $\vartheta \subseteq \{X,\theta, w_0, w_k\}$.  Typically $\vartheta$ will be smaller than all possible parameters here. Currently, the transformations that can be used in `stops` are limited to power transformations. 
+where $\vartheta \subseteq \{X,\theta, v_0, \dots, v_k\}$.  Typically $\vartheta$ will be a subset of all possible parameters here (e.g., the weights might be given _a priori_). Currently, the transformations that can be used in `stops` are limited to power transformations. 
 
 
 Currently the following c-structuredness types are supported:
 
-* c-clusteredness (`cclusteredness`): A clustered appearance of the configuration ($I_k$ is the OPTICS cordillera; COPS)
-* c-linearity (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is multiple correlation) 
-* c-manifoldness (`cmanifoldness`): Projections lie on a sub manifold of the configuration ($I^k$ is MICE)
+* **c-clusteredness** (`cclusteredness`): A clustered appearance of the configuration ($I_k$ is the OPTICS cordillera; COPS)
+* **c-linearity** (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is multiple correlation) 
+* **c-manifoldness** (`cmanifoldness`): Projections lie on a sub manifold of the configuration ($I_k$ is MICE)
 * c-faithfulness: How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the overlapping of Chen \& Buja, 2014; not yet implemented)
 * c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented)
 * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
@@ -219,8 +223,8 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
 
 * `stress`, `smacofSym`: Kruskall's stress; Workhorse: `smacofSym`, Optimization over $\lambda$
 * `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimizes over $\lambda$
-* `strain`,`powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\lambda$
-* `sammon`,`sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\lambda$
+* `strain`, `powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\lambda$
+* `sammon`, `sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\lambda$
 * `elastic`: Elastic scaling; Workhorse: `smacofSym`, Optimization over $\lambda$
 * `sstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\lambda$ 
 * `rstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\kappa$
@@ -231,29 +235,47 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
  
 #### Usage 
 
-The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The parameetrs for the structuredness indices should be given with `strucpars`, a list whose elements correspond to the each structuredness index. The MDS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
+The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissmilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the MDS loss (see the table above). The parameters for the structuredness indices should be given with `strucpars`, a list whose elements correspond to the each structuredness index. The MDS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
 
 `stops(dis, structures = c("cclusteredness","clinearity"), loss="stress", ...)`
 
-For the example
+For example, let us fit an mSTOPS model that looks for a transformation of the $\delta_{ij}$ so that a) the result has maximal c-clusteredness (which is 1 in the best case, so we set a negative weight for this structure) b) the principal axes are nearly orthogonal (c-clinearity close to 0, so we set a positive weight for this structure) and c) the fit of the MDS is also factored in (so we set positive weight on the MDS loss). Since we use mSTOPS and a negative weight for c-linearity, a c-linearity close to 0 will overall dominate the stoploss function with teh latert wo being more of an afterthought - in aSTOPS that would be different. 
+
+[!!] This is generally the approach to be chosen: We minimize the stoploss, so a c-structuredness index that should be (numerically) large needs a negative weight and a c-structuredness index that should be (numerically) small needs a positive weight.  
 
 ```{r}
-ress<-stops(kinshipdelta,structures=c("cclusteredness","clinearity"),loss="stress",verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="multiplicative")
-ress
+ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=c(-0.5,0.5),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="multiplicative")
+ressm
+```
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(ressm)
 ```
 
 One then has all the S3 methods of `smacofP` at one's disposal.
 
-[//]: # For convenience it is also possible to use the `stops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `strucweight`, the weight of the structuredness, to 0. Then the function optimizes the MDS loss function only. 
+Let us compare this with the corresponding aSTOPS
 
-```{r,echo=FALSE,eval=FALSE}
-ressa<-stops(kinshipdelta,structure="c-clusteredness",strucweight=0,loss="strain",verbose=0)
+```{r}
+ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=c(-0.5,0.5),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="additive")
 ressa
+```
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(ressa)
+```
+
+We see that the c-clusteredness is higher as comapred to the mSTOPS result - we have a number of distinct 2 object clusters and they are more spread out and distributed more evenly. The dimensions on the other hand are now farther from being orthogonal. 
+
+For convenience it is also possible to use the `stops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `strucweight`, the weight of any c-structuredness, to 0. Then the function optimizes the MDS loss function only. 
+
+```{r,eval=FALSE}
+ressa<-stops(kinshipdelta,structure=c("clinearity"),strucweight=0,loss="stress",verbose=0)
 ```
 
 ### COPS
 
-The first STOPS model we developed was COPS (Rusch et al. 2015a) for cluster optimized proximity scaling. This is also one of the main use cases for STOPS models. Let us write $X(\theta)=\arg\min_X \sigma_{MDS}(X,\theta)$ for the optimal configuration for given transformation parameter $\theta$. Following the outline of STOPS the overall objective function, which we call \emph{cluster optimized loss (coploss)}, is a weighted combination of the $\theta-$parametrized loss function, $\sigma_{MDS}\left(X(\theta),\theta\right)$, and a c-clusteredness measure, the OPTICS cordillera or $OC(X(\theta);\epsilon,k,q)$ to be optimized as a function of $\theta$ or
+A special STOPS model is COPS (Rusch et al. 2015a) for cluster optimized proximity scaling. This is also one of the main use cases for STOPS models. Let us write $X(\theta)=\arg\min_X \sigma_{MDS}(X,\theta)$ for the optimal configuration for given transformation parameter $\theta$. Following the outline of STOPS the overall objective function, which we call \emph{cluster optimized loss (coploss)}, is a weighted combination of the $\theta-$parametrized loss function, $\sigma_{MDS}\left(X(\theta),\theta\right)$, and a c-clusteredness measure, the OPTICS cordillera or $OC(X(\theta);\epsilon,k,q)$ to be optimized as a function of $\theta$ or
 \begin{equation}
 \label{eq:spstress}
 \text{coploss}(\theta) = v_1 \cdot \sigma_{MDS}\left(X(\theta),\theta \right) - v_2 \cdot \text{OC}\left(X(\theta);\epsilon,k,q\right) 
@@ -337,7 +359,7 @@ For calculating a COPS solution, we need the OPTICS algorithm and the OPTICS cor
 
 ```{r}     
 data(iris)
-res<-optics(iris[,1:4],minpts=2,epsilon=100)
+res<-optics(iris[,1:4],minpts=2,epsilon=1000)
 print(res)
 summary(res)
 ```

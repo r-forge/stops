@@ -1,3 +1,7 @@
+Version 0.0-20
+
+- Bug fixes in print.summary.cordillera. Changed the aggregation in STOPS to sum/products - one now has to use the weights to penalize accordingly - this was because the indices may eventually also be so that one looks for a structure that is close to zero for some index. New default weights in stoploss and stops. Updated vignette. 
+
 Version 0.0-19
 
 - Added STOPS infrastructure (fitting functions and methods); added clinearity; STOPS works for clinearity and cclusteredness; minor updates to functions for COPs; updated vignette, added some tests;  
