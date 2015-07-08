@@ -70,11 +70,14 @@ echo $contents; } ?>
 <h3>Software:</h3>
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p>Until the current issues with R-Forge are fixed however you can get the package here too:</p> 
+The most recent build is available for Windows and Linux here: <a href="https://r-forge.r-project.org/R/?group_id=2037">STOPS Package</a>
+
+
+<!--- <p>Until the current issues with R-Forge are fixed however you can get the package here too:</p> 
 <dl>
 <li><a href="stops_current.tar.gz">STOPS Package Source</a>
 </dl>
-
+---!>
 
 <h3>People:</h3>
 <dl>
