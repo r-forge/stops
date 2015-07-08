@@ -13,7 +13,7 @@
 #' @param strucpars a list of parameters to be passed to the c-structuredness indices in the same order as the values in structures #(alternatively a named list that has the structure name as the element name)
 #' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss. 
 #' @param verbose verbose output
-#' 
+#' @export
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
         #TODO make strucpars defaults
@@ -229,13 +229,15 @@ mkPower2<-function(x,theta) {
 #' @return see \code{\link{cops}}
 #' 
 #' @examples
+#' \donttest{
 #' data(BankingCrisesDistances)
 #' strucpar<-list(c(eps=10,minpts=2),NULL)
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cclusteredness","clinearity"),
 #' strucpars=strucpar)
 #' res1
-#'
+#' }
+#' 
 #' @importFrom stats dist as.dist optim
 #' @importFrom pso psoptim
 #' 

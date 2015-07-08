@@ -138,12 +138,14 @@ summary(res)
 plot(res)
 plot(res,"Shepard")
 }
+\donttest{
 data(BankingCrisesDistances)
 strucpar<-list(c(eps=10,minpts=2),NULL)
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cclusteredness","clinearity"),
 strucpars=strucpar)
 res1
+}
 }
 \keyword{clustering}
 \keyword{multivariate}

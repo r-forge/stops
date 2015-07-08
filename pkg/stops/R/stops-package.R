@@ -79,7 +79,6 @@
 #' plot(res)
 #' plot(res,"Shepard")
 #' }
-
 #' 
 #' @docType package
 #' @name stops
