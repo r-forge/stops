@@ -1,3 +1,7 @@
+Version 0.0-21
+
+- Changed vignette to a static one (as there is no ELKI on check machines) with .rsp.
+
 Version 0.0-20
 
 - Bug fixes in print.summary.cordillera. Changed the aggregation in STOPS to sum/products - one now has to use the weights to penalize accordingly - this was because the indices may eventually also be so that one looks for a structure that is close to zero for some index. New default weights in stoploss and stops. Updated vignette. 
