@@ -2,8 +2,6 @@
 #'calculates c-linearity as the multiple correlation
 #'
 #' @param confs a numeric matrix or data frame
-#' @param ... additional arguments to be passed to lm.fit
-#'
 #'
 #' @importFrom stats lm summary.lm
 #' 
@@ -13,13 +11,192 @@
 #' confs<-cbind(x,y)
 #' c_linearity(confs)
 #' @export
-c_linearity <- function(confs,...)
+c_linearity <- function(confs)
     {
         y <- confs[,1]
-        n <- dim(confs)[1]
+#        n <- dim(confs)[1]
         p <- dim(confs)[2]
         x <- confs[,2:p]
-        tmp <- stats::lm(y~x,...)
+        tmp <- stats::lm(y~x)
         out <- sqrt(summary(tmp)$r.squared)
         out
     }
+
+
+#'c-dependence
+#'calculates c-dependence as the distance correlation 
+#'
+#' @param confs a numeric matrix or data frame with two columns
+#' @param index exponent on Euclidean distance, in (0,2]
+#'
+#'
+#' @importFrom energy dcor
+#' 
+#' @examples
+#' x<-1:10
+#' y<-2+3*x+rnorm(10)
+#' confs<-cbind(x,y)
+#' c_dependence(confs,1.5)
+#' @export
+c_dependence <- function(confs,index=1)
+    {
+        if(dim(confs)[2]>2) stop("Distance correlation is not defined for more than two column vectors.")
+        y <- confs[,1]
+        x <- confs[,2]
+        out <- energy::dcor(x,y,index)
+        out
+    }
+
+
+#'c-manifoldness
+#'calculates c-manifoldness as the maximal correlation coefficient
+#'
+#' @param confs a numeric matrix or data frame with two columns
+#'
+#' @importFrom acepack ace
+#' @importFrom stats cor
+#' 
+#' @examples
+#' x<--100:100
+#' y<-sqrt(100^2-x^2)
+#' confs<-cbind(x,y)
+#' c_manifoldness(confs)
+#' @export
+c_manifoldness <- function(confs)
+    {
+        if(dim(confs)[2]>2) stop("Maximal correlation is not available for more than two column vectors. You can use cassociation.")
+        #it is not symmetric so we use dim1 to explain dim2
+        x <- confs[,1]
+        y <- confs[,2]
+        tmp <- acepack::ace(x,y)
+        out <- stats::cor(tmp$tx,tmp$ty)
+        out
+    }
+
+
+#'wrapper for getting the mine coefficients
+#'
+#' @param confs a numeric matrix or data frame with two columns
+#' @param master the master column 
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
+#' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
+#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' 
+#' @importFrom minerva mine
+c_mine <- function(confs,master=NULL,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+    {
+        #if(dim(confs)[2]>2) stops("MINE is not defined for more than two column vectors.")
+        out <- minerva::mine(x=confs,master=master,alpha=alpha,C=C,var.thr=var.thr,eps=eps)
+        out
+    }
+
+#' c-association
+#' calculates the c-association based on the maximal information coefficient 
+#' We define c-association as the maximum association between any two dimensions - or use the determinant of the MINE matrix - TBD
+#' 
+#' @param confs a numeric matrix or data frame with two columns
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
+#' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
+#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al). It provides robustness.
+#' 
+#' @importFrom minerva mine
+#' 
+#' @examples
+#' x<-seq(-3,3,length.out=200)
+#' y<-sqrt(3^2-x^2)
+#' z<- sin(y-x)
+#' confs<-cbind(x,y,z)
+#' c_association(confs)
+#' @export
+c_association <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+    {
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MIC
+        tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
+        out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
+        out
+    }
+
+#' c-nonmonotonicity
+#' calculates the c-nonmonotonicity based on the maximum asymmetric score 
+#' We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#' 
+#' @param confs a numeric matrix or data frame with two columns
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
+#' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
+#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' 
+#' @importFrom minerva mine
+#' 
+#' @examples
+#' x<-seq(-3,3,length.out=200)
+#' y<-sqrt(3^2-x^2)
+#' z<- sin(y-x)
+#' confs<-cbind(x,y,z)
+#' c_nonmonotonicity(confs)
+#' @export
+c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+    {
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MAS
+        tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
+        out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
+        out
+    }
+
+#' c-functionality
+#' calculates the c-functionality based on the maximum edge value 
+#' We define c-functionality as the mean functionality between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#' 
+#' @param confs a numeric matrix or data frame with two columns
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
+#' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
+#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' 
+#' @importFrom minerva mine
+#' 
+#' @examples
+#' x<-seq(-3,3,length.out=200)
+#' y<-sqrt(3^2-x^2)
+#' z<- sin(y-x)
+#' confs<-cbind(x,y,z)
+#' c_functionality(confs)
+#' @export
+c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+    {
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MEV
+        tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
+        out <- mean(tmp) #the question is how to aggregate this for more than two dimensions, I now use the mean
+        out
+    }
+
+#' c-complexity
+#' calculates the c-complexity based on the minimum cell number
+#' We define c-complexity as the maximum minimum cell number between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#'
+#' @param confs a numeric matrix or data frame with two columns
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
+#' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
+#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' 
+#' @importFrom minerva mine
+#' 
+#' @examples
+#' x<-seq(-3,3,length.out=200)
+#' y<-sqrt(3^2-x^2)
+#' z<- sin(y-x)
+#' confs<-cbind(x,y,z)
+#' c_complexity(confs)
+#' @export
+c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+    {
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MCN
+        tmp <- tmp[lower.tri(tmp)]
+        out <- max(tmp)
+        out
+    }
+
+

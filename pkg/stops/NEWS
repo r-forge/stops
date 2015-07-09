@@ -1,5 +1,10 @@
 Version 0.0-21
 
+- Added more structuredness indices (cdependence, cmanifoldness, cfunctionality, cassociation, ccomplexity). Updated vignette accordingly.
+
+
+Version 0.0-21
+
 - Changed vignette to a static one (as there is no ELKI on check machines) with .rsp.
 
 Version 0.0-20

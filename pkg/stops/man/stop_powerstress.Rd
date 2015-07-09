@@ -6,9 +6,10 @@
 \usage{
 stop_powerstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1,
-  structures = c("cclusteredness", "clinearity"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"),
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity"), strucweight = rep(1/length(structures), length(structures)),
+  strucpars, verbose = 0, type = c("additive", "multiplicative"),
   stresstype = c("default", "stress1", "rawstress", "normstress",
   "enormstress", "enormstress1"))
 }

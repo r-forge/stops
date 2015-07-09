@@ -8,9 +8,11 @@
 \usage{
 stops(dis, loss = c("stress", "smacofSym", "powerstress"),
   transformation = mkPower, theta = 1, structures = c("cclusteredness",
-  "clinearity"), ndim = 2, weightmat = 1 - diag(nrow(dis)), init = NULL,
-  stressweight = 1, strucweight, strucpars, optimmethod = c("SANN", "ALJ",
-  "pso"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  "clinearity", "cdependence", "cmanifoldness", "cassociation",
+  "cnonmonotonicity", "cfunctionality", "ccomplexity"), ndim = 2,
+  weightmat = 1 - diag(nrow(dis)), init = NULL, stressweight = 1,
+  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso"),
+  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
   type = c("additive", "multiplicative"), s = 4, stresstype = "default",
   ...)
 }
@@ -143,6 +145,12 @@ data(BankingCrisesDistances)
 strucpar<-list(c(eps=10,minpts=2),NULL)
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cclusteredness","clinearity"),
+strucpars=strucpar)
+res1
+
+strucpar<-list(c(alpha=1,C=15,var.thr=1e-5,eps=NULL),c(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
+structures=c("cfunctionality","ccomplexity"),
 strucpars=strucpar)
 res1
 }

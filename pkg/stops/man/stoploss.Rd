@@ -5,8 +5,10 @@
 \title{Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
 stoploss(obj, stressweight = 1, structures = c("cclusteredness",
-  "clinearity"), strucweight = rep(-1/length(structures), length(structures)),
-  strucpars, type = c("additive", "multiplicative"), verbose = 0)
+  "clinearity", "cdependence", "cmanifoldness", "cassociation",
+  "cnonmonotonicity", "cfunctionality", "ccomplexity"),
+  strucweight = rep(-1/length(structures), length(structures)), strucpars,
+  type = c("additive", "multiplicative"), verbose = 0)
 }
 \arguments{
 \item{obj}{MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere)}

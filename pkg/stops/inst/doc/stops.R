@@ -64,14 +64,14 @@ summary(resc)
 #  plot(resc)
 
 ## ------------------------------------------------------------------------
-ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=c(-0.5,0.5),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="multiplicative")
+ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL,c(index=1)),type="multiplicative")
 ressm
 
 ## ----fig.show='hold',fig.width=8,fig.height=8----------------------------
 plot(ressm)
 
 ## ------------------------------------------------------------------------
-ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=c(-0.5,0.5),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL),type="additive")
+ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL,c(index=1)),type="additive")
 ressa
 
 ## ----fig.show='hold',fig.width=8,fig.height=8----------------------------

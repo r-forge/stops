@@ -5,12 +5,10 @@
 \title{c-linearity
 calculates c-linearity as the multiple correlation}
 \usage{
-c_linearity(confs, ...)
+c_linearity(confs)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}
-
-\item{...}{additional arguments to be passed to lm.fit}
 }
 \description{
 c-linearity
