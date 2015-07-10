@@ -1,5 +1,5 @@
 #'c-linearity
-#'calculates c-linearity as the multiple correlation
+#'calculates c-linearity as the maximum multiple correlation
 #'
 #' @param confs a numeric matrix or data frame
 #'
@@ -8,17 +8,24 @@
 #' @examples
 #' x<-1:10
 #' y<-2+3*x+rnorm(10)
-#' confs<-cbind(x,y)
+#' z<- sin(y-x)
+#' confs<-cbind(z,y,x)
 #' c_linearity(confs)
 #' @export
 c_linearity <- function(confs)
     {
-        y <- confs[,1]
-#        n <- dim(confs)[1]
+        confs <- scale(confs)
         p <- dim(confs)[2]
-        x <- confs[,2:p]
-        tmp <- stats::lm(y~x)
-        out <- sqrt(summary(tmp)$r.squared)
+        tmp <- numeric()
+        for(i in 1:p)
+            {
+             y <- confs[,i]
+#        n <- dim(confs)[1]
+             x <- confs[,-i]
+             tmp[i] <- summary(stats::lm(y~x))$r.squared
+            # rsq[i] <- summary(tmp[i])$r.squared
+           }
+        out <- sqrt(max(tmp))
         out
     }
 
