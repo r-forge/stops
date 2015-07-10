@@ -220,7 +220,6 @@ c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' @export
 c_faithfulness <- function(confdiss,obsdiss,k=3)
     {
-        
         nnd <- stops::knn_dist(confdiss,k=k)$index
         nndelt <- stops::knn_dist(obsdiss,k=k)$index
         ovlap <- matrix(NA,ncol=ncol(nnd),nrow=nrow(nnd))
