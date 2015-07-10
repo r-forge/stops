@@ -7,9 +7,9 @@
 stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1), ndim = 2,
   weightmat = NULL, init = NULL, ..., structures = c("clusteredness",
   "linearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity"), stressweight = 1,
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0)
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
+  stressweight = 1, strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

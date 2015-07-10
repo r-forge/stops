@@ -9,10 +9,10 @@
 stops(dis, loss = c("stress", "smacofSym", "powerstress"),
   transformation = mkPower, theta = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity"), ndim = 2,
-  weightmat = 1 - diag(nrow(dis)), init = NULL, stressweight = 1,
-  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso"),
-  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
+  ndim = 2, weightmat = 1 - diag(nrow(dis)), init = NULL,
+  stressweight = 1, strucweight, strucpars, optimmethod = c("SANN", "ALJ",
+  "pso"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
   type = c("additive", "multiplicative"), s = 4, stresstype = "default",
   ...)
 }

@@ -223,7 +223,7 @@ Currently the following c-structuredness types are supported:
 * **c-nonmonotonicity** (`cnonmonotonicity`): Deviation from monotonicity ($I_k$ is the pairwise maximal maximum assymmetry score (Reshef et al. 2011), the higher the less monotone)  
 * **c-functionality** (`cfunctionality`): Pairwise functional, smooth, noisefree relationship between dimensions ($I_k$ is the mean pairwise maximum edge value (Reshef et al. 2011), 1 means perfect functional association)
 * **c-complexity** (`ccomplexity`): Measures the degree of complexity of the functional relationship between any two dimensions ($I_k$ is the pairwise maximal minimum cell number (Reshef et al. 2011), the higher the more complex) 
-* c-faithfulness: How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the overlapping of Chen \& Buja, 2014; not yet implemented)
+* **c-faithfulness** (`cfaithfulness`): How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the adjusted Md index of Chen \& Buja, 2013; note that this index deviates from the others by being a function of both $X^*$ and $\Delta^*$ rather than $X^*$ alone)
 * c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented)
 * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
 * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented)
@@ -424,7 +424,7 @@ conf_adjust(conf1,conf2)
 
 * Buja A, Swayne DF, Littman ML, Dean N, Hofmann H, Chen L (2008). Data visualization with multidimensional scaling. Journal of Computational and Graphical Statistics, 17 (2), 444-472.
 
-* Chen L, Buja A (2014). Stress functions for nonlinear dimension reduction, proximity analysis, and graph drawing. Journal of Machine Learning Research, 14, 1145-1173.
+* Chen L, Buja A (2013). Stress functions for nonlinear dimension reduction, proximity analysis, and graph drawing. Journal of Machine Learning Research, 14, 1145-1173.
 
 * de Leeuw J (2014). Minimizing r-stress using nested majorization. Technical Report, UCLA, Statistics Preprint Series.
 

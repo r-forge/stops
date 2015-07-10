@@ -3,7 +3,7 @@
 \name{c_linearity}
 \alias{c_linearity}
 \title{c-linearity
-calculates c-linearity as the multiple correlation}
+calculates c-linearity as the maximum multiple correlation}
 \usage{
 c_linearity(confs)
 }
@@ -12,12 +12,13 @@ c_linearity(confs)
 }
 \description{
 c-linearity
-calculates c-linearity as the multiple correlation
+calculates c-linearity as the maximum multiple correlation
 }
 \examples{
 x<-1:10
 y<-2+3*x+rnorm(10)
-confs<-cbind(x,y)
+z<- sin(y-x)
+confs<-cbind(z,y,x)
 c_linearity(confs)
 }
 

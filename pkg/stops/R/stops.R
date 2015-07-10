@@ -14,7 +14,7 @@
 #' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss. 
 #' @param verbose verbose output
 #' @export
-stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
+stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
         #TODO make strucpars defaults
         stressi <- obj$stress.m
@@ -28,37 +28,42 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if("clinearity"%in%structures)
             {
                indst <- which(structures=="clinearity")
-               clinearity <- do.call(stops::c_linearity,c(list(confs))) #,strucpars[[indst]])) has no strucpars
+               clinearity <- do.call(stops::c_linearity,c(list(confs)))
            }
         if("cdependence"%in%structures)
             {
                indst <- which(structures=="cdependence")
-               cdependence <- do.call(stops::c_dependence,c(list(confs),strucpars[[indst]])) #,strucpars[[indst]])) has no strucpars
+               cdependence <- do.call(stops::c_dependence,c(list(confs),strucpars[[indst]])) 
            }
         if("cmanifoldness"%in%structures)
             {
                indst <- which(structures=="cmanifoldness")
-               cmanifoldness <- do.call(stops::c_manifoldness,c(list(confs))) #,strucpars[[indst]])) has no strucpars
+               cmanifoldness <- do.call(stops::c_manifoldness,c(list(confs)))
            }
         if("cassociation"%in%structures)
             {
                indst <- which(structures=="cassociation")
-               cassociation <- do.call(stops::c_association,c(list(confs),strucpars[[indst]])) #,strucpars[[indst]])) has no strucpars
+               cassociation <- do.call(stops::c_association,c(list(confs),strucpars[[indst]]))
            }
         if("cnonmonotonicity"%in%structures)
             {
                indst <- which(structures=="cnonmonotonicity")
-               cnonmonotonicity <- do.call(stops::c_nonmonotonicity,c(list(confs),strucpars[[indst]])) #,strucpars[[indst]])) has no strucpars
+               cnonmonotonicity <- do.call(stops::c_nonmonotonicity,c(list(confs),strucpars[[indst]]))
            }
         if("cfunctionality"%in%structures)
             {
                indst <- which(structures=="cfunctionality")
-               cfunctionality <- do.call(stops::c_functionality,c(list(confs),strucpars[[indst]])) #,strucpars[[indst]])) has no strucpars
+               cfunctionality <- do.call(stops::c_functionality,c(list(confs),strucpars[[indst]])) 
            }
          if("ccomplexity"%in%structures)
             {
                indst <- which(structures=="ccomplexity")
-               ccomplexity <- do.call(stops::c_complexity,c(list(confs),strucpars[[indst]])) #,strucpars[[indst]])) has no strucpars
+               ccomplexity <- do.call(stops::c_complexity,c(list(confs),strucpars[[indst]])) 
+           }
+        if("cfaithfulness"%in%structures)
+            {
+               indst <- which(structures=="cfaithfulness")
+               cfaithfulness <- do.call(stops::c_faithfulness,c(list(obj$confdiss),obj$obsdiss,strucpars[[indst]]))$mda 
            }
         ##TODO add more structures
         struc <- unlist(mget(structures))
@@ -99,7 +104,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #' 
 #'@keywords multivariate
 #'@export
-stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"), stresstype="default") {
+stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"), stresstype="default") {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(missing(type)) type <- "additive"
@@ -150,7 +155,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' 
 #'@keywords multivariate
 #'@export
-stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
+stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   addargs <- list(...)
@@ -201,7 +206,7 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #' }
 #' @keywords multivariate
 #' @export
-stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -279,7 +284,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
+stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(inherits(dis,"dist")) dis <- as.matrix(dis)

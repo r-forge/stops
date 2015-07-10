@@ -1,6 +1,6 @@
-Version 0.0-21
+Version 0.0-22
 
-- Added more structuredness indices (cdependence, cmanifoldness, cfunctionality, cassociation, ccomplexity). Updated vignette accordingly.
+- Added more structuredness indices (cdependence, cmanifoldness, cfunctionality, cassociation, ccomplexity,cfaithfulness). Updated vignette accordingly.
 
 
 Version 0.0-21

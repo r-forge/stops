@@ -6,7 +6,7 @@
 \usage{
 stoploss(obj, stressweight = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity"),
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
   strucweight = rep(-1/length(structures), length(structures)), strucpars,
   type = c("additive", "multiplicative"), verbose = 0)
 }

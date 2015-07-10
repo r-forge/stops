@@ -206,4 +206,54 @@ c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
         out
     }
 
+#' c-faithfulness 
+#' calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods 
+#'
+#' @param confdiss a symmetric numeric matrix or a dist object
+#' @param obsdiss a symmetric numeric matrix or a dist object
+#' @param k the number of nearest neighbours to be looked at
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' dis<-smacofSym(delts)$confdiss
+#' c_faithfulness(dis,delts,k=3)
+#' @export
+c_faithfulness <- function(confdiss,obsdiss,k=3)
+    {
+        
+        nnd <- stops::knn_dist(confdiss,k=k)$index
+        nndelt <- stops::knn_dist(obsdiss,k=k)$index
+        ovlap <- matrix(NA,ncol=ncol(nnd),nrow=nrow(nnd))
+        v <- nrow(ovlap)
+        for(i in 1:dim(ovlap)[1])
+            {
+                ovlap[i,] <- nnd[i,]%in%nndelt[i,]
+            }
+        ndi <- rowSums(ovlap)
+        mdi <- rowMeans(ovlap)
+        nd <- mean(ndi)
+        md <- mean(mdi)
+        mdai <- mdi - k/(v-1)
+        ndai <- ndi - k^2/(v-1)
+        mda <- mean(mdai)
+        nda <- mean(ndai)
+        list(mda=mda,nda=nda,md=md,nd=nd,mdai=mdai,ndai=ndai,ndi,mdi)
+    }
 
+#'calculate k nearest neighbours from a distance matrix
+#' @param dis distance matrix
+#' @param k number of nearest neighbours (Note that with a tie, the function returns the alphanumerically first one!)
+#' @export
+knn_dist <- function(dis,k)
+    {
+      dis <- as.matrix(dis)  
+      #if(!isSymmetric(dis)) stop("Distance matrix is not symmetric.")  
+      n <- nrow(dis)
+      knnindex <- matrix(0, nrow = n, ncol = k+1)
+      knndist  <- knnindex
+      for(i in 1:n){
+          knnindex[i,] = order(dis[i,])[1:(k+1)]
+          knndist[i,] = dis[i,knnindex[i,]]
+      }
+      list(index=knnindex[,-1],distance=knndist[,-1])
+   }
