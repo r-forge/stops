@@ -224,7 +224,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucs=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindicess=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
 }
 
@@ -323,7 +323,7 @@ stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation
     out$losstype <- loss
     out$nobj <- dim(out$fit$conf)[1]
     out$type <- type
-    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and structuredness indices=",round(out$strucindices,4),". Thanks for your patience. \n")
+    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and c-structuredness indices:",t(data.frame(names(out$strucindices),out$strucindices)),". Thanks for your patience. \n")
     class(out) <- c("stops")
     out
   }
