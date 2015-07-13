@@ -1,6 +1,10 @@
+Version 0.0-23
+
+- Added all power losses for stops()..
+
 Version 0.0-22
 
-- Added more structuredness indices (cdependence, cmanifoldness, cfunctionality, cassociation, ccomplexity,cfaithfulness). Updated vignette accordingly.
+- Added more structuredness indices (cdependence, cmanifoldness, cfunctionality, cassociation, ccomplexity,cfaithfulness). Updated vignette accordingly. Bug fixes.
 
 
 Version 0.0-21

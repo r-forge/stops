@@ -16,7 +16,7 @@
 #' @export
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
-        #TODO make strucpars defaults
+        if(missing(strucpars)) strucpars <- vector("list", length(structures))
         stressi <- obj$stress.m
         pars <- obj$pars
         confs <- obj$conf 
@@ -121,7 +121,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
-  fit$deltaorig <- fit$delta^(1/fit$lambda)  
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions
   out
@@ -178,6 +178,553 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
   out
 }
 
+#' STOPS versions of elastic scaling models (via smacofSym)
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
+#' @param init (optional) initial configuration
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#'
+#'@importFrom stats dist as.dist
+#'@keywords multivariate
+#'@export
+stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
+  #TODO Unfolding  
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  if(missing(type)) type <- "additive"
+  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
+  #kappa first argument, lambda=second
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- -2
+  elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
+  diag(elscalw) <- 1
+  combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
+  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit$kappa <- 1
+  fit$lambda <- lambda
+  fit$nu <- nu
+  fit$stress.1 <- fit$stress
+  fitdis <- as.matrix(fit$confdiss)
+  delts <- as.matrix(fit$delta) 
+  fit$stress.r <- sum(combwght*((delts-fitdis)^2))
+  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
+  out
+}
+
+
+#' STOPS versions of smacofSphere models
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to 1). Defaults to 1 1 1
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#'
+#'@importFrom stats dist as.dist
+#'@keywords multivariate
+#'@export
+stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
+  #TODO Unfolding  
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
+   if(missing(type)) type <- "additive"
+  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
+  #kappa first argument, lambda=second
+  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  lambda <- theta
+  if(length(theta)==2L) lambda <- theta[2]
+  fit <- smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit$kappa <- 1
+  fit$lambda <- lambda
+  fit$nu <- 1
+  fit$stress.1 <- fit$stress
+  fitdis <- as.matrix(fit$confdiss)
+  delts <- as.matrix(fit$delta)[-1,-1]
+  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
+  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
+  out
+}
+
+
+#' STOPS version of sammon mapping
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#'
+#' @importFrom stats dist as.dist
+#' 
+#' @keywords multivariate
+#'
+#' 
+#' @export
+stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"), stresstype="default") {
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(missing(type)) type <- "additive"
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- -1
+  fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
+  fit$lambda <- lambda
+  fit$kappa <- 1
+  fit$nu <- -1
+  dis <- stats::as.dist(dis)
+  fitdis <- stats::dist(fit$points)
+  fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
+  fit$stress.n <- fit$stress.r/sum(dis)
+  fit$stress.m <- sqrt(fit$stress)
+  fit$conf <- fit$points
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,  fit=fit,stopobj=stopobj) #target functions
+}
+
+#' STOPS versions of Sammon mapping models (via smacofSym)
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1.
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#'
+#'
+#' @importFrom stats dist as.dist
+#' 
+#'@keywords multivariate
+#'@export
+stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  if(missing(type)) type <- "additive"
+  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
+  #kappa first argument, lambda=second
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta
+  if(length(theta)==3L) lambda <- theta[2]
+  nu <- -1
+  elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
+  diag(elscalw) <- 1
+  combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
+  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit$kappa <- 1
+  fit$lambda <- lambda
+  fit$nu <- nu
+  fit$stress.1 <- fit$stress
+  fitdis <- as.matrix(fit$confdiss)
+  delts <- as.matrix(fit$delta) 
+  fit$stress.r <- sum(combwght*((delts-fitdis)^2))
+  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
+  out
+}
+
+
+
+#' STOPS version of strain
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second and third the lambda and the nu argument (the latter is fixed to 1). Defaults to 1 1 1
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#' 
+#' @importFrom stats dist as.dist
+#' @keywords multivariate
+#' @export
+stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(missing(type)) type <- "additive"
+  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)==3L) lambda <- theta[2]
+  fit <- stops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
+  fit$lambda <- lambda
+  fit$kappa <- 1
+  fit$nu <- 1
+  dis <- stats::as.dist(dis)
+  fitdis <- stats::dist(fit$points)
+  fit$stress.r <- sum((dis^lambda-fitdis)^2)
+  fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
+  fit$stress.m <- sqrt(fit$stress.n)
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$conf <- fit$points
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  list(stress=fit$GOF,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
+}
+
+#' STOPS version of rstress
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#' 
+#' @keywords multivariate
+#' @export
+stop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(missing(stresstype)) stresstype <- "default"  
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(missing(type)) type <- "additive"
+  kappa <- theta
+  if(length(theta)==3L) kappa <- theta[1] 
+  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
+  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  fit$kappa <- theta[1]
+  fit$lambda <- 1
+  fit$nu <- 1
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out
+}
+
+
+#' STOPS version of sstress
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1
+#' #' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#' @keywords multivariate
+#' @export
+stop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(missing(stresstype)) stresstype <- "default"
+  if(missing(type)) type <- "additive"
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta
+  if(length(theta)==3L) lambda <- theta[2]
+  flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
+  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
+  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
+  fit$kappa <- 2
+  fit$lambda <- lambda
+  fit$nu <- 1
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out
+}
+
+
+#' STOPS version of powermds
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param ndim number of dimensions of the target space
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param structures which structures to look for
+#' @param strucweight weight to be used for the structures; defaults to 0.5
+#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stresstype which stress to report? Defaults to explicitly normalized stress
+#'
+#' @return A list with the components
+#' \itemize{
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item stoploss: the weighted loss value
+#'         \item struc: the structuredness indices
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#' }
+#' @keywords multivariate
+#' @export
+stop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(missing(stresstype)) stresstype <- "default"
+  if(missing(type)) type <- "additive"
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,2)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
+  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
+  fit$kappa <- theta[1]
+  fit$lambda <- theta[2]
+  fit$nu <- 1
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out 
+}
+
+#' STOPS version of sammon with powers
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (fixed to -1). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param ndim number of dimensions of the target space
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param structures which strcutures to look for
+#' @param strucweight weight to be used for the structures; defaults to 0.5
+#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stresstype which stress to report? Defaults to explicitly normalized stress
+#'
+#' @return A list with the components
+#' \itemize{
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item stoploss: the weighted loss value
+#'         \item struc: the structuredness indices
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#' }
+#' @keywords multivariate
+#' @export
+stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(missing(stresstype)) stresstype <- "default"
+  if(missing(type)) type <- "additive"
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,2)
+  nu <- -1
+  sammwght <-dis^(theta[2])
+  diag(sammwght) <- 1
+  combwght <- sammwght*weightmat
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
+  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
+  fit$kappa <- theta[1]
+  fit$lambda <- theta[2]
+  fit$nu <- nu
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out 
+}
+
+#' COPS version of elastic scaling with powers
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param ndim number of dimensions of the target space
+#' @param ... additional arguments to be passed to the fitting procedure
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param structures which strcutures to look for
+#' @param strucweight weight to be used for the structures; defaults to 0.5
+#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stresstype which stress to report? Defaults to explicitly normalized stress
+#'
+#' @return A list with the components
+#' \itemize{
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item stoploss: the weighted loss value
+#'         \item struc: the structuredness indices
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#' }
+#' @keywords multivariate
+#' @export
+stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(missing(stresstype)) stresstype <- "default"
+  if(missing(type)) type <- "additive"
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,2)
+  nu <- -2
+  elawght <- dis^(theta[2])
+  diag(elawght) <- 1
+  combwght <- elawght*weightmat
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  if(stresstype=="default") fit$stress.m <- fit$stress.m
+  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
+  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
+  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
+  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
+  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
+  fit$kappa <- theta[1]
+  fit$lambda <- theta[2]
+  fit$nu <- nu
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out 
+}
+
 
 #' STOPS version of powerstress
 #'
@@ -223,8 +770,9 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
+  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindicess=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
 }
 
@@ -245,17 +793,17 @@ mkPower2<-function(x,theta) {
 #' @param loss which loss function to be used for fitting, defaults to stress
 #' @param transformation function to transform the proximities and/or distances; need to be parameterized by theta; currently not used  
 #' @param theta parameters for the proximiy and distance transformation
-#' @param structures what c-structuredness should be considered 
+#' @param structures what c-structuredness should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
-#' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures  
-#' @param optimmethod What general purpose optimizer to use? defaults to our ALJ version
+#' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.   
+#' @param optimmethod What general purpose optimizer to use? Defaults to our ALJ version
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
 #' @param s number of particles if pso is used
 #' @param stresstype what stress to be used for comparisons between solutions 
@@ -272,7 +820,7 @@ mkPower2<-function(x,theta) {
 #' strucpars=strucpar)
 #' res1
 #'
-#' strucpar<-list(c(alpha=1,C=15,var.thr=1e-5,eps=NULL),c(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+#' strucpar<-list(list(alpha=1,C=15,var.thr=1e-5,eps=NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cfunctionality","ccomplexity"),
 #' strucpars=strucpar)
@@ -284,16 +832,21 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
+      if(missing(structures)) {
+          structures <- "clinearity"
+          strucweight <- 0
+      }
+      if(missing(strucpars)) strucpars <- vector("list",length(structures))
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
       if(missing(loss)) loss <- "stress"
       if(missing(type)) type <- "additive"
       #TODO implement a Pareto idea
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress)# "strain"=stop_cmdscale,,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon) #choose the stress to minimize    
+      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"stress"=stop_sstress) #choose the stress to minimize    
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
          strucweight <- rep(-1/length(structures),length(structures))
@@ -334,7 +887,7 @@ print.stops <- function(x,...)
     cat("\nCall: ")
     print(x$call)
     cat("\n")
-    cat("Model:",x$type,"STOPS with", x$loss,"loss function and theta parameters=",x$par,"\n")
+    cat("Model:",x$type,"STOPS with", x$loss,"loss function and theta parameters=",x$parameters,"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
     cat("MDS loss value:", x$stress.m, "\n")

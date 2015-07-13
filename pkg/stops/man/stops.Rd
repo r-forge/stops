@@ -6,7 +6,9 @@
 \alias{stops-package}
 \title{stops: structure optimized proximity scaling}
 \usage{
-stops(dis, loss = c("stress", "smacofSym", "powerstress"),
+stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
+  "powermds", "powerelastic", "powerstrain", "elastic", "sammon", "sammon2",
+  "smacofSphere", "powersammon", "rstress", "sstress"),
   transformation = mkPower, theta = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),

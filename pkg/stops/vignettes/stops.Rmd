@@ -147,7 +147,7 @@ plot(res9,"resplot")
 plot(res9,"bubbleplot")
 ```
  
-[!!] The implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
+[!!]: The implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
 
 ### Strain Models
 The second popular type of PS supported in `stops` is based on the loss function type \emph{strain}. Here the $\Delta^*$ are a transformation of the $\Delta$, $\Delta^*= f (\Delta)$ so that $f(\cdot)=-(h\circ l)(\cdot)$ where $l$ is any function and $h(\cdot)$ is a double centering operation, $h(\Delta)=\Delta-\Delta_{i.}-\Delta_{.j}+\Delta_{..}$ where $\Delta_{i.}, \Delta_{.j}, \Delta_{..}$ are matrices consisting of the row, column and grand marginal means respectively. These then get approximated by (functions of) the inner product matrices of $X$ 
@@ -216,19 +216,16 @@ Minimizing stoploss can be difficult. In `stops` we use a nested algorithm combi
 Currently the following c-structuredness types are supported:
 
 * **c-clusteredness** (`cclusteredness`): A clustered appearance of the configuration ($I_k$ is the normed OPTICS cordillera (COPS; Rusch et al. 2015a); 0 means no c-clusteredness, 1 means perfect c-clusteredness)
-* **c-linearity** (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is multiple correlation; 0 means orthogonal, 1 means perfectly linear) 
+* **c-linearity** (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is maximal multiple correlation; 0 means orthogonal, 1 means perfectly linear) 
 * **c-manifoldness** (`cmanifoldness`): Projections lie on a sub manifold of the configuration ($I_k$ is maximal correlation (Sarmanov, 1958); only available for two dimensions; 1 means perfectly smooth function)
-* **c-dependence** (`cindependence`): Random vectors of projections onto the axes are stochastically dependent ($I_k$ is distance correlation (Szekely et al., 2007); only available for two dimensions; 0 means they are stochastically independent)
+* **c-dependence** (`cdependence`): Random vectors of projections onto the axes are stochastically dependent ($I_k$ is distance correlation (Szekely et al., 2007); only available for two dimensions; 0 means they are stochastically independent)
 * **c-association** (`cassociation`): Pairwise nonlinear association between dimensions ($I_k$ is the pairwise maximal maximum information coefficient (Reshef et al. 2011), 1 means perfect functional association)  
 * **c-nonmonotonicity** (`cnonmonotonicity`): Deviation from monotonicity ($I_k$ is the pairwise maximal maximum assymmetry score (Reshef et al. 2011), the higher the less monotone)  
-* **c-functionality** (`cfunctionality`): Pairwise functional, smooth, noisefree relationship between dimensions ($I_k$ is the mean pairwise maximum edge value (Reshef et al. 2011), 1 means perfect functional association)
+* **c-functionality** (`cfunctionality`): Pairwise functional, smooth, noise-free relationship between dimensions ($I_k$ is the mean pairwise maximum edge value (Reshef et al. 2011), 1 means perfect functional association)
 * **c-complexity** (`ccomplexity`): Measures the degree of complexity of the functional relationship between any two dimensions ($I_k$ is the pairwise maximal minimum cell number (Reshef et al. 2011), the higher the more complex) 
 * **c-faithfulness** (`cfaithfulness`): How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the adjusted Md index of Chen \& Buja, 2013; note that this index deviates from the others by being a function of both $X^*$ and $\Delta^*$ rather than $X^*$ alone)
-* c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented)
 * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
-* c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented)
-* c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented)
-* c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)
+[//]: * c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented) * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented) * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented) * c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented) * c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)
 
 If we have a single $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations and the weights for the $I(X)$ is negative we essentially have COPS (see below).    
 
@@ -248,18 +245,28 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
  
 #### Usage 
 
-The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissimilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the PS loss (see above for the types of structures and losses). The parameters for the structuredness indices should be given with `strucpars`, a list whose elements correspond to each structuredness index. The PS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
+The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissimilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the PS loss (see above for the types of structures and losses). The parameters for the structuredness indices should be given with `strucpars`, a list whose elements are lists corresponding to each structuredness index and listing the parameters. The PS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
 
 `stops(dis, structures = c("cclusteredness","clinearity"), loss="stress", ...)`
 
 One then has all the S3 methods of `smacofP` at one's disposal.
 
-For example, let us fit an mSTOPS model that looks for a transformation of the $\delta_{ij}$ so that a) the result has maximal c-clusteredness (which is 1 in the best case, so we set a negative weight for this structure) b) the porojection onto the principal axes are nearly orthogonal (c-clinearity close to 0, so we set a positive weight for this structure) c) but the projections onto the principal axes should be stochastically dependent (negative weight on c-dependence) and d) the fit of the MDS is also factored in (so we set positive weight on the MDS loss). Since we use mSTOPS and a negative weight for c-linearity and c-dependence, a c-linearity/c-dependence close to 0 will overall dominate the stoploss function with the other two criteria being more of an afterthought - in aSTOPS that would be different. 
+For example, let us fit an mSTOPS model that looks for a transformation of the $\delta_{ij}$ so that a) the result has maximal c-clusteredness (which is 1 in the best case, so we set a negative weight for this structure) b) the projection onto the principal axes are nearly orthogonal (c-clinearity close to 0, so we set a positive weight for this structure) c) but the projections onto the principal axes should be stochastically dependent (negative weight on c-dependence) and d) the fit of the MDS is also factored in (so we set positive weight on the MDS loss). Since we use mSTOPS and a negative weight for c-linearity and c-dependence, a c-linearity/c-dependence close to 0 will overall dominate the stoploss function with the other two criteria being more of an afterthought - in aSTOPS that would be different. 
 
 [!!]: This is generally the approach to be chosen: We _minimize_ the stoploss, so a c-structuredness index that should be (numerically) large needs a _negative weight_ and a c-structuredness index that should be (numerically) small needs a _positive weight_.  
 
+We first set up the parameters for the structuredness indices. For the OPTICS cordillera we use a $d_max$ of 1, eps=10 and minpts=2, for c-linearitry we have noo parameters (so using `NULL` will work) and for the c-dependence we have a single parameter, `index`, which we set to 2.   
+
 ```{r}
-ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL,c(index=1)),type="multiplicative")
+strucpars<-list(list(eps=10,minpts=2,rang=c(0,1)), #cordillera
+                NULL,     # c-linearity (has no parameters)
+                list(c(index=2) #c-dependence
+                ) 
+
+```
+
+```{r}
+ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="multiplicative")
 ressm
 ```
 
@@ -270,7 +277,7 @@ plot(ressm)
 Let us compare this with the corresponding aSTOPS
 
 ```{r}
-ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=list(c(eps=10,minpts=2),NULL,c(index=1)),type="additive")
+ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="additive")
 ressa
 ```
 
