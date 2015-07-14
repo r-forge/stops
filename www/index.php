@@ -61,7 +61,7 @@ echo $contents; } ?>
   <td>Amsterdam, The Netherlands</td>
 </tr> 
 <tr>
-  <td>CFE-ERCIM 2014(<a href="http://epub.wu.ac.at/4477/">slides</a>)</td>
+  <td>CFE-ERCIM 2014 (<a href="http://epub.wu.ac.at/4477/">slides</a>)</td>
   <td>06.12.2014-08.12.2014</td>
   <td>Pisa, Italy</td>
 </tr> 
