@@ -124,10 +124,10 @@ print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
 #' @param names.arg ... The arguments to be passed as names
 #' @param ... additional arguments passed to barplot
 #'
-#' @importFrom graphics barplot
+#' @importFrom graphics barplot par
 #' 
 #' @export
-plot.optics <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=par("bg"),names.arg,...)
+plot.optics <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=graphics::par("bg"),names.arg,...)
   {
   if(withlabels & missing(names.arg)) names.arg <- x$clusterobjectorder$V1    
   res <- x[["clusterobjectorder"]] 

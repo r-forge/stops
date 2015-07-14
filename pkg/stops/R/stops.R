@@ -972,10 +972,11 @@ plot3dstatic.stops <- function(x,...)
         plot3dstatic(x$fit,...)
     }
 
+#'@importFrom stats residuals
 #'@export
 residuals.stops <- function(object,...)
     {
-    residuals(object$fit,...)
+    stats::residuals(object$fit,...)
     }
 
 

@@ -126,7 +126,7 @@ print.summary.cordillera <- function(x,...)
 #' @param liwd width of the cordillera line
 #' @param ... additional arguments passed to barplot or lines
 #'
-#' @importFrom graphics barplot plot legend
+#' @importFrom graphics barplot plot legend par
 #' 
 #' @export
 plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
@@ -137,7 +137,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
             res <- x$optics[["clusterobjectorder"]] 
             idind <- pmatch("ID",res[1,]) #check where the ids are
             indtmp <- as.numeric(sapply(strsplit(res[,idind],split='=',fixed=TRUE),function(x) x[2]))
-            bp <- graphics::barplot(tmp,names.arg=indtmp,col=colbp,border=par("bg"),ylim=ylim,...)
+            bp <- graphics::barplot(tmp,names.arg=indtmp,col=colbp,border=graphics::par("bg"),ylim=ylim,...)
             newpoints <- rep(c(max(tmp),min(tmp)),length.out=length(tmp))
             graphics::lines(x=bp,y=tmp,col=coll,lwd=liwd,...)
             graphics::legend("topright",legend="OC",col=coll,lty=1)
