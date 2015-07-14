@@ -128,9 +128,6 @@ resa
 resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="powerstrain",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
-resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="powerelastic",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
-resa
-
 resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="powersammon",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
@@ -140,16 +137,22 @@ resa
 resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="sstress",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
-resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="smacofSphere",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
+resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="powerelastic",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
+resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="sammon",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
+resa
 
-#issue
-resa<-stops(kinshipdelta,structures=c("cfunctionality","ccomplexity"),loss="elastic",verbose=3,strucpars=c(list(NULL),list(NULL)),type="additive",strucweight=c(0.5,0.5))
+resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="smacofSphere",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
 resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","ccomplexity"),loss="sammon2",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
 resa
 
-resa<-stops(kinshipdelta,structures=c("cclusteredness","clinearity","cfunctionality"),loss="sammon",verbose=3,strucpars=list(c(eps=1000,minpts=2),NULL,NULL),type="additive",strucweight=c(-0.5,0.5,0.5))
+resa<-stops(kinshipdelta,theta=c(1,1,1),structures=c("cfunctionality","clinearity"),loss="elastic",verbose=3,strucpars=c(list(NULL),list(NULL)),type="additive",strucweight=c(-0.5,0.5),lower=c(1,0.5,-2),upper=c(3,4,-2))
 resa
+
+
+
+
+

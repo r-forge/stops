@@ -56,7 +56,7 @@ This formulation enables one to express a large number of PS methods many of whi
 
 For all of these models one can use the function `powerStressMin` which uses majorization to find the solution (de Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). 
 
-[!!] Note that if $z_{ij}$ and $w_{ij}$ are used, then `weightmat` must be the combination of both.  
+[!!]: Note that if $z_{ij}$ and $w_{ij}$ are used, then `weightmat` must be the combination of both.  
 
 The object returned from `powerStressMin` is of class `smacofP` which extends the `smacof` classes (de Leeuw & Mair, 2009) to allow for the power transformations. Apart from that the objects are made so that they have maximum compatibility to methods from `smacof`. Accordingly, the following S3 methods are available:
 
@@ -203,7 +203,9 @@ We further have $K$ different indices $I_k(X^*)$ that measure different types of
 \end{equation}
 (which can be expressed as aSTOPS by logarithms). Here the $v_0,...,v_k$ are weights that determine how the individual parts (mds loss and c-structuredness indices) are aggregated. 
 
-[//]: Note that in this formulation the aggregation is a sum/product, so the weights must be negative if the mds loss should be penalized and a higher index stands for more structure. Alternatively, the `stressweight` can be negative and the `strucweight` positive. 
+<!-- [//]: Note that in this formulation the aggregation is a sum/product, so the weights must be negative if the mds loss should be penalized and a higher index stands for more structure. Alternatively, the `stressweight` can be negative and the `strucweight` positive. 
+--!>
+
 
 The job is then to find 
 \begin{equation}  
@@ -211,7 +213,7 @@ The job is then to find
 \end{equation} 
 where $\vartheta \subseteq \{X,\theta, v_0, \dots, v_k\}$.  Typically $\vartheta$ will be a subset of all possible parameters here (e.g., the weights might be given _a priori_). Currently, the transformations that can be used in `stops` are limited to power transformations. 
 
-Minimizing stoploss can be difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization}. We suggest to use the latter.
+Minimizing stoploss can be difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization}. We suggest to use the latter. A Bayesian optimization approach is currently under way.
 
 Currently the following c-structuredness types are supported:
 
@@ -225,7 +227,9 @@ Currently the following c-structuredness types are supported:
 * **c-complexity** (`ccomplexity`): Measures the degree of complexity of the functional relationship between any two dimensions ($I_k$ is the pairwise maximal minimum cell number (Reshef et al. 2011), the higher the more complex) 
 * **c-faithfulness** (`cfaithfulness`): How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the adjusted Md index of Chen \& Buja, 2013; note that this index deviates from the others by being a function of both $X^*$ and $\Delta^*$ rather than $X^*$ alone)
 * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
-[//]: * c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented) * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented) * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented) * c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented) * c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)
+
+<!--[//]: c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented) * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented) * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented) * c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented) * c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)
+--!>
 
 If we have a single $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations and the weights for the $I(X)$ is negative we essentially have COPS (see below).    
 
@@ -255,12 +259,12 @@ For example, let us fit an mSTOPS model that looks for a transformation of the $
 
 [!!]: This is generally the approach to be chosen: We _minimize_ the stoploss, so a c-structuredness index that should be (numerically) large needs a _negative weight_ and a c-structuredness index that should be (numerically) small needs a _positive weight_.  
 
-We first set up the parameters for the structuredness indices. For the OPTICS cordillera we use a $d_max$ of 1, eps=10 and minpts=2, for c-linearitry we have noo parameters (so using `NULL` will work) and for the c-dependence we have a single parameter, `index`, which we set to 2.   
+We first set up the parameters for the structuredness indices. For the OPTICS cordillera we use a $d_{max}$ of 1, eps=10 and minpts=2, for c-linearity we have no parameters (so using `NULL` will work) and for the c-dependence we have a single parameter, `index`, which we set to 2.   
 
 ```{r}
 strucpars<-list(list(eps=10,minpts=2,rang=c(0,1)), #cordillera
                 NULL,     # c-linearity (has no parameters)
-                list(c(index=2) #c-dependence
+                list(c(index=2)) #c-dependence
                 ) 
 
 ```
@@ -287,6 +291,43 @@ plot(ressa)
 
 We see that the c-clusteredness is higher as compared to the mSTOPS result - we have a number of distinct object clusters (with at least minpts=2) and they are more spread out and distributed more evenly. The dimensions on the other hand are now farther from being orthogonal but the stochastic dependence is higher (which is a non-linear one obviously). 
 
+When choosing a c-structuredness index, one needs to be clear what structure one might be interested in. Consider the following example: We fit a `powermds` model to the kinship data and want to maximize c-association (i.e., any non-linear relationship) and c-manifoldness but minimize the c-linearity. In other words we try to find a power transformation of $\Delta$ and $D$ so that the objects are positioned in the configuration so that the projection onto the principal axes are as close as possible to being related by a smooth but non-linear function. 
+
+```{r,eval=FALSE}
+resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",verbose=0,strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5))
+```
+
+```{r,echo=FALSE,eval=TRUE}
+resa<-stops(kinshipdelta,theta=c(3.06635359,1.00070897,1.38808388), structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",verbose=0,strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),itmax=1)
+```
+
+```{r}
+resa
+```
+
+We see in this model (`resa`) that indeed the c-association is 1, which says we have a near perfect non-linear relationship. How does this relationship look like? 
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(resa)
+```
+
+It is a parabolic shape, so the projections are so that the points on D2 are a parabolic function of the D1 (this is often the case for r-stress which is essentially what we got here - setting a negative weight on c-assocation can combat that if it is an artefact). What we can also see is that there are three clear clusters, so c-clusteredness should be high. But when looking at the OPTICS cordillera here, we find that the OPTICS cordillera is lower than for the result from above with using "stress" and lambda=2.66 (`ressa`).
+
+```{r}
+c1<-cordillera(resa$fit$conf,minpts=2,eps=100,rang=c(0,1.3))
+c2<-cordillera(ressa$fit$conf,minpts=2,eps=100,rang=c(0,1.3))
+c1
+c2
+```    
+
+This discrepancy comes from the definition of c-clusteredness (Rusch et al, 2015a) where more clusters, more spread out clusters, more evenly distributed clusters and denser clusters all increase c-clusteredness. In the example with maximizing c-association we have two very dense clusters of 5 points and 1 not very dense cluster of five other points. In the model maximizing c-clusteredness we get 6 moderately dense clusters with 2 or 3 points each, which is also the minimum number of points we wanted to be grouped together. Since we use the normed OPTICS cordillera there, we look at c-clusteredness relative to the most clustered appearance with two points per cluster. Thus, the second result has more c-clusteredness. If we would define a cluster as having at most 5 points then c-clusteredness of the result with high c-association also has a large c-clusteredness because then the clusters found match the definition of high c-clusteredness. 
+
+```{r}
+c3<-cordillera(resa$fit$conf,minpts=5,eps=100,rang=c(0,1.3))
+c3
+```      
+Note that it may just as well be possible to have a high c-association and no c-clusteredness at all (e.g., points lying equidistant on a smooth non-linear curve). 
+
 For convenience it is also possible to use the `stops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `strucweight`, the weight of any c-structuredness, to 0. Then the function optimizes the MDS loss function only. 
 
 ```{r,eval=FALSE}
@@ -294,7 +335,6 @@ ressa<-stops(kinshipdelta,structure=c("clinearity"),strucweight=0,loss="stress",
 ```
 
 ### COPS
-
 A special STOPS model is COPS (Rusch et al. 2015a) for "Cluster Optimized Proximity Scaling". This is also one of the main use cases for STOPS models. Let us write $X(\theta)=\arg\min_X \sigma_{MDS}(X,\theta)$ for the optimal configuration for given transformation parameter $\theta$. Following the outline of STOPS the overall objective function, which we call \emph{cluster optimized loss (coploss)}, is a weighted combination of the $\theta-$parametrized loss function, $\sigma_{MDS}\left(X(\theta),\theta\right)$, and a c-clusteredness measure, the OPTICS cordillera or $OC(X(\theta);\epsilon,k,q)$ to be optimized as a function of $\theta$ or
 \begin{equation}
 \label{eq:spstress}
@@ -325,7 +365,8 @@ v_1 \cdot \sigma_{MDS}\left(X(\theta),\theta\right) - v_2 \cdot \text{OC}\left(X
 \end{equation}
 For a given $\theta$ if $v_2=0$ than the result of optimizing the above is the same as solving the respective original PS problem. Letting $\theta$ be variable, $v_2=0$ will minimize the loss over configurations obtained from using different $\theta$.
 
-[//]: Minimizing coploss is difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization} to be used in Step 3 that usually converges in less than 200 iterations to an acceptable solution. We suggest to use the latter.
+<!-- [//]: Minimizing coploss is difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization} to be used in Step 3 that usually converges in less than 200 iterations to an acceptable solution. We suggest to use the latter.
+--!>
 
 The c-clusteredness index we use is the OPTICS cordillera which measures how clustered a configuration appears. It is based on the OPTICS algorithm that outputs an ordering together with a distance. The OPTICS cordillera is now simply an agregation of that information. Since we know what constitutes a maximally clustered result, we can derive an upper bound and normalize the index to lie between 0 and 1. If it is maximally clustered, the index gets a value of 1,and it gets 0 if all points are equidistant to their nearest neighbours (a matchstick embedding). See Rusch et al (2015a) for details. 
 
@@ -418,7 +459,7 @@ points(res2$par,res2$value,col="red",pch=19)
 ```    
 
 ### Procrustes Adjustment
-We also crovide a procrustes adjustemnt to make to configuration visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
+We also provide a procrustes adjustment to make two configurations visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
 
 ```{r,eval=FALSE}
 conf_adjust(conf1,conf2) 

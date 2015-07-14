@@ -12,9 +12,9 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   transformation = mkPower, theta = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
-  ndim = 2, weightmat = 1 - diag(nrow(dis)), init = NULL,
-  stressweight = 1, strucweight, strucpars, optimmethod = c("SANN", "ALJ",
-  "pso"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  ndim = 2, weightmat = NULL, init = NULL, stressweight = 1,
+  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso"),
+  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
   type = c("additive", "multiplicative"), s = 4, stresstype = "default",
   ...)
 }
@@ -27,7 +27,7 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{theta}{parameters for the proximiy and distance transformation}
 
-\item{structures}{what c-structuredness should be considered}
+\item{structures}{what c-structuredness should be considered; if missing no structure is considered.}
 
 \item{ndim}{number of dimensions of the target space}
 
@@ -39,15 +39,15 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
-\item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures}
+\item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
-\item{optimmethod}{What general purpose optimizer to use? defaults to our ALJ version}
+\item{optimmethod}{What general purpose optimizer to use? Defaults to our ALJ version}
 
 \item{lower}{The lower contraints of the search region}
 
 \item{upper}{The upper contraints of the search region}
 
-\item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
+\item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
 \item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
 
@@ -150,7 +150,7 @@ structures=c("cclusteredness","clinearity"),
 strucpars=strucpar)
 res1
 
-strucpar<-list(c(alpha=1,C=15,var.thr=1e-5,eps=NULL),c(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+strucpar<-list(list(alpha=1,C=15,var.thr=1e-5,eps=NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cfunctionality","ccomplexity"),
 strucpars=strucpar)

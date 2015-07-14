@@ -109,8 +109,8 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  if(length(theta)<3) theta <- rep(theta, length.out=3)
+  lambda <- theta[2]
   fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
@@ -209,15 +209,15 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
-stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
+stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
+  lambda <- theta[2]
   nu <- -2
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
@@ -276,9 +276,9 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
    if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  lambda <- theta[2]
   fit <- smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
@@ -392,8 +392,8 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  if(length(theta)<3) theta <- rep(theta, length.out=3)
+  lambda <- theta[2]
   nu <- -1
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
@@ -498,12 +498,14 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #' 
 #' @keywords multivariate
 #' @export
-stop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
-  if(missing(stresstype)) stresstype <- "default"  
+stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis) 
+  if(missing(stresstype)) stresstype <- "default"
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
-  kappa <- theta
-  if(length(theta)==3L) kappa <- theta[1] 
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  kappa <- theta[1]
   fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
@@ -550,12 +552,14 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @keywords multivariate
 #' @export
-stop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  if(length(theta)<3) theta <- rep(theta, length.out=3)
+  lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
@@ -565,7 +569,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NUL
   if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
   fit$kappa <- 2
-  fit$lambda <- lambda
+  fit$lambda <- flambda
   fit$nu <- 1
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
@@ -601,11 +605,13 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @keywords multivariate
 #' @export
-stop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,2)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
@@ -648,11 +654,13 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NU
 #' }
 #' @keywords multivariate
 #' @export
-stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,2)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   nu <- -1
   sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
@@ -700,11 +708,13 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),ini
 #' }
 #' @keywords multivariate
 #' @export
-stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,2)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   nu <- -2
   elawght <- dis^(theta[2])
   diag(elawght) <- 1
@@ -753,11 +763,13 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),in
 #' }
 #' @keywords multivariate
 #' @export
-stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stresstype)) stresstype <- "default"
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,3)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
@@ -832,7 +844,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
@@ -846,7 +858,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(missing(type)) type <- "additive"
       #TODO implement a Pareto idea
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"stress"=stop_sstress) #choose the stress to minimize    
+      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress) #choose the stress to minimize    
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
          strucweight <- rep(-1/length(structures),length(structures))
