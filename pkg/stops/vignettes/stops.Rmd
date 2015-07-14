@@ -291,10 +291,16 @@ plot(ressa)
 
 We see that the c-clusteredness is higher as compared to the mSTOPS result - we have a number of distinct object clusters (with at least minpts=2) and they are more spread out and distributed more evenly. The dimensions on the other hand are now farther from being orthogonal but the stochastic dependence is higher (which is a non-linear one obviously). 
 
-When choosing a c-structuredness index, one needs to be clear what structure one might be interested in. Consider the following example: We fit a `powermds` model to the kinship data and want to maximize c-association (i.e., any non-linear relationship) and c-manifoldness but minimize the c-linearity. In other words we try to find a power transformation of $\Delta$ and $D$ so that the objects are positioned in the configuration so that the projection onto the principal axes are as close as possible to being related by a smooth but non-linear function. 
+When choosing a c-structuredness index, one needs to be clear what structure one might be interested in. Consider the following example: We fit a `powermds` model to the kinship data and want to maximize c-association (i.e., any non-linear relationship) and c-manifoldness but minimize the c-linearity. In other words we try to find a power transformation of $\Delta$ and $D$ so that the objects are positioned in the configuration in such a way that the projection onto the principal axes are as close as possible to being related by a smooth but non-linear function. 
 
 ```{r,eval=FALSE}
 resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",verbose=0,strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5))
+```
+
+```{r,echo=FALSE,eval=FALSE}
+resa1<-stops(kinshipdelta,theta=c(3.066,1.001,1.388),structures=c("cassociation"),loss="powermds",verbose=3,strucpars=list(NULL),type="additive",strucweight=1,stressweight=0)
+resa2<-stops(kinshipdelta,theta=c(3.066,1.001,1.388),structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(eps=10,rang=c(0,1.3),minpts=2),type="additive",strucweight=1,stressweight=0)
+resa5<-stops(kinshipdelta,theta=c(3.066,1.001,1.388),structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(eps=10,rang=c(0,1.3),minpts=5),type="additive",strucweight=1,stressweight=0)
 ```
 
 ```{r,echo=FALSE,eval=TRUE}
@@ -314,19 +320,24 @@ plot(resa)
 It is a parabolic shape, so the projections are so that the points on D2 are a parabolic function of the D1 (this is often the case for r-stress which is essentially what we got here - setting a negative weight on c-assocation can combat that if it is an artefact). What we can also see is that there are three clear clusters, so c-clusteredness should be high. But when looking at the OPTICS cordillera here, we find that the OPTICS cordillera is lower than for the result from above with using "stress" and lambda=2.66 (`ressa`).
 
 ```{r}
-c1<-cordillera(resa$fit$conf,minpts=2,eps=100,rang=c(0,1.3))
-c2<-cordillera(ressa$fit$conf,minpts=2,eps=100,rang=c(0,1.3))
+c1<-cordillera(resa$fit$conf,minpts=2,eps=10,rang=c(0,1.3))
+c2<-cordillera(ressa$fit$conf,minpts=2,eps=10,rang=c(0,1.3))
 c1
 c2
 ```    
 
-This discrepancy comes from the definition of c-clusteredness (Rusch et al, 2015a) where more clusters, more spread out clusters, more evenly distributed clusters and denser clusters all increase c-clusteredness. In the example with maximizing c-association we have two very dense clusters of 5 points and 1 not very dense cluster of five other points. In the model maximizing c-clusteredness we get 6 moderately dense clusters with 2 or 3 points each, which is also the minimum number of points we wanted to be grouped together. Since we use the normed OPTICS cordillera there, we look at c-clusteredness relative to the most clustered appearance with two points per cluster. Thus, the second result has more c-clusteredness. If we would define a cluster as having at most 5 points then c-clusteredness of the result with high c-association also has a large c-clusteredness because then the clusters found match the definition of high c-clusteredness. 
+This discrepancy comes from the definition of c-clusteredness (Rusch et al, 2015a) where more clusters, more spread out clusters, more evenly distributed clusters and denser clusters all increase c-clusteredness. In the example with maximizing c-association we have two very dense clusters of 5 points and 1 not very dense cluster of five other points. In the model maximizing c-clusteredness (and others) we get 6 moderately dense clusters with 2 or 3 points each, which is also the minimum number of points we wanted to be grouped together. Since we use the normed OPTICS cordillera there, we look at c-clusteredness relative to the most clustered appearance with two points per cluster. Thus, the second result has more c-clusteredness. If we would define a cluster as having at most 5 points then c-clusteredness of the result with high c-association also has a large c-clusteredness because then the clusters found match the definition of high c-clusteredness. 
 
 ```{r}
-c3<-cordillera(resa$fit$conf,minpts=5,eps=100,rang=c(0,1.3))
+c3<-cordillera(resa$fit$conf,minpts=5,eps=10,rang=c(0,1.3))
 c3
 ```      
-Note that it may just as well be possible to have a high c-association and no c-clusteredness at all (e.g., points lying equidistant on a smooth non-linear curve). 
+Note that it may just as well be possible to have a high c-association and no c-clusteredness at all (e.g., points lying equidistant on a smooth non-linear curve). Note also that the models are not necessarily comparable due to different stress functions - the transformation in powermds that is optimal with respect to c-clusteredness would be different. 
+
+Indeed one can optimize for c-clusteredness alone and then gets a projection with c-clusteredness of    
+```{r}
+resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=0,strucpars=list(eps=10,rang=c(0,1.3),minpts=2),type="additive",strucweight=1,stressweight=0)
+```
 
 For convenience it is also possible to use the `stops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `strucweight`, the weight of any c-structuredness, to 0. Then the function optimizes the MDS loss function only. 
 
