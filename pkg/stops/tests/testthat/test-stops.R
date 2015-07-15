@@ -156,3 +156,21 @@ resa
 
 
 
+#there seems to be a bug in stops or upstream as
+#- a<-stops(dis) cordillera(a$fit$conf) do not agree
+#- b<-cops(dis) a nd b do not agree
+
+#test for kapp=lambda=nu=1
+dis <- smacof::kinshipdelta
+kappa <- 1
+lambda <- 1
+nu <- 1
+eps <- 10
+minp <- 2
+rango <- c(0,1.3) 
+fit <- powerStressMin(dis,kappa=kappa,lambda=lambda,nu=nu)
+c1<-cordillera(fit$conf,epsilon=eps,minpts=minp,rang=rango)
+
+expect_equal(coploss(fit,epsilon=eps,minpts=minp,rang=rango,stressweight=0,cordweight=1),stoploss(fit,strucpars=list(list(epsilon=eps,minpts=minp,rang=rango)),structures="cclusteredness",stressweight=0,strucweight=-1))
+
+

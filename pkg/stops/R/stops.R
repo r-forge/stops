@@ -28,7 +28,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if("clinearity"%in%structures)
             {
                indst <- which(structures=="clinearity")
-               clinearity <- do.call(stops::c_linearity,c(list(confs)))
+               clinearity <- do.call(stops::c_linearity,list(confs))
            }
         if("cdependence"%in%structures)
             {
