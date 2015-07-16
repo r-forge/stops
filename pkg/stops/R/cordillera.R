@@ -66,7 +66,7 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=getwd
             newpoints <- rep(c(max(tmp),min(tmp)),length.out=length(tmp))
             graphics::lines(x=bp,y=tmp,col="black",lwd=1)
         }
-        reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
+       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
 #       reachdiff <- reachdiff/(max(tmp)-min(tmp))
        n <- dim(confs)[1]
        avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits

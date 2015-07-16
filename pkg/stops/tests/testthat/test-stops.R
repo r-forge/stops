@@ -174,3 +174,8 @@ c1<-cordillera(fit$conf,epsilon=eps,minpts=minp,rang=rango)
 expect_equal(coploss(fit,epsilon=eps,minpts=minp,rang=rango,stressweight=0,cordweight=1),stoploss(fit,strucpars=list(list(epsilon=eps,minpts=minp,rang=rango)),structures="cclusteredness",stressweight=0,strucweight=-1))
 
 
+#Bug form using the wrong list - huge cordillera - becuae this way q is set to 10 as we only say "eps" - epsilon is no problem?
+resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(eps=10,minpts=2,rang=c(0,1.3)),type="additive",strucweight=c(-1),stressweight=0)
+resa
+resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(epsilon=10,minpts=2,rang=c(0,1.3)),type="additive",strucweight=c(-1),stressweight=0)
+resa

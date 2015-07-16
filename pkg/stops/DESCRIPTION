@@ -10,7 +10,7 @@ Depends: R (>= 3.1.2), smacof, rgl
 SystemRequirements: ELKI (>=0.6.0)
 Imports: MASS, pso, scatterplot3d, acepack, minerva, energy 
 Enhances: stats
-Suggests: testthat, knitr, R.rsp
+Suggests: testthat, R.rsp
 License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
