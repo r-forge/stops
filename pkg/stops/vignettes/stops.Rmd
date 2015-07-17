@@ -193,13 +193,13 @@ Following Rusch et al. (2015b) the general idea  is that from given observations
 
 We have as part of a STOPS model a proximity scaling loss function $\sigma_{MDS}(\cdot)$, a $\Delta$ and an $X$ and some transformation $f_{ij}(\delta_{ij};\theta)$ and $g_{ij}(d_{ij};\theta)$ that is parametrized (with $\theta$ either finite or infinite dimensional, e.g., a transformation applied to all observations like a power transformation or even an individual transformation per object). These transformations achieve a sort of push towards more structure, so different values for $\theta$ will in general lead to different c-structuredness.
 
-We further have $K$ different indices $I_k(X^*)$ that measure different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
+We further have $K$ different indices $I_k(X)$ that measure different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
 \begin{equation}
-  \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = v_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} v_k I_k(X^*(\theta))
+  \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = v_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} v_k I_k(X(\theta))
 \end{equation}
  or (multiplicative STOPS)
 \begin{equation}
-  \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = \sigma_{MDS}(X^*(\theta))^{v_0} \cdot \prod^K_{k=1} I_k(X^*(\theta))^{v_k} 
+  \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = \sigma_{MDS}(X^*(\theta))^{v_0} \cdot \prod^K_{k=1} I_k(X(\theta))^{v_k} 
 \end{equation}
 (which can be expressed as aSTOPS by logarithms). Here the $v_0,...,v_k$ are weights that determine how the individual parts (mds loss and c-structuredness indices) are aggregated. 
 
