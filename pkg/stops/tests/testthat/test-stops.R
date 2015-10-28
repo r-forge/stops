@@ -179,3 +179,22 @@ resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=
 resa
 resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(epsilon=10,minpts=2,rang=c(0,1.3)),type="additive",strucweight=c(-1),stressweight=0)
 resa
+
+
+library(stops)
+data(Pendigits500)
+strucpars1 <- list(list(k=10))
+diso <- dist(Pendigits500[,1:16])
+m1 <- stops(diso,structures=c("cfaithfulness"),loss="sammon",strucpars=strucpars1,verbose=3,stressweight=0,upper=c(5,10,1))
+strucpars2 <- list(list(minpts=10,epsilon=1000))
+m2 <- stops(diso,structures=c("cclusteredness"),loss="sammon",strucpars=strucpars2,verbose=3,stressweight=0,upper=c(5,10,1))
+par(mfrow=c(1,2))
+plot(m1,col=Pendigits500[,17],label.conf=list(label=FALSE))
+reso <- sammon(diso^8)
+plot(m2,col=Pendigits500[,17],label.conf=list(label=FALSE))
+library(party)
+library(caret)
+ct1 <- ctree(factor(Pendigits500[,17])~m1$fit$conf[,1]+m1$fit$conf[,2])
+confusionMatrix(predict(ct1),factor(Pendigits500[,17]))
+ct2 <- ctree(factor(Pendigits500[,17])~m2$fit$conf[,1]+m2$fit$conf[,2])
+confusionMatrix(predict(ct2),factor(Pendigits500[,17]))

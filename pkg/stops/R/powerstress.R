@@ -1,4 +1,4 @@
-1#' Power stress
+#' Power stress
 #'
 #' An implemenation to minimize power stress
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
