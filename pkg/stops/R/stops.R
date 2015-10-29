@@ -13,6 +13,7 @@
 #' @param strucpars a list of parameters to be passed to the c-structuredness indices in the same order as the values in structures #(alternatively a named list that has the structure name as the element name)
 #' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss. 
 #' @param verbose verbose output
+#'
 #' @export
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
@@ -103,6 +104,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #' }
 #' 
 #'@keywords multivariate
+#'@import smacof
 #'@export
 stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"), stresstype="default") {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -111,7 +113,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta, length.out=3)
   lambda <- theta[2]
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -154,6 +156,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' }
 #' 
 #'@keywords multivariate
+#'@import smacof
 #'@export
 stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -165,7 +168,7 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
   dis <- do.call(transformation,list(diso,theta))
   diso <- dis
   dis <- do.call(transformation,list(diso,theta))
-  fit <- smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$stress.1 <- fit$stress
   fitdis <- as.matrix(fit$confdiss)
   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it ion the original; that is scale and unit free as Buja said
@@ -207,6 +210,7 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #' }
 #'
 #'@importFrom stats dist as.dist
+#'@import smacof 
 #'@keywords multivariate
 #'@export
 stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype="default") {
@@ -222,7 +226,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -267,6 +271,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #'         \item{indobj:} the index objects
 #' }
 #'
+#'@import smacof 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
@@ -279,7 +284,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta,length.out=3)
   lambda <- theta[2]
-  fit <- smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -383,6 +388,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #'
 #'
 #' @importFrom stats dist as.dist
+#' @import smacof
 #' 
 #'@keywords multivariate
 #'@export
@@ -398,7 +404,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -530,6 +536,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
+#' @param ndim the number of dimensions of the target space
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
@@ -948,7 +955,7 @@ plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
 #' 
 #' This methods produces a dynamic 3D configuration plot.
 #' @param x object of class stops
-#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3d.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl' 
+#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl' 
 #'
 #'
 #' 
@@ -963,10 +970,9 @@ plot3d.stops <- function(x,...)
 #' 
 #' This methods produces a static 3D configuration plot.
 #' @param x object of class stops
-#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic.smacof}} or \code{\link{plot3dstatic.cmdscale}} . Also see 'scatterplot3d' in package 'scatterplot3d'
+#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscale}} . Also see 'scatterplot3d' in package 'scatterplot3d'
 #'
 #'@export
-#'@import smacof
 plot3dstatic.stops <- function(x,...)
     {
         plot3dstatic(x$fit,...)

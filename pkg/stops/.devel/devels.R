@@ -357,7 +357,7 @@ plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
 
 ###Estimating configuration from coploss with given theta; this is what Reviewer 1 suggested. He suggested to use Nelder-Mead, but I think using something new like NEWUOA is better.
 
-copslossMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, defaultstress=stressen1)
+copslossMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-12, itmax = 100000, verbose = FALSE, defaultstress=stressen1)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
@@ -394,10 +394,11 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weight
              #using enorm with matrix
            }
      optimized <- newuoa(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxfun=itmax)) #am Besten
+     itel <- optimized$feval
      xnew <- matrix(optimized$par,ncol=2)
-     plot(xnew,type="n")
-     text(xnew,labels=1:15)
-     xnew <- optimized$par
+     #plot(xnew,type="n")
+     #text(xnew,labels=1:15)
+     #xnew <- optimized$par
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
      doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
      deltam <- delta
@@ -422,8 +423,8 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weight
      stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
      stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
      stresss <- sqrt(stressn) #sqrt of stressn
-     if(verbose>1) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",optimized$value,\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=defaultstress, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=sqrt(stressn), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+     if(verbose>1) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",optimized$value,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=defaultstress, spp=spp, ndim=p, model="Power Stress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma=NA, stress.m=sqrt(stressn), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
 }
@@ -433,6 +434,8 @@ library(smacof)
 library(stops)
 data(kinshipdelta)
 delta <- kinshipdelta
+
+
 delta <- delta/enorm(delta)
 delta <- as.dist(delta)
 xold <- torgerson(delta)
@@ -479,64 +482,50 @@ plot(res1$points)
 plot(teso$par)
 res2 <- smacofSym(delta)
 innerf(teso$par,delta)
-    #rold <- sum(weightmat*delta * mkPower(dold,r))
-    #nold <- sqrt(sum(weightmat*mkPower(dold, 2 * r)))
-    #lold <- rold / nold
-    #repeat {
-     #  by <- mkBmat(weightmat*delta * mkPower(dold, r - 1))
-     #  cy <- mkBmat(weightmat*mkPower(dold, (2*r)-1))
-     #  if (r>=0.5) {
-     #      my <- by - (lold/nold)*(cy-(k*diag(n)))
-     #      xnew <- my %*% xold
-     #      xnorm <- enorm(xnew)
-     #      xnew <- xnew / enorm(xnew)
-     #  }
-     #  if (r<0.5) {
-     #      gy <- as.vector((by-(l*diag(n))) %*% xold)
-     #      ey <-  kronecker(diag(p), (lold/nold)*cy)
-     #      xnew <- matrix(secularEq(ey,gy),n,p)
-     #  }
-       dnew <- sqdist (xnew)
-     #  rnew <- sum (weightmat*delta * mkPower(dnew,r))
-     #  nnew <- sqrt(sum (weightmat*mkPower(dnew, 2 * r)))
-     #  lnew <- rnew / nnew
-       if (verbose>2) {
-          cat (formatC (itel, width = 4, format = "d"),
-          formatC (lold, digits = 10, width = 13, format = "f"),
-          formatC (lnew, digits = 10, width = 13, format = "f"), "\n")
-       }
-       if ((itel == itmax) || ((lnew - lold) < eps)) break ()
-       itel <- itel + 1
-       xold <- xnew
-       dold <- dnew
-       lold <- lnew
-     }
-     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
-     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
-     deltam <- delta
-     deltaorigm <- deltaorig
-     deltaoldm <- deltaold
-     delta <- stats::as.dist(delta)
-     deltaorig <- stats::as.dist(deltaorig)
-     deltaold <- stats::as.dist(deltaold)
-     doute <- doutm/enorm(doutm)
-     doute <- stats::as.dist(doute)
-     dout <- stats::as.dist(doutm)
-     resmat <- as.matrix(delta - doute)^2
-     spp <- colMeans(resmat)
-     weightmatm <-weightmat
-     weightmat <- stats::as.dist(weightmatm)
-     #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
-     stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
-     stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
-     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
-     stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-     stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #stress 1 on the original proximities 
-     stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
-     stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
-     stresss <- sqrt(stressn) #sqrt of stressn
-     if(verbose>1) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=defaultstress, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = c(lold,lnew), stress.m=sqrt(stressn), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
-    class(out) <- c("smacofP","smacofB","smacof")
-    out
- }
+
+
+###Estimating configuration from powerstress with given theta; using something new like NEWUOA is better.
+
+
+data(kinshipdelta)
+delta <- kinshipdelta
+
+resmac <- smacofSym(kinshipdelta)
+resmaj <- powerStressMin(kinshipdelta)
+resuoa <- powerStressFast(kinshipdelta)
+
+dis<-smacof::kinshipdelta
+res1<-powerStressMaj(as.matrix(dis),kappa=2,lambda=1.5)
+res2<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,eps=1e-8)
+res3 <- powerStressMaj(as.matrix(dis),init=res2$conf,kappa=2,lambda=1.5,eps=1e-16)
+
+res1
+res2
+plot(res3)
+res3
+
+plot(res1)
+plot(res2)
+
+resmac
+resmaj
+resuoa
+
+plot(resmac)
+dev.new()
+plot(resmaj)
+dev.new()
+plot(resuoa)
+
+
+par(mfrow=c(1,2))
+plot(res1$points)
+plot(scale(res1$points))
+
+res1 <- cmdscale(delta)
+res1$points
+teso$par
+plot(res1$points)
+plot(teso$par)
+res2 <- smacofSym(delta)
+innerf(teso$par,delta)

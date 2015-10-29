@@ -30,6 +30,7 @@
 #' }
 #'
 #'@importFrom stats dist as.dist
+#'@import smacof
 #' 
 #'@keywords multivariate
 #'@export
@@ -43,7 +44,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   if(length(theta)==3L) lambda <- theta[2]
  # addargs <- list(...)
  # addargs
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -95,6 +96,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #'
 #'
 #'@importFrom stats dist as.dist
+#'@import smacof
 #'@keywords multivariate
 #'@export
 cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -111,7 +113,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -161,6 +163,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
+#'@import smacof 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
@@ -174,7 +177,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   if(length(theta)==2L) lambda <- theta[2]
   addargs <- list(...)
   addargs
-  fit <- smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$stress.1 <- fit$stress
@@ -285,7 +288,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #'
 #'
 #' @importFrom stats dist as.dist
-#' 
+#' @import smacof
 #'@keywords multivariate
 #'@export
 cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -300,7 +303,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu

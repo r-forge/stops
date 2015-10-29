@@ -1,6 +1,7 @@
-#' Power stress
+#' Power Stress SMACOF
 #'
-#' An implemenation to minimize power stress
+#' An implemenation to minimize power stress by nested majorization. So slow you should get a coffee. 
+#' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
 #' @param lambda the power of the transformation of the proximities; defaults to 1
@@ -73,7 +74,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     itel <- 1
     xold <- init
     if(is.null(init)) xold <- torgerson (delta, p = p)
-    xnorm <- enorm(xold)
+    #xnorm <- enorm(xold)
     xold <- xold/enorm(xold) 
     n <- nrow (xold)
     k <- sum(weightmat) * ((4*r)-1)*(2^(2*r))
@@ -88,7 +89,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
        if (r>=0.5) {
            my <- by - (lold/nold)*(cy-(k*diag(n)))
            xnew <- my %*% xold
-           xnorm <- enorm(xnew)
+           #xnorm <- enorm(xnew)
            xnew <- xnew / enorm(xnew)
        }
        if (r<0.5) {
@@ -439,3 +440,132 @@ print.summary.smacofP <- function(x,...)
     print(round(x$sppmat, 4))
     cat("\n")
     }
+
+
+#' Power stress minimization by NEWUOA
+#'
+#' An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing but perhaps slighly less accurate. 
+#' 
+#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
+#' @param kappa power of the transformation of the fitted distances; defaults to 1
+#' @param lambda the power of the transformation of the proximities; defaults to 1
+#' @param nu the power of the transformation for weightmat; defaults to 1 
+#' @param weightmat a matrix of finite weights
+#' @param init starting configuration
+#' @param ndim dimension of the configuration; defaults to 2
+#' @param eps  The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.
+#' @param itmax maximum number of iterations
+#' @param verbose should iteration output be printed; if > 1 then yes
+#' @param defaultstress the stress type to be reported by default; defaults to stress-1 for smacof compatibility
+#' @param lambdamax the maximum power of the transformation of the proximities if there are more than one lambda - an upper bound idea; defaults to lambda
+#'
+#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' \itemize{
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed dissimilarities, normalized 
+#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  
+#' \item spp: Stress per point (based on stress.en) 
+#' \item ndim: Number of dimensions
+#' \item model: Name of smacof model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item type: Type of MDS model
+#' }
+#' and some additional components
+#' \itemize{
+#' \item gamma: Empty
+#' \item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.r: raw stress on the observed, transformed dissimilarities
+#' \item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
+#' \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
+#' \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
+#' \item stress.e: raw stress on the normalized, transformed dissimilarities
+#' \item stress.en: stress on the normalized, transformed dissimilarities and normalized transformed distances
+#' \item stress.en1: stress 1 on the normalized, transformed dissimilarities and normalized transformed distances; this is reported by the print ,ethod
+#' \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
+#' \item deltaorig: observed, untransformed dissimilarities
+#' \item weightmat: weighting matrix 
+#'}
+#'
+#' @importFrom stats dist as.dist
+#' @importFrom minqa newuoa
+#' 
+#' @seealso \code{\link{smacofSym}}
+#' 
+#' @examples
+#' dis<-smacof::kinshipdelta
+#' res<-powerStressFast(as.matrix(dis),kappa=2,lambda=1.5)
+#' res
+#' summary(res)
+#' plot(res)
+#' 
+#' @export
+
+powerStressFast <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-12, itmax = 100000, verbose = FALSE, defaultstress=stressen1)
+{
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(verbose>0) cat("Minimizing powerstress by NEWUOA with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    r <- kappa
+    p <- ndim
+    deltaorig <- delta
+    delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1 #new
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat) #sum=1
+    xold <- init
+    if(is.null(init)) xold <- torgerson (delta, p = p)
+    xold <- xold/enorm(xold) 
+    stressf <- function(x,delta,p,weightmat)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=p)
+             delta <- delta/enorm(delta,weightmat)
+             x <- x/enorm(x)
+             ds <- (2*sqrt(sqdist(x)))^kappa
+             #print(ds)
+             sum((ds-delta)^2)/2
+             #check if stress 1 is the same as in smacof and whether config is the same for
+             #using dist 
+             #using matrices
+             #using enorm with dist
+             #using enorm with matrix
+           }
+     optimized <- minqa::newuoa(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxfun=itmax,rhoend=eps,iprint=verbose))
+     #optimized <- optim(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxit=itmax))
+     xnew <- matrix(optimized$par,ncol=2)
+     #xnew <- optimized$par
+     attr(xnew,"dimnames")[[1]] <- rownames(delta)
+     itel <- optimized$feval
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
+     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     deltam <- delta
+     deltaorigm <- deltaorig
+     deltaoldm <- deltaold
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm)
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     resmat <- as.matrix(delta - doute)^2
+     spp <- colMeans(resmat)
+     weightmatm <-weightmat
+     weightmat <- stats::as.dist(weightmatm)
+     #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
+     stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
+     stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
+     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
+     stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+     stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #stress 1 on the original proximities 
+     stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
+     stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
+     stresss <- sqrt(stressn) #sqrt of stressn
+     if(verbose>1) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",optimized$fval,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=defaultstress, spp=spp, ndim=p, model="Power Stress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = NA, stress.m=sqrt(stressn), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    class(out) <- c("smacofP","smacofB","smacof")
+    out
+}

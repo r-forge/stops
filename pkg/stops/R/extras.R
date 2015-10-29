@@ -30,13 +30,10 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #'
 #' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
 #'
-#'@importFrom MASS sammon
-#'@importFrom stats as.dist dist 
+#' @importFrom MASS sammon
+#' @importFrom stats as.dist dist 
 #' 
-#'@export
-#'
-#' 
-#' 
+#' @export
 sammon <- function(d,y=NULL,k=2,...)
     {
      if(is.null(y)) y <- stops::cmdscale(d,k,eig=TRUE)$points
@@ -92,11 +89,10 @@ summary.sammon <- function(object,...)
     cat("\n\n")
     }
 
-#'@export
-#'
+
 #'@importFrom graphics plot abline lines text identify legend points
 #'@importFrom stats predict loess lm
-#' 
+#'@export
 plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
     {
     x1 <- plot.dim[1]
@@ -203,9 +199,9 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
 #' @param ax.grid If 'TRUE', axes grid is plotted.
 #' @param sphere.rgl If 'TRUE', rgl sphere (background) is plotted.
 #' @param ... Further plot arguments passed: see 'plot3d' in package 'rgl' for detailed information.
-#' 
-#'@export
-#'@import rgl 
+#'
+#' @import rgl 
+#' @export
 plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
 {
     ndim <- dim(x$points)[2]
@@ -251,6 +247,24 @@ plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, ma
         color = "black", alpha = 1)
 }
 
+
+#' A static 3d plot S3 generic 
+#'
+#' A static 3d plot 
+#'
+#' @title plot3dstatic: static 3D plots 
+#' @param x object
+#' @param plot.dim dimensions to plot
+#' @param main main title
+#' @param xlab label for x axis 
+#' @param ylab label for y axis
+#' @param zlab label for z axis
+#' @param col color
+#' @param ... other arguments
+#' 
+#' @export
+plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ...) UseMethod("plot3dstatic")
+
 #' 3D plots: plot3dstatic method for class cmdscale
 #'
 #' 
@@ -265,7 +279,7 @@ plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, ma
 #' @param ... Further plot arguments passed: see 'scatterplot3d' in package 'scatterplot3d' for detailed information.
 #'
 #'@export
-#'@import smacof
+#'@import scatterplot3d
 plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
 {
     ndim <- dim(x$points)[2]
