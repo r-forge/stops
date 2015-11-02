@@ -434,6 +434,24 @@ library(smacof)
 library(stops)
 data(kinshipdelta)
 delta <- kinshipdelta
+kappa <- 1
+ndim <- 2
+lambda <- 1
+weightmat <- 1-diag(nrow(delta))
+init <- NULL
+eps <- 1e-10
+itmax <- 100000
+nu <- 1
+verbose <- 2
+stressr 
+stresse 
+stressen 
+stressen1 
+stress1 
+stresse1 
+stressn 
+stresss 
+
 
 
 delta <- delta/enorm(delta)

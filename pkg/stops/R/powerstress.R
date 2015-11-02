@@ -113,6 +113,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
        lold <- lnew
      }
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
+     #xnew <- xnew/enorm(xnew)
      doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
      deltam <- delta
      deltaorigm <- deltaorig
@@ -121,11 +122,12 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
      deltaorig <- stats::as.dist(deltaorig)
      deltaold <- stats::as.dist(deltaold)
      doute <- doutm/enorm(doutm)
+     #doute <- doutm
      doute <- stats::as.dist(doute)
      dout <- stats::as.dist(doutm)
-     resmat <- as.matrix(delta - doute)^2
-     spp <- colMeans(resmat)
      weightmatm <-weightmat
+     resmat <- weightmatm*as.matrix((delta - doute)^2)
+     spp <- colMeans(resmat)
      weightmat <- stats::as.dist(weightmatm)
      #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
      stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
@@ -502,7 +504,6 @@ print.summary.smacofP <- function(x,...)
 #' plot(res)
 #' 
 #' @export
-
 powerStressFast <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-12, itmax = 100000, verbose = FALSE, defaultstress=stressen1)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
