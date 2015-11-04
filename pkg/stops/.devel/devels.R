@@ -406,31 +406,42 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
              if(!is.matrix(x)) x <- matrix(x,ncol=p)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-            # ds <- as.matrix(dist(x))
-             ds <- (2*sqrt(sqdist(x)))^kappa
+             ds <- as.matrix(dist(x)^kappa)
+             #ds <- (2*sqrt(sqdist(x)))^kappa
+             ds <- ds/enorm(ds)
              #print(ds)
-             stressi <- sum((ds-delta)^2)/2
-             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
+             #stressi <- sum((ds-delta)^2)#/2
+             stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
+ #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
              struc <- corrd$raw
-             maxstruc <- corrd$normi
+             #maxstruc <- corrd$normi #was tut das hier?
              if(normed) {
                         struc <- corrd$normed
-                        maxstruc <- 1
+                        #maxstruc <- 1
                        }
              ic <- stressweight*stressi - cordweight*struc
-             if(verbose>3) cat("coploss =",stressweight*stressi - cordweight*struc,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
-             ic
+             if(verbose>3) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             #ic
+             stressweight*stressi - cordweight*struc
              #check if stress 1 is the same as in smacof and whether config is the same for
-             #using dist 
-             #using matrices
-             #using enorm with dist
+             #using dist ; check
+             #using matrices ; check 
+             #using enorm with dist; check
              #using enorm with matrix
            }
-     optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rnag=rang,plot=plot,normed=normed,...),control=list(maxfun=itmax,rhoend=eps,iprint=verbose)) #am Besten
-     itel <- optimized$feval
+     if(optimmethod=="Newuoa")) {
+         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=eps,iprint=verbose))
+         itel <- optimized$feval
+     }
+     if(optimmethod=="Nelder-Mead")) {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose)) 
+         itel <- optimized$counts[[1]]
+     }
      xnew <- matrix(optimized$par,ncol=2)
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
-     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     #doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     doutm <- as.matrix(dist(x)^kappa)
      deltam <- delta
      deltaorigm <- deltaorig
      deltaoldm <- deltaold
@@ -465,7 +476,7 @@ library(stops)
 data(kinshipdelta)
 delta <- kinshipdelta
 kappa <- 1
-ndim <- 2
+ndim <- p <- 2
 lambda <- 1
 weightmat <- 1-diag(nrow(delta))
 init <- NULL
@@ -473,6 +484,16 @@ eps <- 1e-10
 itmax <- 100000
 nu <- 1
 verbose <- 2
+stressweight <- 0.5
+cordweight <- 0.5
+q <- 1
+minpts <- 2
+epsilon <- 10
+rang <- c(0,2.5)
+plot <- FALSE
+scale <- TRUE
+normed <- TRUE
+
 stressr 
 stresse 
 stressen 
@@ -581,8 +602,9 @@ innerf(teso$par,delta)
 
 data(kinshipdelta)
 delta <- kinshipdelta
-system.time(res1 <- powerStressMin(delta))
-system.time(res2 <- powerStressFast(delta))
+system.time(res1 <- powerStressMin(delta)) #0.267
+system.time(res2 <- powerStressFast(delta)) #0.268
+system.time(res3 <- smacofSym(delta)) 
 res1
 res2
 par(mfrow=c(1,2))
@@ -592,8 +614,9 @@ plot(res2)
 
 data(BankingCrisesDistances)
 delta <- BankingCrisesDistances[,1:69]
-system.time(res1 <- powerStressMin(delta))
-system.time(res2 <- powerStressFast(delta))
+system.time(res1 <- powerStressMin(delta)) #0.349
+system.time(res2 <- powerStressFast(delta)) #0.35
+system.time(res3 <- smacofSym(delta)) 
 res1
 res2
 par(mfrow=c(1,2))
@@ -604,21 +627,26 @@ plot(res2)
 
 data(Pendigits500)
 delta <- dist(Pendigits500[,1:16])
-system.time(res1 <- powerStressMin(delta)) #9586 ~ 2.5 Stunden
-system.time(res2 <- powerStressFast(delta)) #1100 ~ 20 min
-res1
-res2
+system.time(resP1 <- powerStressMin(delta)) #9586 ~ 2.5 Stunden #0.249
+system.time(resP2 <- powerStressFast(delta)) #1100 ~ 20 min  
+system.time(resP3 <- smacofSym(delta)) #9586 ~ 2.5 Stunden
+resP1
+resP2
+resP3
 par(mfrow=c(1,2))
-plot(res1)
-plot(res2)
-
+plot(resP1)
+plot(resP2)
+plot(resP3)
 
 data(CAClimateIndicatorsCountyMedian)
-delta <- CAClimateIndicatorsCountyMedian[,2:52])
+delta <- dist(CAClimateIndicatorsCountyMedian[,2:52])
 system.time(res1 <- powerStressMin(delta))
 system.time(res2 <- powerStressFast(delta))
+system.time(res3 <- smacofSym(delta))
 res1
 res2
+res3
 par(mfrow=c(1,2))
 plot(res1)
 plot(res2)
+plot(res3)
