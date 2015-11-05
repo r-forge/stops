@@ -430,15 +430,17 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
              #using enorm with dist; check
              #using enorm with matrix
            }
-     if(optimmethod=="Newuoa")) {
+     if(optimmethod=="Newuoa") {
          optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=eps,iprint=verbose))
+         xnew <- matrix(optimized$par,ncol=2)
          itel <- optimized$feval
      }
-     if(optimmethod=="Nelder-Mead")) {
-         optimized <- optim(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose)) 
+     if(optimmethod=="Nelder-Mead") {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose))
+         xnew <- optimized$par
          itel <- optimized$counts[[1]]
      }
-     xnew <- matrix(optimized$par,ncol=2)
+    
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
      #doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
      doutm <- as.matrix(dist(x)^kappa)
