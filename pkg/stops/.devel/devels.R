@@ -384,10 +384,11 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
                  #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
                  initsol <- powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-                 initcorrd <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
-                 if(identical(normed,FALSE)) initcorrd <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
-                cordweight <- initsol$stress/initcorrd #use stress.m or stress?
-                if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
+                 initcord <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
+                 initcorrd <- initcord$normed
+                 if(identical(normed,FALSE)) initcorrd <- initcord$raw
+                 cordweight <- initsol$stress/initcorrd #use stress.m or stress?
+                 if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
              }
     r <- kappa
     p <- ndim
@@ -406,12 +407,12 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
              if(!is.matrix(x)) x <- matrix(x,ncol=p)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-             ds <- as.matrix(dist(x)^kappa)
+             ds <- (2*as.matrix(dist(x)))^kappa
              #ds <- (2*sqrt(sqdist(x)))^kappa
              ds <- ds/enorm(ds)
              #print(ds)
-             #stressi <- sum((ds-delta)^2)#/2
-             stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+             stressi <- sum(weightmat*(ds-delta)^2)#/2
+             #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
              corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
  #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
              struc <- corrd$raw
@@ -438,7 +439,7 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
      if(optimmethod=="Nelder-Mead") {
          optimized <- optim(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose))
          xnew <- optimized$par
-         itel <- optimized$counts[[1]]
+         itel <- optimized$counts[[1]]2
      }
     
      attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
