@@ -423,8 +423,8 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
                        }
              ic <- stressweight*stressi - cordweight*struc
              if(verbose>2) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
-             #ic
-             stressweight*stressi - cordweight*struc
+             ic
+             #stressweight*stressi - cordweight*struc
              #check if stress 1 is the same as in smacof and whether config is the same for
              #using dist ; check
              #using matrices ; check 
@@ -470,7 +470,7 @@ copslossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu
      stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
      stresss <- sqrt(stressn) #sqrt of stressn
      if(verbose>0) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",value,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stresstype, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
     out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=FALSE,scale=scale)
@@ -633,7 +633,13 @@ delta <- BankingCrisesDistances[,1:69]
 system.time(res1 <- powerStressMin(delta)) #0.349
 system.time(res2 <- powerStressFast(delta)) #0.35
 system.time(res3 <- smacofSym(delta))
-system.time(res4 <- copslossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2))
+system.time(cops0505 <- copslossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2))
+system.time(cops10 <- copslossMin(delta,cordweight=0,stressweight=01,verbose=2))
+system.time(copsdef <- copslossMin(delta,verbose=2))
+system.time(copsdefc <- copslossMin(delta,stressweight=max(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),cordweight=min(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),verbose=2))
+system.time(cops0505-148 <- copslossMin(delta,kappa=1.4,lambda=8,cordweight=0.5,stressweight=0.5,verbose=2))
+system.time(cops10-148 <- copslossMin(delta,cordweight=0,stressweight=1,verbose=2))
+system.time(copsdef-148 <- copslossMin(delta,verbose=2))
 res1
 res2
 par(mfrow=c(1,2))
