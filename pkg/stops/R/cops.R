@@ -743,7 +743,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
         out
      }
 
-#' High Level COPS Function 
+#' High Level COPSTOPS Function
+#'
+#' A STOPS model that uses Ccoploss for hyperparameter selection 
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
@@ -788,12 +790,12 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'@examples
 #'\donttest{ 
 #'dis<-as.matrix(smacof::kinshipdelta)
-#'res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
+#'res1<-copstops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 #'res1
 #'summary(res1)
 #'plot(res1)
 #'#only use cordillera for finding the parameters; 
-#'res2<-cops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
+#'res2<-copstops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
 #'res2
 #'summary(res2)
 #'plot(res2)
@@ -816,7 +818,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
+copstops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,plot=FALSE,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
     {
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -874,12 +876,29 @@ cops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon
     out$losstype <- loss
     out$nobj <- dim(out$fit$conf)[1]
     if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with coploss=",round(out$coploss,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")
-    class(out) <- c("cops","stops")
+    class(out) <- c("cstops","cops","stops")
     out
   }
 
 #'@export
 print.cops <- function(x,...)
+    {
+    cat("\nCall: ")
+    print(x$call)
+    cat("\n")
+    cat("Model: COPS with parameters kappa=",x$par[1],"lambda=",x$par[2],"nu=",x$par[3],"\n")
+    cat("\n")
+    cat("Number of objects:", x$nobj, "\n")
+    cat("MDS loss value:", x$stress, "\n")
+    cat("OPTICS cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
+    cat("Cluster optimized loss (coploss): ", x$coploss, "\n")
+    cat("MDS loss weight:",x$stressweight," OPTICS cordillera weight:",x$cordweight,"\n")
+    cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
+    cat("\n")
+    }
+
+#'@export
+print.cstops <- function(x,...)
     {
     cat("\nCall: ")
     print(x$call)
@@ -922,7 +941,7 @@ coef.cops <- function(object,...)
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'} 
 #'@export 
-plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
+plot.cstops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
@@ -939,3 +958,269 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
        plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)
    }
  }
+
+#'S3 plot method for cops objects
+#' 
+#'@param x an object of class cops
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","transplot", "Shepard", "stressplot" (see details)
+#'@param main the main title of the plot
+#'@param asp aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances. 
+#'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
+#' 
+#'Details:
+#' \itemize{
+#' \item Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+#' \item Reachability plot (plot.type = "confplot"): Plots the OPTICS reachability plot and the OPTICS cordillera 
+#' \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+#' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
+#' \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
+#' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+#' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+#'} 
+#'@export 
+plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
+    {
+     if(missing(plot.type)) plot.type <- "confplot"  
+     if(plot.type=="reachplot") {
+        if(missing(main)) main <- paste("Reachability plot")
+        else main <- main
+        plot(x$OC,main=main,...)
+     } else if(inherits(x$fit,"smacofB") && !inherits(x$fit,"smacofP") && plot.type=="transplot"){
+     #ok, old code here has side effects: it changes the smacof object in the cops object; not sure we should do that  
+       if(missing(main)) main <- paste("Transformation Plot") 
+       stops:::plot.smacofP(x,plot.type="transplot",asp=asp,...)
+     # invisible(tmp) #I give the changed smacof object back
+     }
+     else {      
+       stops:::plot.smacofP(x,plot.type=plot.type,main=main,asp=asp,...)
+   }
+ }
+
+
+#' High Level COPS Function
+#'
+#' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta.
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param kappa power transformation for fitted distances
+#' @param lambda power transformation for proximities
+#' @param nu power transformation for weights
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
+#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
+#' @param ndim number of dimensions of the target space
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param cordweight weight to be used for the cordillera; if missing gets estimated from the initial configuration as  
+#' @param q the norm of the corrdillera; defaults to 1
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
+#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
+#' @param normed should the cordillera be normed; defaults to TRUE
+#' @param scale should the configuration be scaled to mean=0 and sd=1 for calculating the cordillera? Defaults to TRUE
+#' @param eps accuracy, defulats to 1e-12
+#' @param itmax maximum number of iterations. Defaults to 100000
+#' @param ... additional arguments to be passed to the optimization procedure
+#'
+#'@return A list with the components
+#'         \itemize{
+#'         \item coploss: the weighted loss value
+#'         \item OC: the Optics cordillera
+#'         \item optim: the object returned from the optimization procedure
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#'         \item cordillera: the cordillera object
+#' }
+#' 
+#'@examples
+#'\donttest{ 
+#'dis<-as.matrix(smacof::kinshipdelta)
+#'
+#'#Coploss with equal weight to stress and cordillera 
+#'res1<-cops(dis,stressweight=0.5,cordweight=0.5) 
+#'res1
+#'summary(res1)
+#'plot(res1)
+#'
+#'#classic mds (i.e. stressweight=1 and cordweight=0)
+#'res2<-cops(dis,stressweight=1,cordweight=0) 
+#'res2
+#'summary(res2)
+#'plot(res2)
+#'
+#'#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
+#'#the reason is the distance between sister and son
+#' 
+#'#procrustes adjusted
+#'resadj<-conf_adjust(res2$fit$points,res1$fit$points)
+#'plot(resadj$ref.conf) #res 2
+#'plot(resadj$other.conf) #res 1
+#' 
+#'par(mfrow=c(1,2))
+#'plot(res1,"reachplot")
+#'plot(res2,"reachplot") 
+#'
+#'#s-stress type coploss (i.e. kappa=2, lambda=2)
+#'res3<-cops(dis,kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
+#'res3
+#'summary(res3)
+#'plot(res3)
+#'
+#'Sammon stress type coploss
+#'ws<-weightmat=1/dis
+#'diag(ws)<-1 
+#'res4<-cops(dis,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+#'res4
+#'summary(res4)
+#'plot(res4)
+#' 
+#'#power-stress type coploss
+#'ws<-weightmat=1/dis
+#'diag(ws)<-1 
+#'res5<-cops(dis,kappa=1.4,lambda=3,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+#'res5
+#'summary(res5)
+#'plot(res5)
+#'
+#'}
+#'
+#' @importFrom stats dist as.dist optim
+#' @importFrom minqa newuoa
+#' 
+#' 
+#'@keywords clustering multivariate
+#'@export
+
+coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, eps = 1e-12, itmax = 100000,...)
+{
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    kappa <- theta[1]
+    lambda <- theta[2]
+    nu <- theta[3]
+    plot <- FALSE
+    if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(missing(optimmethod)) optimmethod <- "Newuoa"
+    if(missing(rang))
+        #perhaps put this into the optimization function?
+          {
+           if(verbose>1) cat ("Fitting configuration for rang. \n")    
+           initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           init0 <- initsol$conf
+           if(isTRUE(scale)) init0 <- scale(init0)
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           cin <- max(crp)
+           rang <- c(0,1.5*cin)  
+           if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
+           }
+      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
+      if(missing(cordweight))
+               {
+                 #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
+                 if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
+                 initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+                 initcord <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
+                 initcorrd <- initcord$normed
+                 if(identical(normed,FALSE)) initcorrd <- initcord$raw
+                 cordweight <- initsol$stress/initcorrd #use stress.m or stress?
+                 if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
+             }
+    r <- kappa
+    p <- ndim
+    deltaorig <- delta
+    delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1 #new
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat) #sum=1
+    xold <- init
+    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    xold <- xold/enorm(xold) 
+    copsf <- function(x,delta,p,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,plot,scale,normed=normed,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=p)
+             delta <- delta/enorm(delta,weightmat)
+             x <- x/enorm(x)
+             ds <- (2*as.matrix(dist(x)))^kappa
+             #ds <- (2*sqrt(sqdist(x)))^kappa
+             ds <- ds/enorm(ds)
+             #print(ds)
+             stressi <- sum(weightmat*(ds-delta)^2)#/2
+             #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
+ #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
+             struc <- corrd$raw
+             #maxstruc <- corrd$normi #was tut das hier?
+             if(normed) {
+                        struc <- corrd$normed
+                        #maxstruc <- 1
+                       }
+             ic <- stressweight*stressi - cordweight*struc
+             if(verbose>2) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             ic
+             #stressweight*stressi - cordweight*struc
+             #check if stress 1 is the same as in smacof and whether config is the same for
+             #using dist ; check
+             #using matrices ; check 
+             #using enorm with dist; check
+             #using enorm with matrix
+           }
+     if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
+     if(optimmethod=="Newuoa") {
+         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=eps,iprint=verbose),...)
+         xnew <- matrix(optimized$par,ncol=2)
+         itel <- optimized$feval
+         ovalue <-optimized$fval
+     }
+     if(optimmethod=="Nelder-Mead") {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,p=p,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose),...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$val 
+     }    
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
+     attr(xnew,"dimnames")[[1]] <- rownames(delta)
+     #doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     doutm <- as.matrix(dist(xnew)^kappa)
+     deltam <- delta
+     deltaorigm <- deltaorig
+     deltaoldm <- deltaold
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm)
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     resmat <- as.matrix(delta - doute)^2
+     spp <- colMeans(resmat)
+     weightmatm <-weightmat
+     weightmat <- stats::as.dist(weightmatm)
+     #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
+     stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
+     stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
+     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
+     stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+     stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #stress 1 on the original proximities 
+     stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
+     stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
+     stresss <- sqrt(stressn) #sqrt of stressn
+     if(verbose>0) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",ovalue,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out$par <- theta
+    out$loss <- "coploss"
+    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=FALSE,scale=scale)
+    out$coploss <- ovalue
+    out$optim <- optimized
+    out$stressweight <- stressweight
+    out$cordweight <- cordweight
+    out$call <- match.call()
+    out$optimethod <- optimmethod
+    out$losstype <- out$loss
+    out$nobj <- dim(out$conf)[1]
+    class(out) <- c("cops","smacofP","smacofB","smacof")
+    out
+}
