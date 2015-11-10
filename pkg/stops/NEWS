@@ -1,6 +1,10 @@
+Version 0.0-25
+
+- Added a direct coploss minimization procedure for given theta (coplossMin). This will eventually be turned into cops. Old cops (i.e. the hyperparameter selection aka STOPS) has now been renamed to copstops - eventually this might be discontinued as stops() takes that over. Added docs for that and methods and classes.  
+
 Version 0.0-24
 
-- Added a new power stress implementation using NEWUOA for optimization. Much faster than majorization but less accurate. Fixed an issues in documentaion of stops_sstress. Added generic for plot3dstatic after smacof has been so radically refactored (eventually decide if we want to do this as well). 
+- Added a new power stress implementation using NEWUOA for optimization. Much faster than majorization but less accurate. Fixed an issues in documentation of stops_sstress. Added generic for plot3dstatic after smacof has been so radically refactored (eventually decide if we want to do this as well). 
 
 Version 0.0-23
 

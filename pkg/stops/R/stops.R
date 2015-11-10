@@ -687,7 +687,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
   out 
 }
 
-#' COPS version of elastic scaling with powers
+#' STOPS version of elastic scaling with powers
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.
@@ -827,7 +827,7 @@ mkPower2<-function(x,theta) {
 #' @param stresstype what stress to be used for comparisons between solutions 
 #' @param ... additional arguments to be passed to the optimization procedure
 #
-#' @return see \code{\link{cops}}
+#' @return see \code{\link{copstops}}
 #' 
 #' @examples
 #' \donttest{

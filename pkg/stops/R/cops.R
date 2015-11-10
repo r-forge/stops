@@ -988,20 +988,20 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
      } else if(inherits(x$fit,"smacofB") && !inherits(x$fit,"smacofP") && plot.type=="transplot"){
      #ok, old code here has side effects: it changes the smacof object in the cops object; not sure we should do that  
        if(missing(main)) main <- paste("Transformation Plot") 
-       stops:::plot.smacofP(x,plot.type="transplot",asp=asp,...)
+       plot.smacofP(x,plot.type="transplot",asp=asp,...)
      # invisible(tmp) #I give the changed smacof object back
      }
      else {      
-       stops:::plot.smacofP(x,plot.type=plot.type,main=main,asp=asp,...)
+       plot.smacofP(x,plot.type=plot.type,main=main,asp=asp,...)
    }
  }
 
 
-#' High Level COPS Function
+#' Fitting a COPS Model.
 #'
 #' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta.
 #'
-#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
 #' @param lambda power transformation for proximities
 #' @param nu power transformation for weights
@@ -1040,51 +1040,10 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#Coploss with equal weight to stress and cordillera 
-#'res1<-cops(dis,stressweight=0.5,cordweight=0.5) 
+#'res1<-coplossMin(dis,stressweight=0.5,cordweight=0.5) 
 #'res1
 #'summary(res1)
 #'plot(res1)
-#'
-#'#classic mds (i.e. stressweight=1 and cordweight=0)
-#'res2<-cops(dis,stressweight=1,cordweight=0) 
-#'res2
-#'summary(res2)
-#'plot(res2)
-#'
-#'#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
-#'#the reason is the distance between sister and son
-#' 
-#'#procrustes adjusted
-#'resadj<-conf_adjust(res2$fit$points,res1$fit$points)
-#'plot(resadj$ref.conf) #res 2
-#'plot(resadj$other.conf) #res 1
-#' 
-#'par(mfrow=c(1,2))
-#'plot(res1,"reachplot")
-#'plot(res2,"reachplot") 
-#'
-#'#s-stress type coploss (i.e. kappa=2, lambda=2)
-#'res3<-cops(dis,kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
-#'res3
-#'summary(res3)
-#'plot(res3)
-#'
-#'Sammon stress type coploss
-#'ws<-weightmat=1/dis
-#'diag(ws)<-1 
-#'res4<-cops(dis,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
-#'res4
-#'summary(res4)
-#'plot(res4)
-#' 
-#'#power-stress type coploss
-#'ws<-weightmat=1/dis
-#'diag(ws)<-1 
-#'res5<-cops(dis,kappa=1.4,lambda=3,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
-#'res5
-#'summary(res5)
-#'plot(res5)
-#'
 #'}
 #'
 #' @importFrom stats dist as.dist optim
@@ -1093,7 +1052,6 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-
 coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=1,cordweight,q=1,minpts=2,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, eps = 1e-12, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
@@ -1224,3 +1182,81 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     class(out) <- c("cops","smacofP","smacofB","smacof")
     out
 }
+
+#' High Level COPS Function
+#'
+#' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta. Calls coplossMin.
+#'
+#'@param ... arguments to be passed to coplossMin. See also \code{\link{coplossMin}}
+#'
+#'@return A list with the components
+#'         \itemize{
+#'         \item coploss: the weighted loss value
+#'         \item OC: the Optics cordillera
+#'         \item optim: the object returned from the optimization procedure
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#'         \item cordillera: the cordillera object
+#' }
+#' 
+#'@examples
+#'\donttest{ 
+#'dis<-as.matrix(smacof::kinshipdelta)
+#'
+#'#Coploss with equal weight to stress and cordillera 
+#'res1<-cops(dis,stressweight=0.5,cordweight=0.5) 
+#'res1
+#'summary(res1)
+#'plot(res1)
+#'
+#'#classic mds (i.e. stressweight=1 and cordweight=0)
+#'res2<-cops(dis,stressweight=1,cordweight=0) 
+#'res2
+#'summary(res2)
+#'plot(res2)
+#'
+#'#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
+#'#the reason is the distance between sister and son
+#' 
+#'#procrustes adjusted
+#'resadj<-conf_adjust(res2$fit$points,res1$fit$points)
+#'plot(resadj$ref.conf) #res 2
+#'plot(resadj$other.conf) #res 1
+#' 
+#'par(mfrow=c(1,2))
+#'plot(res1,"reachplot")
+#'plot(res2,"reachplot") 
+#'
+#'#s-stress type coploss (i.e. kappa=2, lambda=2)
+#'res3<-cops(dis,kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
+#'res3
+#'summary(res3)
+#'plot(res3)
+#'
+#'#Sammon stress type coploss
+#'ws<-weightmat=1/dis
+#'diag(ws)<-1 
+#'res4<-cops(dis,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+#'res4
+#'summary(res4)
+#'plot(res4)
+#' 
+#'#power-stress type coploss
+#'ws<-weightmat=1/dis
+#'diag(ws)<-1 
+#'res5<-cops(dis,kappa=1.4,lambda=3,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+#'res5
+#'summary(res5)
+#'plot(res5)
+#'
+#'}
+#'
+#' @importFrom stats dist as.dist optim
+#' @importFrom minqa newuoa
+#' 
+#' 
+#'@keywords clustering multivariate
+#'@export
+cops <- function(...) coplossMin(...)

@@ -4,63 +4,10 @@
 \alias{cops}
 \title{High Level COPS Function}
 \usage{
-cops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
-  "rstress", "powermds", "sstress", "elastic", "powersammon", "powerelastic",
-  "powerstress", "sammon2", "powerstrain"), weightmat = NULL, ndim = 2,
-  init = NULL, theta = c(1, 1, 1), stressweight = 1, cordweight, q = 1,
-  minpts = 2, epsilon = 10, rang, optimmethod = c("ALJ", "pso", "SANN"),
-  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0, plot = FALSE,
-  scale = TRUE, normed = TRUE, s = 4, stresstype = "default", ...)
+cops(...)
 }
 \arguments{
-\item{dis}{numeric matrix or dist object of a matrix of proximities}
-
-\item{loss}{which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
-\itemize{
-\item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerStressMin)
-\item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerStressMin)
-\item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}; workhorse is powerStressMin)
-}}
-
-\item{weightmat}{(optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals}
-
-\item{ndim}{number of dimensions of the target space}
-
-\item{init}{(optional) initial configuration}
-
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If a scalar is given as argument, it will take the role designated by the loss argument. Defaults to 1 1 1}
-
-\item{stressweight}{weight to be used for the fit measure; defaults to 1}
-
-\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that coploss = 0 for theta=c(1,1)}
-
-\item{q}{the norm of the corrdillera; defaults to 1}
-
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
-
-\item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
-
-\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}}
-
-\item{optimmethod}{What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"). We recommend not using the later with the rstress, sstress and the power stress models.}
-
-\item{lower}{The lower contraints of the search region}
-
-\item{upper}{The upper contraints of the search region}
-
-\item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
-
-\item{plot}{plot the cordillera}
-
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
-
-\item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{s}{number of particles if pso is used}
-
-\item{stresstype}{what stress to be used for comparisons between solutions}
-
-\item{...}{additional arguments to be passed to the optimization procedure}
+\item{...}{arguments to be passed to coplossMin. See also \code{\link{coplossMin}}}
 }
 \value{
 A list with the components
@@ -76,17 +23,20 @@ A list with the components
 }
 }
 \description{
-High Level COPS Function
+Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta. Calls coplossMin.
 }
 \examples{
 \donttest{
 dis<-as.matrix(smacof::kinshipdelta)
-res1<-cops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
+
+#Coploss with equal weight to stress and cordillera
+res1<-cops(dis,stressweight=0.5,cordweight=0.5)
 res1
 summary(res1)
 plot(res1)
-#only use cordillera for finding the parameters;
-res2<-cops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
+
+#classic mds (i.e. stressweight=1 and cordweight=0)
+res2<-cops(dis,stressweight=1,cordweight=0)
 res2
 summary(res2)
 plot(res2)
@@ -102,6 +52,29 @@ plot(resadj$other.conf) #res 1
 par(mfrow=c(1,2))
 plot(res1,"reachplot")
 plot(res2,"reachplot")
+
+#s-stress type coploss (i.e. kappa=2, lambda=2)
+res3<-cops(dis,kappa=2,lambda=2,stressweight=0.5,cordweight=0.5)
+res3
+summary(res3)
+plot(res3)
+
+#Sammon stress type coploss
+ws<-weightmat=1/dis
+diag(ws)<-1
+res4<-cops(dis,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5)
+res4
+summary(res4)
+plot(res4)
+
+#power-stress type coploss
+ws<-weightmat=1/dis
+diag(ws)<-1
+res5<-cops(dis,kappa=1.4,lambda=3,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5)
+res5
+summary(res5)
+plot(res5)
+
 }
 }
 \keyword{clustering}

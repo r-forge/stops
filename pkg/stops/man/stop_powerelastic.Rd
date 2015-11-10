@@ -2,7 +2,7 @@
 % Please edit documentation in R/stops.R
 \name{stop_powerelastic}
 \alias{stop_powerelastic}
-\title{COPS version of elastic scaling with powers}
+\title{STOPS version of elastic scaling with powers}
 \usage{
 stop_powerelastic(dis, theta = c(1, 1, -2), weightmat = NULL, init = NULL,
   ndim = 2, ..., stressweight = 1, structures = c("cclusteredness",
@@ -52,7 +52,7 @@ A list with the components
 }
 }
 \description{
-COPS version of elastic scaling with powers
+STOPS version of elastic scaling with powers
 }
 \keyword{multivariate}
 

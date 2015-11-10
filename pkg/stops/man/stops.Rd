@@ -58,7 +58,7 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
 \value{
-see \code{\link{cops}}
+see \code{\link{copstops}}
 }
 \description{
 A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. This includes the COPS method. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models (classical scaling, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powerStress, sammon mapping with powers and elastic scaling with powers), metaheuristics of multi-objective optimization, functions for various structuredness indices (including the OPTICS cordillera) and an interface to ELKI's OPTICS.
