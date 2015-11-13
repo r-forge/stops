@@ -516,22 +516,39 @@ plot(res8)
 
 data(BankingCrisesDistances)
 delta <- BankingCrisesDistances[,1:69]
-system.time(res1 <- powerStressMin(delta)) #0.349
-system.time(res2 <- powerStressFast(delta)) #0.35
-system.time(res3 <- smacofSym(delta))
-system.time(cops0505 <- copslossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2))
-system.time(cops10 <- copslossMin(delta,cordweight=0,stressweight=01,verbose=2))
-system.time(copsdef <- copslossMin(delta,verbose=2))
-system.time(copsdefc <- copslossMin(delta,stressweight=max(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),cordweight=min(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),verbose=2))
-system.time(cops0505-148 <- copslossMin(delta,kappa=1.4,lambda=8,cordweight=0.5,stressweight=0.5,verbose=2))
-system.time(cops10-148 <- copslossMin(delta,cordweight=0,stressweight=1,verbose=2))
-system.time(copsdef-148 <- copslossMin(delta,verbose=2))
+system.time(res1 <- powerStressMin(delta)) #stress 0.349 time 88.06s
+system.time(res2 <- powerStressFast(delta)) #0.35 14.015s 
+system.time(res3 <- smacofSym(delta))  #0.344 0.13s
+system.time(cops0505 <- coplossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2,eps=1e-7))
+system.time(cops10 <- coplossMin(delta,cordweight=0,stressweight=1,verbose=2,eps=1e-7))
+system.time(copsdef <- coplossMin(delta,verbose=2,eps=1e-7))
+system.time(copsdefc <- coplossMin(delta,stressweight=max(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),cordweight=min(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),verbose=2,eps=1e-7))
+system.time(cops0901 <- coplossMin(delta,stressweight=0.9,cordweight=0.1,verbose=2,eps=1e-7))
+system.time(cops095005 <- coplossMin(delta,stressweight=0.95,cordweight=0.05,verbose=2,eps=1e-7))
+
+system.time(cops0505.148 <- coplossMin(delta,kappa=1.4,lambda=8,cordweight=0.5,stressweight=0.5,verbose=2,eps=1e-7))
+system.time(cops10.148 <- coplossMin(delta,cordweight=0,stressweight=1,verbose=2,eps=1e-7))
+system.time(copsdef.148 <- coplossMin(delta,verbose=2,eps=1e-7))
+system.time(copsdefc.148 <- coplossMin(delta,kappa=1.4,lambda=8,stressweight=max(cops10.148$stress,cops10.148$OC$normed)/(cops10.148$stress+cops10.148$OC$normed),cordweight=min(cops10.148$stress,cops10.148$OC$normed)/(cops10.148$stress+cops10.148$OC$normed),verbose=2,eps=1e-7))
+system.time(cops009005.148 <- coplossMin(delta,kappa=1.4,lambda=8,stressweight=0.95,cordweight=0.05,verbose=2,eps=1e-7))
+
 res1
 res2
-par(mfrow=c(1,2))
-plot(res1)
-plot(res2)
+res3
 
+par(mfrow=c(2,2))
+plot(res1)
+#plot(res2)
+plot(res3)
+plot(cops0505)
+plot(cops10)
+plot(copsdef)
+plot(copsdefc)
+plot(cops0505.148)
+plot(cops10.148)
+plot(copsdef.148)
+plot(copsdefc.148)
+plot(cops0901)
 
 
 data(Pendigits500)
