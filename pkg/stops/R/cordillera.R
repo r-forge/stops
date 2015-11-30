@@ -124,12 +124,13 @@ print.summary.cordillera <- function(x,...)
 #' @param colbp color of the barplot.
 #' @param coll color of the cordillera line
 #' @param liwd width of the cordillera line
+#' @param legend draw legend
 #' @param ... additional arguments passed to barplot or lines
 #'
 #' @importFrom graphics barplot plot legend par
 #' 
 #' @export
-plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
+plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FALSE,...)
   {
             tmp <- x$reachplot
             rang <- c(0,min(x$optics$eps,max(tmp[is.finite(tmp)])))
@@ -140,5 +141,5 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,...)
             bp <- graphics::barplot(tmp,names.arg=indtmp,col=colbp,border=graphics::par("bg"),ylim=ylim,...)
             newpoints <- rep(c(max(tmp),min(tmp)),length.out=length(tmp))
             graphics::lines(x=bp,y=tmp,col=coll,lwd=liwd,...)
-            graphics::legend("topright",legend="OC",col=coll,lty=1)
+            if(legend) graphics::legend("topright",legend="OC",col=coll,lty=1)
      }

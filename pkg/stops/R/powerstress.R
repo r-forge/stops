@@ -185,7 +185,7 @@ ienorm <- function(x,w=1){
     return(sum(w*sqrt(x))^2)
 }
 
-#' Squared distances
+c#' Squared distances
 #'
 #' @param x numeric matrix
 #' @export
@@ -526,9 +526,12 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, we
              if(!is.matrix(x)) x <- matrix(x,ncol=p)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-             ds <- (2*sqrt(sqdist(x)))^kappa
+             ds <- (2*as.matrix(dist(x)))^kappa
+             #ds <- (2*sqrt(sqdist(x)))^kappa
+             ds <- ds/enorm(ds)
              #print(ds)
-             sum((ds-delta)^2)/2
+             sum(weightmat*(ds-delta)^2)#/(sum(weightmat*(ds^2)))
+             #sum((ds-delta)^2)/2
              #check if stress 1 is the same as in smacof and whether config is the same for
              #using dist 
              #using matrices

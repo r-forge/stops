@@ -1,7 +1,7 @@
 Package: stops
 Title: STructure Optimized Proximity Scaling
-Version: 0.0-25
-Date: 2015-11-10
+Version: 0.0-26
+Date: 2015-12-01
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"),person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
