@@ -130,11 +130,11 @@ print.summary.cordillera <- function(x,...)
 #' @importFrom graphics barplot plot legend par
 #' 
 #' @export
-plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FALSE,...)
+plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FALSE,ylim,...)
   {
             tmp <- x$reachplot
             rang <- c(0,min(x$optics$eps,max(tmp[is.finite(tmp)])))
-            ylim <- c(0,max(rang))
+            if(missing(ylim)) ylim <- c(0,max(rang))
             res <- x$optics[["clusterobjectorder"]] 
             idind <- pmatch("ID",res[1,]) #check where the ids are
             indtmp <- as.numeric(sapply(strsplit(res[,idind],split='=',fixed=TRUE),function(x) x[2]))
