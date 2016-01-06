@@ -71,7 +71,8 @@
 #' cres
 #' summary(cres)
 #' plot(cres)
-#' 
+#'
+#'\donttest{
 #' #STOPS
 #' strucpars<-list(c(epsilon=10,minpts=2),NULL)
 #' res<-stops(BankingCrisesDistances[,1:69],
@@ -80,7 +81,7 @@
 #' summary(res)
 #' plot(res)
 #' plot(res,"Shepard")
-#' 
+#' }
 #' @docType package
 #' @name stops
 NULL

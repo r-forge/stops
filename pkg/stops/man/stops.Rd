@@ -134,6 +134,7 @@ cres
 summary(cres)
 plot(cres)
 
+\donttest{
 #STOPS
 strucpars<-list(c(epsilon=10,minpts=2),NULL)
 res<-stops(BankingCrisesDistances[,1:69],
@@ -142,6 +143,7 @@ res
 summary(res)
 plot(res)
 plot(res,"Shepard")
+}
 \donttest{
 data(BankingCrisesDistances)
 strucpar<-list(c(eps=10,minpts=2),NULL)
