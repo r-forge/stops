@@ -709,7 +709,6 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness. 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose (coploss level), >3 is extremely (up to MDS optimization level)
-#' @param plot plot the cordillera
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
 #' @param ... additional arguments to be passed to the cordillera function
@@ -723,14 +722,14 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' }
 #' @keywords multivariate
 #' @export
-coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,plot=FALSE,scale=TRUE,...)
+coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,scale=TRUE,...)
     {
         stressi <- obj$stress.m
         kappa <- obj$kappa
         lambda <- obj$lambda
         nu <- obj$nu
         confs <- obj$conf 
-        corrd <- stops::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
+        corrd <- stops::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
         struc <- corrd$raw
         maxstruc <- corrd$normi
         if(normed) {
@@ -866,7 +865,7 @@ copstops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sa
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
     out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,plot=plot,scale=scale,normed=normed,stresstype=stresstype))
-    out$OC <- stops::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
+    out$OC <- stops::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
     out$coploss <- opt$value
     out$optim <- opt
     out$stressweight <- stressweight
@@ -1036,7 +1035,6 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' }
 #' 
 #'@examples
-#'\donttest{ 
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#Coploss with equal weight to stress and cordillera 
@@ -1044,7 +1042,6 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'res1
 #'summary(res1)
 #'plot(res1)
-#'}
 #'
 #' @importFrom stats dist as.dist optim
 #' @importFrom minqa newuoa
@@ -1098,7 +1095,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     xold <- init
     if(is.null(init)) xold <- stops::torgerson (delta, p = p)
     xold <- xold/enorm(xold) 
-    copsf <- function(x,delta,p,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,plot,scale,normed=normed,...)
+    copsf <- function(x,delta,p,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed=normed,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=p)
              delta <- delta/enorm(delta,weightmat)
@@ -1109,7 +1106,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
              #print(ds)
              stressi <- sum(weightmat*(ds-delta)^2)#/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale)
+             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
  #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
              struc <- corrd$raw
              #maxstruc <- corrd$normi #was tut das hier?
@@ -1170,7 +1167,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
-    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=FALSE,scale=scale)
+    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
     out$coploss <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
@@ -1202,7 +1199,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' }
 #' 
 #'@examples
-#'\donttest{ 
+#' \donttest{
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#Coploss with equal weight to stress and cordillera 
@@ -1250,7 +1247,6 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #'res5
 #'summary(res5)
 #'plot(res5)
-#'
 #'}
 #'
 #' @importFrom stats dist as.dist optim

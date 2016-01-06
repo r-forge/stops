@@ -1,7 +1,8 @@
 #' OPTICS function
 #'
 #' A rudimentary I/O interface to OPTICS in ELKI reroots intput from R to elki via the command line, runs elki.optics on an Input file (configs.txt), sets up a temporary directory opticsout, reads in the contents of the elki output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
-#' needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed (will be with release 1.0.0)
+#' needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed (will be with release 1.0.0). Is no longer used for the rest as it has been refactored to use dbscan::optics. That's why its now called e_optics.
+
 #' @param x numeric matrix or data frame
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
 #' @param minpts the minpts argument to elki. Defaults to 2.
@@ -20,7 +21,7 @@
 #' @examples
 #' \donttest{
 #' data(iris)
-#' res<-optics(iris[,1:4],minpts=2,epsilon=100)
+#' res<-e_optics(iris[,1:4],minpts=2,epsilon=100)
 #' print(res)
 #' summary(res)
 #' plot(res,withlabels=TRUE)
@@ -28,7 +29,7 @@
 #'
 #' 
 #' @export
-optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
+e_optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
   {
  # TODO: add distance function handler
  # add support for row names 
@@ -41,7 +42,7 @@ optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
       file.remove(paste(path,"/configs.txt",sep=""))
   }
   out <- list("clusterobjectorder"=cluobjord,"epsilon"=epsilon, "minpts"=minpts)
-  class(out) <- "optics"
+  class(out) <- "opticse"
   out
 }
 #' Print method for OPTICS results
@@ -54,7 +55,7 @@ optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
 #' @return a data frame with the observation order and the reachabilities (invisible)
 #' 
 #' @export
-print.optics <- function(x,...)
+print.opticse <- function(x,...)
     {
        outo <- x$clusterobjectorder[,c(1,dim(x$clusterobjectorder)[2]-1)]
        attr(outo,"names") <- c("observation","reachability")
@@ -70,7 +71,7 @@ print.optics <- function(x,...)
 #' @return an object of class summary.optics wit the reachabilities, the summary and minpts and epsilon parameters 
 #' 
 #' @export
-summary.optics <- function(object,...)
+summary.opticse <- function(object,...)
     {
         res <- object[["clusterobjectorder"]] 
         reachind <- pmatch("reachability",res[1,]) #check where the reachabilty values are to be found 
@@ -80,7 +81,7 @@ summary.optics <- function(object,...)
         eps <- object$eps
         summs <- summary(tmp,...)
         out <- list(reachabilities=tmp,summ=summs,minpts=minpts,epsilon=eps)
-        class(out) <- "summary.optics"
+        class(out) <- "summary.opticse"
         out
     }
 #' Print method for OPTICS summary 
@@ -95,7 +96,7 @@ summary.optics <- function(object,...)
 #' @importFrom graphics stem
 #' 
 #'@export
-print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
+print.summary.opticse <- function(x,fiven=TRUE,stemd=TRUE,...)
     {
         cat("\n")
         cat(" An OPTICS results with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n",fill=TRUE)
@@ -127,7 +128,7 @@ print.summary.optics <- function(x,fiven=TRUE,stemd=TRUE,...)
 #' @importFrom graphics barplot par
 #' 
 #' @export
-plot.optics <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=graphics::par("bg"),names.arg,...)
+plot.opticse <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=graphics::par("bg"),names.arg,...)
   {
   if(withlabels & missing(names.arg)) names.arg <- x$clusterobjectorder$V1    
   res <- x[["clusterobjectorder"]] 

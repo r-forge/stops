@@ -6,9 +6,9 @@
 #'
 #' Models & Algorithms:
 #' \itemize{
-#' \item cops() and stops() ... which fit COPS and STOPS models as described in Rusch et al. (2015a) and Rusch et al. (2015b). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
+#' \item cops() and stops() ... which fit COPS and STOPS models as described in Rusch et al. (2015) and Rusch et al. (2016). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
 #' \item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), powerStress (e.g., Rusch et al., 2015a), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with cops_XXX where XXX is the method and setting stressweight=1 and cordweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
-#' \item optics() ... An interface to ELKI's implementation of the OPTICS
+#' \item e_optics() ... An interface to ELKI's implementation of the OPTICS; DEPRECATED
 #' }
 #'
 #' Structuredness Indices:
@@ -36,8 +36,9 @@
 #'
 #' References:
 #' \itemize{
-#' \item Rusch, T., Mair, P. \& Hornik, K. (2015a) COPS: Cluster optimized proximity scaling, Report 2015/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
-#' \item Rusch, T., Mair, P. \& Hornik, K. (2015b) Structuredness Indices and Augmented Nonlinear Dimension Reduction, Report 2015/X, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
+#' \item Rusch, T., Mair, P. \& Hornik, K. (2015) COPS: Cluster optimized proximity scaling, Report 2015/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
+#' \item Rusch, T., Mair, P. \& Hornik, K. (2016a) Assessing and quantifying clusteredness: The OPTICS Cordillera, Report 2016/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
+#' \item Rusch, T., Mair, P. \& Hornik, K. (2016b) Structure based hyperparameter selection for nonlinear dimension reduction: The Structure Optimized Proximity Scaling (STOPS) framework, Report 2016/2, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
 #' }
 #' 
 #'Authors: Thomas Rusch, Jan de Leeuw, Patrick Mair
@@ -46,7 +47,6 @@
 #'
 #'
 #' @examples
-#' \donttest{
 #' data(BankingCrisesDistances)
 #' 
 #' #COPS
@@ -58,27 +58,28 @@
 #' plot(res,"transplot")
 #' plot(res,"Shepard")
 #'
+#'\donttest{
 #' #OPTICS
-#' ores<-optics(res$fit$points,minpts=2,epsilon=100)
+#' ores<-e_optics(res$conf,minpts=2,epsilon=100)
 #' ores
 #' summary(ores)
 #' plot(ores)
-#' 
+#' }
+
 #' #OPTICS cordillera
-#' cres<-cordillera(res$fit$points)
+#' cres<-cordillera(res$conf)
 #' cres
 #' summary(cres)
 #' plot(cres)
 #' 
 #' #STOPS
-#' strucpars<-list(c(eps=10,mipts=2),NULL)
+#' strucpars<-list(c(epsilon=10,minpts=2),NULL)
 #' res<-stops(BankingCrisesDistances[,1:69],
 #' structures=c("cclusteredness","clinearity"),strucpars=strucpars)
 #' res
 #' summary(res)
 #' plot(res)
 #' plot(res,"Shepard")
-#' }
 #' 
 #' @docType package
 #' @name stops
