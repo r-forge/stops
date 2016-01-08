@@ -888,10 +888,10 @@ print.cops <- function(x,...)
     cat("Model: COPS with parameters kappa=",x$par[1],"lambda=",x$par[2],"nu=",x$par[3],"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
-    cat("MDS loss value:", x$stress, "\n")
-    cat("OPTICS cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
+    cat("Stress of configuration (default normalization):", x$stress, "\n")
+    cat("OPTICS Cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
     cat("Cluster optimized loss (coploss): ", x$coploss, "\n")
-    cat("MDS loss weight:",x$stressweight," OPTICS cordillera weight:",x$cordweight,"\n")
+    cat("Stress weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
     cat("\n")
     }
@@ -1104,15 +1104,13 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
              #ds <- (2*sqrt(sqdist(x)))^kappa
              ds <- ds/enorm(ds)
              #print(ds)
-             stressi <- sum(weightmat*(ds-delta)^2)#/2
+             stressi <- sum(weightmat*(ds-delta)^2)/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
              corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
  #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
              struc <- corrd$raw
-             #maxstruc <- corrd$normi #was tut das hier?
              if(normed) {
                         struc <- corrd$normed
-                        #maxstruc <- 1
                        }
              ic <- stressweight*stressi - cordweight*struc
              if(verbose>2) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")

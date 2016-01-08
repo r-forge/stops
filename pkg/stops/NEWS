@@ -1,6 +1,6 @@
 Version 0.0-27
 
-- Refactored code to work with dbscan::optics instead of ELKIs version. Updated the methods for the cordillera accordingly. The old ELKI optics interface is available as e_optics with class opticse.
+- Refactored code to work with dbscan::optics instead of ELKIs version. Updated the methods for the cordillera accordingly. The old ELKI optics interface is available as e_optics with class opticse. Fixed bug in plot of opticse. Might eventually be removed.
 
 Version 0.0-26
 

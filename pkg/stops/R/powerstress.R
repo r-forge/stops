@@ -254,6 +254,7 @@ secularEq<-function(a,b) {
 #'@param label.conf List with arguments for plotting the labels of the configurations in a configuration plot (logical value whether to plot labels or not, label position, label color)
 #'@param identify If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click
 #'@param type What type of plot should be drawn (see also 'plot')
+#'@param legend Flag whether legends should be drawn for plots that have legends
 #'@param legpos Position of legend in plots with legends 
 #'@param pch  Plot symbol
 #'@param asp  Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate
@@ -273,7 +274,7 @@ secularEq<-function(a,b) {
 #' @importFrom stats loess lm predict 
 #' 
 #' @export 
-plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos,...)
 {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -318,10 +319,17 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             xlim <- range(as.vector(x$delta))
         if (missing(ylim))
             ylim <- range(as.vector(x$confdiss))
-        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch = 20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        pt <- predict(stats::loess(x$confdiss~x$delta))
+        #delta=dhats
+        #proximities=obsdiss
+        #distances=confdiss
+        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        #graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
+        #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
+        #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
+        #pt <- predict(stats::loess(x$confdiss~-1+x$delta))
+        pt <- predict(stats::lm(x$confdiss~-1+x$delta))
         graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
-        graphics::abline(stats::lm(x$confdiss~x$delta)) #no intercept for fitting
+       # graphics::abline(stats::lm(x$confdiss~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -339,14 +347,16 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
              if (missing(xlim))  xlim <- c(min(dreal^kappa,dreal),max(dreal^kappa,dreal))
             graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,...)
             graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
-            pt <- predict(stats::lm(deltat~I(dreal^kappa))) #with intercept not forcing thorugh 0
-            po <- predict(stats::lm(deltao~I(dreal^kappa))) #with intercept
+            pt <- predict(stats::lm(deltat~-1+I(dreal^kappa))) #with intercept not forcing thorugh 0
+            po <- predict(stats::lm(deltao~-1+I(dreal^kappa))) #with intercept
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
             graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
             graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
-            if(missing(legpos)) legpos <- "topleft" 
-            graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
+            if(legend) {
+                if(missing(legpos)) legpos <- "topleft" 
+                graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
+            }
          }
      if (plot.type == "resplot") {
         if(missing(col)) col <- "darkgrey" 

@@ -138,11 +138,9 @@ plot.opticse <- function(x,withlabels=FALSE,col="grey55",colna="grey80",border=g
   naind <- is.na(reachabilities)
   reachabilities[naind] <- min(x$eps,max(reachabilities[!naind]))
   if(withlabels) {
-      graphics::barplot(reachabilities[!naind],names.arg=names.arg[!naind],border=border,col=col,...)
-      graphics::barplot(reachabilities[naind],names.arg=names.arg[naind],border=border,col=colna,add=TRUE,...) 
+      graphics::barplot(reachabilities,names.arg=names.arg,border=border,col=c(rep(colna,length(reachabilities[naind])),rep(col,length(reachabilities[!naind]))),...)
   } else
       {
-      graphics::barplot(reachabilities[!naind],border=border,col=col,...)
-      graphics::barplot(reachabilities[naind],col=colna,add=TRUE,border=border,...) 
+      graphics::barplot(reachabilities,border=border,col=c(rep(colna,length(reachabilities[naind])),rep(col,length(reachabilities[!naind]))),...)
   }
 }
