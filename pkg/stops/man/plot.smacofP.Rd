@@ -7,7 +7,7 @@
 \method{plot}{smacofP}(x, plot.type = "confplot", plot.dim = c(1, 2),
   bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex =
   0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab,
-  ylab, xlim, ylim, legend = TRUE, legpos, ...)
+  ylab, xlim, ylim, legend = TRUE, legpos, loess = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class smacofP}
@@ -43,6 +43,8 @@
 \item{legend}{Flag whether legends should be drawn for plots that have legends}
 
 \item{legpos}{Position of legend in plots with legends}
+
+\item{loess}{should loess fit be added to Shepard plot}
 
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 
