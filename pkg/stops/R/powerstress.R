@@ -73,7 +73,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, wei
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
     xold <- init
-    if(is.null(init)) xold <- torgerson (delta, p = p)
+    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
     #xnorm <- enorm(xold)
     xold <- xold/enorm(xold) 
     n <- nrow (xold)
@@ -161,7 +161,6 @@ doubleCenter <- function(x) {
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
-#'
 #' @export
 torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
@@ -305,7 +304,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         }
     }
     if (plot.type == "Shepard") {
-        if(missing(col)) col <- c("grey60","grey50")
+        if(missing(col)) col <- c("grey60","grey50","black")
         if (missing(main)) 
             main <- paste("Linearized Shepard Diagram")
         else main <- main
@@ -326,13 +325,14 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         #graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
         #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
         #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
-        #pt <- predict(stats::loess(x$confdiss~-1+x$delta))
-        pt <- predict(stats::lm(x$confdiss~-1+x$delta))
+        pt <- predict(stats::loess(x$confdiss~-1+x$delta))
+        ptl <- predict(stats::lm(x$confdiss~-1+x$delta))
         graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
+        graphics::lines(x$delta[order(x$delta)],ptl[order(x$delta)],col=col[3],type="b",pch=20,cex=0.5)
        # graphics::abline(stats::lm(x$confdiss~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {
-             if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
+             if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
@@ -345,14 +345,17 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
              else ylab <- ylab
              if (missing(ylim))  ylim <- c(min(deltat,deltao),max(deltat,deltao))
              if (missing(xlim))  xlim <- c(min(dreal^kappa,dreal),max(dreal^kappa,dreal))
-            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,...)
-            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
-            pt <- predict(stats::lm(deltat~-1+I(dreal^kappa))) #with intercept not forcing thorugh 0
+            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim,pch=20)
+            #graphics::plot(deltat,dreal, main = main, type = "p", cex = 0.75, xlab = ylab, ylab = xlab, col = col[2], xlim = ylim, ylim = xlim,pch=20)
+            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1],pch=20)
+            pt <- predict(stats::lm(deltat~-1+I(dreal^kappa))) #with intercept forcing thorugh 0
+            #pt2 <- predict(stats::lm(deltat~I(dreal^kappa))) #with intercept not forcing thorugh 0 
             po <- predict(stats::lm(deltao~-1+I(dreal^kappa))) #with intercept
             #lines(deltat[order(deltat)],pt[order(deltat)],col=col[1],type="b",pch=20,cex=0.5)
             #lines(deltao[order(deltao)],po[order(deltao)],col=col[2],type="b",pch=20,cex=0.5)
-            graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
-            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
+            #graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
+            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3],type="b",pch=19,cex=0.25)
+            #graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=19,cex=0.25) 
             if(legend) {
                 if(missing(legpos)) legpos <- "topleft" 
                 graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
@@ -529,7 +532,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, we
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- torgerson (delta, p = p)
+    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
     xold <- xold/enorm(xold) 
     stressf <- function(x,delta,p,weightmat)
            {
