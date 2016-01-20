@@ -6,7 +6,7 @@
 \usage{
 cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = 1,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
-  minpts = 2, epsilon = 10, rang = NULL, verbose = 0, plot = FALSE,
+  minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
   normed = TRUE, scale = TRUE, stresstype = "default")
 }
 \arguments{
@@ -28,15 +28,13 @@ cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = 1,
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
+\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
 \item{rang}{range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
-
-\item{plot}{plot the cordillera}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 

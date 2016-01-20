@@ -6,9 +6,9 @@
 \usage{
 cop_powersammon(dis, theta = c(1, 1, -1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
-  q = 1, minpts = 2, epsilon = 10, rang = NULL, verbose = 0,
-  plot = FALSE, scale = TRUE, normed = TRUE, stresstype = c("default",
-  "stress1", "rawstress", "normstress", "enormstress", "enormstress1"))
+  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
+  scale = TRUE, normed = TRUE, stresstype = c("default", "stress1",
+  "rawstress", "normstress", "enormstress", "enormstress1"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -29,15 +29,13 @@ cop_powersammon(dis, theta = c(1, 1, -1), weightmat = 1 - diag(nrow(dis)),
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
+\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
 \item{rang}{range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
-
-\item{plot}{plot the cordillera}
 
 \item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
 

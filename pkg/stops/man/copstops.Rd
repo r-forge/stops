@@ -8,10 +8,10 @@ copstops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
   "sammon", "rstress", "powermds", "sstress", "elastic", "powersammon",
   "powerelastic", "powerstress", "sammon2", "powerstrain"), weightmat = NULL,
   ndim = 2, init = NULL, theta = c(1, 1, 1), stressweight = 1,
-  cordweight, q = 1, minpts = 2, epsilon = 10, rang,
+  cordweight, q = 1, minpts = ndim + 1, epsilon = 10, rang,
   optimmethod = c("ALJ", "pso", "SANN"), lower = c(1, 1, 0.5),
-  upper = c(5, 5, 2), verbose = 0, plot = FALSE, scale = TRUE,
-  normed = TRUE, s = 4, stresstype = "default", ...)
+  upper = c(5, 5, 2), verbose = 0, scale = TRUE, normed = TRUE, s = 4,
+  stresstype = "default", ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -37,7 +37,7 @@ copstops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
+\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
@@ -50,8 +50,6 @@ copstops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
 \item{upper}{The upper contraints of the search region}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
-
-\item{plot}{plot the cordillera}
 
 \item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
 

@@ -6,9 +6,9 @@
 \usage{
 coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 1, cordweight, q = 1, minpts = 2, epsilon = 10,
+  stressweight = 1, cordweight, q = 1, minpts = ndim + 1, epsilon = 10,
   rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"), verbose = 0,
-  scale = TRUE, normed = TRUE, eps = 1e-07, itmax = 1e+05, ...)
+  scale = TRUE, normed = TRUE, accuracy = 1e-07, itmax = 1e+05, ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}
@@ -33,7 +33,7 @@ coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
+\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
@@ -47,7 +47,7 @@ coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{eps}{accuracy, defulats to 1e-12}
+\item{accuracy}{numerical accuracy, defulats to 1e-12}
 
 \item{itmax}{maximum number of iterations. Defaults to 100000}
 
