@@ -1,6 +1,6 @@
 #' Power Stress SMACOF
 #'
-#' An implemenation to minimize power stress by nested majorization. So slow you should get a coffee. 
+#' An old implemenation to minimize power stress by nested majorization. So slow you should get a coffee. Possibly to be discontinued soon. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
@@ -57,8 +57,7 @@
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, defaultstress=stressen1) {
-    #TODO: I think this function is now largely compatible with smacofSym; the stress values coincide. Normalizations on the configuration and disatnces however is still calculated differently; perhaps that should be made so as to be similar (Patrick?)
+powerStressMinOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-10, itmax = 100000, verbose = FALSE, defaultstress=stressen1) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
@@ -589,3 +588,146 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, we
     class(out) <- c("smacofP","smacofB","smacof")
     out
 }
+
+#' Power Stress SMACOF
+#'
+#' An implementation to minimize power stress by minimization-majorization. 
+#' 
+#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
+#' @param kappa power of the transformation of the fitted distances; defaults to 1
+#' @param lambda the power of the transformation of the proximities; defaults to 1
+#' @param nu the power of the transformation for weightmat; defaults to 1 
+#' @param weightmat a matrix of finite weights
+#' @param init starting configuration
+#' @param ndim dimension of the configuration; defaults to 2
+#' @param eps numeric accuracy of the iteration
+#' @param itmax maximum number of iterations
+#' @param verbose should iteration output be printed; if > 1 then yes
+#'
+#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' \itemize{
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed dissimilarities, normalized 
+#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  
+#' \item spp: Stress per point (based on stress.en) 
+#' \item ndim: Number of dimensions
+#' \item model: Name of smacof model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item type: Type of MDS model
+#' }
+#' and some additional components
+#' \itemize{
+#' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.en: a mnaully calculated stress on the normalized, transformed dissimilarities and normalized transformed distances which is not correct
+#' \item deltaorig: observed, untransformed dissimilarities
+#' \item weightmat: weighting matrix 
+#'}
+#'
+#' @importFrom stats dist as.dist
+#' 
+#' @seealso \code{\link{smacofSym}}
+#' 
+#' @examples
+#' dis<-smacof::kinshipdelta
+#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5)
+#' res
+#' summary(res)
+#' plot(res)
+#' 
+#' @export
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-10, itmax = 100000, verbose = FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    r <- kappa/2
+    p <- ndim
+    deltaorig <- delta
+    delta <- delta^lambda
+    #weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat)
+    itel <- 1
+    xold <- init
+    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    xold <- xold / enorm (xold)
+    n <- nrow (xold)
+    nn <- diag (n)
+    dold <- sqdist (xold)
+    rold <- sum (weightmat * delta * mkPower (dold, r))
+    nold <- sum (weightmat * mkPower (dold, 2 * r))
+    aold <- rold / nold
+    sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
+    repeat {
+      p1 <- mkPower (dold, r - 1)
+      p2 <- mkPower (dold, (2 * r) - 1)
+      by <- mkBmat (weightmat * delta * p1)
+      cy <- mkBmat (weightmat * p2)
+      ga <- 2 * sum (weightmat * p2)
+      be <- (2 * r - 1) * (2 ^ r) * sum (weightmat * delta)
+      de <- (4 * r - 1) * (4 ^ r) * sum (weightmat)
+      if (r >= 0.5) {
+        my <- by - aold * (cy - de * nn)
+      }
+      if (r < 0.5) {
+        my <- (by - be * nn) - aold * (cy - ga * nn)
+      }
+      xnew <- my %*% xold
+      xnew <- xnew / enorm (xnew)
+      dnew <- sqdist (xnew)
+      rnew <- sum (weightmat * delta * mkPower (dnew, r))
+      nnew <- sum (weightmat * mkPower (dnew, 2 * r))
+      anew <- rnew / nnew
+      snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+      if (verbose>2) {
+        cat (
+          formatC (itel, width = 4, format = "d"),
+          formatC (
+            sold,
+            digits = 10,
+            width = 13,
+            format = "f"
+          ),
+          formatC (
+            snew,
+            digits = 10,
+            width = 13,
+            format = "f"
+          ),
+          "\n"
+        )
+      }
+      if ((itel == itmax) || ((sold - snew) < acc))
+        break ()
+      itel <- itel + 1
+      xold <- xnew
+      dold <- dnew
+      sold <- snew
+      aold <- anew
+     }
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
+     xnew <- xnew/enorm(xnew)
+     doutm <- mkPower(sqdist(xnew),r)
+     deltam <- delta
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm) #this is an issue here!
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     weightmatm <-weightmat
+     resmat <- weightmatm*as.matrix((delta - doute)^2) #BUG
+     spp <- colMeans(resmat) #BUG
+     weightmat <- stats::as.dist(weightmatm)
+     stressen <- sum(weightmat*(doute-delta)^2)
+     #not exaclty what is returned by snew. Why?
+     #stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized t
+     if(verbose>1) cat("*** stress (both normalized):",snew, "stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    class(out) <- c("smacofP","smacofB","smacof")
+    out
+  }
