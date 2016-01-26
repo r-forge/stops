@@ -1109,7 +1109,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
              stressi <- sum(weightmat*(ds-delta)^2)/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
              corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
- #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot=plot,scale=scale,...)
+ #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot,scale=scale,...)
              struc <- corrd$raw
              if(normed) {
                         struc <- corrd$normed

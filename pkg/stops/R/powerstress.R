@@ -459,7 +459,7 @@ print.summary.smacofP <- function(x,...)
     }
 
 
-#' Power stress minimization by NEWUOA
+#' Power stress minimization by NEWUOA (old version)
 #'
 #' An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing but perhaps slighly less accurate. 
 #' 
@@ -862,121 +862,121 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
     out
   }
 
-matchConf <- function (x,
-                       eps = 1e-6,
-                       itmax = 100,
-                       verbose = TRUE) {
-  m <- length (x)
-  n <- nrow (x[[1]])
-  p <- ncol (x[[1]])
-  itel <- 1
-  dold <- Inf
-  repeat {
-    y <- matrix (0, n, p)
-    for (k in 1:m)
-      y <- y + x[[k]]
-    y <- y / m
-    dnew <- 0
-    for (k in 1:m) {
-      s <- svd (crossprod(x[[k]], y))
-      x[[k]] <- tcrossprod (x[[k]] %*% (s$u), s$v)
-      dnew <- dnew + sum ((y - x[[k]]) ^ 2)
-    }
-    if (verbose) {
-      cat (
-        formatC (itel, width = 4, format = "d"),
-        formatC (
-          dold,
-          digits = 10,
-          width = 13,
-          format = "f"
-        ),
-        formatC (
-          dnew,
-          digits = 10,
-          width = 13,
-          format = "f"
-        ),
-        "\n"
-      )
-    }
-    if ((itel == itmax) || ((dold - dnew) < eps))
-      break ()
-    itel <- itel + 1
-    dold <- dnew
-  }
-  return (x)
-}
+## matchConf <- function (x,
+##                        eps = 1e-6,
+##                        itmax = 100,
+##                        verbose = TRUE) {
+##   m <- length (x)
+##   n <- nrow (x[[1]])
+##   p <- ncol (x[[1]])
+##   itel <- 1
+##   dold <- Inf
+##   repeat {
+##     y <- matrix (0, n, p)
+##     for (k in 1:m)
+##       y <- y + x[[k]]
+##     y <- y / m
+##     dnew <- 0
+##     for (k in 1:m) {
+##       s <- svd (crossprod(x[[k]], y))
+##       x[[k]] <- tcrossprod (x[[k]] %*% (s$u), s$v)
+##       dnew <- dnew + sum ((y - x[[k]]) ^ 2)
+##     }
+##     if (verbose) {
+##       cat (
+##         formatC (itel, width = 4, format = "d"),
+##         formatC (
+##           dold,
+##           digits = 10,
+##           width = 13,
+##           format = "f"
+##         ),
+##         formatC (
+##           dnew,
+##           digits = 10,
+##           width = 13,
+##           format = "f"
+##         ),
+##         "\n"
+##       )
+##     }
+##     if ((itel == itmax) || ((dold - dnew) < eps))
+##       break ()
+##     itel <- itel + 1
+##     dold <- dnew
+##   }
+##   return (x)
+## }
 
 
-rStressMin <-
-  function (delta,
-            w = 1 - diag (nrow (delta)),
-            p = 2,
-            r = 0.5,
-            eps = 1e-10,
-            itmax = 100000,
-            verbose = TRUE) {
-    delta <- delta / enorm (delta, w)
-    itel <- 1
-    xold <- torgerson (delta, p = p)
-    xold <- xold / enorm (xold)
-    n <- nrow (xold)
-    nn <- diag (n)
-    dold <- sqdist (xold)
-    rold <- sum (w * delta * mkPower (dold, r))
-    nold <- sum (w * mkPower (dold, 2 * r))
-    aold <- rold / nold
-    sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
-    repeat {
-      p1 <- mkPower (dold, r - 1)
-      p2 <- mkPower (dold, (2 * r) - 1)
-      by <- mkBmat (w * delta * p1)
-      cy <- mkBmat (w * p2)
-      ga <- 2 * sum (w * p2)
-      be <- (2 * r - 1) * (2 ^ r) * sum (w * delta)
-      de <- (4 * r - 1) * (4 ^ r) * sum (w)
-      if (r >= 0.5) {
-        my <- by - aold * (cy - de * nn)
-      }
-      if (r < 0.5) {
-        my <- (by - be * nn) - aold * (cy - ga * nn)
-      }
-      xnew <- my %*% xold
-      xnew <- xnew / enorm (xnew)
-      dnew <- sqdist (xnew)
-      rnew <- sum (w * delta * mkPower (dnew, r))
-      nnew <- sum (w * mkPower (dnew, 2 * r))
-      anew <- rnew / nnew
-      snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-      if (verbose) {
-        cat (
-          formatC (itel, width = 4, format = "d"),
-          formatC (
-            sold,
-            digits = 10,
-            width = 13,
-            format = "f"
-          ),
-          formatC (
-            snew,
-            digits = 10,
-            width = 13,
-            format = "f"
-          ),
-          "\n"
-        )
-      }
-      if ((itel == itmax) || ((sold - snew) < eps))
-        break ()
-      itel <- itel + 1
-      xold <- xnew
-      dold <- dnew
-      sold <- snew
-      aold <- anew
-    }
-    return (list (x = xnew,
-                  alpha = anew,
-                  sigma = snew,
-                  itel = itel))
-  }
+## rStressMin <-
+##   function (delta,
+##             w = 1 - diag (nrow (delta)),
+##             p = 2,
+##             r = 0.5,
+##             eps = 1e-10,
+##             itmax = 100000,
+##             verbose = TRUE) {
+##     delta <- delta / enorm (delta, w)
+##     itel <- 1
+##     xold <- torgerson (delta, p = p)
+##     xold <- xold / enorm (xold)
+##     n <- nrow (xold)
+##     nn <- diag (n)
+##     dold <- sqdist (xold)
+##     rold <- sum (w * delta * mkPower (dold, r))
+##     nold <- sum (w * mkPower (dold, 2 * r))
+##     aold <- rold / nold
+##     sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
+##     repeat {
+##       p1 <- mkPower (dold, r - 1)
+##       p2 <- mkPower (dold, (2 * r) - 1)
+##       by <- mkBmat (w * delta * p1)
+##       cy <- mkBmat (w * p2)
+##       ga <- 2 * sum (w * p2)
+##       be <- (2 * r - 1) * (2 ^ r) * sum (w * delta)
+##       de <- (4 * r - 1) * (4 ^ r) * sum (w)
+##       if (r >= 0.5) {
+##         my <- by - aold * (cy - de * nn)
+##       }
+##       if (r < 0.5) {
+##         my <- (by - be * nn) - aold * (cy - ga * nn)
+##       }
+##       xnew <- my %*% xold
+##       xnew <- xnew / enorm (xnew)
+##       dnew <- sqdist (xnew)
+##       rnew <- sum (w * delta * mkPower (dnew, r))
+##       nnew <- sum (w * mkPower (dnew, 2 * r))
+##       anew <- rnew / nnew
+##       snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+##       if (verbose) {
+##         cat (
+##           formatC (itel, width = 4, format = "d"),
+##           formatC (
+##             sold,
+##             digits = 10,
+##             width = 13,
+##             format = "f"
+##           ),
+##           formatC (
+##             snew,
+##             digits = 10,
+##             width = 13,
+##             format = "f"
+##           ),
+##           "\n"
+##         )
+##       }
+##       if ((itel == itmax) || ((sold - snew) < eps))
+##         break ()
+##       itel <- itel + 1
+##       xold <- xnew
+##       dold <- dnew
+##       sold <- snew
+##       aold <- anew
+##     }
+##     return (list (x = xnew,
+##                   alpha = anew,
+##                   sigma = snew,
+##                   itel = itel))
+##   }
