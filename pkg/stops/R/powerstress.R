@@ -171,19 +171,12 @@ torgerson <- function(delta, p = 2) {
 #'
 #' @param x numeric matrix 
 #' @param w weight
+#' @export
 enorm <- function (x, w=1) {
     return (sqrt (sum (w * (x ^ 2))))
 }
 
-#' Inverse explicit norm
-#'
-#' @param x numeric matrix 
-#' @param w weight
-ienorm <- function(x,w=1){
-    return(sum(w*sqrt(x))^2)
-}
-
-c#' Squared distances
+#' Squared distances
 #'
 #' @param x numeric matrix
 #' @export
@@ -589,7 +582,7 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
 
 #' Power stress minimization by NEWUOA
 #'
-#' An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing but perhaps slighly less accurate. 
+#' An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing as used in powerStressMin but perhaps less accurate. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
@@ -598,7 +591,7 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
-#' @param eps  The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.
+#' @param acc  The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.
 #' @param itmax maximum number of iterations
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
@@ -608,7 +601,7 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
 #' \item obsdiss: Observed dissimilarities, normalized 
 #' \item confdiss: Configuration dissimilarities, NOT normalized 
 #' \item conf: Matrix of fitted configuration, NOT normalized
-#' \item stress: Default stress  
+#' \item stress: Default stress (stress 1, square root of the explicitly normalized stress on the normalized, transformed dissimilarities)  
 #' \item spp: Stress per point (based on stress.en) 
 #' \item ndim: Number of dimensions
 #' \item model: Name of smacof model
@@ -619,15 +612,8 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
 #' and some additional components
 #' \itemize{
 #' \item gamma: Empty
-#' \item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the normalized, transformed dissimilarities
-#' \item stress.r: raw stress on the observed, transformed dissimilarities
-#' \item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
-#' \item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
-#' \item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
-#' \item stress.e: raw stress on the normalized, transformed dissimilarities
-#' \item stress.en: stress on the normalized, transformed dissimilarities and normalized transformed distances
-#' \item stress.en1: stress 1 on the normalized, transformed dissimilarities and normalized transformed distances; this is reported by the print ,ethod
-#' \item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.m: default stress for the COPS and STOP. Defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.en: explicitly stress on the normalized, transformed dissimilarities and normalized transformed distances
 #' \item deltaorig: observed, untransformed dissimilarities
 #' \item weightmat: weighting matrix 
 #'}
@@ -645,7 +631,7 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
 #' plot(res)
 #' 
 #' @export
-powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps = 1e-12, itmax = 100000, verbose = FALSE)
+powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc = 1e-12, itmax = 100000, verbose = FALSE)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -675,7 +661,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
              snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              snew
            }
-     optimized <- minqa::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),control=list(maxfun=itmax,rhoend=eps,iprint=verbose))
+     optimized <- minqa::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),control=list(maxfun=itmax,rhoend=acc,iprint=verbose))
      #optimized <- optim(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxit=itmax))
       xnew <- matrix(optimized$par,ncol=ndim)
       xnew <- xnew/enorm(xnew)
@@ -703,17 +689,8 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
       spp <- colMeans(resmat)
       weightmatm <-weightmat
       weightmat <- stats::as.dist(weightmatm)
-     #the following stress versions differ by how the distances and proximities are normalized; either both are normalized (stressen,stressen1), only proximities are normalized (stresse, stresse1), nothing is normalized (stressr, stressn, stresss)
-    # stressr <- sum(weightmat*(dout-deltaold)^2) #raw stress on the observed proximities
-    # stresse <- sum(weightmat*(dout-delta)^2) #raw stress on the normalized proximities
-     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
-#     stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
- #    stress1 <- sqrt(stressr/sum(weightmat*(dout^2)))  #stress 1 on the original proximities 
- #    stresse1 <- sqrt(stresse/sum(weightmat*(dout^2)))  #stress 1 on the normalized proximities
- #    stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
- #    stresss <- sqrt(stressn) #sqrt of stressn
-     if(verbose>1) cat("*** stress (both normalized):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (both normalized):",stressen,#"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"
-                       ";from optimization: ",optimized$fval,"\n")   
+      stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
+      if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",optimized$fval,"\n")   
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=p, model="Power Stress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
@@ -721,7 +698,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 
 #' Power Stress SMACOF
 #'
-#' An implementation to minimize power stress by minimization-majorization. 
+#' An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
@@ -730,7 +707,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
-#' @param eps numeric accuracy of the iteration
+#' @param acc numeric accuracy of the iteration
 #' @param itmax maximum number of iterations
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
@@ -740,7 +717,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' \item obsdiss: Observed dissimilarities, normalized 
 #' \item confdiss: Configuration dissimilarities, NOT normalized 
 #' \item conf: Matrix of fitted configuration, NOT normalized
-#' \item stress: Default stress  
+#' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item spp: Stress per point (based on stress.en) 
 #' \item ndim: Number of dimensions
 #' \item model: Name of smacof model
@@ -751,7 +728,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' and some additional components
 #' \itemize{
 #' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
-#' \item stress.en: a mnaully calculated stress on the normalized, transformed dissimilarities and normalized transformed distances which is not correct
+#' \item stress.en: a manually calculated stress on the normalized, transformed dissimilarities and normalized transformed distances which is not correct
 #' \item deltaorig: observed, untransformed dissimilarities
 #' \item weightmat: weighting matrix 
 #'}
@@ -854,129 +831,8 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
      spp <- colMeans(resmat) #BUG
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmat*(doute-delta)^2)
-     #not exaclty what is returned by snew. Why?
-     #stressen1 <- sqrt(sum(weightmat*(doute-delta)^2)/sum(weightmat*(doute^2))) # sqrt stress 1 on the normalized t
-     if(verbose>1) cat("*** stress (both normalized):",snew, "stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
+     if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
-
-## matchConf <- function (x,
-##                        eps = 1e-6,
-##                        itmax = 100,
-##                        verbose = TRUE) {
-##   m <- length (x)
-##   n <- nrow (x[[1]])
-##   p <- ncol (x[[1]])
-##   itel <- 1
-##   dold <- Inf
-##   repeat {
-##     y <- matrix (0, n, p)
-##     for (k in 1:m)
-##       y <- y + x[[k]]
-##     y <- y / m
-##     dnew <- 0
-##     for (k in 1:m) {
-##       s <- svd (crossprod(x[[k]], y))
-##       x[[k]] <- tcrossprod (x[[k]] %*% (s$u), s$v)
-##       dnew <- dnew + sum ((y - x[[k]]) ^ 2)
-##     }
-##     if (verbose) {
-##       cat (
-##         formatC (itel, width = 4, format = "d"),
-##         formatC (
-##           dold,
-##           digits = 10,
-##           width = 13,
-##           format = "f"
-##         ),
-##         formatC (
-##           dnew,
-##           digits = 10,
-##           width = 13,
-##           format = "f"
-##         ),
-##         "\n"
-##       )
-##     }
-##     if ((itel == itmax) || ((dold - dnew) < eps))
-##       break ()
-##     itel <- itel + 1
-##     dold <- dnew
-##   }
-##   return (x)
-## }
-
-
-## rStressMin <-
-##   function (delta,
-##             w = 1 - diag (nrow (delta)),
-##             p = 2,
-##             r = 0.5,
-##             eps = 1e-10,
-##             itmax = 100000,
-##             verbose = TRUE) {
-##     delta <- delta / enorm (delta, w)
-##     itel <- 1
-##     xold <- torgerson (delta, p = p)
-##     xold <- xold / enorm (xold)
-##     n <- nrow (xold)
-##     nn <- diag (n)
-##     dold <- sqdist (xold)
-##     rold <- sum (w * delta * mkPower (dold, r))
-##     nold <- sum (w * mkPower (dold, 2 * r))
-##     aold <- rold / nold
-##     sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
-##     repeat {
-##       p1 <- mkPower (dold, r - 1)
-##       p2 <- mkPower (dold, (2 * r) - 1)
-##       by <- mkBmat (w * delta * p1)
-##       cy <- mkBmat (w * p2)
-##       ga <- 2 * sum (w * p2)
-##       be <- (2 * r - 1) * (2 ^ r) * sum (w * delta)
-##       de <- (4 * r - 1) * (4 ^ r) * sum (w)
-##       if (r >= 0.5) {
-##         my <- by - aold * (cy - de * nn)
-##       }
-##       if (r < 0.5) {
-##         my <- (by - be * nn) - aold * (cy - ga * nn)
-##       }
-##       xnew <- my %*% xold
-##       xnew <- xnew / enorm (xnew)
-##       dnew <- sqdist (xnew)
-##       rnew <- sum (w * delta * mkPower (dnew, r))
-##       nnew <- sum (w * mkPower (dnew, 2 * r))
-##       anew <- rnew / nnew
-##       snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-##       if (verbose) {
-##         cat (
-##           formatC (itel, width = 4, format = "d"),
-##           formatC (
-##             sold,
-##             digits = 10,
-##             width = 13,
-##             format = "f"
-##           ),
-##           formatC (
-##             snew,
-##             digits = 10,
-##             width = 13,
-##             format = "f"
-##           ),
-##           "\n"
-##         )
-##       }
-##       if ((itel == itmax) || ((sold - snew) < eps))
-##         break ()
-##       itel <- itel + 1
-##       xold <- xnew
-##       dold <- dnew
-##       sold <- snew
-##       aold <- anew
-##     }
-##     return (list (x = xnew,
-##                   alpha = anew,
-##                   sigma = snew,
-##                   itel = itel))
-##   }
