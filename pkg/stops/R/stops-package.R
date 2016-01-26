@@ -65,9 +65,9 @@
 #' summary(ores)
 #' plot(ores)
 #' }
-
+#
 #' #OPTICS cordillera
-#' cres<-cordillera(res$conf)
+#' cres<-cordillera(res$fit$conf)
 #' cres
 #' summary(cres)
 #' plot(cres)

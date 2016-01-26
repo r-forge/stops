@@ -47,7 +47,7 @@ coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{accuracy}{numerical accuracy, defulats to 1e-12}
+\item{accuracy}{numerical accuracy, defaults to 1e-8}
 
 \item{itmax}{maximum number of iterations. Defaults to 100000}
 
@@ -76,7 +76,7 @@ dis<-as.matrix(smacof::kinshipdelta)
 res1<-coplossMin(dis,stressweight=0.5,cordweight=0.5) 
 res1
 summary(res1)
-plot(res1)
+plot(res1)  #super clustered
 
 }
 \keyword{clustering}

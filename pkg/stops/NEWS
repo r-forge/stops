@@ -1,6 +1,10 @@
+Version 0.0-29 
+
+- New versions of coplossMin and powerStressFast that slightly improve on the old version. API has been simplified and all the various stress versions have been removed. 
+
 Version 0.0-28
 
-- New implementation for PowerStressMin (the majorization version) based on Jan's new version of rStressMin. Old version delivered correct configuration but was buggy with the stress returned. The latter also holds for stress in coplossMin and powerStressFast - need to be fixed next week. 
+- New implementation for PowerStressMin (the majorization version) based on Jan's new version of rStressMin. Old version delivered correct configuration but was buggy with the stress returned.
 
 Version 0.0-27
 

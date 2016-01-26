@@ -112,8 +112,8 @@ Maintainer: Thomas Rusch
 \examples{
 data(BankingCrisesDistances)
 
-#COPS
-res<-cops(BankingCrisesDistances[,1:69])
+#shorthand function for COPS variant 2 (hyperparameter)
+res<-copstops(BankingCrisesDistances[,1:69])
 res
 summary(res)
 plot(res)
@@ -129,7 +129,7 @@ summary(ores)
 plot(ores)
 }
 #OPTICS cordillera
-cres<-cordillera(res$conf)
+cres<-cordillera(res$fit$conf)
 cres
 summary(cres)
 plot(cres)

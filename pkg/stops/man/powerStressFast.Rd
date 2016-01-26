@@ -4,10 +4,9 @@
 \alias{powerStressFast}
 \title{Power stress minimization by NEWUOA}
 \usage{
-powerStressFast(delta, kappa = 1, lambda = 1, nu = 1,
-  lambdamax = lambda, weightmat = 1 - diag(nrow(delta)), init = NULL,
-  ndim = 2, eps = 1e-12, itmax = 1e+05, verbose = FALSE,
-  defaultstress = stressen1)
+powerStressFast(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
+  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-12, itmax = 1e+05,
+  verbose = FALSE)
 }
 \arguments{
 \item{delta}{dist object or a symmetric, numeric data.frame or matrix of distances}
@@ -18,21 +17,17 @@ powerStressFast(delta, kappa = 1, lambda = 1, nu = 1,
 
 \item{nu}{the power of the transformation for weightmat; defaults to 1}
 
-\item{lambdamax}{the maximum power of the transformation of the proximities if there are more than one lambda - an upper bound idea; defaults to lambda}
-
 \item{weightmat}{a matrix of finite weights}
 
 \item{init}{starting configuration}
 
 \item{ndim}{dimension of the configuration; defaults to 2}
 
-\item{eps}{The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.}
+\item{acc}{The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.}
 
 \item{itmax}{maximum number of iterations}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
-
-\item{defaultstress}{the stress type to be reported by default; defaults to stress-1 for smacof compatibility}
 }
 \value{
 a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
@@ -41,7 +36,7 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 \item obsdiss: Observed dissimilarities, normalized 
 \item confdiss: Configuration dissimilarities, NOT normalized 
 \item conf: Matrix of fitted configuration, NOT normalized
-\item stress: Default stress  
+\item stress: Default stress (stress 1, square root of the explicitly normalized stress on the normalized, transformed dissimilarities)  
 \item spp: Stress per point (based on stress.en) 
 \item ndim: Number of dimensions
 \item model: Name of smacof model
@@ -52,21 +47,14 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 and some additional components
 \itemize{
 \item gamma: Empty
-\item stress.m: default stress for the COPS and STOP defaults to square root of the explicitly normalized stress on the normalized, transformed dissimilarities
-\item stress.r: raw stress on the observed, transformed dissimilarities
-\item stress.s: square root of the explicitly normalized stress on the observed, transformed dissimilarities
-\item stress.n: explicitly normalized stress on the observed, transformed dissimilarities
-\item stress.1: implicitly normalized stress on the observed, transformed dissimilarities
-\item stress.e: raw stress on the normalized, transformed dissimilarities
-\item stress.en: stress on the normalized, transformed dissimilarities and normalized transformed distances
-\item stress.en1: stress 1 on the normalized, transformed dissimilarities and normalized transformed distances; this is reported by the print ,ethod
-\item stress.e1: implicitly normalized stress on the normalized, transformed dissimilarities
+\item stress.m: default stress for the COPS and STOP. Defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+\item stress.en: explicitly stress on the normalized, transformed dissimilarities and normalized transformed distances
 \item deltaorig: observed, untransformed dissimilarities
 \item weightmat: weighting matrix 
 }
 }
 \description{
-An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing but perhaps slighly less accurate.
+An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing as used in powerStressMin but perhaps less accurate.
 }
 \examples{
 dis<-smacof::kinshipdelta
