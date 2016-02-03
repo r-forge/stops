@@ -799,7 +799,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'plot(res2,"reachplot")
 #'
 #'
-#' #Actually what we do here generalizes what De Leuuw et al (2016) do manually: Their example 7.2.
+#'# From De Leuuw et al (2016) example 7.2.
+#'#They look at different rstress versions and compare how clustered the configuration is
+#'#where stress is minimal and that stress is a monotonically increasing function of r;
 #' dats <- c(5.63,5.27, 6.72,4.60, 5.64, 5.46,4.80, 6.22, 4.97, 3.20,7.54 ,5.12, 8.13, 7.84 ,7.80, 6.73 ,4.59 ,7.55, 6.73, 7.08, 4.08, 7.18 ,7.22 ,6.90 ,7.28 ,6.96 ,6.34 ,6.88, 6.17, 5.47, 4.67, 6.13, 6.04 ,7.42, 6.36, 7.36)
 #'num_cols <- (1 + sqrt(1 + 8*length(dats)))/2 - 1
 #'mat <- matrix(0, num_cols, num_cols)
@@ -810,8 +812,25 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'colnames(mat) <- rownames(mat) <- c(" KVP", "PvdA" , "VVD" , "ARP" , "CHU" , "CPN" , "PSP" ,  "BP", "D66")
 #'dobj <- as.dist(mat)
 #'dobj
-#' m1 <- copstops(dobj,loss="rstress",lower=c(1,1,1),upper=c(5,1,1),verbose=3)
-#' #Optimal transformation for clusteredness is kappa=4.86 which is r=
+#'#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r=0.17 (kappa=0.34)
+#'#and that stress appears thus not monotonically increasing in r
+#' set.seed(210485)
+#' m1 <- copstops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
+#' m1
+#'# They observe increasing clustering for larger r qhich we can again do systematically:
+#'# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of minimally k=2 and k=4 observations
+#' set.seed(210485)
+#' m2 <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
+#' m4 <- copstops(dobj,loss="rstress",minpts=4,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
+#' m2   #r=1.24
+#' m4   #r=1.72
+#'# But note that this can have up to choose(9,k) non-unique global minima so this strategy is in general not clever
+#'# So it is generally better is to trade off clusteredness and fit which will almost surely have a unique minimum
+#' set.seed(210485)
+#' m2t <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0.2,stressweight=0.8)
+#' m4t <- copstops(dobj,loss="rstress",minpts=4,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0.2,stressweight=0.8)
+#' m2t #r=
+#' m4t #r=
 #'}
 #'
 #' @importFrom stats dist as.dist optim
