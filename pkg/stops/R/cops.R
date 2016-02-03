@@ -798,7 +798,6 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'plot(res1,"reachplot")
 #'plot(res2,"reachplot")
 #'
-#'
 #'# From De Leuuw et al (2016) example 7.2.
 #'#They look at different rstress versions and compare how clustered the configuration is
 #'#where stress is minimal and that stress is a monotonically increasing function of r;
@@ -812,25 +811,25 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'colnames(mat) <- rownames(mat) <- c(" KVP", "PvdA" , "VVD" , "ARP" , "CHU" , "CPN" , "PSP" ,  "BP", "D66")
 #'dobj <- as.dist(mat)
 #'dobj
-#'#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r=0.17 (kappa=0.34)
+#'#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r~=0.17 (kappa~=0.34)
 #'#and that stress appears thus not monotonically increasing in r
 #' set.seed(210485)
 #' m1 <- copstops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
 #' m1
-#'# They observe increasing clustering for larger r qhich we can again do systematically:
-#'# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of minimally k=2 and k=4 observations
+#'# They observe increasing clustering for larger r which we can again do systematically:
+#'# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of at least k=2 and k=3 observations
 #' set.seed(210485)
 #' m2 <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
-#' m4 <- copstops(dobj,loss="rstress",minpts=4,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
-#' m2   #r=1.24
-#' m4   #r=1.72
-#'# But note that this can have up to choose(9,k) non-unique global minima so this strategy is in general not clever
-#'# So it is generally better is to trade off clusteredness and fit which will almost surely have a unique minimum
+#' m3 <- copstops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
+#' m2   #r~=1.24
+#' m3   #r~=1.39
+#'
+#'# It is generally better to trade off clusteredness and fit
 #' set.seed(210485)
-#' m2t <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0.2,stressweight=0.8)
-#' m4t <- copstops(dobj,loss="rstress",minpts=4,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0.2,stressweight=0.8)
-#' m2t #r=
-#' m4t #r=
+#' m2t <- copstops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+#' m3t <- copstops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+#' m2t #r~=0.08
+#' m4t #r~=0.065
 #'}
 #'
 #' @importFrom stats dist as.dist optim
