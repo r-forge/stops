@@ -829,7 +829,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' m2t <- copstops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
 #' m3t <- copstops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
 #' m2t #r~=0.08
-#' m4t #r~=0.065
+#' m4t #r~=1.39
 #'}
 #'
 #' @importFrom stats dist as.dist optim
