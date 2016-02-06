@@ -576,3 +576,270 @@ par(mfrow=c(1,2))
 plot(res1)
 plot(res2)
 plot(res3)
+
+
+#################testing Bayesian Optimziation
+
+library(DiceOptim)
+d <- 2
+n <- 10
+set.seed(0)
+design <- optimumLHS(n, d)
+design <- data.frame(design)
+names(design) <- c("lambda", "kappa")
+response.branin <- apply(design, 1, branin)
+fitted.model1 <- km(design = design, response = response.branin)
+
+###################################################
+x.grid <- y.grid <- seq(0, 1, length = n.grid <- 25)
+design.grid <- expand.grid(x.grid, y.grid)
+EI.grid <- apply(design.grid, 1, EI, fitted.model1)
+
+
+###################################################
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 20)
+points(design[,1], design[,2], pch = 17, col = "blue")
+
+
+###################################################
+design1 <- design
+EI.grid1 <- EI.grid
+
+set.seed(0)
+design <- randomLHS(n, d)
+design <- data.frame(design)
+names(design) <- c("x1", "x2")
+response.branin <- apply(design, 1, branin)
+fitted.model <- km(design = design, response = response.branin)
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
+design2 <- design
+EI.grid2 <- EI.grid
+
+set.seed(100)
+design <- randomLHS(n, d)
+design <- data.frame(design)
+names(design)<- c("x1", "x2")
+response.branin <- apply(design, 1, branin)
+fitted.model <- km(design = design, response = response.branin)
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
+design3 <- design
+EI.grid3 <- EI.grid
+design <- design1
+EI.grid <- EI.grid1
+
+###################################################
+par(mfrow = c(1,3))
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 20)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+z.grid2 <- matrix(EI.grid2, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid2, 20)
+points(design2[,1], design2[ , 2], pch = 17, col = "blue")
+z.grid3 <- matrix(EI.grid3, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid3, 20)
+points(design3[ , 1], design3[ , 2], pch = 17, col = "blue")
+
+
+
+d <- 2
+nsteps <- 10
+lower <- rep(0, d)
+upper <- rep(1, d)     
+oEGO <- EGO.nsteps(model = fitted.model1, fun = branin, nsteps = nsteps, 
+  lower, upper, control = list(pop.size = 20, BFGSburnin = 2))
+
+par(mfrow = c(1, 2))
+response.grid <- apply(design.grid, 1, branin)
+z.grid <- matrix(response.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 40)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
+EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 20)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+
+
+###################################################
+hartman6.log <- function(x) {-log(-hartman6(x))}
+data(mydata)
+X.total <- matrix(unlist(mydata), 50, 6)
+nb <- 50
+X <- X.total[1:nb, ]
+y <- apply(X, 1, hartman6.log) 
+
+
+###################################################
+hartman6.mm <- km(design = data.frame(X), response = y, 
+  control = list(pop.size = 50,  max.generations = 20, wait.generations = 5, 
+  BFGSburnin = 5), optim.method = "gen")
+
+
+###################################################
+nsteps <- 50
+# don't run
+# res.nsteps <- EGO.nsteps(model = hartman6.mm, fun = hartman6.log, 
+# nsteps = nsteps, lower = rep(0, 6), upper = rep(1, 6), 
+# parinit = rep(0.5, 6), control = list(pop.size = 50, 
+# max.generations = 20, wait.generations = 5, 
+# BFGSburnin = 5), kmcontrol = NULL)
+#
+# To be compared with the current minimum of Harman6:
+hartman6.min <- -3.32
+
+
+
+
+##########
+library(DiceOptim)
+library(stops)
+d <- 2   #dimensions
+n <- 10  #starting points
+set.seed(0)
+design <- randomLHS(n, d)
+#design <- optimumLHS(n, d) #optimal design
+design <- data.frame(design)  
+names(design) <- c("kappa", "lambda")
+data(kinshipdelta)
+
+
+funo <- function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=1)$stress
+
+response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
+fitted.model1 <- km(design = design, response = response.branin)
+
+###################################################
+x.grid <- y.grid <- seq(0.0001, 1, length = n.grid <- 25)
+design.grid <- expand.grid(x.grid, y.grid)
+EI.grid <- apply(design.grid, 1, EI, fitted.model1)
+
+
+###################################################
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 20)
+points(design[,1], design[,2], pch = 17, col = "blue")
+
+
+###################################################
+design1 <- design
+EI.grid1 <- EI.grid
+
+set.seed(666)
+design <- randomLHS(n, d)
+design <- data.frame(design)
+names(design) <- c("kappa", "lambda")
+response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
+fitted.model <- km(design = design, response = response.branin)
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
+design2 <- design
+EI.grid2 <- EI.grid
+
+set.seed(100)
+design <- randomLHS(n, d)
+design <- data.frame(design)
+names(design)<- c("kappa", "lambda")
+response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
+fitted.model <- km(design = design, response = response.branin)
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
+design3 <- design
+EI.grid3 <- EI.grid
+design <- design1
+EI.grid <- EI.grid1
+
+###################################################
+par(mfrow = c(1,3))
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid, 20)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+z.grid2 <- matrix(EI.grid2, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid2, 20)
+points(design2[,1], design2[ , 2], pch = 17, col = "blue")
+z.grid3 <- matrix(EI.grid3, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid3, 20)
+points(design3[ , 1], design3[ , 2], pch = 17, col = "blue")
+
+
+library(DiceOptim)
+d <- 2   #dimensions
+n <- 10
+set.seed(0)
+design <- randomLHS(n, d) #optimal design
+design <- data.frame(design)  
+names(design) <- c("kappa", "lambda")
+library(stops)
+data(kinshipdelta)
+funo <- function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=1)$stress
+funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
+
+response.post <- apply(design, 1, funo)
+response.postc <- apply(design, 1, funo)
+
+response.ban <- apply(design, 1, fbana)
+fitted.model1 <- km(y~1,design = design, response = response.postc, lower=rep(.0001,d), upper=rep(1,d))
+
+###################################################
+x.grid <- y.grid <- seq(0.00001, 1, length = n.grid <- 10)
+design.grid <- expand.grid(x.grid, y.grid)
+EI.grid <- apply(design.grid, 1, EI, fitted.model1)
+
+
+
+nsteps <- 50
+lower <- rep(0.0001, d)
+upper <- rep(1, d)
+
+oEGO <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
+
+#oEGO <- qEGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
+
+response.grid <- apply(design.grid, 1, funo)
+par(mfrow = c(1, 2))
+z.grid <- matrix(response.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid,40,main=paste("optimum at",round(min(oEGO$value),6)))
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
+points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19,col="green")
+#text(oEGO2$par[ , 1], oEGO2$par[ , 2], labels = 1:nsteps, pos = 3)
+EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid,40)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
+
+funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
+
+noise.var <- 0.01
+fitted.model2 <- km(y~1, design=design, response=response.postc,
+          covtype="gauss", noise.var=rep(noise.var,1,n), 
+          lower=rep(.0001,d), upper=rep(1,d), control=list(trace=FALSE))
+
+optim.param <- list()
+optim.param$quantile <- 0.95
+nsteps <- 100
+
+nEGO <- noisy.optimizer(optim.crit="EQI",model = fitted.model2, optim.param=optim.param, n.ite=nsteps, funnoise = funo, lower=lower, upper=upper,noise.var=noise.var,NoiseReEstimate=FALSE, CovReEstimate=FALSE)
+
+par(mfrow = c(1, 2))
+#response.grid <- apply(design.grid, 1, funo)
+z.grid <- matrix(response.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid,40,main=paste("optimum at",round(nEGO$best.y,6)))
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(t(nEGO$history.x), pch = 19, col = "red")
+points(nEGO$best.x[1],nEGO$best.x[2], pch = 19, col = "green")
+text(t(nEGO$history.x)[ , 1], t(nEGO$history.x)[ , 2], labels = 1:nsteps, pos = 3)
+EI.grid <- apply(design.grid, 1, EI, nEGO$model)
+z.grid <- matrix(EI.grid, n.grid, n.grid)
+contour(x.grid, y.grid, z.grid)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(nEGO$history.x, pch = 19, col = "red")
+points(nEGO2$best.x, pch = 19, col = "green")
+
+test <- ljoptim(c(0.5,0.5),funo,lower=lower,upper=upper,itmax=100)
+
+
+res1<-ljoptim(c(0.8,0.2),fbana,lower=0,upper=1,accd=1e-16,acc=1e-16)
