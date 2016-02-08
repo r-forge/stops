@@ -765,48 +765,72 @@ points(design3[ , 1], design3[ , 2], pch = 17, col = "blue")
 library(DiceOptim)
 d <- 2   #dimensions
 n <- 10
+lambdamax <- 6
+kappamax <- 3
 set.seed(0)
-design <- randomLHS(n, d) #optimal design
+design <- randomLHS(n, d)
+design <- maximinLHS(n, d)
+design <- optimumLHS(n, d)
+design <- design*matrix(c(kappamax,lambdamax),byrow=TRUE,ncol=dim(design)[2],nrow=dim(design)[1]) #to the support of lambda and kappa
 design <- data.frame(design)  
 names(design) <- c("kappa", "lambda")
 library(stops)
 data(kinshipdelta)
-funo <- function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=1)$stress
+#funo <- function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=1)$stress
 funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
 
-response.post <- apply(design, 1, funo)
+#response.post <- apply(design, 1, funo)
 response.postc <- apply(design, 1, funo)
 
-response.ban <- apply(design, 1, fbana)
-fitted.model1 <- km(y~1,design = design, response = response.postc, lower=rep(.0001,d), upper=rep(1,d))
+lower <- rep(0.001, d)
+upper <- c(kappamax,lambdamax)
+
+#response.ban <- apply(design, 1, fbana)
+fitted.model <- km(~1,design = design, response = response.postc, lower=rep(.0001,d), upper=upper) #Uses matern(5/2) as covariance function and constant trend #may be okay  
+fitted.model <- km(~1,design = design, response = response.postc, covtype="gauss", lower=rep(.0001,d), upper=uper)) #Uses gauss as covariance function and constant trend #-> squared exponential probably too smooth
+fitted.model <- km(~1,design = design, response = response.postc, covtype="matern3_2", lower=rep(.0001,d), upper=uper) #Uses matern(3/2) as covariance function and constant trend #may be better than 5_2
+fitted.model <- km(~1,design = design, response = response.postc,covtype="exp", lower=rep(.0001,d), upper=upper) #Uses exponential as covariance function and constant trend #likely good as its very rough (is Mattern v=1/2) -> Ornstein Uhlenbeck process but perhaps too slow
+fitted.model <- km(~1,design = design, response = response.postc,covtype="powexp", lower=rep(.0001,d), upper=upper) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
+#See http://www.gaussianprocess.org/gpml/chapters/RW4.pdf for covtypes
+
+
+#check whether with or without scaling
+fitted.model <- km(~1,design = design, response = response.postc,covtype="powexp", lower=rep(.0001,d), upper=upper,scaling=TRUE)
+
+
+
+
 
 ###################################################
-x.grid <- y.grid <- seq(0.00001, 1, length = n.grid <- 10)
+x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
+y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
 design.grid <- expand.grid(x.grid, y.grid)
-EI.grid <- apply(design.grid, 1, EI, fitted.model1)
-
-
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
 
 nsteps <- 50
-lower <- rep(0.0001, d)
-upper <- rep(1, d)
+oEGO <- EGO.nsteps(model = fitted.model, fun = funo, nsteps = nsteps, lower, upper)
+#oEGO <- qEGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper,npoints=2)
 
-oEGO <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
+response.grid <- tryCatch(apply(design.grid, 1, funo),error=function(e) NA)
+save(response.grid,"respgrid.rda")
 
-#oEGO <- qEGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
-
-response.grid <- apply(design.grid, 1, funo)
 par(mfrow = c(1, 2))
-z.grid <- matrix(response.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid,40,main=paste("optimum at",round(min(oEGO$value),6)))
+z.grid <- matrix(response.grid, n.gridx, n.gridy)
+contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(oEGO$value),6)))
 points(design[ , 1], design[ , 2], pch = 17, col = "blue")
 points(oEGO$par, pch = 19, col = "red")
 text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
 points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19,col="green")
 #text(oEGO2$par[ , 1], oEGO2$par[ , 2], labels = 1:nsteps, pos = 3)
+
+library(rgl)
+persp3d(x=x.grid, y=y.grid, z=z.grid)
+#plot3d(x=x.grid, y=y.grid, z=z.grid)
+
+
 EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid,40)
+z.grid <- matrix(EI.grid, n.gridx, n.gridy)
+contour(x.grid, y.grid, z.grid, 40)
 points(design[ , 1], design[ , 2], pch = 17, col = "blue")
 points(oEGO$par, pch = 19, col = "red")
 points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
