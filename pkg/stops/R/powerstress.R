@@ -202,10 +202,25 @@ mkBmat <- function (x) {
 #' @param r numeric (power)
 #'
 #' @export
+mkPowerALTERN<-function(x,r) {
+    n<-nrow(x)
+    tmp <- abs((x+diag(n))^r)-diag(n)
+    tmp[!is.finite(tmp)] <- 1e+100
+    return(tmp)
+}
+
+#' MakePower Old
+#'
+#' @param x matrix
+#' @param r numeric (power)
+#'
+#' @export
 mkPower<-function(x,r) {
     n<-nrow(x)
-    return(abs((x+diag(n))^r)-diag(n))
+    tmp <- abs((x+diag(n))^r)-diag(n)
+    return(tmp)
 }
+
 
 #' Secular Equation 
 #'
@@ -790,6 +805,13 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
       snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+      if(is.na(snew)) #if there are issues with the values
+          {
+              snew <- sold
+              dnew <- dold
+              anew <- aold
+              xnew <- xold
+          }   
       if (verbose>2) {
         cat (
           formatC (itel, width = 4, format = "d"),
@@ -808,6 +830,14 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
           "\n"
         )
       }
+#      if(is.na(snew)) #to avoid numerical issues if there are zeros somewhere 
+#         {
+            #  break ()
+            #  xnew <- xold
+            #  dnew <- dold
+            #  sold <- snew
+            #  aold <- anew
+         # }
       if ((itel == itmax) || ((sold - snew) < acc))
         break ()
       itel <- itel + 1

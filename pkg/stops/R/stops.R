@@ -818,7 +818,7 @@ mkPower2<-function(x,theta) {
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
 #' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.   
-#' @param optimmethod What general purpose optimizer to use? Defaults to our ALJ version
+#' @param optimmethod What general purpose optimizer to use? Currently supported are Bayesian optimization (BO) with Gausssian process prior, Adaptive LJ Search (ALJ), Particle Swarm optimization (pso) and simulated annealing (SANN). Defaults to ALJ version.
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
@@ -850,8 +850,9 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","BO"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
     {
+      #get rid of stresstype  
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
           structures <- "clinearity"
@@ -874,18 +875,43 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
        opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,method="SANN",...)
+        thetaopt <- opt$par
       }
        if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
         opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,control=control)
+         thetaopt <- opt$par
+         bestval <-  opt$value
        }
-      if(optimmethod=="ALJ")  opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,verbose=verbose-2,...
-  )   
+      if(optimmethod=="ALJ")  {
+         opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,verbose=verbose-2,...)
     thetaopt <- opt$par
+    bestval <-  opt$value
+    }    
+    if(optimmethod=="BO")
+    {
+        addargs <- list(...)
+        d <- length(theta)   #dimensions
+        if(missing(n)) n <- 10 #number of points to fit model
+        maxvals <- upper
+        design <- optimumLHS(n, d) #optimal latin hypercuve 
+        design <- design*matrix(maxvals,byrow=TRUE,ncol=dim(design)[2],nrow=dim(design)[1]) #to the support of the maximum values
+        design <- data.frame(design)  
+        names(design) <- c("kappa", "lambda")
+        response.postc <- apply(design, 1, do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss)
+        if(isNULL(addargs$covtype)) addargs$covtype <- "powexp" #had best performance in tests
+        fitted.model <- DiceKriging::km(~1, design = design, response = response.postc, lower=lower, upper=upper,covtype=addargs$covtype) #may fail if upper and lower are too large; TODO a fix for that
+        nsteps <- addargs$nsteps
+        if(isNULL(addargs$nsteps)) nsteps <- 50 #so 60 evaluations over all
+        control <- list(trace=isTRUE(verbose-2>0),addargs)
+        opt<- DiceOptim::EGO.nsteps(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,control=control,nsteps=nsteps)
+       thetaopt <- opt$par[which.min(opt$value),]
+       bestval <- min(opt$value)                          
+       }    
     #refit optimal model  
     out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))
-    out$stoploss <- opt$value
+    out$stoploss <- bestval
     out$optim <- opt
     out$stressweight <- stressweight
     out$strucweight <- strucweight

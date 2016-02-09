@@ -1,3 +1,7 @@
+Version 0.0-30 
+
+- Added Bayesian optimization capabilities; fixed bug in powerStressMin for when to points coincide exactly.
+
 Version 0.0-29 
 
 - New versions of coplossMin and powerStressFast that slightly improve on the old version. API has been simplified and all the various stress versions have been removed. 
