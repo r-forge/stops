@@ -782,7 +782,7 @@ funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclustere
 #response.post <- apply(design, 1, funo)
 response.postc <- apply(design, 1, funo)
 
-lower <- rep(0.001, d)
+lower <- rep(0.2, d)
 upper <- c(kappamax,lambdamax)
 
 #response.ban <- apply(design, 1, fbana)
@@ -807,16 +807,16 @@ y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
 design.grid <- expand.grid(x.grid, y.grid)
 EI.grid <- apply(design.grid, 1, EI, fitted.model)
 
-nsteps <- 50
+nsteps <- 20
 oEGO <- EGO.nsteps(model = fitted.model, fun = funo, nsteps = nsteps, lower, upper)
 #oEGO <- qEGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper,npoints=2)
 
-response.grid <- tryCatch(apply(design.grid, 1, funo),error=function(e) NA)
-save(response.grid,"respgrid.rda")
+response.grid <- apply(design.grid, 1, function(x) tryCatch(funo(x),error=function(e) NA))
+save(response.grid,file="respgrid.rda")
 
 par(mfrow = c(1, 2))
 z.grid <- matrix(response.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(oEGO$value),6)))
+contour(x.grid, y.grid, z.grid, 40)# main=paste("optimum at",round(min(oEGO$value),6)))
 points(design[ , 1], design[ , 2], pch = 17, col = "blue")
 points(oEGO$par, pch = 19, col = "red")
 text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
@@ -843,7 +843,7 @@ fitted.model2 <- km(y~1, design=design, response=response.postc,
           lower=rep(.0001,d), upper=rep(1,d), control=list(trace=FALSE))
 
 optim.param <- list()
-optim.param$quantile <- 0.95
+optim.param$quantile <- 0.99
 nsteps <- 100
 
 nEGO <- noisy.optimizer(optim.crit="EQI",model = fitted.model2, optim.param=optim.param, n.ite=nsteps, funnoise = funo, lower=lower, upper=upper,noise.var=noise.var,NoiseReEstimate=FALSE, CovReEstimate=FALSE)
