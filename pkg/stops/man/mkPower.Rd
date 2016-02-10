@@ -2,7 +2,7 @@
 % Please edit documentation in R/powerstress.R
 \name{mkPower}
 \alias{mkPower}
-\title{MakePower}
+\title{MakePower Old}
 \usage{
 mkPower(x, r)
 }
@@ -12,6 +12,6 @@ mkPower(x, r)
 \item{r}{numeric (power)}
 }
 \description{
-MakePower
+MakePower Old
 }
 

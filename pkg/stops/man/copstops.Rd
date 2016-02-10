@@ -102,8 +102,9 @@ par(mfrow=c(1,2))
 plot(res1,"reachplot")
 plot(res2,"reachplot")
 
-
-#Actually what we do here generalizes what De Leuuw et al (2016) do manually: Their example 7.2.
+# From De Leuuw et al (2016) example 7.2.
+#They look at different rstress versions and compare how clustered the configuration is
+#where stress is minimal and that stress is a monotonically increasing function of r;
 dats <- c(5.63,5.27, 6.72,4.60, 5.64, 5.46,4.80, 6.22, 4.97, 3.20,7.54 ,5.12, 8.13, 7.84 ,7.80, 6.73 ,4.59 ,7.55, 6.73, 7.08, 4.08, 7.18 ,7.22 ,6.90 ,7.28 ,6.96 ,6.34 ,6.88, 6.17, 5.47, 4.67, 6.13, 6.04 ,7.42, 6.36, 7.36)
 num_cols <- (1 + sqrt(1 + 8*length(dats)))/2 - 1
 mat <- matrix(0, num_cols, num_cols)
@@ -114,8 +115,25 @@ mat <- cbind(mat, 0)
 colnames(mat) <- rownames(mat) <- c(" KVP", "PvdA" , "VVD" , "ARP" , "CHU" , "CPN" , "PSP" ,  "BP", "D66")
 dobj <- as.dist(mat)
 dobj
-m1 <- copstops(dobj,loss="rstress",lower=c(1,1,1),upper=c(5,1,1),verbose=3)
-#Optimal transformation for clusteredness is kappa=4.86 which is r=
+#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r~=0.17 (kappa~=0.34)
+#and that stress appears thus not monotonically increasing in r
+set.seed(210485)
+m1 <- copstops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
+m1
+# They observe increasing clustering for larger r which we can again do systematically:
+# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of at least k=2 and k=3 observations
+set.seed(210485)
+m2 <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
+m3 <- copstops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
+m2   #r~=1.24
+m3   #r~=1.39
+
+# It is generally better to trade off clusteredness and fit
+set.seed(210485)
+m2t <- copstops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+m3t <- copstops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+m2t #r~=0.08
+m4t #r~=1.39
 }
 
 }

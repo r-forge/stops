@@ -9,8 +9,7 @@ stop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
   strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"),
-  stresstype = "default")
+  verbose = 0, type = c("additive", "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -36,8 +35,6 @@ stop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{type}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
-
-\item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }
 \value{
 A list with the components

@@ -9,9 +9,7 @@ stop_powermds(dis, theta = c(1, 1, 1), weightmat = NULL, init = NULL,
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
   strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"),
-  stresstype = c("default", "stress1", "rawstress", "normstress",
-  "enormstress", "enormstress1"))
+  verbose = 0, type = c("additive", "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -37,8 +35,6 @@ stop_powermds(dis, theta = c(1, 1, 1), weightmat = NULL, init = NULL,
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{type}{which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'.}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normalized stress}
 }
 \value{
 A list with the components

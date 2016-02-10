@@ -779,6 +779,9 @@ funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclustere
 
 response.postc <- apply(design, 1, funo)
 
+response.postc <- apply(design, 1, do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
+
+
 lower <- rep(0.001, d)
 upper <- c(kappamax,lambdamax)
 
@@ -787,10 +790,12 @@ fitted.model1 <- km(~1,design = design, response = response.postc, lower=lower, 
 fitted.model2 <- km(~1,design = design, response = response.postc, covtype="gauss", lower=lower, upper=upper) #Uses gauss as covariance function and constant trend #-> squared exponential probably too smooth
 fitted.model3 <- km(~1,design = design, response = response.postc, covtype="matern3_2", lower=lower, upper=upper) #Uses matern(3/2) as covariance function and constant trend #may be better than 5_2
 fitted.model4 <- km(~1,design = design, response = response.postc,covtype="exp", lower=lower, upper=upper) #Uses exponential as covariance function and constant trend #likely good as its very rough (is Mattern v=1/2) -> Ornstein Uhlenbeck process but perhaps too slow
-fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp", lower=lower, upper=c(2,2)) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
+fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",control=list(trace=FALSE)) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
 #See http://www.gaussianprocess.org/gpml/chapters/RW4.pdf for covtypes
 
-fitted.model <- fitted.model1
+fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",upper=c(2,2),control=)
+
+fitted.model <- fitted.model5
 
 ###################################################
 x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
@@ -798,13 +803,19 @@ y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
 design.grid <- expand.grid(x.grid, y.grid)
 EI.grid <- apply(design.grid, 1, EI, fitted.model)
 
-nsteps <- 50
+nsteps <- 10
 set.seed(210485)
 oEGO1 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
 oEGO2 <- EGO.nsteps(model = fitted.model2, fun = funo, nsteps = nsteps, lower, upper)
 oEGO3 <- EGO.nsteps(model = fitted.model3, fun = funo, nsteps = nsteps, lower, upper)
 oEGO4 <- EGO.nsteps(model = fitted.model4, fun = funo, nsteps = nsteps, lower, upper)
-oEGO5 <- EGO.nsteps(model = fitted.model5, fun = funo, nsteps = nsteps, lower, upper)
+oEGO5 <- EGO.nsteps(model = fitted.model5, fun = funo, nsteps = nsteps, lower, upper,control=list(trace=FALSE),kmcontrol=list(trace=FALSE))
+
+logs <- capture.output({
+    oEGO5 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps,lower,upper=c(2,2));
+})
+logs
+oEGO5
 
 #response.grid <- apply(design.grid, 1, function(x) tryCatch(funo(x),error=function(e) NA))
 #save(response.grid,file="respgrid.rda")
@@ -836,3 +847,133 @@ points(design[ , 1], design[ , 2], pch = 17, col = "blue")
 points(oEGO$par, pch = 19, col = "red")
 points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
 
+
+#test for in STOPS.R
+library(DiceOptim)
+library(stops)
+loss <- "powerstrain" #tested, works
+loss <- "powermds" #tested, works
+loss <- "powerstress" #tested, works
+psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress) #choose the stress to minimize
+structures <- c("clinearity","cclusteredness")
+strucpars <- vector("list",length(structures))
+dis <- kinshipdelta
+weightmat <- 1-diag(dim(dis)[1])
+type <- "additive"
+.confin <- NULL
+strucweight <- rep(-1/length(structures),length(structures))
+optimmethod <- "BO"
+theta <- 1
+ndim <- 2
+stressweight <- 0.5
+verbose <- 4
+lower <- c(0.5,0.7,-0.5)
+upper <- c(2,4,2)
+optdim <- 3 #dimensions
+ if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
+        if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
+        designt <- lhs::optimumLHS(kmpoints, optdim) #optimal latin hypercuve 
+        minvals <- matrix(lower,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
+        maxvals <- matrix(upper,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
+        design <- designt*(maxvals-minvals)+minvals #to the support of the minimum/maximum values 
+        design <- data.frame(design)  
+        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
+        surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=covtype,control=list(trace=isTRUE(verbose>2)))
+        #EGO.nsteps has no verbose argument so I capture.output and return it if desired 
+       logged <- capture.output({
+           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=nsteps)
+       })
+       if(verbose>2) print(logged)
+       thetaopt <- opt$par[which.min(opt$value),]
+       bestval <- min(opt$value)
+
+
+d <- 2   #dimensions
+n <- 20
+lambdamax <- 6
+kappamax <- 3
+set.seed(0)
+design <- maximinLHS(n, d)
+design <- optimumLHS(n, d)
+design <- design*matrix(c(kappamax,lambdamax),byrow=TRUE,ncol=dim(design)[2],nrow=dim(design)[1]) #to the support of lambda and kappa
+design <- data.frame(design)  
+names(design) <- c("kappa", "lambda")
+library(stops)
+data(kinshipdelta)
+funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
+
+response.postc <- apply(design, 1, funo)
+
+response.postc <- apply(design, 1, do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
+
+
+lower <- rep(0.001, d)
+upper <- c(kappamax,lambdamax)
+
+#response.ban <- apply(design, 1, fbana)
+fitted.model1 <- km(~1,design = design, response = response.postc, lower=lower, upper=upper) #Uses matern(5/2) as covariance function and constant trend #may be okay  
+fitted.model2 <- km(~1,design = design, response = response.postc, covtype="gauss", lower=lower, upper=upper) #Uses gauss as covariance function and constant trend #-> squared exponential probably too smooth
+fitted.model3 <- km(~1,design = design, response = response.postc, covtype="matern3_2", lower=lower, upper=upper) #Uses matern(3/2) as covariance function and constant trend #may be better than 5_2
+fitted.model4 <- km(~1,design = design, response = response.postc,covtype="exp", lower=lower, upper=upper) #Uses exponential as covariance function and constant trend #likely good as its very rough (is Mattern v=1/2) -> Ornstein Uhlenbeck process but perhaps too slow
+fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",control=list(trace=FALSE)) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
+#See http://www.gaussianprocess.org/gpml/chapters/RW4.pdf for covtypes
+
+fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",upper=c(2,2),control=)
+
+fitted.model <- fitted.model5
+
+###################################################
+x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
+y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
+design.grid <- expand.grid(x.grid, y.grid)
+EI.grid <- apply(design.grid, 1, EI, fitted.model)
+
+nsteps <- 10
+set.seed(210485)
+oEGO1 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
+oEGO2 <- EGO.nsteps(model = fitted.model2, fun = funo, nsteps = nsteps, lower, upper)
+oEGO3 <- EGO.nsteps(model = fitted.model3, fun = funo, nsteps = nsteps, lower, upper)
+oEGO4 <- EGO.nsteps(model = fitted.model4, fun = funo, nsteps = nsteps, lower, upper)
+oEGO5 <- EGO.nsteps(model = fitted.model5, fun = funo, nsteps = nsteps, lower, upper,control=list(trace=FALSE),kmcontrol=list(trace=FALSE))
+
+logs <- capture.output({
+    oEGO5 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps,lower,upper=c(2,2));
+})
+logs
+oEGO5
+
+#response.grid <- apply(design.grid, 1, function(x) tryCatch(funo(x),error=function(e) NA))
+#save(response.grid,file="respgrid.rda")
+load("respgrid.rda")
+
+oEGO <- oEGO3
+oEGO <- oEGO5
+
+z.grid <- matrix(response.grid, n.gridx, n.gridy)
+contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(oEGO$value),6)))
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+#text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
+points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19,col="green")
+text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
+points(test$par[1],test$par[2], pch = 17,col="green")
+set.seed(210485)
+test <- ljoptim(c(1,1),funo,lower=lower,upper=upper,itmax=100,red=0.99,acc=1e-8,accd=1e-6)
+
+library(rgl)
+persp3d(x=x.grid, y=y.grid, z=z.grid,smooth=FALSE,col="lightblue")
+#plot3d(x=x.grid, y=y.grid, z=z.grid)
+
+par(mfrow = c(1, 2))
+EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
+z.grid <- matrix(EI.grid, n.gridx, n.gridy)
+contour(x.grid, y.grid, z.grid, 40)
+points(design[ , 1], design[ , 2], pch = 17, col = "blue")
+points(oEGO$par, pch = 19, col = "red")
+points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
+
+res1 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="BO",verbose=3,lower=c(0.1,0.1),upper=c(2,6),covtype="gauss")
+
+res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
+
+res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
