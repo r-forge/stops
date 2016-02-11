@@ -1086,3 +1086,37 @@ xlab="rounds", ylab="x[,1:2]", type="l", lwd=2)
 plot(log(progress$improv), type="l", main="max log improv",
 xlab="rounds", ylab="max log(improv)")
 
+
+
+###
+library(stops)
+
+
+lower <- 0
+upper <- 4
+set.seed(210485)
+resalj <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
+
+set.seed(210485)
+reskrig <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+
+set.seed(210485)
+restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
+
+theta <- seq(0,4,by=0.0005)
+theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
+theta <- sort(theta)
+pst <- vector("list",length(theta))
+for(i in 1:length(theta))
+{
+pst[[i]] <- stop_smacofSym(dis=kinshipdelta,theta=theta[i],structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=1)
+cat(i,"\n")
+}
+
+
+
+valos <- lapply(pst,function(x) x$stoploss)
+plot(theta,valos,type="l")
+abline(v=resalj$par[2],col="red")
+abline(v=restgp$par[2],col="green")
+abline(v=reskrig$par[2],col="blue")

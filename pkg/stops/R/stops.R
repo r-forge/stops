@@ -822,7 +822,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
          if(verbose>1) cat("Weights are stressweight=",stressweight,"strucweights=", strucweight,"\n")
       }
       if(missing(optimmethod)) optimmethod <- "ALJ"
-      if(verbose>1) cat("Starting Optimization \n ")
+      if(verbose>0) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
        opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,method="SANN",...)
         thetaopt <- opt$par
@@ -848,28 +848,28 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         rect <- cbind(lower,upper)
         Xcand <- tgp::lhs(initpoints*100,rect)
         if(missing(theta)) theta <- Xcand[1,]
-        x <- t(x)
+        x <- t(theta)
         X <- tgp::dopt.gp(initpoints-1,X=theta,Xcand)$XX
         X <- rbind(x,X)
         design <- data.frame(X) 
         responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss) #support points for fitting kriging model
-        if (verbose>2) cat("Kriging Model Fitting")
+        if (verbose>1) cat("Kriging Model Fitting","\n")
         surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=model,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
         #EGO.nsteps has no verbose argument so I capture.output and return it if desired
-        if (verbose>2) cat("EGO (DICE) Optimization")
+        if (verbose>2) cat("EGO (DICE) Optimization","\n")
         logged <- capture.output({
            opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)}) #bayesian optimization with gaussian process prior
-       if(verbose>3) print(logged)
+       if(verbose>2) print(logged)
        thetaopt <- opt$par[which.min(opt$value),] #parameters where best value found (we do not use the last one as that may be worse)
        bestval <- min(opt$value) #best stoploss value                         
        }
   if(optimmethod=="tgp")
     {
-        if(missing(model)) model <- btgpllm
+        if(missing(model)) model <- tgp::btgpllm
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
-        if (verbose>2) cat("EGO (TGP) Optimization")
-        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-3,...) #bayesian optimization with treed gaussian process prior
+        if (verbose>1) cat("EGO (TGP) Optimization","\n")
+        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
        thetaopt <- opt$par #parameters where best value found (we do not use the last one as that may be worse)
        bestval <- opt$value #best stoploss value                         
        }
