@@ -797,7 +797,6 @@ mkPower2<-function(x,theta) {
 #' @importFrom pso psoptim
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km
-#' @importFrom tgp lhs optim.step.tgp 
 #' 
 #' @keywords clustering multivariate
 #' @export
@@ -849,7 +848,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         Xcand <- tgp::lhs(initpoints*100,rect)
         if(missing(theta)) theta <- Xcand[1,]
         x <- t(theta)
-        X <- tgp::dopt.gp(initpoints-1,X=theta,Xcand)$XX
+        X <- tgp::dopt.gp(initpoints-1,X=x,Xcand)$XX
         X <- rbind(x,X)
         design <- data.frame(X) 
         responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss) #support points for fitting kriging model
@@ -865,7 +864,9 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
        }
   if(optimmethod=="tgp")
     {
+        #if(!isNamespaceLoaded("tgp")) attachNamespace("tgp")
         if(missing(model)) model <- tgp::btgpllm
+        #model <- get(model,envir=as.environment("package:tgp"))
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
         if (verbose>1) cat("EGO (TGP) Optimization","\n")

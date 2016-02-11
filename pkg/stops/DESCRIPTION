@@ -33,6 +33,7 @@ Imports:
     minqa,
     dbscan,
     DiceOptim,
+    DiceKriging,
     tgp
 Enhances: stats
 Suggests:

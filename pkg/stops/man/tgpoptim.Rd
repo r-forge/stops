@@ -6,7 +6,7 @@
 Essentially a wrapper for the functionality in tgp that has the same slots as optim with defaults for STOPS models.}
 \usage{
 tgpoptim(x, fun, ..., initpoints = 10, lower, upper, acc = 1e-08,
-  itmax = 10, verbose = 0, model = btgpllm)
+  itmax = 10, verbose = 0, model = "btgpllm")
 }
 \arguments{
 \item{x}{optional starting values}
@@ -27,7 +27,7 @@ tgpoptim(x, fun, ..., initpoints = 10, lower, upper, acc = 1e-08,
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
-\item{model}{whihc surrogate model calss to use (currently uses defaults only, will extend this to tweak the model)}
+\item{model}{which surrogate model class to use (currently uses defaults only, will extend this to tweak the model)}
 }
 \value{
 A list with the components (for compatiility with \code{\link{optim}})

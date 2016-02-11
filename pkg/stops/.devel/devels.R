@@ -1098,7 +1098,7 @@ set.seed(210485)
 resalj <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
 
 set.seed(210485)
-reskrig <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+reskrig <- stops(kinshipdelta,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
 
 set.seed(210485)
 restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
@@ -1110,6 +1110,54 @@ pst <- vector("list",length(theta))
 for(i in 1:length(theta))
 {
 pst[[i]] <- stop_smacofSym(dis=kinshipdelta,theta=theta[i],structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=1)
+cat(i,"\n")
+}
+
+
+
+valos <- lapply(pst,function(x) x$stoploss)
+plot(theta,valos,type="l")
+abline(v=resalj$par[2],col="red")
+abline(v=restgp$par[2],col="green")
+abline(v=reskrig$par[2],col="blue")
+
+#########################
+data(Pendigits500)
+pendss <- Pendigits500
+cols <- factor(pendss[,17])
+library(colorspace)
+levels(cols) <- rainbow_hcl(10,c=70,l=50)
+
+kinshipdelta <- dist(pendss[,1:16])
+q <- 1
+rang <- c(0,0.6)
+minpts <- 5
+eps <- 10
+scale <- TRUE
+dis <- as.matrix(dis)
+
+lower <- 1
+upper <- 9
+strucweight <- c(-100,-0.3,0.3)
+strucpars <- list(list(minpts=minpts,epsilon=eps,rang=rang),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+set.seed(210485)
+resalj <- stops(dis,theta=1,loss="powerstrain",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
+
+set.seed(210485)
+reskrig <- stops(dis,theta=1,loss="powerstrain",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+
+#not working for sammon only with kriging
+
+set.seed(210485)
+restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
+
+theta <- seq(0.5,6,by=0.001)
+theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
+theta <- sort(theta)
+pst <- vector("list",length(theta))
+for(i in 1:length(theta))
+{
+pst[[i]] <- stop_sammon(dis,theta=theta[i],structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
 cat(i,"\n")
 }
 

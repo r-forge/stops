@@ -112,7 +112,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param acc if the numerical accuracy of two successive target function values is below this, stop the optimization; defaults to 1e-8
 #' @param itmax maximum number of iterations
-#' @param model whihc surrogate model calss to use (currently uses defaults only, will extend this to tweak the model)
+#' @param model which surrogate model class to use (currently uses defaults only, will extend this to tweak the model)
 #' 
 #' @return A list with the components (for compatiility with \code{\link{optim}})
 #' \itemize{
@@ -125,7 +125,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #'      \item tgpout the output of the tgp model    
 #' }
 #'
-#' @importFrom tgp lhs optim.step.tgp
+#' @import tgp
 #' 
 #' @examples
 #' \donttest{
@@ -146,8 +146,9 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #' res2
 #' }
 #' @export
-tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbose=0,model=btgpllm) {
-    #TODO: add control for the tgp models... 
+tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbose=0,model=tgp::btgpllm) {
+    #TODO: add control for the tgp models...
+        #if(!isNamespaceLoaded("tgp")) attachNamespace("tgp")
         rect <- cbind(lower,upper)
         Xcand <- tgp::lhs(initpoints*100,rect)
         if(missing(x)) x <- Xcand[1,]
@@ -160,6 +161,7 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
         convo <- 99L
         itel <- 1
         fold <- min(Z)
+        #model <- get(model,envir=as.environment("package:tgp"))
         if(verbose>0) cat("Starting Bayesian Optimization","\n")
         repeat {
           ## get recommendations for the next point to sample
