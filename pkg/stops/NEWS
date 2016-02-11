@@ -1,6 +1,6 @@
 Version 0.0-30 
 
-- Added Bayesian optimization capabilities; fixed bug in powerStressMin for when to points coincide exactly.
+- Added Bayesian optimization capabilities to STOPS (DiceOptim and tgp); Added wrapper to tgp type optimization functions; fixed bug in powerStressMin for when to points coincide exactly.
 
 Version 0.0-29 
 

@@ -13,10 +13,10 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
   ndim = 2, weightmat = NULL, init = NULL, stressweight = 1,
-  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso", "BO"),
-  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
-  type = c("additive", "multiplicative"), s = 4, kmpoints = 10,
-  nsteps = 50, covtype = "powexp", ...)
+  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging",
+  "tgp"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  type = c("additive", "multiplicative"), s = 5, initpoints = 10,
+  itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -41,7 +41,7 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
-\item{optimmethod}{What general purpose optimizer to use? Currently supported are Bayesian optimization (BO) with Gausssian process prior, Adaptive LJ Search (ALJ), Particle Swarm optimization (pso) and simulated annealing (SANN). Defaults to ALJ version.}
+\item{optimmethod}{What optimizer to use? Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.}
 
 \item{lower}{The lower contraints of the search region}
 
@@ -53,11 +53,11 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{s}{number of particles if pso is used}
 
-\item{kmpoints}{number of initial points to fit the kriging model if BO is used; default is 10}
+\item{initpoints}{number of initial points to fit the surrogate model for bayesian optimization; default is 10}
 
-\item{nsteps}{number of steps of Bayesian optimization if BO is used; default is 50}
+\item{itmax}{maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.}
 
-\item{covtype}{the covariance kernel for the GP prior if BO is used; see \code{\link{covTensorProduct-class}} defaults to "powerexp" but we plan to extend it to a non-stationary version}
+\item{model}{the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see  \code{\link{bgp}}, defaults to btgpllm (bayesian treed gaussian process linear model so can accomodate different levels of smoothness and jumps)}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }

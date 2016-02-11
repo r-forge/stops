@@ -764,15 +764,15 @@ mkPower2<-function(x,theta) {
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
 #' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.   
-#' @param optimmethod What general purpose optimizer to use? Currently supported are Bayesian optimization (BO) with Gausssian process prior, Adaptive LJ Search (ALJ), Particle Swarm optimization (pso) and simulated annealing (SANN). Defaults to ALJ version.
+#' @param optimmethod What optimizer to use? Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
 #' @param s number of particles if pso is used
-#' @param nsteps number of steps of Bayesian optimization if BO is used; default is 50
-#' @param kmpoints number of initial points to fit the kriging model if BO is used; default is 10
-#' @param covtype the covariance kernel for the GP prior if BO is used; see \code{\link{covTensorProduct-class}} defaults to "powerexp" but we plan to extend it to a non-stationary version
+#' @param itmax maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.
+#' @param initpoints number of initial points to fit the surrogate model for bayesian optimization; default is 10
+#' @param model the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see  \code{\link{bgp}}, defaults to btgpllm (bayesian treed gaussian process linear model so can accomodate different levels of smoothness and jumps) 
 #' @param ... additional arguments to be passed to the optimization procedure
 #
 #' @return see \code{\link{copstops}}
@@ -795,13 +795,13 @@ mkPower2<-function(x,theta) {
 #' 
 #' @importFrom stats dist as.dist optim
 #' @importFrom pso psoptim
-#' @importFrom lhs optimumLHS
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km
+#' @importFrom tgp lhs optim.step.tgp 
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","BO"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,kmpoints=10,nsteps=50,covtype="powexp",...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
@@ -835,31 +835,44 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
          bestval <-  opt$value
        }
       if(optimmethod=="ALJ")  {
-        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,verbose=verbose-2,...)
+        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
        thetaopt <- opt$par
        bestval <-  opt$value
     }    
-    if(optimmethod=="BO")
+    if(optimmethod=="Kriging")
     {
-        optdim <- 3 #dimensions
-        if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
-        if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
-        designt <- lhs::optimumLHS(kmpoints, optdim) #optimal latin hypercuve 
-        minvals <- matrix(lower,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
-        maxvals <- matrix(upper,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
-        design <-  designt*(maxvals-minvals)+minvals #to the support of the minimum/maximum values 
-        design <- data.frame(design)  
+        if(missing(model)) model <- "powexp"
+       # optdim <- 3 #dimensions
+       # if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
+       # if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
+        rect <- cbind(lower,upper)
+        Xcand <- tgp::lhs(initpoints*100,rect)
+        if(missing(theta)) theta <- Xcand[1,]
+        x <- t(x)
+        X <- tgp::dopt.gp(initpoints-1,X=theta,Xcand)$XX
+        X <- rbind(x,X)
+        design <- data.frame(X) 
         responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss) #support points for fitting kriging model
         if (verbose>2) cat("Kriging Model Fitting")
-        surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=covtype,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
+        surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=model,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
         #EGO.nsteps has no verbose argument so I capture.output and return it if desired
-        if (verbose>2) cat("EGO Optimization")
+        if (verbose>2) cat("EGO (DICE) Optimization")
         logged <- capture.output({
-           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=nsteps,...)}) #bayesian optimization with gaussian process prior
+           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)}) #bayesian optimization with gaussian process prior
        if(verbose>3) print(logged)
        thetaopt <- opt$par[which.min(opt$value),] #parameters where best value found (we do not use the last one as that may be worse)
        bestval <- min(opt$value) #best stoploss value                         
-       }    
+       }
+  if(optimmethod=="tgp")
+    {
+        if(missing(model)) model <- btgpllm
+        #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
+        #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
+        if (verbose>2) cat("EGO (TGP) Optimization")
+        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-3,...) #bayesian optimization with treed gaussian process prior
+       thetaopt <- opt$par #parameters where best value found (we do not use the last one as that may be worse)
+       bestval <- opt$value #best stoploss value                         
+       }
     #refit optimal model  
     out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))
     out$stoploss <- bestval

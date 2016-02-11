@@ -578,7 +578,7 @@ plot(res2)
 plot(res3)
 
 
-#################testing Bayesian Optimziation
+#################Testing Bayesian Optimziation with DiceOptim
 
 library(DiceOptim)
 d <- 2
@@ -977,3 +977,112 @@ res1 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness"
 res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
 
 res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
+
+#################Testing Bayesian Optimziation with tgp
+# this allows for nonstaitionay covariance matrices which may be better for our problems with varying degrees of smoothness and jumps
+library(tgp)
+library(stops)
+f <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
+
+d <- 2   #dimensions
+lambdamax <- 6
+kappamax <- 3
+lower <- rep(0.001, d)
+upper <- c(kappamax,lambdamax)
+
+
+n <- 10
+
+set.seed(0)
+Xcand <- lhs(500,rect)
+X1 <- dopt.gp(n,X=NULL,Xcand)$XX
+X <- X1
+Z <- apply(X, 1, f)
+
+model <- btgp
+
+nudl <- Z
+out <- optim.step.tgp(f, X=X, model=model, Z=nudl, rect=rect, prev=NULL)
+
+out <- progress <- NULL
+
+
+
+## plot the progress so far
+par(mfrow=c(2,2))
+plot(out$obj, layout="surf")
+plot(out$obj, layout="as", as="improv")
+matplot(progress[,1:nrow(rect)], main="optim results",
+xlab="rounds", ylab="x[,1:2]", type="l", lwd=2)
+plot(log(progress$improv), type="l", main="max log improv",
+xlab="rounds", ylab="max log(improv)")
+
+
+test1 <- tgpoptim(c(1,1),f,lower=c(0.001,0.001),upper=c(3,6),itmax=10,verbose=2,model=btgpllm)
+
+
+
+for(i in 1:10) {
+## get recommendations for the next point to sample
+out <- optim.step.tgp(f, X=X, Z=Z, rect=rect, model = bgp,prev=out)
+## add in the inputs, and newly sampled outputs
+X <- rbind(X, out$X)
+tmp1 <- apply(out$X,1,f)
+Z <- c(Z, tmp1)
+## keep track of progress and best optimum
+progress <- rbind(progress, out$progress)
+print(progress[i,])
+}
+
+
+
+
+###################################################
+x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
+y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
+
+load("respgrid.rda")
+
+z.grid <- matrix(response.grid, n.gridx, n.gridy)
+contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(progress$z),6)))
+points(X1[ , 1], X1[ , 2], pch = 17, col = "blue")
+points(progress[,1:nrow(rect)], pch = 19, col = "red")
+points(progress[which.min(progress$z),,drop=FALSE], pch = 19,col="green")
+
+text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
+points(test$par[1],test$par[2], pch = 17,col="green")
+
+set.seed(210485)
+test <- ljoptim(c(1,1),funo,lower=lower,upper=upper,itmax=100,red=0.99,acc=1e-8,accd=1e-6)
+
+library(rgl)
+persp3d(x=x.grid, y=y.grid, z=z.grid,smooth=FALSE,col="lightblue")
+
+## optimize the simple exponential function
+f <- function(x) { exp2d.Z(x)$Z }
+## create the initial design with D-optimal candidates
+rect <- rbind(c(-2,6), c(-2,6))
+Xcand <- lhs(500, rect)
+X <- dopt.gp(50, X=NULL, Xcand)$XX
+Z <- f(X)
+## do 10 rounds of adaptive sampling
+out <- progress <- NULL
+for(i in 1:10) {
+## get recommendations for the next point to sample
+out <- optim.step.tgp(f, X=X, Z=Z, rect=rect, prev=out)
+## add in the inputs, and newly sampled outputs
+X <- rbind(X, out$X)
+Z <- c(Z, f(out$X))
+## keep track of progress and best optimum
+progress <- rbind(progress, out$progress)
+print(progress[i,])
+}
+## plot the progress so far
+par(mfrow=c(2,2))
+plot(out$obj, layout="surf")
+plot(out$obj, layout="as", as="improv")
+matplot(progress[,1:nrow(rect)], main="optim results",
+xlab="rounds", ylab="x[,1:2]", type="l", lwd=2)
+plot(log(progress$improv), type="l", main="max log improv",
+xlab="rounds", ylab="max log(improv)")
+

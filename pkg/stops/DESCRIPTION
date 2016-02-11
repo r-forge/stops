@@ -1,7 +1,7 @@
 Package: stops
 Title: STructure Optimized Proximity Scaling
 Version: 0.0-30
-Date: 2016-02-10
+Date: 2016-02-11
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"),person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut], Kurt
     Hornik [ctb]
@@ -16,8 +16,7 @@ Description: Structure optimized proximity scaling (STOPS) refers to
     scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power
     elastic scaling, power sammon mapping, powerstress and COPS. All of these models
     can also be fit as MDS with power transformations. The package further
-    contains metaheuristics for multi-objective optimization, functions for various
-    structuredness indices (including the OPTICS Cordillera) and an interface to
+    contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models), functions for various structuredness indices (including the OPTICS Cordillera) and an interface to
     ELKI's OPTICS.
 Depends:
     R (>= 3.1.2),
@@ -32,7 +31,9 @@ Imports:
     minerva,
     energy,
     minqa,
-    dbscan
+    dbscan,
+    DiceOptim,
+    tgp
 Enhances: stats
 Suggests:
     testthat,

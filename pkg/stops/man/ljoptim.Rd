@@ -9,9 +9,9 @@ ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
   adaptive = TRUE)
 }
 \arguments{
-\item{x}{starting values}
+\item{x}{optional starting values}
 
-\item{fun}{function to optimize}
+\item{fun}{function to minimize}
 
 \item{...}{additional arguments to be passed to the function to be optimized}
 
