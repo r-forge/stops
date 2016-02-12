@@ -106,6 +106,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #'@import smacof
 #'@export
 stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(missing(type)) type <- "additive"
@@ -158,6 +159,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #'@import smacof
 #'@export
 stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   addargs <- list(...)
@@ -212,7 +214,8 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #'@keywords multivariate
 #'@export
 stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  #TODO Unfolding  
+  #TODO Unfolding
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
   #kappa first argument, lambda=second
@@ -273,7 +276,8 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #'@keywords multivariate
 #'@export
 stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  #TODO Unfolding  
+  #TODO Unfolding
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
    if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -332,6 +336,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
 #' 
 #' @export
 stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -388,6 +393,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #'@keywords multivariate
 #'@export
 stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -448,6 +454,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #' @keywords multivariate
 #' @export
 stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
   if(length(theta)==1L) lambda <- theta
@@ -498,6 +505,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #' @keywords multivariate
 #' @export
 stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -544,6 +552,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @keywords multivariate
 #' @export
 stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
@@ -589,6 +598,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @keywords multivariate
 #' @export
 stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -630,6 +640,7 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
 #' @keywords multivariate
 #' @export
 stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -676,6 +687,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
 #' @keywords multivariate
 #' @export
 stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -723,6 +735,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
 #' @keywords multivariate
 #' @export
 stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -832,11 +845,13 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,control=control)
          thetaopt <- opt$par
          bestval <-  opt$value
+         itel <- opt$counts["function"]
        }
       if(optimmethod=="ALJ")  {
         opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
        thetaopt <- opt$par
        bestval <-  opt$value
+       itel <- opt$counts["function"] 
     }    
     if(optimmethod=="Kriging")
     {
@@ -844,23 +859,25 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
        # optdim <- 3 #dimensions
        # if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
        # if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
-        rect <- cbind(lower,upper)
-        Xcand <- tgp::lhs(initpoints*100,rect)
+        recto <- cbind(lower,upper)
+        Xcand <- tgp::lhs(initpoints*100,recto)
         if(missing(theta)) theta <- Xcand[1,]
         x <- t(theta)
         X <- tgp::dopt.gp(initpoints-1,X=x,Xcand)$XX
-        X <- rbind(x,X)
-        design <- data.frame(X) 
+        design <- rbind(x,X)
+        #design <- data.frame(X) 
         responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss) #support points for fitting kriging model
         if (verbose>1) cat("Kriging Model Fitting","\n")
         surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=model,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
         #EGO.nsteps has no verbose argument so I capture.output and return it if desired
         if (verbose>2) cat("EGO (DICE) Optimization","\n")
         logged <- capture.output({
-           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)}) #bayesian optimization with gaussian process prior
+           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)
+       }) #bayesian optimization with gaussian process prior
        if(verbose>2) print(logged)
        thetaopt <- opt$par[which.min(opt$value),] #parameters where best value found (we do not use the last one as that may be worse)
-       bestval <- min(opt$value) #best stoploss value                         
+       bestval <- min(opt$value) #best stoploss value
+       itel <- itmax
        }
   if(optimmethod=="tgp")
     {
@@ -872,7 +889,8 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         if (verbose>1) cat("EGO (TGP) Optimization","\n")
         opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
        thetaopt <- opt$par #parameters where best value found (we do not use the last one as that may be worse)
-       bestval <- opt$value #best stoploss value                         
+       bestval <- opt$value #best stoploss value
+       itel <- opt$counts["function"] 
        }
     #refit optimal model  
     out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))
@@ -885,7 +903,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
     out$losstype <- loss
     out$nobj <- dim(out$fit$conf)[1]
     out$type <- type
-    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and c-structuredness indices:",t(data.frame(names(out$strucindices),out$strucindices)),". Thanks for your patience. \n")
+    if(verbose>1) cat("Found minimum after",itel," iterations at",round(thetaopt,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and c-structuredness indices:",t(data.frame(names(out$strucindices),out$strucindices)),". Thanks for your patience. \n")
     class(out) <- c("stops")
     out
   }

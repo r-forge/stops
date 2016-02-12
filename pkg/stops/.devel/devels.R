@@ -1098,7 +1098,7 @@ set.seed(210485)
 resalj <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
 
 set.seed(210485)
-reskrig <- stops(kinshipdelta,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
 
 set.seed(210485)
 restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
@@ -1122,34 +1122,84 @@ abline(v=restgp$par[2],col="green")
 abline(v=reskrig$par[2],col="blue")
 
 #########################
+library(stops)
 data(Pendigits500)
 pendss <- Pendigits500
 cols <- factor(pendss[,17])
 library(colorspace)
 levels(cols) <- rainbow_hcl(10,c=70,l=50)
 
-kinshipdelta <- dist(pendss[,1:16])
+
+
+#pendss <- Pendigits500
+
+dis <- dist(pendss[,1:16])
 q <- 1
 rang <- c(0,0.6)
 minpts <- 5
 eps <- 10
 scale <- TRUE
-dis <- as.matrix(dis)
+#dis <- as.matrix(dis)
 
 lower <- 1
-upper <- 9
-strucweight <- c(-100,-0.3,0.3)
+upper <- 6
+strucweight <- c(-500,-0.5,0.1)
 strucpars <- list(list(minpts=minpts,epsilon=eps,rang=rang),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
-set.seed(210485)
-resalj <- stops(dis,theta=1,loss="powerstrain",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
+structures <- c("cclusteredness","cmanifoldness","ccomplexity")
 
 set.seed(210485)
-reskrig <- stops(dis,theta=1,loss="powerstrain",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
 
+set.seed(210485)
+reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=42)
+
+plot(reskrig,col=cols)
+
+stop_sammon(dis,theta=9,stressweight=1,strucweight=strucweight,structures=structures,strucpars=strucpars,verbose=5)
 #not working for sammon only with kriging
 
 set.seed(210485)
-restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
+restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=20)
+
+
+initsam <- sammon(dis)
+samopt <- resalj$fit
+
+names(pendss)[17] <- "digit"
+colsopt <- cols1 <- colstraj <- factor(pendss[,17])
+library(colorspace)
+levels(colsopt) <- rainbow_hcl(10,c=50,l=55)
+levels(cols1) <- rainbow_hcl(10,c=50,l=96)
+levels(colstraj) <- rainbow_hcl(10,c=50,l=99)
+tmp <- conf_adjust(samopt$points,initsam$points)
+plot(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
+     col=as.character(colsopt),type="n",xlab="D1",ylab="D2",
+     ylim=c(-5,3.7),xlim=c(-3.5,2.5))
+points(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
+       col=as.character(cols1),pch=as.character(pendss[,17]))
+arrows(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
+       scale(tmp$ref.conf)[,1],scale(tmp$ref.conf)[,2],
+       col=as.character(colstraj),length=0.1)
+points(scale(tmp$ref.conf)[,1],scale(tmp$ref.conf)[,2],
+       col=as.character(colsopt),pch=as.character(pendss[,17]))
+
+library(party)
+newdatl1 <- data.frame("D1"=scale(initsam$points)[,1],
+                       "D2"=scale(initsam$points)[,2],
+                       "label"=factor(pendss[,17]))
+m1 <- ctree(label~D1+D2,newdatl1,controls=ctree_control(mincriterion=0.95))
+#plot(m1)
+newdatlo <- data.frame("D1"=scale(samopt$points)[,1],
+                       "D2"=scale(samopt$points)[,2],
+                       "label"=factor(pendss[,17]))
+m1o <- ctree(label~D1+D2,newdatlo)
+#plot(m1o)
+mall <- ctree(factor(digit)~.,data=pendss)
+library(caret)
+cmato <- confusionMatrix(predict(m1o),pendss[,17])
+cmat1 <- confusionMatrix(predict(m1),pendss[,17])
+cmatall <- confusionMatrix(predict(mall),pendss[,17])
+
 
 theta <- seq(0.5,6,by=0.001)
 theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
