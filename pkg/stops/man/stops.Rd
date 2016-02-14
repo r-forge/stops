@@ -57,7 +57,7 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{itmax}{maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.}
 
-\item{model}{the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see  \code{\link{bgp}}, defaults to btgpllm (bayesian treed gaussian process linear model so can accomodate different levels of smoothness and jumps)}
+\item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }

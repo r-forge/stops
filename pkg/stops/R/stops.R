@@ -785,7 +785,7 @@ mkPower2<-function(x,theta) {
 #' @param s number of particles if pso is used
 #' @param itmax maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.
 #' @param initpoints number of initial points to fit the surrogate model for bayesian optimization; default is 10
-#' @param model the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see  \code{\link{bgp}}, defaults to btgpllm (bayesian treed gaussian process linear model so can accomodate different levels of smoothness and jumps) 
+#' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
 #' @param ... additional arguments to be passed to the optimization procedure
 #
 #' @return see \code{\link{copstops}}
@@ -810,6 +810,7 @@ mkPower2<-function(x,theta) {
 #' @importFrom pso psoptim
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km
+#' @importFrom tgp lhs dopt.tgp
 #' 
 #' @keywords clustering multivariate
 #' @export
@@ -882,8 +883,8 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
   if(optimmethod=="tgp")
     {
         #if(!isNamespaceLoaded("tgp")) attachNamespace("tgp")
-        if(missing(model)) model <- tgp::btgpllm
-        #model <- get(model,envir=as.environment("package:tgp"))
+        if(missing(model)) model <- "btgpllm"
+        model <- get(model,envir=getNamespace("tgp"))
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
         if (verbose>1) cat("EGO (TGP) Optimization","\n")

@@ -125,7 +125,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #'      \item tgpout the output of the tgp model    
 #' }
 #'
-#' @import tgp
+#' @importFrom tgp lhs dopt.gp optim.step.tgp
 #' 
 #' @examples
 #' \donttest{
@@ -146,7 +146,7 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #' res2
 #' }
 #' @export
-tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbose=0,model=tgp::btgpllm) {
+tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbose=0,model="bgp") {
     #TODO: add control for the tgp models...
         #if(!isNamespaceLoaded("tgp")) attachNamespace("tgp")
         rect <- cbind(lower,upper)
@@ -161,7 +161,7 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
         convo <- 99L
         itel <- 1
         fold <- min(Z)
-        #model <- get(model,envir=as.environment("package:tgp"))
+        model <- get(model,envir=getNamespace("tgp"))
         if(verbose>0) cat("Starting Bayesian Optimization","\n")
         repeat {
           ## get recommendations for the next point to sample

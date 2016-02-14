@@ -1101,7 +1101,7 @@ set.seed(210485)
 reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
 
 set.seed(210485)
-restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=40)
+restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=20)
 
 theta <- seq(0,4,by=0.0005)
 theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
@@ -1163,7 +1163,7 @@ restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifo
 
 
 initsam <- sammon(dis)
-samopt <- resalj$fit
+samopt <- restgp$fit
 
 names(pendss)[17] <- "digit"
 colsopt <- cols1 <- colstraj <- factor(pendss[,17])
@@ -1199,7 +1199,7 @@ library(caret)
 cmato <- confusionMatrix(predict(m1o),pendss[,17])
 cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
-
+cmato
 
 theta <- seq(0.5,6,by=0.001)
 theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
@@ -1218,3 +1218,7 @@ plot(theta,valos,type="l")
 abline(v=resalj$par[2],col="red")
 abline(v=restgp$par[2],col="green")
 abline(v=reskrig$par[2],col="blue")
+
+
+model <- get(btgpllm)
+library(tgp)
