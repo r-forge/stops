@@ -810,7 +810,7 @@ mkPower2<-function(x,theta) {
 #' @importFrom pso psoptim
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km
-#' @importFrom tgp lhs dopt.tgp
+#' @importFrom tgp lhs dopt.gp
 #' 
 #' @keywords clustering multivariate
 #' @export
@@ -884,7 +884,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
     {
         #if(!isNamespaceLoaded("tgp")) attachNamespace("tgp")
         if(missing(model)) model <- "btgpllm"
-        model <- get(model,envir=getNamespace("tgp"))
+        #model <- get(model,envir=getNamespace("tgp"))
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
         if (verbose>1) cat("EGO (TGP) Optimization","\n")

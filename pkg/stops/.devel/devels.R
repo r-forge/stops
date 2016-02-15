@@ -1148,7 +1148,7 @@ strucpars <- list(list(minpts=minpts,epsilon=eps,rang=rang),list(NULL),list(alph
 structures <- c("cclusteredness","cmanifoldness","ccomplexity")
 
 set.seed(210485)
-resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
+resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-6)
 
 set.seed(210485)
 reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=42)
@@ -1159,7 +1159,7 @@ stop_sammon(dis,theta=9,stressweight=1,strucweight=strucweight,structures=struct
 #not working for sammon only with kriging
 
 set.seed(210485)
-restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model=tgp::btgpllm,itmax=20)
+restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=20)
 
 
 initsam <- sammon(dis)
@@ -1201,17 +1201,17 @@ cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
 cmato
 
-theta <- seq(0.5,6,by=0.001)
+theta <- seq(1,6,by=0.001)
 theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
 theta <- sort(theta)
 pst <- vector("list",length(theta))
 for(i in 1:length(theta))
 {
-pst[[i]] <- stop_sammon(dis,theta=theta[i],structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
+pst[[i]] <- stop_sammon(dis,theta=theta[i],structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
 cat(i,"\n")
 }
 
-
+save(pst,file="sammongridresults.rda")
 
 valos <- lapply(pst,function(x) x$stoploss)
 plot(theta,valos,type="l")
