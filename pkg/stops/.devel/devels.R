@@ -1201,9 +1201,9 @@ cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
 cmato
 
-theta <- seq(3.001,5,by=0.001)
-theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
-theta <- sort(theta)
+theta <- seq(5.001,6,by=0.001)
+#theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
+#theta <- sort(theta)
 pst <- vector("list",length(theta))
 for(i in 1:length(theta))
 {
@@ -1211,14 +1211,15 @@ pst[[i]] <- stop_sammon(dis,theta=theta[i],structures=structures,stressweight=1,
 cat(i,"\n")
 }
 
-
+pstF <- pst
 
 valstop <- lapply(pst,function(x) x$stoploss)
 valstruc <- lapply(pst,function(x) x$strucindices)
 valstress <- lapply(pst,function(x) x$stress)
 valstressm <- lapply(pst,function(x) x$stoploss)
 
-save(valstop,valstruc,valstress,valstressm,file="sammongridresultbits3-5.rda")
+save(pst,valstop,valstruc,valstress,valstressm,file="sammongridresult5-6.rda")
+
 
 plot(theta,valos,type="l")
 abline(v=resalj$par[2],col="red")
