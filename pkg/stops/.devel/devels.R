@@ -1151,12 +1151,7 @@ set.seed(210485)
 resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-6)
 
 set.seed(210485)
-reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=42)
-
-plot(reskrig,col=cols)
-
-stop_sammon(dis,theta=9,stressweight=1,strucweight=strucweight,structures=structures,strucpars=strucpars,verbose=5)
-#not working for sammon only with kriging
+reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
 
 set.seed(210485)
 restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=20)
@@ -1201,7 +1196,7 @@ cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
 cmato
 
-theta <- seq(5.001,6,by=0.001)
+theta <- seq(1,6,by=0.001)
 #theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
 #theta <- sort(theta)
 pst <- vector("list",length(theta))
@@ -1216,11 +1211,37 @@ pstF <- pst
 valstop <- lapply(pst,function(x) x$stoploss)
 valstruc <- lapply(pst,function(x) x$strucindices)
 valstress <- lapply(pst,function(x) x$stress)
-valstressm <- lapply(pst,function(x) x$stoploss)
+valstressm <- lapply(pst,function(x) x$stress.m)
 
 save(pst,valstop,valstruc,valstress,valstressm,file="sammongridresult5-6.rda")
+load("sammongridresultbits1-3.rda")
+valstop1 <- valstop
+valstruc1 <- valstruc
+valstress1 <- valstress
+valstressm1 <- valstressm
+load("sammongridresultbits3-5.rda")
+valstop2 <- valstop
+valstruc2 <- valstruc
+valstress2 <- valstress
+valstressm2 <- valstressm
+load("sammongridresultbits5-6.rda")
+valstop3 <- valstop
+valstruc3 <- valstruc
+valstress3 <- valstress
+valstressm3 <- valstressm
+
+save(valstop,valstruc,valstress,valstressm,file="sammongridresultbits.rda")
+
+valstop <- c(valstop1,valstop2,valstop3)
+valstruc <- c(valstruc1,valstruc2,valstruc3)
+valclus <- lapply(valstruc, function(x) x["cclusteredness"]) 
+valmani <- lapply(valstruc, function(x) x["cmanifoldness"])
+valcomp <- lapply(valstruc, function(x) x["ccomplexity"])
+valstress <- c(valstress1,valstress2,valstress3)
+valstressm <- c(valstressm1,valstressm2,valstressm3)
 
 
+valos <- unlist(valcomp)
 plot(theta,valos,type="l")
 abline(v=resalj$par[2],col="red")
 abline(v=restgp$par[2],col="green")
