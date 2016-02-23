@@ -79,12 +79,12 @@ Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS
 \examples{
 \donttest{ 
 dis<-as.matrix(smacof::kinshipdelta)
-res1<-pcops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
+res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) #optimum around lambda=0.15
 res1
 summary(res1)
 plot(res1)
 #only use cordillera for finding the parameters; 
-res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
+res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) #optimum around lambda=0.156
 res2
 summary(res2)
 plot(res2)
