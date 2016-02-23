@@ -788,7 +788,7 @@ mkPower2<-function(x,theta) {
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
 #' @param ... additional arguments to be passed to the optimization procedure
 #
-#' @return see \code{\link{copstops}}
+#' @return see \code{\link{pcops}}
 #' 
 #' @examples
 #' \donttest{

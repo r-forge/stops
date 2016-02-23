@@ -50,7 +50,7 @@
 #' data(BankingCrisesDistances)
 #' 
 #' #shorthand function for COPS variant 2 (hyperparameter)
-#' res<-copstops(BankingCrisesDistances[,1:69])
+#' res<-pcops(BankingCrisesDistances[,1:69])
 #' res
 #' summary(res)
 #' plot(res)
