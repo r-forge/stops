@@ -1,3 +1,7 @@
+Version 0.0-31 
+
+- Changed name of COPS Variant 2 to pcops. Updated COPS wrapper. 
+
 Version 0.0-30 
 
 - Added Bayesian optimization capabilities to STOPS (DiceOptim and tgp); Added wrapper to tgp type optimization functions; fixed bug in powerStressMin for when to points coincide exactly.

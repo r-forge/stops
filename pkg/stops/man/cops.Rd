@@ -4,26 +4,21 @@
 \alias{cops}
 \title{High Level COPS Function}
 \usage{
-cops(...)
+cops(dis, variant = c("1", "2", "variant1", "variant2", "v1", "v2",
+  "configuration", "profile", "coploss", "p-coploss"), ...)
 }
 \arguments{
-\item{...}{arguments to be passed to coplossMin. See also \code{\link{coplossMin}}}
+\item{dis}{a dissimilarity matrix or a dist object}
+
+\item{variant}{a character string specifying which variant of COPS to fit. Allowed is any of the following "1","2","Variant1","Variant2","v1","v2","configuration","profile","coploss","p-coploss". Defaults to "1".}
+
+\item{...}{arguments to be passed to coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{coplossMin}} or \code{\link{pcops}}}
 }
 \value{
-A list with the components
-        \itemize{
-        \item coploss: the weighted loss value
-        \item OC: the Optics cordillera
-        \item optim: the object returned from the optimization procedure
-        \item stress: the stress
-        \item stress.m: default normalized stress
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
-        \item cordillera: the cordillera object
-}
+For Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 }
 \description{
-Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta. Calls coplossMin.
+Minimizing coploss for a clustered MDS configuration. Allows to choose COPS Variant 1 (finding a configuration from coploss) and Variant 2 (finding hyperparameters for MDS models with power transformations). It is wrapper for coplossMin (Variant 1) and pcops (Variant 2).
 }
 \examples{
 \donttest{

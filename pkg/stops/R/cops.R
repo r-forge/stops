@@ -730,9 +730,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
         out
      }
 
-#' High Level COPSTOPS Function
+#' Profile COPS Function (aka COPS Variant 2)
 #'
-#' A STOPS model that uses Ccoploss for hyperparameter selection 
+#' Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses coploss for hyperparameter selection. It is a special case of a STOPS model.  
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
@@ -751,7 +751,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
-#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"). We recommend not using the later with the rstress, sstress and the power stress models. 
+#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"). We recommend not using the latter with the rstress, sstress and the power stress models. 
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
@@ -776,12 +776,12 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'@examples
 #'\donttest{ 
 #'dis<-as.matrix(smacof::kinshipdelta)
-#'res1<-copstops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
+#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5) #optimum around lambda=0.15
 #'res1
 #'summary(res1)
 #'plot(res1)
 #'#only use cordillera for finding the parameters; 
-#'res2<-copstops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
+#'res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5) #optimum around lambda=0.156
 #'res2
 #'summary(res2)
 #'plot(res2)
@@ -814,20 +814,20 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r~=0.17 (kappa~=0.34)
 #'#and that stress appears thus not monotonically increasing in r
 #' set.seed(210485)
-#' m1 <- copstops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
+#' m1 <- pcops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
 #' m1
 #'# They observe increasing clustering for larger r which we can again do systematically:
 #'# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of at least k=2 and k=3 observations
 #' set.seed(210485)
-#' m2 <- copstops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
-#' m3 <- copstops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
+#' m2 <- pcops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
+#' m3 <- pcops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
 #' m2   #r~=1.24
 #' m3   #r~=1.39
 #'
 #'# It is generally better to trade off clusteredness and fit
 #' set.seed(210485)
-#' m2t <- copstops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
-#' m3t <- copstops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+#' m2t <- pcops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
+#' m3t <- pcops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
 #' m2t #r~=0.08
 #' m4t #r~=1.39
 #'}
@@ -837,7 +837,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' 
 #'@keywords clustering multivariate
 #'@export
-copstops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=TRUE,normed=TRUE,s=4,stresstype="default",...)
     {
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -895,7 +895,7 @@ copstops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sa
     out$losstype <- loss
     out$nobj <- dim(out$fit$conf)[1]
     if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with coploss=",round(out$coploss,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")
-    class(out) <- c("cstops","cops","stops")
+    class(out) <- c("pcops","cops","stops")
     out
   }
 
@@ -917,7 +917,7 @@ print.cops <- function(x,...)
     }
 
 #'@export
-print.cstops <- function(x,...)
+print.pcops <- function(x,...)
     {
     cat("\nCall: ")
     print(x$call)
@@ -960,7 +960,7 @@ coef.cops <- function(object,...)
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'} 
 #'@export 
-plot.cstops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
+plot.pcops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
@@ -1185,7 +1185,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 }
 
 
-#' Fitting a COPS Model.
+#' Fitting a COPS Model (Variant 1).
 #'
 #' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta.
 #'
@@ -1367,21 +1367,13 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 
 #' High Level COPS Function
 #'
-#' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta. Calls coplossMin.
+#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS Variant 1 (finding a configuration from coploss) and Variant 2 (finding hyperparameters for MDS models with power transformations). It is wrapper for coplossMin (Variant 1) and pcops (Variant 2).
 #'
-#'@param ... arguments to be passed to coplossMin. See also \code{\link{coplossMin}}
+#'@param dis a dissimilarity matrix or a dist object
+#'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "1","2","Variant1","Variant2","v1","v2","configuration","profile","coploss","p-coploss". Defaults to "1".
+#'@param ... arguments to be passed to coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{coplossMin}} or \code{\link{pcops}}
 #'
-#'@return A list with the components
-#'         \itemize{
-#'         \item coploss: the weighted loss value
-#'         \item OC: the Optics cordillera
-#'         \item optim: the object returned from the optimization procedure
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
-#'         \item cordillera: the cordillera object
-#' }
+#'@return For Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
 #' \donttest{
@@ -1440,4 +1432,10 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(...) coplossMin(...)
+cops <- function(dis, variant=c("1","2","variant1","variant2","v1","v2","configuration","profile","coploss","p-coploss"),...)
+                 {
+                 if(missing(type)) variant <- "1"
+                 if(variant%in%c("1","Variant1","v1","configuration","coploss")) out <- coplossMin(dis,...)
+                 if(variant%in%c("1","Variant2","v2","profile","p-coploss")) out <- pcops(dis,...)
+                 out
+                 }

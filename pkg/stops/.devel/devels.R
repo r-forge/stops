@@ -1,4 +1,4 @@
-#What follows are proof of concepts for the STOPS paper 
+                                        #What follows are proof of concepts for the STOPS paper 
 
 #Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoplose
 # write stops_foo where foo is the MDS model of interest
@@ -1151,10 +1151,10 @@ set.seed(210485)
 resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-6)
 
 set.seed(210485)
-reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
+reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="powexp",itmax=40)
 
 set.seed(210485)
-restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=20)
+restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=25)
 
 
 initsam <- sammon(dis)
@@ -1230,7 +1230,7 @@ valstruc3 <- valstruc
 valstress3 <- valstress
 valstressm3 <- valstressm
 
-save(valstop,valstruc,valstress,valstressm,file="sammongridresultbits.rda")
+save(resalj,reskrig,restgp,valstop,valstruc,valstress,file="~/svn/egmds/paper/sammongridresultbits.rda")
 
 valstop <- c(valstop1,valstop2,valstop3)
 valstruc <- c(valstruc1,valstruc2,valstruc3)
