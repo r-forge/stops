@@ -774,9 +774,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' }
 #' 
 #'@examples
-#'\donttest{ 
 #'dis<-as.matrix(smacof::kinshipdelta)
-#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) #optimum around lambda=0.15
+#'set.seed(210485)
+#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) #optimum around lambda=0.16
 #'res1
 #'summary(res1)
 #'plot(res1)
@@ -797,7 +797,9 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'par(mfrow=c(1,2))
 #'plot(res1,"reachplot")
 #'plot(res2,"reachplot")
+#' par(mfrow=c(1,1))
 #'
+#'\donttest{
 #'# From De Leuuw et al (2016) example 7.2.
 #'#They look at different rstress versions and compare how clustered the configuration is
 #'#where stress is minimal and that stress is a monotonically increasing function of r;
