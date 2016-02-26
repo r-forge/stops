@@ -46,7 +46,7 @@ echo $contents; } ?>
 <p> This is the homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. One can also find a tutorial for COPS and STOPS and the MDS functions below.</p>
 
 <h3>Papers:</h3>
-<p><a href="http://epub.wu.ac.at/4476/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
+<p><a href="http://epub.wu.ac.at/4888/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
 
 <h3>Talks:</h3>
 <table>
