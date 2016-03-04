@@ -1190,30 +1190,32 @@ newdatlo <- data.frame("D1"=scale(samopt$points)[,1],
 m1o <- ctree(label~D1+D2,newdatlo)
 #plot(m1o)
 mall <- ctree(factor(digit)~.,data=pendss)
-library(caret)
+library(caret)3
 cmato <- confusionMatrix(predict(m1o),pendss[,17])
 cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
 cmato
 
 theta <- seq(1,6,by=0.001)
+theta <- seq(5.001,6,by=0.001)
 #theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
 #theta <- sort(theta)
 pst <- vector("list",length(theta))
+valstop <- valstruc <- valstress <- valstressm <- vector("list",length(theta))
 for(i in 1:length(theta))
 {
-pst[[i]] <- stop_sammon(dis,theta=theta[i],structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
+pst <- stop_sammon2(dis,theta=theta[i],structures=structures,init=torgerson(dis),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
+valstop[[i]] <- pst$stoploss
+valstruc[[i]] <- pst$strucindices
+valstress[[i]] <- pst$stress
+valstressm[[i]] <- pst$stress.m
 cat(i,"\n")
 }
 
 pstF <- pst
 
-valstop <- lapply(pst,function(x) x$stoploss)
-valstruc <- lapply(pst,function(x) x$strucindices)
-valstress <- lapply(pst,function(x) x$stress)
-valstressm <- lapply(pst,function(x) x$stress.m)
 
-save(pst,valstop,valstruc,valstress,valstressm,file="sammongridresult5-6.rda")
+save(valstop,valstruc,valstress,valstressm,file="sammongridresult2_5-6.rda")
 load("sammongridresultbits1-3.rda")
 valstop1 <- valstop
 valstruc1 <- valstruc
