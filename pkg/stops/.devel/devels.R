@@ -1196,7 +1196,10 @@ cmat1 <- confusionMatrix(predict(m1),pendss[,17])
 cmatall <- confusionMatrix(predict(mall),pendss[,17])
 cmato
 
-theta <- seq(1,6,by=0.001)
+
+
+###### For values
+
 theta <- seq(5.001,6,by=0.001)
 #theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
 #theta <- sort(theta)
@@ -1232,18 +1235,44 @@ valstruc3 <- valstruc
 valstress3 <- valstress
 valstressm3 <- valstressm
 
+
+
+load("sammongridresult2_1-2.rda")
+valstop1 <- valstop
+valstruc1 <- valstruc
+valstress1 <- valstress
+valstressm1 <- valstressm
+load("sammongridresult2_2-3.rda")
+valstop2 <- valstop
+valstruc2 <- valstruc
+valstress2 <- valstress
+valstressm2 <- valstressm
+load("sammongridresult2_3-5.rda")
+valstop3 <- valstop
+valstruc3 <- valstruc
+valstress3 <- valstress
+valstressm3 <- valstressm
+load("sammongridresult2_5-6.rda")
+valstop4 <- valstop
+valstruc4 <- valstruc
+valstress4 <- valstress
+valstressm4 <- valstressm
+
+
 save(resalj,reskrig,restgp,valstop,valstruc,valstress,file="~/svn/egmds/paper/sammongridresultbits.rda")
 
-valstop <- c(valstop1,valstop2,valstop3)
-valstruc <- c(valstruc1,valstruc2,valstruc3)
+valstop <- c(valstop1,valstop2,valstop3,valstop4)
+valstruc <- c(valstruc1,valstruc2,valstruc3,valstruc4)
 valclus <- lapply(valstruc, function(x) x["cclusteredness"]) 
 valmani <- lapply(valstruc, function(x) x["cmanifoldness"])
 valcomp <- lapply(valstruc, function(x) x["ccomplexity"])
-valstress <- c(valstress1,valstress2,valstress3)
-valstressm <- c(valstressm1,valstressm2,valstressm3)
+valstress <- c(valstress1,valstress2,valstress3,valstress4)
+valstressm <- c(valstressm1,valstressm2,valstressm3,valstressm4)
 
 
-valos <- unlist(valcomp)
+
+theta <- seq(1,6,by=0.001)
+valos <- unlist(valstop1)
 plot(theta,valos,type="l")
 abline(v=resalj$par[2],col="red")
 abline(v=restgp$par[2],col="green")
@@ -1311,8 +1340,10 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
              anew <- rnew / nnew
-             resen <- (mkPower(dnew,2*r)-delta)^2
-             shrinkres <- resen*(1-b/(b+resen))
+             resen <- abs(mkPower(dnew,2*r)-delta)
+             shrinkb <- ShrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...) 
+             shrinkres <- resen-(resen*shrinkb/(resen+shrinkb))
+             diag(skrinkres) <- 0
              #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
              #struc <- corrd$raw
@@ -1320,7 +1351,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              #           struc <- corrd$normed
              #          }
              #ic <- stressweight*stressi - cordweight*struc
-             ic <- sum(shrinkres)
+             ic <- sum(shrinkres^2)/2
              if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
@@ -1377,3 +1408,30 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     out
 }
 
+ShrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+     {
+       shift1 <- function (v) {
+             vlen <- length(v)
+             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
+             sv[-1] <- v[1:(vlen - 1)]
+             sv
+        }
+        if(scale) x <- scale(x)
+        N <- dim(x)[1]
+        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
+        optord <- optres$order
+        optind <- 1:length(optres$order)
+        indordered <- optind[optord]
+        predec <- shift1(indordered)
+        reachdist <- optres$reachdist[optres$order]
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
+        reachdiffs <- c(NA,abs(diff(reachdist)))
+        mats <- cbind(indordered,predec,reachdiffs)
+        Bmat <- matrix(0,ncol=N,nrow=N)
+        for (i in 1:N) {
+            indo <- mats[i,]
+            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^1/q)
+        }
+        return(Bmat)
+     }
+    
