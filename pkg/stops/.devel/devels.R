@@ -1331,32 +1331,46 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     xold <- init
     if(is.null(init)) xold <- stops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     xold <- xold/enorm(xold) 
-    copsf <- function(x,delta,r,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,...)
+    copsf <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+                     #,stressweight,scale,normed,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
              dnew <- sqdist (x)
-             rnew <- sum (weightmat * delta * mkPower (dnew, r))
-             nnew <- sum (weightmat * mkPower (dnew,  2*r))
-             anew <- rnew / nnew
+             #rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             #nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             #anew <- rnew / nnew
              resen <- abs(mkPower(dnew,2*r)-delta)
-             shrinkb <- ShrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...) 
-             shrinkres <- resen-(resen*shrinkb/(resen+shrinkb))
-             diag(skrinkres) <- 0
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             shrinkres <- resen*(1-cordweight*shrinkb/(resen+shrinkb))
+             diag(shrinkres) <- 0
              #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
              #struc <- corrd$raw
              #if(normed) {
              #           struc <- corrd$normed
              #          }
-             #ic <- stressweight*stressi - cordweight*struc
+              #ic <- stressweight*stressi - cordweight*struc
+             #
+             #Tis weird why does it become best if I have very low weight?
              ic <- sum(shrinkres^2)/2
              if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             ic
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
      if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+   #      optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,#stressweight=stressweight,cordweight=cordweight,
+    #                               q=q,minpts=minpts,epsilon=epsilon,rang=rang
+                                  #,scale=scale,normed=normed
+    #                               ),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,#stressweight=stressweight,
+                                   cordweight=cordweight,
+                                   q=q,minpts=minpts,epsilon=epsilon,rang=rang
+                                  #,scale=scale,normed=normed
+                                   ),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$feval
          ovalue <-optimized$fval
@@ -1408,7 +1422,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     out
 }
 
-ShrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
@@ -1416,7 +1430,7 @@ ShrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,..
              sv[-1] <- v[1:(vlen - 1)]
              sv
         }
-        if(scale) x <- scale(x)
+        #if(scale) x <- scale(x)
         N <- dim(x)[1]
         optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
         optord <- optres$order
@@ -1435,3 +1449,101 @@ ShrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,..
         return(Bmat)
      }
     
+
+
+ shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             #delta <- delta/enorm(delta,weightmat)
+             x <- x/enorm(x)
+             dnew <- sqdist (x)
+             #rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             #nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             #anew <- rnew / nnew
+             resen <- abs(mkPower(dnew,2*r)-delta)
+             #resen <- abs(dnew-delta)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             shrinkres <- resen*(1-cordweight*shrinkb/(resen+shrinkb))
+             #shrinkres <- resen
+             diag(shrinkres) <- 0
+             #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+             #
+             #Tis weird why does it become best if I have very low weight?
+             ic <- sum(shrinkres^2)
+             #if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             ic
+           }
+    
+optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnew <- matrix(optimized$par,ncol=ndim)
+
+cordweight <-0 
+scale <- TRUE
+x0s <- xnew
+scale <- FALSE
+x0ns <- xnew
+
+cordweight <-1 
+scale <- TRUE
+x1s <- xnew
+scale <- FALSE
+x1ns <- xnew
+
+
+optimizednos <- optimized
+optimizednos
+xnos <- matrix(optimizednos$par,ncol=ndim)
+xs <- matrix(optimized$par,ncol=ndim)
+xs10 <- matrix(optimized$par,ncol=ndim)
+
+library(stops)
+scale <- TRUE
+delta <- kinshipdelta
+weightmat <- 1-diag(15)
+weightmat
+xsma <- powerStressMin(delta)
+x <- xsma$conf
+ndim <- 2
+cordweight <- 1
+r <- 0.5
+q <- 2
+minpts <- 2
+epsilon <- 10
+rang <- c(0,0.4)
+plot(xsma)
+xold <- xsma$conf
+itmax <- 100000
+accuracy <- 1e-12
+verbose=2
+
+shrinkcops(x=x,delta=delta,r=r,ndim=2,weightmat=weightmat,cordweight=cordweight,rang=rang,q=q,minpts=minpts,epsilon=epsilon)
+
+xnew <- xnew/enorm(xnew)
+
+
+plot(xsma)
+par(mfrow=c(1,2))
+plot(xold)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew)
+text(xnew,label=rownames(xold),pos=3)
+
+par(mfrow=c(1,2))
+plot(xold)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew)
+text(xnew,label=rownames(xold),pos=3)
+
+par(mfrow=c(2,2))
+plot(x0ns)
+plot(x1ns)
+plot(x0s)
+plot(x1s)
+
+text(xnos,label=rownames(xold),pos=3)
+plot(xs)
+text(xs,label=rownames(xold),pos=3)
+plot(xs10)
+text(xs10,label=rownames(xold),pos=3)

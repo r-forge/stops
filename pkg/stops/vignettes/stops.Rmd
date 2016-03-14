@@ -1,7 +1,7 @@
 ---
-title: "A tutorial on STOPS"
+title: "A tutorial on Structure Optimized Proximity Scaling (STOPS)"
 author: "Thomas Rusch"
-date: "`r Sys.Date()`"
+date: "`r Sys.Date()"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
