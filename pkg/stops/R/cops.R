@@ -1390,7 +1390,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' @param itmax maximum number of iterations. Defaults to 100000
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
-#'@return A list with the components
+#' @return A list with the components
 #'         \itemize{
 #'         \item coploss: the weighted loss value
 #'         \item OC: the Optics cordillera
@@ -1402,7 +1402,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #'         \item cordillera: the OPTICS cordillera object
 #' }
 #' 
-#'@examples
+#' @examples
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#Coploss with shrinkage to 0 
@@ -1415,8 +1415,8 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' @importFrom minqa newuoa
 #' 
 #' 
-#'@keywords clustering multivariate
-#'@export
+#' @keywords clustering multivariate
+#' @export
 shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
@@ -1650,7 +1650,7 @@ cops <- function(dis, variant=c("0","1","2","Variant0","Variant1","Variant2","v0
                  {
                  if(missing(type)) variant <- "1"
                  if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","coploss-0")) out <- coplossMin(dis,...)
-                  if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0""coploss-c")) out <- shrinkCoploss(dis,...)
+                  if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","coploss-c")) out <- shrinkCoploss(dis,...)
                  if(variant%in%c("2","Variant2","v2","profile","p-coploss","P-COPS")) out <- pcops(dis,...)
                  out
                  }
