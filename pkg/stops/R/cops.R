@@ -1367,15 +1367,227 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 }
 
 
+#' Fitting a COPS Model by shrinking residuals to Zero (COPS-0).
+#'
+#' Minimizing coploss by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
+#'
+#' @param delta numeric matrix or dist object of a matrix of proximities
+#' @param kappa power transformation for fitted distances
+#' @param lambda power transformation for proximities
+#' @param nu power transformation for weights
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
+#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
+#' @param ndim number of dimensions of the target space
+#' @param init (optional) initial configuration
+#' @param shrinkweight weight to be used for the shrinkage; defaults to 1
+#' @param q used in cordillera and shrink matrix and controls the effect of using the norm; defaults to 2 (least squares MDS)
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
+#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
+#' @param accuracy numerical accuracy, defaults to 1e-8
+#' @param itmax maximum number of iterations. Defaults to 100000
+#' @param ... additional arguments to be passed to the optimization procedure
+#'
+#'@return A list with the components
+#'         \itemize{
+#'         \item coploss: the weighted loss value
+#'         \item OC: the Optics cordillera
+#'         \item optim: the object returned from the optimization procedure
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#'         \item cordillera: the OPTICS cordillera object
+#' }
+#' 
+#'@examples
+#'dis<-as.matrix(smacof::kinshipdelta)
+#'
+#'#Coploss with shrinkage to 0 
+#'res1<-shrinkCoploss(dis,shrinkweight=1) 
+#'res1
+#'summary(res1)
+#'plot(res1)  #super clustered
+#'
+#' @importFrom stats dist as.dist optim
+#' @importFrom minqa newuoa
+#' 
+#' 
+#'@keywords clustering multivariate
+#'@export
+shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,accuracy = 1e-7, itmax = 100000,...)
+{
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    kappa <- theta[1]
+    lambda <- theta[2]
+    nu <- theta[3]
+    plot <- FALSE
+    if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(missing(optimmethod)) optimmethod <- "Newuoa"
+    if(missing(rang))
+        #perhaps put this into the optimization function?
+          {
+           if(verbose>1) cat ("Fitting configuration for rang. \n")    
+           initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           init0 <- initsol$conf
+           if(isTRUE(scale)) init0 <- scale(init0)
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           cin <- max(crp)
+           rang <- c(0,1.5*cin)  
+           if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
+           }
+      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
+    r <- kappa/2
+    deltaorig <- delta
+    delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1 #new
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat) #sum=1
+    xold <- init
+    if(is.null(init)) xold <- stops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+    xold <- xold/enorm(xold) 
+    shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             delta <- delta/enorm(delta,weightmat)
+             x <- x/enorm(x)
+             dnew <- sqdist (x)
+             #rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             #nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             #anew <- rnew / nnew
+             resen <- abs(mkPower(dnew,2*r)-delta)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             shrinkres <- resen*(1-cordweight*shrinkb/(resen+shrinkb))
+             diag(shrinkres) <- 0
+             #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+             #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             #struc <- corrd$raw
+             #if(normed) {
+             #           struc <- corrd$normed
+             #          }
+              #ic <- stressweight*stressi - cordweight*struc
+             #
+             #Tis weird why does it become best if I have very low weight?
+
+             ic <- sum(shrinkres^2)/2
+             if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             ic
+           }
+     if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
+     if(optimmethod=="Newuoa") {
+         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,
+                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang
+                                   ),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- optimized$feval
+         ovalue <-optimized$fval
+     }
+     if(optimmethod=="Nelder-Mead") {
+         optimized <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,
+                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang
+                                   ),control=list(maxit=itmax,trace=verbose),...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$val 
+     }
+     xnew <- xnew/enorm(xnew)
+     dnew <- sqdist (xnew)
+     rnew <- sum (weightmat * delta * mkPower (dnew, r))
+     nnew <- sum (weightmat * mkPower (dnew,  2*r))
+     anew <- rnew / nnew
+     stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+     attr(xnew,"dimnames")[[1]] <- rownames(delta)
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
+     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     #doutm <- as.matrix(dist(xnew)^kappa)
+     deltam <- delta
+     deltaorigm <- deltaorig
+     deltaoldm <- deltaold
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm)
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     resmat <- as.matrix(delta - doute)^2
+     spp <- colMeans(resmat)
+     weightmatm <-weightmat
+     weightmat <- stats::as.dist(weightmatm)
+     stressen <- sum(weightmatm*resmat)/2 #raw stress on the normalized proximities and normalized distances 
+     if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out$par <- theta
+    out$loss <- "coploss"
+    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    out$coploss <- ovalue
+    out$optim <- optimized
+    out$cordweight <- cordweight
+    out$stressweight <- 1
+    out$call <- match.call()
+    out$optimethod <- optimmethod
+    out$losstype <- out$loss
+    out$nobj <- dim(out$conf)[1]
+    class(out) <- c("cops","smacofP","smacofB","smacof")
+    out
+}
+
+
+#' Finding the shrinkage matrix for COPS-0
+#'
+#' @param x numeric matrix
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.     
+#' @param ... additional arguments to be passed to the OPTICS algorithm procedure
+#' 
+#' @importFrom dbscan optics 
+#' 
+#'@export
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+     {
+       shift1 <- function (v) {
+             vlen <- length(v)
+             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
+             sv[-1] <- v[1:(vlen - 1)]
+             sv
+        }
+        #if(scale) x <- scale(x)
+        N <- dim(x)[1]
+        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
+        optord <- optres$order
+        optind <- 1:length(optres$order)
+        indordered <- optind[optord]
+        predec <- shift1(indordered)
+        reachdist <- optres$reachdist[optres$order]
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
+        reachdiffs <- c(NA,abs(diff(reachdist)))
+        mats <- cbind(indordered,predec,reachdiffs)
+        Bmat <- matrix(0,ncol=N,nrow=N)
+        for (i in 1:N) {
+            indo <- mats[i,]
+            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
+        }
+        return(Bmat)
+     }
+
+
+
 #' High Level COPS Function
 #'
-#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS Variant 1 (finding a configuration from coploss) and Variant 2 (finding hyperparameters for MDS models with power transformations). It is wrapper for coplossMin (Variant 1) and pcops (Variant 2).
+#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss, coplossMin and pcops.
 #'
 #'@param dis a dissimilarity matrix or a dist object
-#'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "1","2","Variant1","Variant2","v1","v2","configuration","profile","coploss","p-coploss". Defaults to "1".
-#'@param ... arguments to be passed to coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{coplossMin}} or \code{\link{pcops}}
+#'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss". Defaults to "COPS-C".
+#'@param ... arguments to be passed to shrinkCoploss (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss}} \code{\link{coplossMin}} or \code{\link{pcops}}
 #'
-#'@return For Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
+#'@return For Variant 0 see \code{\link{shrinkCoploss}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
 #' \donttest{
@@ -1434,10 +1646,11 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis, variant=c("1","2","variant1","variant2","v1","v2","configuration","profile","coploss","p-coploss"),...)
+cops <- function(dis, variant=c("0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss"),...)
                  {
                  if(missing(type)) variant <- "1"
-                 if(variant%in%c("1","Variant1","v1","configuration","coploss")) out <- coplossMin(dis,...)
-                 if(variant%in%c("1","Variant2","v2","profile","p-coploss")) out <- pcops(dis,...)
+                 if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","coploss-0")) out <- coplossMin(dis,...)
+                  if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0""coploss-c")) out <- shrinkCoploss(dis,...)
+                 if(variant%in%c("2","Variant2","v2","profile","p-coploss","P-COPS")) out <- pcops(dis,...)
                  out
                  }
