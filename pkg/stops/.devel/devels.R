@@ -1426,6 +1426,35 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
         reachdiffs <- c(NA,abs(diff(reachdist)))
         mats <- cbind(indordered,predec,reachdiffs)
         Bmat <- matrix(0,ncol=N,nrow=N)
+       #something weird; what happens to the first jump? 
+        for (i in 2:N) {
+            indo <- mats[i,]
+            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
+        }
+        return(Bmat)
+     }
+
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+     {
+       shift1 <- function (v) {
+             vlen <- length(v)
+             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
+             sv[-1] <- v[1:(vlen - 1)]
+             sv
+        }
+        #if(scale) x <- scale(x)
+        N <- dim(x)[1]
+        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
+        optord <- optres$order
+        optind <- 1:length(optres$order)
+        indordered <- optind[optord]
+        predec <- shift1(indordered)
+        reachdist <- optres$reachdist[optres$order]
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
+        reachdiffs <- c(NA,abs(diff(reachdist)))
+        mats <- cbind(indordered,predec,reachdiffs)
+        Bmat <- matrix(0,ncol=N,nrow=N)
+       #something weird; what happens to the first jump? 
         for (i in 1:N) {
             indo <- mats[i,]
             Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
@@ -1435,10 +1464,10 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
     
 
 
- shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+ shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
-             #delta <- delta/enorm(delta,weightmat)
+             delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
              dnew <- sqdist (x)
              #rnew <- sum (weightmat * delta * mkPower (dnew, r))
@@ -1459,9 +1488,45 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
              #if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
              ic
            }
+
+
+#checkl with how it is in the cops.R code
     
-optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
+
+optimizedn <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang), method="Nelder-Mead")
+xnewn <- matrix(optimizedn$par,ncol=ndim)
+
+library(crs)
+q <- 1
+optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xold,bbin=rep(0,30),ub=rep(5,30),lb=rep(-5,30,bbout=0))
+xnews <- matrix(optimizeds$solution,ncol=ndim)
+
+xnews <- xnews/enorm(xnews)
+plot(xnews)
+
+optimized$fval
+optimizeds$objective
+optimizedn$value
+
+
+
+par(mfrow=c(2,2))
+xold <- xold/enorm(xold)
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+xnew <- xnew/enorm(xnew)
+plot(xnew,asp=1)
+text(xnew,label=rownames(xold),pos=3)
+xnewn <- xnewn/enorm(xnewn)
+plot(xnewn,asp=1)
+text(xnewn,label=rownames(xold),pos=3)
+xnews <- xnews/enorm(xnews)
+plot(xnews,asp=1)
+text(xnews,label=rownames(xold),pos=3)
+
+
 
 cordweight <-0 
 scale <- TRUE
