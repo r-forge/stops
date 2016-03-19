@@ -1482,9 +1482,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
      if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,
-                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang
-                                   ),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$feval
          ovalue <-optimized$fval
@@ -1505,22 +1503,22 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
      stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
      attr(xnew,"dimnames")[[1]] <- rownames(delta)
      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
-     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+     doutm <- sqrt(sqdist(xnew))^kappa  #fitted powered euclidean distance
      #doutm <- as.matrix(dist(xnew)^kappa)
      deltam <- delta
      deltaorigm <- deltaorig
      deltaoldm <- deltaold
+     resmat <- deltam - doutm
      delta <- stats::as.dist(delta)
      deltaorig <- stats::as.dist(deltaorig)
      deltaold <- stats::as.dist(deltaold)
      doute <- doutm/enorm(doutm)
      doute <- stats::as.dist(doute)
      dout <- stats::as.dist(doutm)
-     resmat <- as.matrix(delta - doute)^2
      spp <- colMeans(resmat)
      weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmatm)
-     stressen <- sum(weightmatm*resmat)/2 #raw stress on the normalized proximities and normalized distances 
+     stressen <- sum(weightmatm*resmat^2)/2 #raw stress on the normalized proximities and normalized distances 
      if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
@@ -1570,7 +1568,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
         reachdiffs <- c(NA,abs(diff(reachdist)))
         mats <- cbind(indordered,predec,reachdiffs)
         Bmat <- matrix(0,ncol=N,nrow=N)
-        for (i in 1:N) {
+        for (i in 2:N) {
             indo <- mats[i,]
             Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
         }
