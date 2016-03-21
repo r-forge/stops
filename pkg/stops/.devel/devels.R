@@ -1434,7 +1434,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
         return(Bmat)
      }
 
-shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+shrinkB2 <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
@@ -1469,39 +1469,44 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-             dnew <- sqdist (x)
+             dnew <- sqdist(x)
              #rnew <- sum (weightmat * delta * mkPower (dnew, r))
              #nnew <- sum (weightmat * mkPower (dnew,  2*r))
              #anew <- rnew / nnew
-             resen <- abs(mkPower(dnew,2*r)-delta)
+             resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
              shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
-             shrinkres <- resen*(1-cordweight*shrinkb/(resen+shrinkb))
+             shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
              diag(shrinkres) <- 0
              #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              #
              #Tis weird why does it become best if I have very low weight?
-             ic <- sum(shrinkres^2)
-             #if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             ic <- sum(shrinkres^2)/2
+             if(verbose>1) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"\n")
              ic
            }
 
 
 #checkl with how it is in the cops.R code
-    
-optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
-xnew <- matrix(optimized$par,ncol=ndim)
+
+cordweight=0.5
+q <- 1
+optimized <- minqa::newuoa(xnew1,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnew2 <- matrix(optimized$par,ncol=ndim)
 
 optimizedn <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang), method="Nelder-Mead")
 xnewn <- matrix(optimizedn$par,ncol=ndim)
 
 library(crs)
-q <- 1
-optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xold,bbin=rep(0,30),ub=rep(5,30),lb=rep(-5,30,bbout=0))
+#q <- 0
+optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xnew1,bbin=rep(0,30),ub=rep(5,30),lb=rep(-5,30,bbout=0))
 xnews <- matrix(optimizeds$solution,ncol=ndim)
+
+#For the situation with dist() and *r we get an interesting result with nomads:
+# In standard MDS the genders are separated which puts some close relationship stati on opposite sides (grandson/father and daughter mother; not so when shrinking - the task was to order similarities by relationhsip status NOT gender 
 
 xnews <- xnews/enorm(xnews)
 plot(xnews)
@@ -1513,7 +1518,16 @@ optimizedn$value
 
 
 par(mfrow=c(2,2))
-xold <- xold/enorm(xold)
+plot(xnew1,asp=1)
+text(xnew1,label=rownames(xold),pos=3)
+plot(xnew2,asp=1)
+text(xnew2,label=rownames(xold),pos=3)
+plot(xnews,asp=1)
+text(xnews,label=rownames(xold),pos=3)
+
+
+par(mfrow=c(2,2))
+#xold <- xold/enorm(xold)
 plot(xold,asp=1)
 text(xold,label=rownames(xold),pos=3)
 xnew <- xnew/enorm(xnew)

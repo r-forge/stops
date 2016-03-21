@@ -1449,22 +1449,25 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+    if(is.null(init)) xold <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     xold <- xold/enorm(xold) 
     shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
            {
+             #TODO: Need to decide whether we use dist() and 2*r throughout or sqdist() and r - for compatibility with the other functions   
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-             dnew <- sqdist (x)
+             dnew <- sqdist(x))   #sqdist so in power only ^r
+             #dnew <- as.matrix(dist(x))   #alternative 
              #rnew <- sum (weightmat * delta * mkPower (dnew, r))
              #nnew <- sum (weightmat * mkPower (dnew,  2*r))
              #anew <- rnew / nnew
-             resen <- abs(mkPower(dnew,2*r)-delta)
+             resen <- abs(mkPower(dnew,r)-delta)
+             #resen <- abs(mkPower(dnew,2*r)-delta) #alternative
              shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
-             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
-             shrinkres <- resen*(1-cordweight*shrinkb/(resen+shrinkb))
+             #shrinkres <- resen-((cordweight*resen*shrinkb)/(resen+shrinkb))
+             shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              diag(shrinkres) <- 0
              #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
@@ -1474,10 +1477,8 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              #          }
               #ic <- stressweight*stressi - cordweight*struc
              #
-             #Tis weird why does it become best if I have very low weight?
-
              ic <- sum(shrinkres^2)/2
-             if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen),"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
              ic
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
@@ -1496,6 +1497,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
          ovalue <-optimized$val 
      }
      xnew <- xnew/enorm(xnew)
+     #dnew <- as.matrix(dist (xnew)^2) #alternative
      dnew <- sqdist (xnew)
      rnew <- sum (weightmat * delta * mkPower (dnew, r))
      nnew <- sum (weightmat * mkPower (dnew,  2*r))
@@ -1503,8 +1505,8 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
      stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
      attr(xnew,"dimnames")[[1]] <- rownames(delta)
      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
-     doutm <- sqrt(sqdist(xnew))^kappa  #fitted powered euclidean distance
-     #doutm <- as.matrix(dist(xnew)^kappa)
+     doutm <- (sqrt(dnew))^kappa  #fitted powered euclidean distance
+     #doutm <- as.matrix(dist(xnew)^kappa)  #alternative 
      deltam <- delta
      deltaorigm <- deltaorig
      deltaoldm <- deltaold
@@ -1552,7 +1554,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
-             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
+             sv <- as.vector(numeric(vlen)) 
              sv[-1] <- v[1:(vlen - 1)]
              sv
         }
