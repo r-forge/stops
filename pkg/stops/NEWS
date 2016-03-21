@@ -1,3 +1,7 @@
+Version 0.0-33
+
+- Fixed bugs in shrinkCoploss and updated docs.
+
 Version 0.0-32
 
 - New COPS variant that shrinks residuals to COPS (COPS-0).  

@@ -6,7 +6,8 @@
 \usage{
 cops(dis, variant = c("0", "1", "2", "Variant0", "Variant1", "Variant2", "v0",
   "v1", "v2", "COPS-0", "COPS-C", "P-COPS", "configuration-0",
-  "configuration-c", "profile", "coploss-0", "coploss-c", "p-coploss"), ...)
+  "configuration-c", "profile", "coploss-0", "coploss-c", "p-coploss", "COPS-P",
+  "coploss-p"), ...)
 }
 \arguments{
 \item{dis}{a dissimilarity matrix or a dist object}
@@ -25,23 +26,20 @@ Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (f
 \donttest{
 dis<-as.matrix(smacof::kinshipdelta)
 
-#Coploss with equal weight to stress and cordillera 
-res1<-cops(dis,stressweight=0.5,cordweight=0.5) 
+#COPS-C with equal weight to stress and cordillera 
+res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,minpts=2) 
 res1
 summary(res1)
 plot(res1)
 
-#classic mds (i.e. stressweight=1 and cordweight=0)
-res2<-cops(dis,stressweight=1,cordweight=0) 
+#classic mds (i.e. COPS-C with stressweight=1 and cordweight=0 or COPS-0 with cordweight=0)
+res2<-cops(dis,variant="COPS-C",stressweight=1,cordweight=0,minpts=2) 
 res2
 summary(res2)
 plot(res2)
 
-#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
-#the reason is the distance between sister and son
-
 #procrustes adjusted
-resadj<-conf_adjust(res2$fit$points,res1$fit$points)
+resadj<-conf_adjust(res2$fit$conf,res1$fit$conf)
 plot(resadj$ref.conf) #res 2
 plot(resadj$other.conf) #res 1
 
@@ -49,8 +47,21 @@ par(mfrow=c(1,2))
 plot(res1,"reachplot")
 plot(res2,"reachplot") 
 
+
+#COPS-0 to improve over an MDS result
+res0<-powerStressFast(dis)
+res2a<-cops(dis,variant="COPS-0",cordweight=1,q=2,init=res0$conf,minpts=2) 
+res2a
+summary(res2a)
+plot(res2a)
+
+resadj<-conf_adjust(res0$fit$conf,res2a$fit$conf)
+plot(resadj$ref.conf) #res 0
+plot(resadj$other.conf) #res 2a
+
+
 #s-stress type coploss (i.e. kappa=2, lambda=2)
-res3<-cops(dis,kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
+res3<-cops(dis,variant="COPS-C",kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
 res3
 summary(res3)
 plot(res3)
@@ -58,15 +69,17 @@ plot(res3)
 #Sammon stress type coploss
 ws<-weightmat=1/dis
 diag(ws)<-1 
-res4<-cops(dis,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+res4<-cops(dis,variant="COPS-0",nu=-1,weightmat=ws,cordweight=0.5) 
 res4
 summary(res4)
 plot(res4)
 
-#power-stress type coploss
-ws<-weightmat=1/dis
+#power-stress type profile coploss
+# search for optimal kappa and lambda between kappa=0.5,lambda=0.5 and kappa=2,lambda=5
+# nu is fixed on -1
+ws<-1/dis
 diag(ws)<-1 
-res5<-cops(dis,kappa=1.4,lambda=3,nu=-1,weightmat=ws,stressweight=0.5,cordweight=0.5) 
+res5<-cops(dis,variant="P-COPS",loss="powerstress",theta=c(1.4,3,-1),lower=c(1,0.5,-1),upper=c(3,5,-1),weightmat=ws,stressweight=0.9,cordweight=0.1) 
 res5
 summary(res5)
 plot(res5)
