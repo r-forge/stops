@@ -1406,33 +1406,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     out
 }
 
-shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
-     {
-       shift1 <- function (v) {
-             vlen <- length(v)
-             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
-             sv[-1] <- v[1:(vlen - 1)]
-             sv
-        }
-        #if(scale) x <- scale(x)
-        N <- dim(x)[1]
-        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
-        optord <- optres$order
-        optind <- 1:length(optres$order)
-        indordered <- optind[optord]
-        predec <- shift1(indordered)
-        reachdist <- optres$reachdist[optres$order]
-        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
-        reachdiffs <- c(NA,abs(diff(reachdist)))
-        mats <- cbind(indordered,predec,reachdiffs)
-        Bmat <- matrix(0,ncol=N,nrow=N)
-       #something weird; what happens to the first jump? 
-        for (i in 2:N) {
-            indo <- mats[i,]
-            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
-        }
-        return(Bmat)
-     }
+
 
 shrinkB2 <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      {
@@ -1492,10 +1466,10 @@ shrinkB2 <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
 
 #checkl with how it is in the cops.R code
 
-cordweight=0.5
+cordweight=1
 q <- 1
-optimized <- minqa::newuoa(xnew1,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
-xnew2 <- matrix(optimized$par,ncol=ndim)
+optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnew2a <- matrix(optimized$par,ncol=ndim)
 
 optimizedn <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang), method="Nelder-Mead")
 xnewn <- matrix(optimizedn$par,ncol=ndim)
@@ -1566,11 +1540,12 @@ scale <- TRUE
 delta <- kinshipdelta
 weightmat <- 1-diag(15)
 xsma <- powerStressMin(delta)
+xsma <- powerStressFast(delta)
 x <- xsma$conf
 ndim <- 2
 cordweight <- 1
 r <- 0.5
-q <- 2
+q <- 1
 minpts <- 2
 epsilon <- 10
 rang <- c(0,1.6)
@@ -1584,13 +1559,18 @@ shrinkcops(x=x,delta=delta,r=r,ndim=2,weightmat=weightmat,cordweight=cordweight,
 
 xnew <- xnew/enorm(xnew)
 
+xnew2 <- shrinkCoploss(delta,minpts=minpts,q=q,epsilon=epsilon,ndim=ndim,cordweight=0,init=xold,rang=rang)
+xnew <- shrinkCoploss(delta,minpts=minpts,q=q,epsilon=epsilon,ndim=ndim,cordweight=cordweight,init=xold)
+xsma
+xnew
+xnew2
 
 plot(xsma)
 par(mfrow=c(1,2))
-plot(xold)
+plot(xold,asp=1)
 text(xold,label=rownames(xold),pos=3)
-plot(xnew)
-text(xnew,label=rownames(xold),pos=3)
+plot(xnew2a,asp=1)
+text(xnew2a,label=rownames(xold),pos=3)
 
 par(mfrow=c(1,2))
 plot(xold)
@@ -1828,3 +1808,298 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     class(out) <- c("cops","smacofP","smacofB","smacof")
     out
 }
+
+
+#########################################################################################################
+#so I observed that after procrustes the shrinked results are like the unshrinked. Why? Bug? Clear? Investigate here.
+
+library(stops)
+
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+     {
+       shift1 <- function (v) {
+             vlen <- length(v)
+             sv <- as.vector(numeric(vlen), mode = storage.mode(v)) 
+             sv[-1] <- v[1:(vlen - 1)]
+             sv
+        }
+        #if(scale) x <- scale(x)
+        N <- dim(x)[1]
+        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
+        optord <- optres$order
+        optind <- 1:length(optres$order)
+        indordered <- optind[optord]
+        predec <- shift1(indordered)
+        reachdist <- optres$reachdist[optres$order]
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
+        reachdiffs <- c(NA,abs(diff(reachdist)))
+        mats <- cbind(indordered,predec,reachdiffs)
+        Bmat <- matrix(0,ncol=N,nrow=N)
+       #something weird; what happens to the first jump? 
+        for (i in 2:N) {
+            indo <- mats[i,]
+            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
+        }
+        return(Bmat)
+     }
+
+
+ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             #try these variants again with kinship and cali:
+             #it all about how to normalize so that the shrinkage will play its part
+             #take care of r and so if sqrt(sqdist use r*2
+             #see what recovers the xold config with cordweight=0
+             #see what works with procrustes
+             #delta enormed, x enormed; looks ok with clusters for kinship but wrong clusters
+             #delta enormed, dnew enormed; not very clustered; very spread out
+             #delta enormed, x scaled; looks good! -> use this? Procrustes gives the same result with cordweight=0
+             #delta enormed, x scaled + enormed; looks good! -> looks best? 
+             #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
+             #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
+             if(scale) x <- scale(x)
+             delta <- delta/enorm(delta,weightmat)
+             #x <- x/enorm(x)
+             dnew <- sqdist(x)
+             #dnew <- sqrt(sqdist(x))
+             #dnew <- dnew/enorm(dnew,weightmat)
+             #r <- 2*r
+             rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             anew <- rnew / nnew
+             resen <- abs(mkPower(dnew,r)-delta)
+             #resen <- abs(dnew-delta)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
+             #shrinkres <- resen
+             diag(shrinkres) <- 0
+             stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+             #
+             ic <- sum(shrinkres^2)
+             if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",stressi,"delta(mds/sma)=",sum(resen^2)-stressi,"\n")
+             #delta cops/mds should be negative if nor cordweight is too high,no?
+             ic
+           }
+
+
+#scale <- TRUE
+delta <- kinshipdelta
+weightmat <- 1-diag(15)
+weightmat <- 1-diag(58)
+xsma <- powerStressFast(delta)
+x <- xsma$conf
+ndim <- 2
+r <- 0.5
+q <- 1
+minpts <- 2
+epsilon <- 10
+rang <- c(0,1.6)
+plot(xsma)
+xold <- xsma$conf
+itmax <- 100000
+accuracy <- 1e-12
+verbose=2
+
+shrinkcops(x=x,delta=delta,r=r,ndim=2,weightmat=weightmat,cordweight=cordweight,rang=rang,q=q,minpts=minpts,epsilon=epsilon)
+
+xold <- xsma$conf
+xold <- teso3$conf
+xold <- x
+
+cordweight <- 1
+q <- 1
+optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnew <- matrix(optimized$par,ncol=ndim)
+
+xnew <- scale(xnew)
+xold <- scale(xold)
+
+xnew2 <- xnew
+xnew3 <- xnew
+xnew20 <- xnew
+
+
+par(mfrow=c(1,2))
+plot(xold,asp=1,pch=20)
+text(xold,label=rownames(xold),pos=3)
+points(xnew,col="red")
+points(xnew2,col="green")
+points(xnew3,col="blue")
+points(xnew20,col="black")
+
+plot(xnew,asp=1,pch=20)
+text(xnew,label=rownames(xold),pos=3)
+
+
+par(mfrow=c(2,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew,asp=1)
+text(xnew,label=rownames(xold),pos=3)
+plot(xnew2,asp=1)
+text(xnew2,label=rownames(xold),pos=3)
+plot(xnew,asp=1)
+text(xnew,label=rownames(xold),pos=3)
+
+xolda <- conf_adjust(xold,xnew)$ref.conf
+xnewa <- conf_adjust(xold,xnew)$other.conf
+xnew2a <- conf_adjust(xold,xnew2)$other.conf
+#xoldaa <- conf_adjust(xold,xnew2)$ref.conf
+
+xoldaa <- scale(xold)
+xnewaa <- scale(xnew)
+xnew2aa <- scale(xnew2)
+
+
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xolda,asp=1)
+text(xolda,label=rownames(xold),pos=3)
+
+par(mfrow=c(2,2))
+plot(xolda,asp=1,pch=20)
+text(xolda,label=rownames(xold),pos=3)
+points(xnewa,col="green")
+plot(xnewa,asp=1)
+text(xnewa,label=rownames(xold),pos=3)
+plot(xnew2a,asp=1)
+text(xnew2a,label=rownames(xold),pos=3)
+
+par(mfrow=c(2,2))
+plot(xoldaa,asp=1)
+text(xoldaa,label=rownames(xold),pos=3)
+points(xnewaa,col="red")
+plot(xnewaa,asp=1)
+text(xnewaa,label=rownames(xold),pos=3)
+plot(xnew2aa,asp=1)
+text(xnew2aa,label=rownames(xold),pos=3)
+
+
+xoldaaa <- conf_adjust(xoldaa,xnewaa)$ref.conf
+xnewaaa <- conf_adjust(xoldaa,xnewaa)$other.conf
+xnew2aaa <- conf_adjust(xoldaa,xnew2aa)$other.conf
+par(mfrow=c(2,2))
+plot(xoldaaa,asp=1)
+text(xoldaaa,label=rownames(xold),pos=3)
+points(xnewaa,col="red")
+plot(xnewaaa,asp=1)
+text(xnewaaa,label=rownames(xold),pos=3)
+plot(xnew2aaa,asp=1)
+text(xnew2aaa,label=rownames(xold),pos=3)
+
+#xoldaa <- conf_adjust(xold,xnew2)$ref.conf
+
+#tested it with cordweight=1; there are differences here
+
+
+cordweight <-0 
+scale <- TRUE
+x0s <- xnew
+scale <- FALSE
+x0ns <- xnew
+
+cordweight <-1 
+scale <- TRUE
+x1s <- xnew
+scale <- FALSE
+x1ns <- xnew
+
+
+optimizednos <- optimized
+optimizednos
+xnos <- matrix(optimizednos$par,ncol=ndim)
+xs <- matrix(optimized$par,ncol=ndim)
+xs10 <- matrix(optimized$par,ncol=ndim)
+
+
+xnew <- xnew/enorm(xnew)
+
+xnew2 <- shrinkCoploss(delta,minpts=minpts,q=q,epsilon=epsilon,ndim=ndim,cordweight=0,init=xold,rang=rang)
+xnew <- shrinkCoploss(delta,minpts=minpts,q=q,epsilon=epsilon,ndim=ndim,cordweight=cordweight,init=xold)
+xsma
+xnew
+xnew2
+
+plot(xsma)
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew2a,asp=1)
+text(xnew2a,label=rownames(xold),pos=3)
+
+par(mfrow=c(1,2))
+plot(xold)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew)
+text(xnew,label=rownames(xold),pos=3)
+
+par(mfrow=c(2,2))
+plot(x0ns)
+plot(x1ns)
+plot(x0s)
+plot(x1s)
+
+text(xnos,label=rownames(xold),pos=3)
+plot(xs)
+text(xs,label=rownames(xold),pos=3)
+plot(xs10)
+text(xs10,label=rownames(xold),pos=3)
+
+
+cordweight=0
+m0 <- shrinkCoploss(delta,minpts=minpts,init=xold,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang)
+xnew0 <- m0$conf
+
+xnew0 <- xold
+cordweight=1
+m1 <- shrinkCoploss(delta,minpts=minpts,init=xnew0,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang)
+xnew1 <- m1$conf
+
+cordweight=0.5
+m05 <- shrinkCoploss(delta,init=xnew0,minpts=minpts,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang)
+xnew05 <- m05$conf
+
+
+cordweight=0.1
+m01 <- shrinkCoploss(delta,init=xnew0,minpts=minpts,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang)
+xnew01 <- m01$conf
+
+
+par(mfrow=c(2,2))
+plot(xsma)
+plot(m0)
+plot(m05)
+plot(m1)
+plot(m01)
+
+par(mfrow=c(1,2))
+plot(m05)
+plot(m1)
+
+
+
+plot(m0$OC)
+plot(m05$OC)
+plot(m1$OC)
+
+
+
+
+
+plot(m1)   #it was so that tehre was a bug in shrinkB where I used indo[3]/(2^1/q); this worked much better! Why; check it
+
+#For the situation with dist() and *r we get an interesting result with nomads:
+# In standard MDS the genders are separated which puts some close relationship stati on opposite sides (grandson/father and daughter mother; not so when shrinking - the task was to order similarities by relationhsip status NOT gender 
+
+
+optimizedn <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang), method="Nelder-Mead")
+xnewn <- matrix(optimizedn$par,ncol=ndim)
+
+library(crs)
+#q <- 0
+optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xnew1,bbin=rep(0,30),ub=rep(5,30),lb=rep(-5,30,bbout=0))
+xnews <- matrix(optimizeds$solution,ncol=ndim)
