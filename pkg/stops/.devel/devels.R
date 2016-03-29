@@ -1816,7 +1816,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #old shrinkCoploss
 library(stops)
 
-#scale <- TRUE
+scale <- TRUE
 delta <- kinshipdelta
 weightmat <- 1-diag(15)
 #weightmat <- 1-diag(58)
@@ -1884,17 +1884,13 @@ x <- scale(xold)
              #try these variants again with kinship and cali:
              #it all about how to normalize so that the shrinkage will play its part
              #take care of r and so if sqrt(sqdist()) use r*2
-             #see what recovers the xold config with cordweight=0
-             #see what works with procrustes
-             #delta enormed, dnew enormed; not very clustered; very spread out
-             #delta enormed, x scaled; looks good! -> use this? Procrustes gives the same result with cordweight=0
              #delta enormed, x scaled + enormed; looks good! -> looks best? 
              #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
              #if(scale) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
-             #x <- x/enorm(x)
-             #dnew <- sqdist(x)
+             x <- x/enorm(x)
+             dnew <- sqdist(x)
              dnew <- sqrt(sqdist(x))
              dnew <- dnew/enorm(dnew,weightmat)
              dnew <- dnew^2
@@ -1917,16 +1913,36 @@ x <- scale(xold)
              ic
            }
 
-
-cordweight <- 1
+x <- initsolcalistart$conf
+cordweight <- 50
 optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
 
+rs <- delta/enorm(delta)
+
+r2 <- as.matrix(dist(xnew))
+res <- abs(rs-r2)
+diag(res) <- 1
+
+
+shrinks <- shrinkB(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+
+ft <- (res*shrinks)/(res+shrinks)
+
+res-res*cw*ft>0
+
+res>res*cw*ft
+
+res/ft>res*cw
+
+1/ft>cw
+
+
 par(mfrow=c(1,2))
 plot(x,asp=1,pch=20)
-text(x,label=rownames(xold),pos=3)
+text(x,label=rownames(x),pos=3)
 plot(xnew,asp=1,pch=20)
-text(xnew,label=rownames(xold),pos=3)
+text(xnew,label=rownames(x),pos=3)
 
 cx <- cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
 cx
@@ -1957,7 +1973,7 @@ text(xnewaa,label=rownames(xold),pos=3)
 
 
 points(xnew,col="red")
-points(xnew2,col="green")
+points(xnew,col="green")
 points(xnew3,col="blue")
 points(xnew20,col="black")
 
