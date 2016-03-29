@@ -1811,9 +1811,41 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 
 
 #########################################################################################################
-#so I observed that after procrustes the shrinked results are like the unshrinked. Why? Bug? Clear? Investigate here.
+# so the question here is how to normlize the dissimilarities/distances in COPS-0; this clearly has a bearing on the overall result as I no longer normalize the shrinkB matrix; also I observed that after procrustes the shrinked results are like the unshrinked.
 
+#old shrinkCoploss
 library(stops)
+
+#scale <- TRUE
+delta <- kinshipdelta
+weightmat <- 1-diag(15)
+#weightmat <- 1-diag(58)
+xsma <- powerStressFast(delta)
+plot(xsma)
+x <- xsma$conf
+ndim <- 2
+r <- 0.5
+q <- 1
+minpts <- 2
+epsilon <- 10
+rang <- c(0,1.6)
+xold <- xsma$conf
+itmax <- 100000
+accuracy <- 1e-12
+verbose=2
+c0 <- cordillera(xold,q=1,minpts=minpts,epsilon=epsilon,rang=rang)
+c0
+
+#old shrinkcoploss
+m1 <- shrinkCoploss(delta,q=q,minpts=minpts,epsilon=epsilon,weightmat=weightmat,init=xold,ndim=ndim,cordweight=1,rang=rang,scale=scale)
+m1
+plot(m1,plot.type="reachplot")
+c1 <- cordillera(m1$conf,q=1,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE)
+plot(c1)
+
+c1 <- cordillera(m1$conf,q=1,minpts=minpts,epsilon=epsilon,rang=c(0,0.05613),scale=FALSE)
+plot(c1)
+c1
 
 shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      {
@@ -1843,31 +1875,34 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
         return(Bmat)
      }
 
+x <- xold
+x <- scale(xold)
 
  shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              #try these variants again with kinship and cali:
              #it all about how to normalize so that the shrinkage will play its part
-             #take care of r and so if sqrt(sqdist use r*2
+             #take care of r and so if sqrt(sqdist()) use r*2
              #see what recovers the xold config with cordweight=0
              #see what works with procrustes
-             #delta enormed, x enormed; looks ok with clusters for kinship but wrong clusters
              #delta enormed, dnew enormed; not very clustered; very spread out
              #delta enormed, x scaled; looks good! -> use this? Procrustes gives the same result with cordweight=0
              #delta enormed, x scaled + enormed; looks good! -> looks best? 
              #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
-             if(scale) x <- scale(x)
+             #if(scale) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
              #x <- x/enorm(x)
-             dnew <- sqdist(x)
-             #dnew <- sqrt(sqdist(x))
-             #dnew <- dnew/enorm(dnew,weightmat)
+             #dnew <- sqdist(x)
+             dnew <- sqrt(sqdist(x))
+             dnew <- dnew/enorm(dnew,weightmat)
+             dnew <- dnew^2
              #r <- 2*r
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
              anew <- rnew / nnew
+             snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
@@ -1876,62 +1911,56 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
              diag(shrinkres) <- 0
-             stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-             #
              ic <- sum(shrinkres^2)
-             if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",stressi,"delta(mds/sma)=",sum(resen^2)-stressi,"\n")
-             #delta cops/mds should be negative if nor cordweight is too high,no?
+             if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             #delta cops/mds should be positive if cordweight is too high,no?
              ic
            }
 
 
-#scale <- TRUE
-delta <- kinshipdelta
-weightmat <- 1-diag(15)
-weightmat <- 1-diag(58)
-xsma <- powerStressFast(delta)
-x <- xsma$conf
-ndim <- 2
-r <- 0.5
-q <- 1
-minpts <- 2
-epsilon <- 10
-rang <- c(0,1.6)
-plot(xsma)
-xold <- xsma$conf
-itmax <- 100000
-accuracy <- 1e-12
-verbose=2
-
-shrinkcops(x=x,delta=delta,r=r,ndim=2,weightmat=weightmat,cordweight=cordweight,rang=rang,q=q,minpts=minpts,epsilon=epsilon)
-
-xold <- xsma$conf
-xold <- teso3$conf
-xold <- x
-
 cordweight <- 1
-q <- 1
-optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
 
-xnew <- scale(xnew)
-xold <- scale(xold)
+par(mfrow=c(1,2))
+plot(x,asp=1,pch=20)
+text(x,label=rownames(xold),pos=3)
+plot(xnew,asp=1,pch=20)
+text(xnew,label=rownames(xold),pos=3)
 
-xnew2 <- xnew
-xnew3 <- xnew
-xnew20 <- xnew
+cx <- cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+cx
+plot(cx)
 
+cn <- cordillera(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+cn
+plot(cn)
+
+
+xa <- conf_adjust(x,xnew)$ref.conf
+xnewa <- conf_adjust(x,xnew)$other.conf
 
 par(mfrow=c(1,2))
-plot(xold,asp=1,pch=20)
-text(xold,label=rownames(xold),pos=3)
+plot(xa,asp=1,pch=20)
+text(xa,label=rownames(x),pos=3)
+plot(xnewa,asp=1)
+text(xnewa,label=rownames(xold),pos=3)
+
+xaa <- scale(x)
+xnewaa <- scale(xnew)
+
+par(mfrow=c(1,2))
+plot(xaa,asp=1,pch=20)
+text(xaa,label=rownames(x),pos=3)
+plot(xnewaa,asp=1)
+text(xnewaa,label=rownames(xold),pos=3)
+
+
 points(xnew,col="red")
 points(xnew2,col="green")
 points(xnew3,col="blue")
 points(xnew20,col="black")
 
-plot(xnew,asp=1,pch=20)
-text(xnew,label=rownames(xold),pos=3)
 
 
 par(mfrow=c(2,2))
@@ -1944,8 +1973,7 @@ text(xnew2,label=rownames(xold),pos=3)
 plot(xnew,asp=1)
 text(xnew,label=rownames(xold),pos=3)
 
-xolda <- conf_adjust(xold,xnew)$ref.conf
-xnewa <- conf_adjust(xold,xnew)$other.conf
+
 xnew2a <- conf_adjust(xold,xnew2)$other.conf
 #xoldaa <- conf_adjust(xold,xnew2)$ref.conf
 
@@ -1960,12 +1988,7 @@ text(xold,label=rownames(xold),pos=3)
 plot(xolda,asp=1)
 text(xolda,label=rownames(xold),pos=3)
 
-par(mfrow=c(2,2))
-plot(xolda,asp=1,pch=20)
-text(xolda,label=rownames(xold),pos=3)
-points(xnewa,col="green")
-plot(xnewa,asp=1)
-text(xnewa,label=rownames(xold),pos=3)
+
 plot(xnew2a,asp=1)
 text(xnew2a,label=rownames(xold),pos=3)
 
