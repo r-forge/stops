@@ -1818,8 +1818,8 @@ library(stops)
 
 scale <- TRUE
 delta <- kinshipdelta
-weightmat <- 1-diag(15)
-#weightmat <- 1-diag(58)
+#weightmat <- 1-diag(15)
+weightmat <- 1-diag(58)
 xsma <- powerStressFast(delta)
 plot(xsma)
 x <- xsma$conf
@@ -1878,7 +1878,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
 x <- xold
 x <- scale(xold)
 
- shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
+shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              #try these variants again with kinship and cali:
@@ -1889,12 +1889,12 @@ x <- scale(xold)
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
              #if(scale) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
-             x <- x/enorm(x)
+             #x <- x/enorm(x)
              dnew <- sqdist(x)
              dnew <- sqrt(sqdist(x))
              dnew <- dnew/enorm(dnew,weightmat)
              dnew <- dnew^2
-             #r <- 2*r
+#r <- 2*r
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
              anew <- rnew / nnew
@@ -1907,42 +1907,23 @@ x <- scale(xold)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
              diag(shrinkres) <- 0
+             #TODO check for increasing residual
              ic <- sum(shrinkres^2)
              if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
              #delta cops/mds should be positive if cordweight is too high,no?
              ic
            }
 
-x <- initsolcalistart$conf
-cordweight <- 50
+cordweight <- 0
 optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
-
-rs <- delta/enorm(delta)
-
-r2 <- as.matrix(dist(xnew))
-res <- abs(rs-r2)
-diag(res) <- 1
-
-
-shrinks <- shrinkB(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
-
-ft <- (res*shrinks)/(res+shrinks)
-
-res-res*cw*ft>0
-
-res>res*cw*ft
-
-res/ft>res*cw
-
-1/ft>cw
 
 
 par(mfrow=c(1,2))
 plot(x,asp=1,pch=20)
-text(x,label=rownames(x),pos=3)
+#text(x,label=rownames(x),pos=3)
 plot(xnew,asp=1,pch=20)
-text(xnew,label=rownames(x),pos=3)
+#text(xnew,label=rownames(x),pos=3)
 
 cx <- cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
 cx
@@ -1960,7 +1941,7 @@ par(mfrow=c(1,2))
 plot(xa,asp=1,pch=20)
 text(xa,label=rownames(x),pos=3)
 plot(xnewa,asp=1)
-text(xnewa,label=rownames(xold),pos=3)
+text(xnewa,label=rownames(x),pos=3)
 
 xaa <- scale(x)
 xnewaa <- scale(xnew)
@@ -1972,8 +1953,8 @@ plot(xnewaa,asp=1)
 text(xnewaa,label=rownames(xold),pos=3)
 
 
-points(xnew,col="red")
-points(xnew,col="green")
+points(xnewa,col="red")
+points(xnewaa,col="green")
 points(xnew3,col="blue")
 points(xnew20,col="black")
 
@@ -2142,3 +2123,24 @@ library(crs)
 #q <- 0
 optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xnew1,bbin=rep(0,30),ub=rep(5,30),lb=rep(-5,30,bbout=0))
 xnews <- matrix(optimizeds$solution,ncol=ndim)
+
+
+rs <- delta/enorm(delta)
+
+r2 <- as.matrix(dist(xnew))
+res <- abs(rs-r2)
+diag(res) <- 1
+
+
+shrinks <- shrinkB(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+
+ft <- (res*shrinks)/(res+shrinks)
+
+res-res*cw*ft>0
+
+res>res*cw*ft
+
+res/ft>res*cw
+
+1/ft>cw
+
