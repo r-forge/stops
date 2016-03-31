@@ -4,7 +4,7 @@
 # write stops_foo where foo is the MDS model of interest
 # also do this with a pareto approach
 
-#'c-linearity
+#'c-linearity 
 #'calculates c-linearity as the multiple correlation
 #'
 #' @param confs a numeric matrix or data frame
@@ -1815,24 +1815,40 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 
 #old shrinkCoploss
 library(stops)
-
 scale <- TRUE
-delta <- kinshipdelta
-#weightmat <- 1-diag(15)
+
+#Cali
+soviagg <- read.csv("~/svn/egmds/paper/CaliMedAgg.csv")       
+data(CAClimateIndicatorsCountyMedian)
+sovisel <- CAClimateIndicatorsCountyMedian[,-1]
+sovisel <- soviagg[,c(23:34,40:77)]       
+sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x)))
+dis <- dist(sovisel)
+delta <- as.matrix(dis)
+rang <- c(0,1.2) #fixed range 
+minpts <- 3
+epsilon <- 10
+q <- 1
 weightmat <- 1-diag(58)
-xsma <- powerStressFast(delta)
-plot(xsma)
-x <- xsma$conf
-ndim <- 2
-r <- 0.5
+
+#kinship
+delta <- kinshipdelta
+weightmat <- 1-diag(15)
 q <- 1
 minpts <- 2
 epsilon <- 10
 rang <- c(0,1.6)
-xold <- xsma$conf
+
+#for both
+ndim <- 2
+r <- 0.5
+xsma <- powerStressFast(delta)
+x <- xsma$conf
 itmax <- 100000
 accuracy <- 1e-12
 verbose=2
+xold <- x
+
 c0 <- cordillera(xold,q=1,minpts=minpts,epsilon=epsilon,rang=rang)
 c0
 
@@ -1847,7 +1863,7 @@ c1 <- cordillera(m1$conf,q=1,minpts=minpts,epsilon=epsilon,rang=c(0,0.05613),sca
 plot(c1)
 c1
 
-shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
@@ -1855,7 +1871,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
              sv[-1] <- v[1:(vlen - 1)]
              sv
         }
-        #if(scale) x <- scale(x)
+        if(scale) x <- scale(x)
         N <- dim(x)[1]
         optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
         optord <- optres$order
@@ -1877,6 +1893,7 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
 
 x <- xold
 x <- scale(xold)
+x <- x/enorm(x)
 
 shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
            {
@@ -1887,13 +1904,13 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              #delta enormed, x scaled + enormed; looks good! -> looks best? 
              #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
-             #if(scale) x <- scale(x)
+             if(scale) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
-             #x <- x/enorm(x)
+             x <- x/enorm(x)
              dnew <- sqdist(x)
-             dnew <- sqrt(sqdist(x))
-             dnew <- dnew/enorm(dnew,weightmat)
-             dnew <- dnew^2
+             #dnew <- sqrt(sqdist(x))
+             #dnew <- dnew/enorm(dnew,weightmat)
+             #dnew <- dnew^2
 #r <- 2*r
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
@@ -1902,7 +1919,7 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
@@ -1914,22 +1931,26 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              ic
            }
 
-cordweight <- 0
+cordweight <- 1
 optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
-
+verbose <- 2
 
 par(mfrow=c(1,2))
 plot(x,asp=1,pch=20)
-#text(x,label=rownames(x),pos=3)
+text(x,label=rownames(x),pos=3)
 plot(xnew,asp=1,pch=20)
-#text(xnew,label=rownames(x),pos=3)
+text(xnew,label=rownames(x),pos=3)
 
-cx <- cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+plot(scale(x),asp=1,pch=20)
+#text(x,label=rownames(x),pos=3)
+plot(scale(xnew),asp=1,pch=20)
+
+cx <- cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE)
 cx
 plot(cx)
 
-cn <- cordillera(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+cn <- cordillera(xnew,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE)
 cn
 plot(cn)
 
@@ -1940,21 +1961,31 @@ xnewa <- conf_adjust(x,xnew)$other.conf
 par(mfrow=c(1,2))
 plot(xa,asp=1,pch=20)
 text(xa,label=rownames(x),pos=3)
-plot(xnewa,asp=1)
+plot(xnewa,asp=1,pch=20)
 text(xnewa,label=rownames(x),pos=3)
 
-xaa <- scale(x)
-xnewaa <- scale(xnew)
+cxa <- cordillera(xa,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+cxa
+plot(cxa)
+
+cna <- cordillera(xnewa,q=q,minpts=minpts,epsilon=epsilon,rang=rang)
+cna
+plot(cna)
+
+xaa <- scale(xa)
+xnewaa <- scale(xnewa)
 
 par(mfrow=c(1,2))
 plot(xaa,asp=1,pch=20)
+points(xnewaa,col="green")
+
 text(xaa,label=rownames(x),pos=3)
 plot(xnewaa,asp=1)
 text(xnewaa,label=rownames(xold),pos=3)
 
 
 points(xnewa,col="red")
-points(xnewaa,col="green")
+
 points(xnew3,col="blue")
 points(xnew20,col="black")
 
