@@ -1893,7 +1893,6 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...
 
 x <- xold
 x <- scale(xold)
-x <- x/enorm(x)
 
 shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
            {
@@ -1904,13 +1903,13 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              #delta enormed, x scaled + enormed; looks good! -> looks best? 
              #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
-             if(scale) x <- scale(x)
+             #if(scale) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
-             x <- x/enorm(x)
-             dnew <- sqdist(x)
-             #dnew <- sqrt(sqdist(x))
-             #dnew <- dnew/enorm(dnew,weightmat)
-             #dnew <- dnew^2
+             #x <- x/enorm(x)
+             #dnew <- sqdist(x)
+             dnew <- sqrt(sqdist(x))
+             dnew <- dnew/enorm(dnew,weightmat)
+             dnew <- dnew^2
 #r <- 2*r
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
@@ -1978,6 +1977,8 @@ xnewaa <- scale(xnewa)
 par(mfrow=c(1,2))
 plot(xaa,asp=1,pch=20)
 points(xnewaa,col="green")
+
+points(xnew,col="green")
 
 text(xaa,label=rownames(x),pos=3)
 plot(xnewaa,asp=1)
