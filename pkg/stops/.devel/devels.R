@@ -1815,7 +1815,6 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 
 #old shrinkCoploss
 library(stops)
-scale <- TRUE
 
 #Cali
 soviagg <- read.csv("~/svn/egmds/paper/CaliMedAgg.csv")       
@@ -1839,6 +1838,17 @@ minpts <- 2
 epsilon <- 10
 rang <- c(0,1.6)
 
+#Banking
+data(BankingCrisesDistances)
+delta <- BankingCrisesDistances[,-70]
+weightmat <- 1-diag(69)
+q <- 1
+minpts <- 5
+epsilon <- 10
+rang <- c(0,0.7)
+minpts <- 2
+
+
 #for both
 ndim <- 2
 r <- 0.5
@@ -1848,20 +1858,6 @@ itmax <- 100000
 accuracy <- 1e-12
 verbose=2
 xold <- x
-
-c0 <- cordillera(xold,q=1,minpts=minpts,epsilon=epsilon,rang=rang)
-c0
-
-#old shrinkcoploss
-m1 <- shrinkCoploss(delta,q=q,minpts=minpts,epsilon=epsilon,weightmat=weightmat,init=xold,ndim=ndim,cordweight=1,rang=rang,scale=scale)
-m1
-plot(m1,plot.type="reachplot")
-c1 <- cordillera(m1$conf,q=1,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE)
-plot(c1)
-
-c1 <- cordillera(m1$conf,q=1,minpts=minpts,epsilon=epsilon,rang=c(0,0.05613),scale=FALSE)
-plot(c1)
-c1
 
 shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...)
      {
@@ -1890,11 +1886,12 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...
         }
         return(Bmat)
      }
-
 x <- xold
 x <- scale(xold)
 
-shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scale=TRUE,...)
+
+x <- scale(xold)
+shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              #try these variants again with kinship and cali:
@@ -1903,13 +1900,13 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              #delta enormed, x scaled + enormed; looks good! -> looks best? 
              #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
              #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
-             #if(scale) x <- scale(x)
+             if(scaleX) x <- scale(x)
              delta <- delta/enorm(delta,weightmat)
-             #x <- x/enorm(x)
-             #dnew <- sqdist(x)
-             dnew <- sqrt(sqdist(x))
-             dnew <- dnew/enorm(dnew,weightmat)
-             dnew <- dnew^2
+             if(enormX) x <- x/enorm(x)
+             dnew <- sqdist(x)
+             #dnew <- sqrt(sqdist(x))
+             #dnew <- dnew/enorm(dnew,weightmat)
+             #dnew <- dnew^2
 #r <- 2*r
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
@@ -1918,7 +1915,7 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleB=scaleB) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
@@ -1930,10 +1927,12 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              ic
            }
 
-cordweight <- 1
+cordweight <- 5
 optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
 verbose <- 2
+
+xnew <- xnew/enorm(xnew)
 
 par(mfrow=c(1,2))
 plot(x,asp=1,pch=20)

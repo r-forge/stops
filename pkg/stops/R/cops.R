@@ -1379,11 +1379,14 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
 #' @param ndim number of dimensions of the target space
 #' @param init (optional) initial configuration
-#' @param shrinkweight weight to be used for the shrinkage; defaults to 1
+#' @param cordweight weight to be used for the shrinkage; defaults to 1
 #' @param q used in cordillera and shrink matrix and controls the effect of using the norm; defaults to 2 (least squares MDS)
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}
+#' @param scaleX should X be scaled; defaults to TRUE
+#' @param enormX should X be enormed; defaults to FALSE
+#' @param scaleB shaould X be scaled for the shrink matrix; defaults to TRUE. This parameter lets one tweak the way the shrinkage works; the defaults lead usually to a sensible result.
 #' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param accuracy numerical accuracy, defaults to 1e-8
@@ -1417,7 +1420,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' 
 #' @keywords clustering multivariate
 #' @export
-shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,accuracy = 1e-7, itmax = 100000,...)
+shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1450,53 +1453,89 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
     if(is.null(init)) xold <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
-    xold <- xold/enorm(xold) 
-    shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+    if(enormX) xold <- xold/enorm(xold)
+    if(scaleX) xold <- scale(xold)
+    shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,scaleX,enormX,scaleB,...)
            {
-             #TODO: Need to decide whether we use dist() and 2*r throughout or sqdist() and r - for compatibility with the other functions especially coplossMin  
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             #try these variants again with kinship and cali:
+             #it all about how to normalize so that the shrinkage will play its part
+             #take care of r and so if sqrt(sqdist()) use r*2
+             #delta enormed, x scaled + enormed; looks good! -> looks best? 
+             #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
+             #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
+             if(scaleX) x <- scale(x)
+             if(enormX) x <- x/enorm(x)
              delta <- delta/enorm(delta,weightmat)
-             x <- x/enorm(x)
-             dnew <- sqdist(x)   #sqdist so in power only ^r
-             #dnew <- as.matrix(dist(x))   #alternative 
-             #rnew <- sum (weightmat * delta * mkPower (dnew, r))
-             #nnew <- sum (weightmat * mkPower (dnew,  2*r))
-             #anew <- rnew / nnew
+             dnew <- sqdist(x)
+             #dnew <- sqrt(sqdist(x))
+             #dnew <- dnew/enorm(dnew,weightmat)
+             #dnew <- dnew^2
+#r <- 2*r
+             rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             anew <- rnew / nnew
+             snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              resen <- abs(mkPower(dnew,r)-delta)
-             #resen <- abs(mkPower(dnew,2*r)-delta) #alternative
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
-             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
-             #shrinkres <- resen-((cordweight*resen*shrinkb)/(resen+shrinkb))
+             #resen <- abs(dnew-delta)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleB) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
+             #shrinkres <- resen
              diag(shrinkres) <- 0
-             #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-             #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             #struc <- corrd$raw
-             #if(normed) {
-             #           struc <- corrd$normed
-             #          }
-              #ic <- stressweight*stressi - cordweight*struc
-             #
-             ic <- sum(shrinkres^2)/2
-             if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             #TODO check for increasing residual
+             ic <- sum(shrinkres^2)
+             if(verbose>3) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             #delta cops/mds should be positive if cordweight is too high,no?
              ic
            }
+    ## shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
+    ##        {
+    ##          #TODO: Need to decide whether we use dist() and 2*r throughout or sqdist() and r - for compatibility with the other functions especially coplossMin  
+    ##          if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+    ##          delta <- delta/enorm(delta,weightmat)
+    ##          x <- x/enorm(x)
+    ##          dnew <- sqdist(x)   #sqdist so in power only ^r
+    ##          #dnew <- as.matrix(dist(x))   #alternative 
+    ##          #rnew <- sum (weightmat * delta * mkPower (dnew, r))
+    ##          #nnew <- sum (weightmat * mkPower (dnew,  2*r))
+    ##          #anew <- rnew / nnew
+    ##          resen <- abs(mkPower(dnew,r)-delta)
+    ##          #resen <- abs(mkPower(dnew,2*r)-delta) #alternative
+    ##          shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
+    ##          #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
+    ##          #shrinkres <- resen-((cordweight*resen*shrinkb)/(resen+shrinkb))
+    ##          shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
+    ##          diag(shrinkres) <- 0
+    ##          #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+    ##          #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+    ##          #struc <- corrd$raw
+    ##          #if(normed) {
+    ##          #           struc <- corrd$normed
+    ##          #          }
+    ##           #ic <- stressweight*stressi - cordweight*struc
+    ##          #
+    ##          ic <- sum(shrinkres^2)/2
+    ##          if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+    ##          ic
+    ##        }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
      if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleX=scaleX,scaleB=scaleB,enormX=enormX),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$feval
          ovalue <-optimized$fval
      }
      if(optimmethod=="Nelder-Mead") {
          optimized <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,
-                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang
-                                   ),control=list(maxit=itmax,trace=verbose),...)
+                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleX=scaleX,scaleB=scaleB,enormX=enormX),control=list(maxit=itmax,trace=verbose),...)
          xnew <- optimized$par
          itel <- optimized$counts[[1]]
          ovalue <-optimized$val 
      }
-     xnew <- xnew/enorm(xnew)
+     if(enormX) xnew <- xnew/enorm(xnew)
+     if(scaleX) xnew <- scale(xnew)
      #dnew <- as.matrix(dist (xnew)^2) #alternative
      dnew <- sqdist (xnew)
      rnew <- sum (weightmat * delta * mkPower (dnew, r))
@@ -1544,13 +1583,14 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #' @param x numeric matrix
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.     
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.
+#' @param scaleB shoudl the X matrix be scaled before calculating the shrinkage weights; defaults to TRUE (which is sensible for relative shrinkage)
 #' @param ... additional arguments to be passed to the OPTICS algorithm procedure
 #' 
 #' @importFrom dbscan optics 
 #' 
 #'@export
-shrinkB <- function(x,q=2,minpts=2,epsilon=10,rang=NULL,...)
+shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
@@ -1558,7 +1598,7 @@ shrinkB <- function(x,q=2,minpts=2,epsilon=10,rang=NULL,...)
              sv[-1] <- v[1:(vlen - 1)]
              sv
         }
-        #if(scale) x <- scale(x)
+        if(scaleB) x <- scale(x)
         N <- dim(x)[1]
         optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
         optord <- optres$order
