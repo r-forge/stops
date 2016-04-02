@@ -1436,8 +1436,8 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
-           if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           if(isTRUE(scaleX)) init0 <- scale(init0)
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleX)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
@@ -1479,7 +1479,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleB) 
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleB=scaleB) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
@@ -1581,6 +1581,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #' Finding the shrinkage matrix for COPS-0
 #'
 #' @param x numeric matrix
+#' @param q the norm to be used
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.

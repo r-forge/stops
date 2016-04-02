@@ -191,7 +191,7 @@ sqdist <- function (x) {
 #' @param x numeric matrix
 #' @param p p>0 the minkoswki distance 
 #' @export
-pdist <- function (x,q) {
+pdist <- function (x,p) {
     s <- tcrossprod (x)
     v <- diag (s)
     return (outer (v, v, "+") - 2 * s)
