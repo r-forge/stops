@@ -1410,7 +1410,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' dis<-as.matrix(smacof::kinshipdelta)
 #'
 #' #Coploss with shrinkage to 0 
-#' res1<-shrinkCoploss(dis,cordweight=1) 
+#' res1<-shrinkCoploss(dis,cordweight=1,minpts=2) 
 #' res1
 #' summary(res1)
 #' plot(res1)  #super clustered
