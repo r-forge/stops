@@ -1386,7 +1386,8 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}
 #' @param scaleX should X be scaled; defaults to TRUE
 #' @param enormX should X be enormed; defaults to FALSE
-#' @param scaleB shaould X be scaled for the shrink matrix; defaults to TRUE. This parameter lets one tweak the way the shrinkage works; the defaults lead usually to a sensible result.
+#' @param scaleB should X be scaled for the shrink matrix; defaults to TRUE.
+#' @param scaleC should X be scaled for the OPTICS Cordillera; defaults to TRUE. These parameter lets one tweak the way the shrinkage works and how its quantified; the defaults lead usually to a sensible result. It might be that some scale versions weill be depreciated in future versions. 
 #' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param accuracy numerical accuracy, defaults to 1e-8
@@ -1420,7 +1421,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' 
 #' @keywords clustering multivariate
 #' @export
-shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,accuracy = 1e-7, itmax = 100000,...)
+shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,scaleC=TRUE,accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1437,7 +1438,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scaleX)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleX)$reachplot
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
@@ -1564,7 +1565,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
-    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleC)
     out$coploss <- ovalue
     out$optim <- optimized
     out$cordweight <- cordweight
