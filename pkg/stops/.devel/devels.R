@@ -1858,8 +1858,9 @@ itmax <- 100000
 accuracy <- 1e-12
 verbose=2
 xold <- x
+normed <- TRUE
 
-shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...)
+shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,normed=TRUE,...)
      {
        shift1 <- function (v) {
              vlen <- length(v)
@@ -1889,9 +1890,8 @@ shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...
 x <- xold
 x <- scale(xold)
 
-
 x <- scale(xold)
-shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,...)
+shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,normed=TRUE,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              #try these variants again with kinship and cali:
@@ -1915,7 +1915,7 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              resen <- abs(mkPower(dnew,r)-delta)
              #resen <- abs(dnew-delta)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleB=scaleB) 
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleB=scaleB,normed=normed) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
              shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
              #shrinkres <- resen
@@ -1927,10 +1927,11 @@ shrinkcops <- function(x,delta,r=0.5,ndim,weightmat,cordweight,q=2,minpts,epsilo
              ic
            }
 
-cordweight <- 5
-optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+cordweight <- 1
+optimized <- minqa::newuoa(x,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnew <- matrix(optimized$par,ncol=ndim)
 verbose <- 2
+xnew2 <- xnew
 
 xnew <- xnew/enorm(xnew)
 

@@ -5,7 +5,7 @@
 \title{Finding the shrinkage matrix for COPS-0}
 \usage{
 shrinkB(x, q = 1, minpts = 2, epsilon = 10, rang = NULL,
-  scaleB = TRUE, ...)
+  scaleB = TRUE, normed = TRUE, ...)
 }
 \arguments{
 \item{x}{numeric matrix}
@@ -18,7 +18,9 @@ shrinkB(x, q = 1, minpts = 2, epsilon = 10, rang = NULL,
 
 \item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.}
 
-\item{scaleB}{shoudl the X matrix be scaled before calculating the shrinkage weights; defaults to TRUE (which is sensible for relative shrinkage)}
+\item{scaleB}{should the X matrix be scaled before calculating the shrinkage weights; defaults to TRUE (which is sensible for relative shrinkage)}
+
+\item{normed}{should the reachability differecnes be normed to dmax?}
 
 \item{...}{additional arguments to be passed to the OPTICS algorithm procedure}
 }
