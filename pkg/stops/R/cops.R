@@ -1439,7 +1439,7 @@ shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scaleX)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC,normed=normed)$reachplot
+           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
