@@ -1933,13 +1933,21 @@ xnew <- matrix(optimized$par,ncol=ndim)
 verbose <- 2
 xnew2 <- xnew
 
+
+
+library(crs)
+#q <- 0
+optimizeds <- crs::snomadr(eval.f=function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,cordweight=cordweight,q=1,minpts=minpts,epsilon=epsilon,rang=rang),n=length(xold),x0=xold, bbin=rep(0,116),ub=rep(3,116),lb=rep(-3,116),bbout=0)
+xnew <- matrix(optimizeds$solution,ncol=ndim)
+
+
 xnew <- xnew/enorm(xnew)
 
 par(mfrow=c(1,2))
 plot(x,asp=1,pch=20)
-text(x,label=rownames(x),pos=3)
+text(scale(x),label=rownames(x),pos=3)
 plot(xnew,asp=1,pch=20)
-text(xnew,label=rownames(x),pos=3)
+text(scale(xnew),label=rownames(x),pos=3)
 
 plot(scale(x),asp=1,pch=20)
 #text(x,label=rownames(x),pos=3)
