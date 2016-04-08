@@ -1858,7 +1858,7 @@ itmax <- 100000
 accuracy <- 1e-12
 verbose=2
 xold <- x
-normed <- TRUE
+normed <- 2
 
 shrinkB <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,normed=TRUE,...)
      {
@@ -2124,9 +2124,14 @@ m05 <- shrinkCoploss(delta,init=xnew0,minpts=minpts,epsilon=epsilon,q=q,ndim=ndi
 xnew05 <- m05$conf
 
 
-cordweight=0.1
-m01 <- shrinkCoploss(delta,init=xnew0,minpts=minpts,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang)
+cordweight=1
+m01 <- shrinkCoploss(delta,init=xold,minpts=minpts,epsilon=epsilon,q=q,ndim=ndim,cordweight=cordweight,weightmat=weightmat,rang=rang,verbose=2)
+m01
+plot(m01)
+
 xnew01 <- m01$conf
+
+
 
 
 par(mfrow=c(2,2))

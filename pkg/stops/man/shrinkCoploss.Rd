@@ -9,7 +9,7 @@ shrinkCoploss(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   cordweight = 1, q = 2, minpts = ndim + 1, epsilon = 10, rang = NULL,
   optimmethod = c("Nelder-Mead", "Newuoa"), verbose = 0, scaleX = TRUE,
   enormX = FALSE, scaleB = TRUE, scaleC = TRUE, accuracy = 1e-07,
-  itmax = 1e+05, normed = TRUE, ...)
+  itmax = 1e+05, normed = 2, ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}

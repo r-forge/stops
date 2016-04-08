@@ -1610,7 +1610,7 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
         indordered <- optind[optord]
         predec <- shift1(indordered)
         reachdist <- optres$reachdist[optres$order]
-        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),max(rang))
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),min(max(rang),max(reachdist[is.finite(reachdist)])))
         reachdiffs <- c(NA,abs(diff(reachdist)))
         mats <- cbind(indordered,predec,reachdiffs)
         Bmat <- matrix(0,ncol=N,nrow=N)
