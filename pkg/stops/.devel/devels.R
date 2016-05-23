@@ -397,187 +397,6 @@ xold <- torgerson(delta)
 init <- xold/enorm(xold) 
 
 
-innerf <- function(x,delta,p=p)
-           {
-             if(!is.matrix(x)) x <- matrix(x,ncol=p)
-             #delta <- as.matrix(delta)
-             ds <- dist(x)
-             #print(ds)
-             sum((ds-delta)^2)#/2
-           }
-
-innerf(init,delta)
-delta
-as.matrix(delta)
-undebug(innerf)
-teso <- optim(init,function(par) innerf(par,delta=delta,p=2),control=list(maxit=100000))
-plot(teso$par,type="n")
-text(teso$par,labels=1:15)
-
-library(minqa)
-teso <- newuoa(init,function(par) innerf(par,delta=delta,p=2),control=list(maxfun=100000)) #am Besten
-xnewuoa <- matrix(teso$par,ncol=2)
-plot(xnewuoa,type="n")
-text(xnewuoa,labels=1:15)
-
-library(optimx)
-init1 <- as.numeric(init)
-teso <- optimx(init1,function(par) innerf(par,delta=delta,p=2),method=c("newuoa"),itnmax=100000)
-plot(teso$par,type="n")
-text(teso$par,labels=1:15)
-
-par(mfrow=c(1,2))
-plot(res1$points)
-plot(scale(res1$points))
-
-res1 <- cmdscale(delta)
-res1$points
-teso$par
-plot(res1$points)
-plot(teso$par)
-res2 <- smacofSym(delta)
-innerf(teso$par,delta)
-
-
-###Estimating configuration from powerstress with given theta; using something new like NEWUOA is better.
-
-
-data(kinshipdelta)
-delta <- kinshipdelta
-
-resmac <- smacofSym(kinshipdelta)
-resmaj <- powerStressMin(kinshipdelta)
-resuoa <- powerStressFast(kinshipdelta)
-
-dis<-smacof::kinshipdelta
-res1<-powerStressMaj(as.matrix(dis),kappa=2,lambda=1.5)
-res2<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,eps=1e-8)
-res3 <- powerStressMaj(as.matrix(dis),init=res2$conf,kappa=2,lambda=1.5,eps=1e-16)
-
-res1
-res2
-plot(res3)
-res3
-
-plot(res1)
-plot(res2)
-
-resmac
-resmaj
-resuoa
-
-plot(resmac)
-dev.new()
-plot(resmaj)
-dev.new()
-plot(resuoa)
-
-
-par(mfrow=c(1,2))
-plot(res1$points)
-plot(scale(res1$points))
-
-res1 <- cmdscale(delta)
-res1$points
-teso$par
-plot(res1$points)
-plot(teso$par)
-res2 <- smacofSym(delta)
-innerf(teso$par,delta)
-
-
-data(kinshipdelta)
-delta <- kinshipdelta
-system.time(res1 <- powerStressMin(delta)) #0.267
-system.time(res2 <- powerStressFast(delta)) #0.268
-system.time(res3 <- smacofSym(delta))
-system.time(res4 <- coplossMin(delta,cordweight=0,stressweight=1,verbose=2))
-system.time(res5 <- coplossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2))
-system.time(res6 <- coplossMin(delta,verbose=2))
-system.time(res7 <- coplossMin(delta,kappa=2,lambda=2,cordweight=0.5,stressweight=0.5,verbose=2))
-system.time(res8 <- coplossMin(delta,kappa=1.2,lambda=4,verbose=2))
-res1
-res2
-res3
-res4
-res5
-res6
-res7
-res8
-par(mfrow=c(2,2))
-plot(res1)
-plot(res2)
-plot(res3)
-plot(res4)
-plot(res5)
-plot(res6)
-plot(res7)
-plot(res8)
-
-data(BankingCrisesDistances)
-delta <- BankingCrisesDistances[,1:69]
-system.time(res1 <- powerStressMin(delta)) #stress 0.349 time 88.06s
-system.time(res2 <- powerStressFast(delta)) #0.35 14.015s 
-system.time(res3 <- smacofSym(delta))  #0.344 0.13s
-system.time(cops0505 <- coplossMin(delta,cordweight=0.5,stressweight=0.5,verbose=2,eps=1e-7))
-system.time(cops10 <- coplossMin(delta,cordweight=0,stressweight=1,verbose=2,eps=1e-7))
-system.time(copsdef <- coplossMin(delta,verbose=2,eps=1e-7))
-system.time(copsdefc <- coplossMin(delta,stressweight=max(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),cordweight=min(cops10$stress,cops10$OC$normed)/(cops10$stress+cops10$OC$normed),verbose=2,eps=1e-7))
-system.time(cops0901 <- coplossMin(delta,stressweight=0.9,cordweight=0.1,verbose=2,eps=1e-7))
-system.time(cops095005 <- coplossMin(delta,stressweight=0.95,cordweight=0.05,verbose=2,eps=1e-7))
-
-system.time(cops0505.148 <- coplossMin(delta,kappa=1.4,lambda=8,cordweight=0.5,stressweight=0.5,verbose=2,eps=1e-7))
-system.time(cops10.148 <- coplossMin(delta,cordweight=0,stressweight=1,verbose=2,eps=1e-7))
-system.time(copsdef.148 <- coplossMin(delta,verbose=2,eps=1e-7))
-system.time(copsdefc.148 <- coplossMin(delta,kappa=1.4,lambda=8,stressweight=max(cops10.148$stress,cops10.148$OC$normed)/(cops10.148$stress+cops10.148$OC$normed),cordweight=min(cops10.148$stress,cops10.148$OC$normed)/(cops10.148$stress+cops10.148$OC$normed),verbose=2,eps=1e-7))
-system.time(cops009005.148 <- coplossMin(delta,kappa=1.4,lambda=8,stressweight=0.95,cordweight=0.05,verbose=2,eps=1e-7))
-
-res1
-res2
-res3
-
-par(mfrow=c(2,2))
-plot(res1)
-#plot(res2)
-plot(res3)
-plot(cops0505)
-plot(cops10)
-plot(copsdef)
-plot(copsdefc)
-plot(cops0505.148)
-plot(cops10.148)
-plot(copsdef.148)
-plot(copsdefc.148)
-plot(cops0901)
-
-
-data(Pendigits500)
-delta <- dist(Pendigits500[,1:16])
-system.time(resP1 <- powerStressMin(delta)) #9586 ~ 2.5 Stunden #0.249
-system.time(resP2 <- powerStressFast(delta)) #1100 ~ 20 min  
-system.time(resP3 <- smacofSym(delta)) #9586 ~ 2.5 Stunden
-resP1
-resP2
-resP3
-par(mfrow=c(1,2))
-plot(resP1)
-plot(resP2)
-plot(resP3)
-
-data(CAClimateIndicatorsCountyMedian)
-delta <- dist(CAClimateIndicatorsCountyMedian[,2:52])
-system.time(res1 <- powerStressMin(delta))
-system.time(res2 <- powerStressFast(delta))
-system.time(res3 <- smacofSym(delta))
-res1
-res2
-res3
-par(mfrow=c(1,2))
-plot(res1)
-plot(res2)
-plot(res3)
-
-
 #################Testing Bayesian Optimziation with DiceOptim
 
 library(DiceOptim)
@@ -1438,32 +1257,7 @@ shrinkB2 <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
     
 
 
- shrinkcops0 <- function(x,delta,r,ndim,weightmat,cordweight,q=2,minpts,epsilon,rang,...)
-           {
-             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
-             delta <- delta/enorm(delta,weightmat)
-             x <- x/enorm(x)
-             dnew <- sqdist(x)
-             #rnew <- sum (weightmat * delta * mkPower (dnew, r))
-             #nnew <- sum (weightmat * mkPower (dnew,  2*r))
-             #anew <- rnew / nnew
-             resen <- abs(mkPower(dnew,r)-delta)
-             #resen <- abs(dnew-delta)
-             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
-             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
-             shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
-             #shrinkres <- resen
-             diag(shrinkres) <- 0
-             #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-             #
-             #Tis weird why does it become best if I have very low weight?
-             ic <- sum(shrinkres^2)/2
-             if(verbose>1) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"\n")
-             ic
-           }
-
-
+ 
 #' Fitting a COPS Model by penalizing residuals (COPS-C1).
 #'
 #' Minimizing coploss by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
@@ -1839,58 +1633,108 @@ plot(m1)   #it was so that tehre was a bug in shrinkB where I used indo[3]/(2^1/
 
 
 
-####GENERAL CASE
-#' Fitting a COPS Model by shrinking residuals to Zero (COPS-0).
-#'
-#' Minimizing coploss by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
-#'
-#' @param delta numeric matrix or dist object of a matrix of proximities
-#' @param kappa power transformation for fitted distances
-#' @param lambda power transformation for proximities
-#' @param nu power transformation for weights
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
-#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
-#' @param ndim number of dimensions of the target space
-#' @param init (optional) initial configuration
-#' @param shrinkweight weight to be used for the shrinkage; defaults to 1
-#' @param q the norm to be minimized for the matrix estimation; defaults to 2 (least squares MDS)
-#' @param p the power of the fitted the minksowski distance; defaults to 2 (Euclidean distance) 
-#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
-#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
-#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
-#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
-#' @param accuracy numerical accuracy, defaults to 1e-8
-#' @param itmax maximum number of iterations. Defaults to 100000
-#' @param ... additional arguments to be passed to the optimization procedure
-#'
-#'@return A list with the components
-#'         \itemize{
-#'         \item coploss: the weighted loss value
-#'         \item OC: the Optics cordillera
-#'         \item optim: the object returned from the optimization procedure
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
-#'         \item cordillera: the OPTICS cordillera object
-#' }
-#' 
-#'@examples
-#'dis<-as.matrix(smacof::kinshipdelta)
-#'
-#'#Coploss with shrinkage to 0 
-#'res1<-shrinkCoploss(dis,shrinkweight=1) 
-#'res1
-#'summary(res1)
-#'plot(res1)  #super clustered
-#'
-#' @importFrom stats dist as.dist optim
-#' @importFrom minqa newuoa
-#' 
-#' 
-#'@keywords clustering multivariate
-#'@export
+####Str Embed
+library(stops)
+scale <- TRUE
+delta <- kinshipdelta
+weightmat <- 1-diag(15)
+xsma <- powerStressMin(delta)
+#xsma <- powerStressFast(delta)
+x <- xsma$conf
+ndim <- 2
+cordweight <- 1
+r <- 0.5
+q <- 1
+minpts <- 2
+epsilon <- 10
+rang <- c(0,1.6)
+#plot(xsma)
+xold <- xsma$conf
+itmax <- 100000
+accuracy <- 1e-12
+verbose=2
+nameso <- rownames(xold)
+
+shrinkemb <- function(x,delta,r,ndim,type=c("additive","sqadditive","multiplicative"),weightmat,cordweight,q=2,minpts,epsilon,rang,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             x <- scale(x)
+             delta <- delta/enorm(delta,weightmat)
+             x <- x/enorm(x)
+             dnew <- sqdist(x)
+             rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             anew <- rnew / nnew
+             resen <- abs(mkPower(dnew,r)-delta)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             if(type=="additive") shrinkres <- abs(resen)-cordweight*shrinkb
+             if(type=="sqadditive") shrinkres <- sqrt(resen^2-cordweight*shrinkb)
+             if(type=="multiplicative") shrinkres <- abs(resen)*(1-cordweight*(shrinkb/(abs(resen)+shrinkb)))
+             #shrinkres <- resen
+             diag(shrinkres) <- 0
+             snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+             #
+             #Tis weird why does it become best if I have very low weight?
+             ic <- sum(shrinkres^2)
+             if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             #cop must be smaller than mds
+             ic
+           }
+
+
+cordweight <- 0.2
+q <- 1
+optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="additive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xold<- matrix(optimized$par,ncol=ndim)
+cordweight <- 0
+optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="additive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnewa<- matrix(optimized$par,ncol=ndim)
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=nameso,pos=3)
+plot(xnewa,asp=1)
+text(xnewa,label=nameso,pos=3)
+
+
+optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="sqadditive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnewas<- matrix(optimized$par,ncol=ndim)
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xnewas,asp=1)
+text(xnewas,label=rownames(xold),pos=3)
+
+optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="multiplicative",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
+xnewm<- matrix(optimized$par,ncol=ndim)
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xnewm,asp=1)
+text(xnewm,label=rownames(xold),pos=3)
+
+
+plot(xsma)
+par(mfrow=c(1,2))
+plot(xold,asp=1)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew2a,asp=1)
+text(xnew2a,label=rownames(xold),pos=3)
+
+par(mfrow=c(1,2))
+plot(xold)
+text(xold,label=rownames(xold),pos=3)
+plot(xnew)
+text(xnew,label=rownames(xold),pos=3)
+
+
+
+optimizedn <- optim(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang), method="Nelder-Mead")
+xnewn <- matrix(optimizedn$par,ncol=ndim)
+
+
+
 shrinkCoploss <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,shrinkweight=1,q=2,p=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
