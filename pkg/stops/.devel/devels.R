@@ -1669,26 +1669,38 @@ shrinkemb <- function(x,delta,r,ndim,type=c("additive","sqadditive","multiplicat
              shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
              #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang) 
              #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
-             if(type=="additive") shrinkres <- abs(resen)-cordweight*shrinkb
-             if(type=="sqadditive") shrinkres <- sqrt(resen^2-cordweight*shrinkb)
-             if(type=="multiplicative") shrinkres <- abs(resen)*(1-cordweight*(shrinkb/(abs(resen)+shrinkb)))
+             #cat(c(min(resen[lower.tri(resen)]),max(shrinkb[lower.tri(shrinkb)])),"\n")
+             if(type=="additive") shrinkres <- resen-cordweight*sqrt(shrinkb)
+             if(type=="sqadditive") shrinkres <- resen^2-cordweight*shrinkb
+             if(type=="multiplicative") shrinkres <- resen*(1-cordweight*(shrinkb/(abs(resen)+shrinkb)))
              #shrinkres <- resen
              diag(shrinkres) <- 0
+             #so there is the problem of shrinkres being below 0; how to deal with that? Either check for that and if thats the case, then the unshrunk sum of residuals is used; or fix the negative residual to zero.
+             if(any(shrinkres<0)) {
+                                   tshrinkres <- shrinkres[lower.tri(shrinkres)]
+                                   t1 <- tshrinkres[which(tshrinkres<0)]
+                                   t2 <- which(shrinkres<0,arr.ind=TRUE)
+                                   if(verbose>4) cat("Residuals<0: Value", t1,"Indices",t2,"\n")
+                                   #return(sum(resen^2))
+                                   shrinkres[t2] <- 0
+                                   if(verbose>10) cat("Residuals still problematic?",any(shrinkres<0),"\n")
+             }
+             
              snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-             #
+             if(type=="sqadditive") shrinkres <- sqrt(shrinkres)
              #Tis weird why does it become best if I have very low weight?
              ic <- sum(shrinkres^2)
-             if(verbose>1) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             if(verbose>2) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
              #cop must be smaller than mds
              ic
            }
 
 
-cordweight <- 0.2
+cordweight <- 0
 q <- 1
 optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="additive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xold<- matrix(optimized$par,ncol=ndim)
-cordweight <- 0
+cordweight <- 0.1
 optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="additive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnewa<- matrix(optimized$par,ncol=ndim)
 par(mfrow=c(1,2))
@@ -1698,21 +1710,37 @@ plot(xnewa,asp=1)
 text(xnewa,label=nameso,pos=3)
 
 
+cordweight <- 0.05
 optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="sqadditive",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnewas<- matrix(optimized$par,ncol=ndim)
 par(mfrow=c(1,2))
 plot(xold,asp=1)
-text(xold,label=rownames(xold),pos=3)
+text(xold,label=nameso,pos=3)
 plot(xnewas,asp=1)
-text(xnewas,label=rownames(xold),pos=3)
+text(xnewas,label=nameso,pos=3)
 
+cordweight <- 1
 optimized <- minqa::newuoa(xold,function(par) shrinkemb(par,delta=delta,r=r,ndim=ndim,type="multiplicative",weightmat=weightmat, cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose))
 xnewm<- matrix(optimized$par,ncol=ndim)
 par(mfrow=c(1,2))
 plot(xold,asp=1)
-text(xold,label=rownames(xold),pos=3)
+text(xold,label=nameso,pos=3)
 plot(xnewm,asp=1)
-text(xnewm,label=rownames(xold),pos=3)
+text(xnewm,label=nameso,pos=3)
+
+
+par(mfrow=c(2,2))
+plot(xold,asp=1,main="orig")
+text(xold,label=nameso,pos=3)
+plot(xnewa,asp=1,main="add")
+text(xnewa,label=nameso,pos=3)
+plot(xnewas,asp=1,main="addsq")
+text(xnewas,label=nameso,pos=3)
+plot(xnewm,asp=1,main="mult")
+text(xnewm,label=nameso,pos=3)
+
+
+
 
 
 plot(xsma)

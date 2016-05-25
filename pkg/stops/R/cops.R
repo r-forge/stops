@@ -1492,36 +1492,6 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
              #delta cops/mds should be positive if cordweight is too high,no?
              ic
            }
-    ## shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,...)
-    ##        {
-    ##          #TODO: Need to decide whether we use dist() and 2*r throughout or sqdist() and r - for compatibility with the other functions especially coplossMin  
-    ##          if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
-    ##          delta <- delta/enorm(delta,weightmat)
-    ##          x <- x/enorm(x)
-    ##          dnew <- sqdist(x)   #sqdist so in power only ^r
-    ##          #dnew <- as.matrix(dist(x))   #alternative 
-    ##          #rnew <- sum (weightmat * delta * mkPower (dnew, r))
-    ##          #nnew <- sum (weightmat * mkPower (dnew,  2*r))
-    ##          #anew <- rnew / nnew
-    ##          resen <- abs(mkPower(dnew,r)-delta)
-    ##          #resen <- abs(mkPower(dnew,2*r)-delta) #alternative
-    ##          shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
-    ##          #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale) 
-    ##          #shrinkres <- resen-((cordweight*resen*shrinkb)/(resen+shrinkb))
-    ##          shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
-    ##          diag(shrinkres) <- 0
-    ##          #stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-    ##          #corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
-    ##          #struc <- corrd$raw
-    ##          #if(normed) {
-    ##          #           struc <- corrd$normed
-    ##          #          }
-    ##           #ic <- stressweight*stressi - cordweight*struc
-    ##          #
-    ##          ic <- sum(shrinkres^2)/2
-    ##          if(verbose>2) cat("coploss =",ic,"mdsloss =",sum(resen^2)/2,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
-    ##          ic
-    ##        }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
      if(optimmethod=="Newuoa") {
          optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleX=scaleX,scaleB=scaleB,enormX=enormX,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
