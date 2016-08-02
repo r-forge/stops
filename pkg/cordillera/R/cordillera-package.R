@@ -35,13 +35,15 @@
 #' 
 #' irisrep3d<-res$scores[,1:3]
 #' irisrep2d<-res$scores[,1:2]
-#' 
+#'
+#' \donttest{
 #' #OPTICS in ELKI version
 #' ores<-e_optics(irisrep2d,minpts=2,epsilon=100)
 #' ores
 #' summary(ores)
 #' plot(ores)
-#'
+#'}
+#' 
 #' #OPTICS in dbscan version
 #' library(dbscan)
 #' ores<-optics(irisrep2d,minPts=2,eps=100)
