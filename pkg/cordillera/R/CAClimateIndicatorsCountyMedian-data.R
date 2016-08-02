@@ -1,0 +1,23 @@
+#' Climate Change Indicators of Californian Counties 
+#'
+#' A dataset containing various observed and projected indicators of climate change related natural hazards for 58 Californian counties. The values are actually the medians of the distribution over all spatial measurement points. It is a compiled data set from three sources and aggregated them to the county level. The projected data were derived under two different scenarios (A2, the high emission scenario and B1, the moderate emission scenario). It further contains the county value of the California social vulnerability index.
+#'
+#' Overall there are 50 indicators of natural hazard, one indicator of social vulnerability and 1 identifier of the county which were: 
+#'
+#'\itemize{
+#' \item county The county name identifier
+#' \item vuln_CA the vulnerability index
+#'  \item County average 95th percentile daily maximum temperature in Fahrenheit from May 1 to September 30 over the historical period (1971-2000) under the two climate scenarios A2 and B1. These are averaged values for 4 different climate models. The source was Table 7 of Cooley (2012). The variables are degFA2 and degFB1.   
+#' \item Projected average number of days where the daily maximum temperature exceeds the high-heat threshold (see above) over periods 2010-2039, 2040-2069 and 2070-2099. Projections are based on the A2 and B1 scenarios and are averaged for four downscaled climate models. The source was Table 7 of Cooley (2012). The variables are heatS_FYY_TYY, where S is the scenario, FYY the "from year" and TYY the "to year", so heatB1_71_00 is the value of a county under B1 from 1971 to 2000.  
+#' \item The percentage of a county's census block area vulnerable to unimpeded coastal flooding under baseline conditions (2000) and with a 1.4-meter (55-inch) sea-level rise (projected for 2100). The raw data were obtained from Heberger (2009) . From the census block areas we computed an area-weighted percentage for each county. The variables are flood_2000 for 2000 and flood_2100 projected for 2100.
+#' \item The median aggregated Community Climate System Model v. 3 (CCSM3) projected annual actual evapotranspiration for years 2000, 2049 and 2099 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are evapS_YYYY, where S is the scenario and YYY the year (observed or projected), so evapB1_2069 is the projected median evaporation in that county under B1 in 2069. 
+#' \item The median aggregated CCSM3 projected annual baseflow for years 2000, 2049 and 2099 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are basfS_YYYY, where S is the scenario and YYY the year (observed or projected), so basfB1_2069 is the projected median annual baseflow in that county under B1 in 2069.
+#' \item The median aggregated Centre National de Recherches Meteorologiques (CNRM) projected annual wildfire risk (observing 1 or more fires in the next 30 years). For years 2020 and 2085 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are fireS_YYYY, where S is the scenario and YYY the year (observed or projected), so fireB1_2069 is the projected median wildfire risk in that county under B1 in 2069.
+#' \item The median aggregated CCSM3 projected annual fractional moisture in the entire soil column for years 2000, 2049 and 2099 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are smclS_YYYY, where S is the scenario and YYYY the year (observed or projected), so smclB1_2069 is the projected median soil column moisture in that county under B1 in 2069.
+#' \item The median aggregated CCSM3 projected annual precipitation for years 2000, 2049 and 2099 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are prcpS_YYYY, where S is the scenario and YYYY the year (observed or projected), so prcpB1_2069 is the projected median percipitation in that county under B1 in 2069.
+#' }
+#'
+#' @format A data frame with 58 rows and 52 variables
+#' @source Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \url{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
+#' @name CAClimateIndicatorsCountyMedian
+NULL
