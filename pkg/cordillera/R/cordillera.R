@@ -194,9 +194,9 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @keywords clustering multivariate
 #' 
 #' @examples
-#' data(BankingCrisesDistances)
-#' res<-cmdscale(BankingCrisesDistances[,1:69])
-#' cres<-cordillera(res$points) #goodness of clusteredness is 0.176
+#' data(iris)
+#' res<-cmdscale(iris[,1:4])
+#' cres<-cordillera(res$points) #goodness-of-clusteredness
 #' cres
 #' summary(cres)
 #' plot(cres)
