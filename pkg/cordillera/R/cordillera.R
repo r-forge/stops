@@ -195,7 +195,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' 
 #' @examples
 #' data(iris)
-#' res<-cmdscale(iris[,1:4])
+#' res<-cmdscale(dist(iris[,1:4]))
 #' cres<-cordillera(res$points) #goodness-of-clusteredness
 #' cres
 #' summary(cres)

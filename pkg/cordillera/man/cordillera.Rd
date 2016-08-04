@@ -43,7 +43,7 @@ Calculates the OPTICS cordillera as in Rusch et al., 2015. Based on optics in db
 }
 \examples{
 data(iris)
-res<-cmdscale(iris[,1:4])
+res<-cmdscale(dist(iris[,1:4]))
 cres<-cordillera(res$points) #goodness-of-clusteredness
 cres
 summary(cres)
