@@ -5,7 +5,7 @@
 \title{Climate Change Indicators of Californian Counties}
 \format{A data frame with 58 rows and 52 variables}
 \source{
-Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \url{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
+Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \code{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
 }
 \description{
 A dataset containing various observed and projected indicators of climate change related natural hazards for 58 Californian counties. The values are actually the medians of the distribution over all spatial measurement points. It is a compiled data set from three sources and aggregated them to the county level. The projected data were derived under two different scenarios (A2, the high emission scenario and B1, the moderate emission scenario). It further contains the county value of the California social vulnerability index.

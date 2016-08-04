@@ -1,35 +1,20 @@
 Package: cordillera
 Title: OPTICS Cordillera
-Version: 0.0-35
-Date: 2016-08-02
+Version: 0.1-0
+Date: 2016-08-04
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Patrick",family="Mair", role = "ctb"),person(given="Kurt",family="Hornik", role = "ctb"))
-Author: Thomas Rusch [aut, cre], Patrick Mair [ctb], Kurt
-    Hornik [ctb]
+Author: Thomas Rusch [aut, cre], Patrick Mair [ctb], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: The package features an implementation of the OPTICS Cordillera and various supporting functions. It also contains an interface to ELKI's OPTICS.
+Description: An implementation of the OPTICS Cordillera and various supporting functions. It also contains an interface to ELKI's OPTICS.
 Depends:
     R (>= 3.1.2),
-    smacof,
-    rgl
-SystemRequirements: ELKI (>=0.6.0; if used)
+SystemRequirements:
+    ELKI (>=0.6.0; if used)
 Imports:
-    MASS,
-    pso,
-    scatterplot3d,
-    acepack,
-    minerva,
-    energy,
-    minqa,
-    dbscan,
-    DiceOptim,
-    DiceKriging,
-    tgp
-Enhances: stats
+    dbscan
 Suggests:
-    testthat,
-    R.rsp
+    scatterplot3d
 License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
-VignetteBuilder: R.rsp
 RoxygenNote: 5.0.1

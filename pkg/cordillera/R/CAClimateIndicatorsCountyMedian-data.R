@@ -18,6 +18,6 @@
 #' }
 #'
 #' @format A data frame with 58 rows and 52 variables
-#' @source Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \url{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
+#' @source Cooley (2012) \url{http://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger (2009) \code{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip} and California Energy Comission (2008) \url{http://cal-adapt.org/data/download/}
 #' @name CAClimateIndicatorsCountyMedian
 NULL
