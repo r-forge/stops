@@ -196,13 +196,21 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @examples
 #' data(iris)
 #' res<-princomp(iris[,1:4])
-#' cres2<-cordillera(res$scores[,1:2]) #2 dim goodness-of-clusteredness with clusters of at least 2 points
-#' cres4<-cordillera(res$scores[,1:4],minpts=3) #2 dim goodness-of-clusteredness with clusters of at least 3 points
+#' #2 dim goodness-of-clusteredness with clusters of at least 2 points
+#' cres2<-cordillera(res$scores[,1:2])
 #' cres2
 #' summary(cres2)
-#' summary(cres4)
 #' plot(cres2)
+#' 
+#' #4 dim goodness-of-clusteredness with clusters of at least 3 points for PCA
+#' cres4<-cordillera(res$scores[,1:4],minpts=3,epsilon=13) 
+#' #4 dim goodness-of-clusteredness with clusters of at least 3 points for original data
+#' cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,rang=c(0,cres4$dmax))
+#' #There is a bit more clusteredness for the PCA result
+#' summary(cres4)
+#' summary(cres)
 #' plot(cres4)
+#' plot(cres)
 #' @export
 cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,scale=TRUE,...)
     {
