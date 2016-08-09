@@ -60,13 +60,13 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=get
        reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
 #       reachdiff <- reachdiff/(max(tmp)-min(tmp))
        n <- dim(confs)[1]
-       avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
+       avgsidist <- round((sum(abs(reachdiff)^q,na.rm=TRUE)^(1/q),digits)) #raw cordillera; round to three digits
        #if(missing(range)) <- range(confs)
        mdif <- abs(rang[2]-rang[1]) #dmax 
        normfac <- 2*ceiling((n-1)/minpts) #the norm factor
        normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
        if(!isTRUE(all.equal((n-1)%%minpts,0))) normi <- round(normi - mdif^q,digits=digits) #the correction to the upper bound if n-1/p is not fully met
-       struc <- (avgsidist/normi)^(1/q) #the normed cordillera
+       struc <- (avgsidist^q/normi)^(1/q) #the normed cordillera
        if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
        normstruc <- min(abs(struc),1) #if someone supplied a range that is to small we output 1. Also a warning? 
        if(is.na(normstruc)) normstruc <- avgsidist
@@ -230,7 +230,7 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,scale=TRUE
        tmp[tmp>maxi] <- maxi #robustness
        reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
        n <- dim(confs)[1]
-       avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
+       avgsidist <- round(sum(abs(reachdiff)^q),na.rm=TRUE,digits) #raw cordillera; round to three digits
        mdif <- abs(rang[2]-rang[1]) #dmax 
        normfac <- 2*ceiling((n-1)/minpts) #the norm factor
        normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
@@ -238,8 +238,18 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,scale=TRUE
        struc <- (avgsidist/normi)^(1/q) #the normed cordillera
        if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
        normstruc <- min(abs(struc),1) #if someone supplied a range that is to small we output 1. Also a warning? 
-       if(is.na(normstruc)) normstruc <- avgsidist
-       out <- list("reachplot"=tmp,"raw"=avgsidist,"norm"=normi,"normfac"=normfac,"dmax"=mdif,"normed"=normstruc,"optics"=optres)
+       if(is.na(normstruc)) normstruc <- avgsidist^(1/q)
+       out <- list("reachplot"=tmp,"raw"=avgsidist^(1/q),"raw^q"=avgsidist,"norm"=normi,"normfac"=normfac,"dmax"=mdif,"normed"=normstruc,"optics"=optres)
        class(out) <- "cordillera"
        out
     }
+
+
+cres<-cordillera(res$scores[,1:2],q=1)
+str(cres)
+cres<-cordillera2(res$scores[,1:2],q=1)
+cres<-cordillera(res$scores[,1:2],q=2)
+cres<-cordillera2(res$scores[,1:2],q=2)
+
+cres<-cordillera(res$scores[,1:2],q=0.33)
+cres<-cordillera2(res$scores[,1:2],q=0.33)
