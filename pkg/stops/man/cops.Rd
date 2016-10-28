@@ -14,13 +14,13 @@ cops(dis, variant = c("0", "1", "2", "Variant0", "Variant1", "Variant2", "v0",
 
 \item{variant}{a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss". Defaults to "COPS-C".}
 
-\item{...}{arguments to be passed to shrinkCoploss (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss}} \code{\link{coplossMin}} or \code{\link{pcops}}}
+\item{...}{arguments to be passed to shrinkCoploss0 (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss0}} \code{\link{coplossMin}} or \code{\link{pcops}}}
 }
 \value{
-For Variant 0 see \code{\link{shrinkCoploss}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
+For Variant 0 see \code{\link{shrinkCoploss0}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 }
 \description{
-Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss, coplossMin and pcops.
+Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss0, coplossMin and pcops.
 }
 \examples{
 \donttest{

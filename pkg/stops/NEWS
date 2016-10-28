@@ -1,3 +1,7 @@
+Version 0.0-35
+
+- Renamed shrinkCoploss to shrinkCoploss0 for COPS-0. Updated docs. Moved cordillera code to a new package. 
+
 Version 0.0-34
 
 - Defaults set in shrinkCoploss and arguments to control the normalization of x. 

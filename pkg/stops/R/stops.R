@@ -807,6 +807,7 @@ mkPower2<-function(x,theta) {
 #' }
 #' 
 #' @importFrom stats dist as.dist optim
+#' @importFrom utils capture.output
 #' @importFrom pso psoptim
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km

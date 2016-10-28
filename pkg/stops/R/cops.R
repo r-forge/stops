@@ -1411,7 +1411,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' dis<-as.matrix(smacof::kinshipdelta)
 #'
 #' #Coploss with shrinkage to 0 
-#' res1<-shrinkCoploss(dis,cordweight=1,minpts=2) 
+#' res1<-shrinkCoploss0(dis,cordweight=1,minpts=2) 
 #' res1
 #' summary(res1)
 #' plot(res1)  #super clustered
@@ -1597,13 +1597,13 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 
 #' High Level COPS Function
 #'
-#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss, coplossMin and pcops.
+#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss0, coplossMin and pcops.
 #'
 #'@param dis a dissimilarity matrix or a dist object
 #'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss". Defaults to "COPS-C".
-#'@param ... arguments to be passed to shrinkCoploss (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss}} \code{\link{coplossMin}} or \code{\link{pcops}}
+#'@param ... arguments to be passed to shrinkCoploss0 (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss0}} \code{\link{coplossMin}} or \code{\link{pcops}}
 #'
-#'@return For Variant 0 see \code{\link{shrinkCoploss}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
+#'@return For Variant 0 see \code{\link{shrinkCoploss0}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
 #' \donttest{
@@ -1678,7 +1678,7 @@ cops <- function(dis, variant=c("0","1","2","Variant0","Variant1","Variant2","v0
                  {
                  if(missing(variant)) variant <- "1"
                  if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","coploss-0")) out <- coplossMin(dis,...)
-                 if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","coploss-c")) out <- shrinkCoploss(dis,...)
+                 if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","coploss-c")) out <- shrinkCoploss0(dis,...)
                  if(variant%in%c("2","Variant2","v2","profile","p-coploss","P-COPS","COPS-P","coploss-p")) out <- pcops(dis,...)
 
                  return(out)
