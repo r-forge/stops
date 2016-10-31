@@ -14,6 +14,8 @@
 #' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'. NOte that for penalizing the mds loss. 
 #' @param verbose verbose output
 #'
+#' @import cordillera
+#' 
 #' @export
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
@@ -24,7 +26,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if("cclusteredness"%in%structures)
             {
               indst <- which(structures=="cclusteredness")  
-              cclusteredness <- do.call(stops::cordillera,c(list(confs),strucpars[[indst]]))$normed
+              cclusteredness <- do.call(cordillera::cordillera,c(list(confs),strucpars[[indst]]))$normed
             }                           
         if("clinearity"%in%structures)
             {
@@ -104,6 +106,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #' 
 #'@keywords multivariate
 #'@import smacof
+#'@import cordillera
 #'@export
 stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
@@ -157,6 +160,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' 
 #'@keywords multivariate
 #'@import smacof
+#'@import cordillera 
 #'@export
 stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
   theta <- as.numeric(theta)
@@ -330,7 +334,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
 #' }
 #'
 #' @importFrom stats dist as.dist
-#' 
+#' @import cordillera
 #' @keywords multivariate
 #'
 #' 
@@ -389,6 +393,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #'
 #' @importFrom stats dist as.dist
 #' @import smacof
+#' @import cordillera
 #' 
 #'@keywords multivariate
 #'@export
@@ -449,7 +454,8 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #'         \item{fit:} the returned object of the fitting procedure
 #'         \item{indobj:} the index objects
 #' }
-#' 
+#'
+#' @import cordillera
 #' @importFrom stats dist as.dist
 #' @keywords multivariate
 #' @export
@@ -501,7 +507,8 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #'         \item{fit:} the returned object of the fitting procedure
 #'         \item{indobj:} the index objects
 #' }
-#' 
+#'
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -549,6 +556,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #'         \item{fit:} the returned object of the fitting procedure
 #'         \item{indobj:} the index objects
 #' }
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -595,6 +603,8 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
 #' }
+#' 
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -637,6 +647,8 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
 #' }
+#'
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -684,6 +696,8 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
 #' }
+#' 
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -732,6 +746,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
 #' }
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -812,6 +827,7 @@ mkPower2<-function(x,theta) {
 #' @importFrom DiceOptim EGO.nsteps
 #' @importFrom DiceKriging km
 #' @importFrom tgp lhs dopt.gp
+#' @import cordillera
 #' 
 #' @keywords clustering multivariate
 #' @export

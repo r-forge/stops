@@ -7,7 +7,7 @@
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -29,6 +29,7 @@
 #' }
 #'
 #'@importFrom stats dist as.dist
+#'@import cordillera 
 #'@import smacof
 #' 
 #'@keywords multivariate
@@ -95,6 +96,8 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #'
 #'@importFrom stats dist as.dist
 #'@import smacof
+#'@import cordillera 
+#' 
 #'@keywords multivariate
 #'@export
 cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -160,7 +163,8 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
-#'@import smacof 
+#'@import smacof
+#'@import cordillera 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
@@ -223,7 +227,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' }
 #'
 #' @importFrom stats dist as.dist
-#' 
+#' @import cordillera
 #' @keywords multivariate
 #'
 #' 
@@ -284,6 +288,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #'
 #' @importFrom stats dist as.dist
 #' @import smacof
+#' @import cordillera
 #'@keywords multivariate
 #'@export
 cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=TRUE,stresstype="default") {
@@ -349,6 +354,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' }
 #' 
 #' @importFrom stats dist as.dist
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype="default") {
@@ -400,6 +406,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #'         \item cordillera: the cordillera object
 #' }
 #' @keywords multivariate
+#' @import cordillera
 #' @export
 cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
@@ -454,6 +461,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #'         \item cordillera: the cordillera object
 #' }
 #' @keywords multivariate
+#' @import cordillera
 #' @export
 cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
@@ -507,6 +515,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #'         \item cordillera: the cordillera object
 #' }
 #' @keywords multivariate
+#' @import cordillera
 #' @export
 cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
@@ -556,6 +565,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
@@ -610,6 +620,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
@@ -664,6 +675,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
+#' @import cordillera
 #' @keywords multivariate
 #' @export
 cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=TRUE,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
@@ -709,6 +721,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #'        \item cordillera the cordillera object
 #' }
 #' @keywords multivariate
+#' @import cordillera
 #' @export
 coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,scale=TRUE,...)
     {
@@ -717,7 +730,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
         lambda <- obj$lambda
         nu <- obj$nu
         confs <- obj$conf 
-        corrd <- stops::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+        corrd <- cordillera::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
         struc <- corrd$raw
         maxstruc <- corrd$normi
         if(normed) {
@@ -836,6 +849,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'
 #' @importFrom stats dist as.dist optim
 #' @importFrom pso psoptim
+#' @import cordillera
 #' 
 #'@keywords clustering multivariate
 #'@export
@@ -853,7 +867,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
            initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
            init0 <- initsol$fit$conf
            if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin) #approximate upper bound by 1.5 times the max distance in the initial config
                  #alternatives: use an adjusted boxplot idea so e.g., rang<-c(quantile(crp,0.25)-exp(-4*robustbase::mc(crp))*1.5*IQR(crp),quantile(crp,0.75)+exp(4*robustbase::mc(crp))*1.5*IQR(crp)
@@ -866,8 +880,8 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
                {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
                  initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))  
-                 initcorrd <- stops::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
-                 if(identical(normed,FALSE)) initcorrd <- stops::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
+                 initcorrd <- cordillera::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
+                 if(identical(normed,FALSE)) initcorrd <- cordillera::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
                 cordweight <- initsol$stress.m/initcorrd  
                 #cat("stress.m=",initsol$stress.m,"cord=",initcorrd,"cweight=",cordweight,"\n") 
                 if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
@@ -887,7 +901,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
     out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
-    out$OC <- stops::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    out$OC <- cordillera::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
     out$coploss <- opt$value
     out$optim <- opt
     out$stressweight <- stressweight
@@ -1058,6 +1072,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'
 #'@importFrom stats dist as.dist optim
+#'@import cordillera
 #'@importFrom minqa newuoa
 #' 
 #' 
@@ -1080,7 +1095,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
@@ -1091,7 +1106,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
                  #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
                  initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-                 initcord <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
+                 initcord <- cordillera::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
                  initcorrd <- initcord$normed
                  if(identical(normed,FALSE)) initcorrd <- initcord$raw
                  cordweight <- initsol$stress/initcorrd #use stress.m or stress?
@@ -1120,7 +1135,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              #print(ds)
              stressi <- sum(weightmat*(ds-delta)^2)/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+             corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
  #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot,scale=scale,...)
              struc <- corrd$raw
              if(normed) {
@@ -1173,7 +1188,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
-    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
     out$coploss <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
@@ -1234,6 +1249,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #'summary(res1)
 #'plot(res1)  #super clustered
 #'
+#' @import cordillera
 #' @importFrom stats dist as.dist optim
 #' @importFrom minqa newuoa
 #' 
@@ -1257,7 +1273,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
@@ -1268,7 +1284,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
                  #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
                  initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-                 initcord <- stops::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
+                 initcord <- cordillera::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
                  initcorrd <- initcord$normed
                  if(identical(normed,FALSE)) initcorrd <- initcord$raw
                  cordweight <- initsol$stress/initcorrd #use stress.m or stress?
@@ -1302,8 +1318,8 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
              stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              #stressi <- sum(weightmat*(ds-delta)^2)/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-         #    corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-             corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+         #    corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+             corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
              struc <- corrd$raw
              if(normed) {
                         struc <- corrd$normed
@@ -1353,7 +1369,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
-    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
     out$coploss <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
@@ -1416,6 +1432,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' summary(res1)
 #' plot(res1)  #super clustered
 #'
+#' @import cordillera
 #' @importFrom stats dist as.dist optim
 #' @importFrom minqa newuoa
 #' 
@@ -1439,7 +1456,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
            initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scaleX)) init0 <- scale(init0)
-           crp <- stops::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
@@ -1536,7 +1553,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "coploss"
-    out$OC <- stops::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleC)
+    out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleC)
     out$coploss <- ovalue
     out$optim <- optimized
     out$cordweight <- cordweight
@@ -1561,7 +1578,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
 #' @param normed should the reachability differences be normed? (1=to sup Gamma 2 = to dmax)?
 #' @param ... additional arguments to be passed to the OPTICS algorithm procedure
 #' 
-#' @importFrom dbscan optics 
+#' @importFrom dbscan optics
 #' 
 #'@export
 shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...)
@@ -1668,6 +1685,7 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 #'plot(res5)
 #'}
 #'
+#' @import cordillera
 #' @importFrom stats dist as.dist optim
 #' @importFrom minqa newuoa
 #' 

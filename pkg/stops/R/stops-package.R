@@ -1,6 +1,6 @@
 #' stops: structure optimized proximity scaling
 #' 
-#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. This includes the COPS method. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models (classical scaling, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powerStress, sammon mapping with powers and elastic scaling with powers), metaheuristics of multi-objective optimization, functions for various structuredness indices (including the OPTICS cordillera) and an interface to ELKI's OPTICS.  
+#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, COPS-0, COPS-C and P-COPS. All of these models can also be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
 #'
 #' The stops package provides five categories of important functions:
 #'
@@ -8,12 +8,10 @@
 #' \itemize{
 #' \item cops() and stops() ... which fit COPS and STOPS models as described in Rusch et al. (2015) and Rusch et al. (2016). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
 #' \item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), powerStress (e.g., Rusch et al., 2015a), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with cops_XXX where XXX is the method and setting stressweight=1 and cordweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
-#' \item e_optics() ... An interface to ELKI's implementation of the OPTICS; DEPRECATED
 #' }
 #'
 #' Structuredness Indices:
 #' \itemize{
-#' \item cordillera() ... OPTICS cordillera
 #' \item c_linearity() ... Multiple correlation of a configuration
 #' }
 #' 
@@ -47,8 +45,9 @@
 #'
 #'
 #' @examples
+#' library(cordillera)
 #' data(BankingCrisesDistances)
-#' 
+#'
 #' #shorthand function for COPS variant 2 (hyperparameter)
 #' res<-pcops(BankingCrisesDistances[,1:69])
 #' res
@@ -60,14 +59,14 @@
 #'
 #'\donttest{
 #' #OPTICS
-#' ores<-e_optics(res$conf,minpts=2,epsilon=100)
+#' ores<-cordillera::e_optics(res$conf,minpts=2,epsilon=100)
 #' ores
 #' summary(ores)
 #' plot(ores)
 #' }
 #
 #' #OPTICS cordillera
-#' cres<-cordillera(res$fit$conf)
+#' cres<-cordillera::cordillera(res$fit$conf)
 #' cres
 #' summary(cres)
 #' plot(cres)
