@@ -170,7 +170,7 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
           X <- rbind(X, out$X)
           ztmp <- apply(out$X,1,fun)
           Z <- c(Z, ztmp)
-          ## keep track of progress and best optimum
+          ## keep track of progress and optimum
           fnew <- out$progress$z 
           progress <- rbind(progress, out$progress)
           if(verbose>1) print(progress[itel,])
@@ -183,6 +183,6 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
           fold <- fnew
         }
         rets <- progress[which.min(progress$z),1:length(x)]
-        return(list(par=rets,value=min(progress$z),counts=c(`function`=itel,gradient=NA),convergence=convo,message=NULL,history=progress,tgpout=out))
+        return(list(par=as.numeric(rets),value=min(progress$z),counts=c(`function`=itel,gradient=NA),convergence=convo,message=NULL,history=progress,tgpout=out))
 }
 

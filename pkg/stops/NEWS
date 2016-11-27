@@ -1,3 +1,8 @@
+Version 0.0-36
+
+- In accordance with optim() in tgpoptim() the $par result is now a numeric vector instead of a data frame with one row. This fixes a bug for stops() with optimmethod="tgp" and verbose of more than 1 leading to an error. 
+
+
 Version 0.0-35
 
 - Renamed shrinkCoploss to shrinkCoploss0 for COPS-0. Updated docs. Moved cordillera code to a new package. Once cordillera is on CRAN, cordillera and optics code will be removed from this package. 
