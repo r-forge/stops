@@ -1,6 +1,6 @@
 Version 0.0-36
 
-- In accordance with optim() in tgpoptim() the $par result is now a numeric vector instead of a data frame with one row. This fixes a bug for stops() with optimmethod="tgp" and verbose of more than 1 leading to an error. 
+- In accordance with optim() in tgpoptim() the $par result is now a numeric vector instead of a data frame with one row. This fixes a bug for stops() with optimmethod="tgp" and verbose of more than 1 leading to an error. Extended tgp to also return the real function values not only the surrogate and select best parameter for min real value not minimum surrogate value. 
 
 
 Version 0.0-35

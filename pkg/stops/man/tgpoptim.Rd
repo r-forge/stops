@@ -32,8 +32,9 @@ tgpoptim(x, fun, ..., initpoints = 10, lower, upper, acc = 1e-08,
 \value{
 A list with the components (for compatiility with \code{\link{optim}})
 \itemize{
-     \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
-     \item value The value of the objective function at the optimum (min fun)
+     \item par The position of the optimum in the search space (parameters that minimize the function; argmin fun). 
+     \item value The value of the objective function at the optimum (min fun). Note we do not use the last value in the candidate list but the best candidate (which can but need not coincide). 
+     \item svalue The value of the surrogate objective function at the optimal parameters
      \item counts The number of iterations performed at convergence with entries fnction for the number of iterations and gradient which is always NA at the moment
      \item convergence 0 successful completion by the accd or acc criterion, 1 indicate iteration limit was reached, 99 is a problem 
      \item message is NULL (only for compatibility or future use)
@@ -56,10 +57,10 @@ x2 <- x[2]
 res1<-tgpoptim(c(-1.2,1),fbana,lower=c(-5,-5),upper=c(5,5),acc=1e-16,itmax=100)
 res1
 
-set.seed(210485)
 fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
+set.seed(210485)
 plot(fwild, -50, 50, n = 1000, main = "Bayesian GP Optimization minimizing 'wild function'")
-res2<-tgpoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,acc=1e-16,itmax=100,model=bgp)
+res2<-tgpoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,acc=1e-16,itmax=100,model="bgp")
 points(res2$par,res2$value,col="red",pch=19)
 res2
 }
