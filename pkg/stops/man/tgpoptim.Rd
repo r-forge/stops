@@ -21,7 +21,7 @@ tgpoptim(x, fun, ..., initpoints = 10, lower, upper, acc = 1e-08,
 
 \item{upper}{The upper contraints of the search region}
 
-\item{acc}{if the numerical accuracy of two successive target function values is below this, stop the optimization; defaults to 1e-8}
+\item{acc}{if the numerical accuracy of two successive surrogate function values is below this, stop the optimization; defaults to 1e-8}
 
 \item{itmax}{maximum number of iterations}
 

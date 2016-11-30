@@ -161,7 +161,7 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
         out <- progress <-  NULL
         convo <- 99L
         itel <- 1
-        fold <- min(Z)
+        fold <- sfold <- min(Z)
         model <- get(model,envir=getNamespace("tgp"))
         if(verbose>0) cat("Starting Bayesian Optimization","\n")
         repeat {
@@ -178,13 +178,13 @@ tgpoptim <- function(x,fun,...,initpoints=10,lower,upper,acc=1e-8,itmax=10,verbo
           progress <- rbind(progress, out$progress) #progress of optimum from surrogate #TODO: extend this by real value?
 #          progress <- rbind(progress,out$progress)
           if(verbose>1) print(progress[itel,])
-          if ((itel == itmax) || (abs(fold - fnew) < acc)) {
+          if ((itel == itmax) || (abs(sfold - sfnew) < acc)) { #stop if itmax is reached or if two successive surrogate function values are essentially equal 
             convo <- 0L
             if(itel==itmax) convo <- 1L
             break ()
           }
           itel <- itel + 1
-          fold <- fnew
+          sfold <- sfnew
         }
         rets <- progress[which.min(progress$Z),1:length(x)] #we use the best candidate of all, needs not be the last nor necessarily the same as the best surrogate value 
         #rets <- progress[itel,1:length(x)] #last surrogate function candidate
