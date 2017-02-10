@@ -56,6 +56,21 @@ echo $contents; } ?>
   <th>Place</th>
 </tr> 
 <tr>
+  <td>Psychoco 2017 (<a href="stops-psychoco2017.pdf">slides</a>)</td>
+  <td>09.02.2017-10.02.2017</td>
+  <td>Vienna, Austria</td>
+</tr> 
+<tr>
+  <td>Brown Bag Seminar (<a href="stopsBBS.pdf">slides</a>)</td>
+  <td>07.12.2016</td>
+  <td>Institute for Statistics and Mathematics, WU Vienna, Austria</td>
+</tr> 
+<tr>
+  <td>Brown Bag Seminar (<a href="cordilleraBBS.pdf">slides</a>)</td>
+  <td>23.10.2016</td>
+  <td>Institute for Statistics and Mathematics, WU Vienna, Austria</td>
+</tr> 
+<tr>
   <td>Psychoco 2015 (<a href="http://epub.wu.ac.at/4478/">slides</a>)</td>
   <td>12.02.2015-13.02.2015</td>
   <td>Amsterdam, The Netherlands</td>
