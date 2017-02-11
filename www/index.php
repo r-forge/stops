@@ -50,12 +50,14 @@ echo $contents; } ?>
 
 
 <h3>Papers:</h3>
+<h2>Technical Reports:</h2>
 <p>
-<a href="http://epub.wu.ac.at/4888/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a></br> 
-<a href="http://epub.wu.ac.at/4789/">Technical Report on the OPTICS Cordillera</a> 
+<a href="http://epub.wu.ac.at/4888/">Cluster Optimized Proximity Scaling (COPS)</a></br> 
+<a href="http://epub.wu.ac.at/4789/">Assessing and Quantifying Clusteredness: The OPTICS Cordillera</a> 
 </p>
 
-<h3>Talks (title links lead to slides):</h3>
+<h3>Talks:</h3>
+(title links lead to slides)</br>
 <table>
 <tr>
   <th>Title</th>
