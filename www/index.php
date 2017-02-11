@@ -50,7 +50,7 @@ echo $contents; } ?>
 
 
 <h3>Papers:</h3>
-<h2>Technical Reports:</h2>
+<h4>Technical Reports:</h4>
 <p>
 <a href="http://epub.wu.ac.at/4888/">Cluster Optimized Proximity Scaling (COPS)</a></br> 
 <a href="http://epub.wu.ac.at/4789/">Assessing and Quantifying Clusteredness: The OPTICS Cordillera</a> 
