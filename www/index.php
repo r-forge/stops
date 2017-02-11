@@ -45,38 +45,48 @@ echo $contents; } ?>
 
 <p> This is the homepage of the <b>Structure Optimized Proximity Scaling (STOPS)</b> project. On this page you can find links to papers, talks, data and software related to STOPS. One can also find a tutorial for COPS and STOPS and the MDS functions below.</p>
 
+
+<p><a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />Except noted otherwise, content on this homepage and this work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+
+
 <h3>Papers:</h3>
 <p><a href="http://epub.wu.ac.at/4888/">Technical Report on Cluster Optimized Proximity Scaling (COPS)</a> </p>
 
-<h3>Talks:</h3>
+<h3>Talks (title links lead to slides):</h3>
 <table>
 <tr>
-  <th>Talk</th>
+  <th>Title</th>
+  <th>Event</th>
   <th>Date</th>
   <th>Place</th>
 </tr> 
 <tr>
-  <td>Psychoco 2017 (<a href="stops-psychoco2017.pdf">slides</a>)</td>
+  <td><a href="stops-psychoco17.pdf">Structure Optimized Proximity Scaling (STOPS): A Framework for Hyperparameter Selection in Multidimensional Scaling</a></td>
+  <td>Psychoco 2017</td>
   <td>09.02.2017-10.02.2017</td>
-  <td>Vienna, Austria</td>
+  <td>WU Vienna, Austria</td>
 </tr> 
 <tr>
-  <td>Brown Bag Seminar (<a href="stopsBBS.pdf">slides</a>)</td>
+  <td><a href="stopsBBS.pdf">COPS and STOPS: Cluster and/or Structure Optimized Proximity Scaling</a></td> 
+  <td>Brown Bag Seminar, Institute for Statistics and Mathematics </td>
   <td>07.12.2016</td>
-  <td>Institute for Statistics and Mathematics, WU Vienna, Austria</td>
+  <td>WU Vienna, Austria</td>
 </tr> 
 <tr>
-  <td>Brown Bag Seminar (<a href="cordilleraBBS.pdf">slides</a>)</td>
+  <td><a href="cordilleraBBS.pdf">The OPTICS Cordillera: Nonparametric Assessment of Clusteredness</a></td>
+  <td>Brown Bag Seminar, Institute for Statistics and Mathematics </td>
   <td>23.10.2016</td>
-  <td>Institute for Statistics and Mathematics, WU Vienna, Austria</td>
+  <td>WU Vienna, Austria</td>
 </tr> 
 <tr>
-  <td>Psychoco 2015 (<a href="http://epub.wu.ac.at/4478/">slides</a>)</td>
+  <td><a href="http://epub.wu.ac.at/4478/">COPS: Cluster Optimized Proximity Scaling</a></td>
+  <td>Psychoco 2015</td>
   <td>12.02.2015-13.02.2015</td>
   <td>Amsterdam, The Netherlands</td>
 </tr> 
 <tr>
-  <td>CFE-ERCIM 2014 (<a href="http://epub.wu.ac.at/4477/">slides</a>)</td>
+  <td><a href="http://epub.wu.ac.at/4477/">Scaling for Clusters with COPS: Cluster Optimized Proximity Scaling</a>
+  <td>CFE-ERCIM 2014</td>
   <td>06.12.2014-08.12.2014</td>
   <td>Pisa, Italy</td>
 </tr> 
