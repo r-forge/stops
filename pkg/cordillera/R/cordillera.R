@@ -6,7 +6,8 @@
 #' @param q  the norm of the cordillera. Defaults to 1.
 #' @param minpts the minpts argument to elki. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
-#' @param rang  A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.
+#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
+#' @param rang (old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data.
 #' @param ylim The borders for the cordillera plot
 #' @param plot plot the reachability and the raw cordillera
 #' @param digits round the raw corrdilrra and the norm factor to these digits. Defaults to 10.
@@ -29,7 +30,7 @@
 #' @keywords clustering multivariate
 #' 
 #' @export
-e_cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=getwd(),plot=FALSE,ylim,scale=TRUE,...)
+e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=getwd(),plot=FALSE,ylim,scale=TRUE,...)
     {
         if(scale) confs <- scale(confs)
         if(missing(epsilon)) epsilon <- 2*diff(range(confs))
@@ -40,15 +41,16 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,path=get
         #cat(tmp,"\n")
         #TODO newer elki returns unicode \342 instead of infinity so we need to work around that, works now but we suppress coercion warning
         tmp <- suppressWarnings(as.numeric(tmp))
-        tmp[is.na(tmp)] <- Inf 
-        if(is.null(rang)) rang <- c(0,min(epsilon,max(tmp[is.finite(tmp)]))) #This sets the range to min to max if max < eps or eps if eps < max; so this allows to do robustness stuff.
+        tmp[is.na(tmp)] <- Inf
+        if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max; so this allows to do robustness stuff.
+        if(missing(rang)) rang <- c(0,dmax) #This sets the range to min to max if max < eps or eps if eps < max; so this allows to do robustness stuff.
         # is eps if no range is given and eps < max reachability or if eps < range and < max reachability
         # is max range if range is given and < max reachability, eps  
         # is max reachability if max reachabity is < eps and < max range or range is not given
         maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #robustness
         #maxi <- max(rang)
        # tmp <- ifelse(is.infinite(tmp),maxi,tmp)
-        tmp[tmp>maxi] <- maxi #robustness
+        tmp[tmp>maxi] <- maxi #winsorization
         if(isTRUE(plot)) {
             if(missing(ylim)) ylim <- c(0,max(rang))
             idind <- pmatch("ID",res[1,]) #check where the ids are
@@ -174,8 +176,9 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @param q  the norm of the cordillera. Defaults to 1.
 #' @param minpts the minpts argument to elki. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
-#' @param rang  A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.
-#' @param digits round the raw corrdilrra and the norm factor to these digits. Defaults to 10.
+#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
+#' @param rang (old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
+#' @param digits round the raw cordilerra and the norm factor to these digits. Defaults to 10.
 #' @param scale Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE
 #' @param ... Additional arguments to be passed to optics
 #' 
@@ -184,7 +187,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #'        \item $raw... The raw cordillera
 #'        \item $norm... The normalization constant
 #'        \item $normfac... The normalization factor (the number of times that dmax is taken)
-#'        \item $dmax... The maximum distance used for maximum structure
+#'        \item $dmaxe... The effective maximum distance used for maximum structure (either dmax or epsilon or rang[2]-rang[1]). 
 #'        \item $normed... The normed cordillera (raw/norm)
 #'        \item $optics... The optics object
 #' }
@@ -205,33 +208,29 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' #4 dim goodness-of-clusteredness with clusters of at least 3 points for PCA
 #' cres4<-cordillera(res$scores[,1:4],minpts=3,epsilon=13) 
 #' #4 dim goodness-of-clusteredness with clusters of at least 3 points for original data
-#' cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,rang=c(0,cres4$dmax))
+#' cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,dmax=cres4$dmaxe)
 #' #There is a bit more clusteredness for the PCA result
 #' summary(cres4)
 #' summary(cres)
 #' plot(cres4)
 #' plot(cres)
 #' @export
-cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,scale=TRUE,...)
+cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,scale=TRUE,...)
     {
-        if(scale) confs <- scale(confs)
-        if(missing(epsilon)) epsilon <- 2*diff(range(confs))
-        optres <- dbscan::optics(confs,minPts=minpts,eps=epsilon,...)
-        #optresdbsc <- dbscan::optics(confs,minPts=minpts,eps=epsilon)
-        #optresstops <- stops::optics(confs,minpts=minpts,epsilon=epsilon)
-        res <- optres$order
-        tmp <- optres$reachdist[res]
-        tmp[is.na(tmp)] <- Inf 
-        if(is.null(rang)) rang <- c(0,min(epsilon,max(tmp[is.finite(tmp)]))) #This sets the range to min to max if max < eps or eps if eps < max; so this allows to do robustness stuff.
-        # is eps if no range is given and eps < max reachability or if eps < range and < max reachability
-        # is max range if range is given and < max reachability, eps  
-        # is max reachability if max reachabity is < eps and < max range or range is not given
-       maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #robustness
-       tmp[tmp>maxi] <- maxi #robustness
-       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the enveloping of the reachability plot (no need for Pythagoras as we have constant difference between each succeissve point) -> the longer the better 
+       if(scale) confs <- scale(confs)
+       if(missing(epsilon)) epsilon <- 2*diff(range(confs))
+       optres <- dbscan::optics(confs,minPts=minpts,eps=epsilon,...)
+       res <- optres$order
+       tmp <- optres$reachdist[res]
+       tmp[is.na(tmp)] <- Inf
+       if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max
+       if(missing(rang)) rang <- c(0,dmax) #This sets the range to (0,dmax)
+       maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #definition of reachabilities
+       tmp[tmp>maxi] <- maxi #winsorization 
+       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the envelope the reachability plot  -> the longer the "better" 
        n <- dim(confs)[1]
        avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
-       mdif <- abs(rang[2]-rang[1]) #dmax 
+       mdif <- abs(max(rang)-min(rang)) #dmaxe
        normfac <- 2*ceiling((n-1)/minpts) #the norm factor
        normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
        if(!isTRUE(all.equal((n-1)%%minpts,0))) normi <- round(normi - mdif^q,digits=digits) #the correction to the upper bound if n-1/p is not fully met
@@ -239,7 +238,10 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,rang=NULL,digits=10,scale=TRUE
        if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
        normstruc <- min(abs(struc),1) #if someone supplied a range that is to small we output 1. Also a warning? 
        if(is.na(normstruc)) normstruc <- avgsidist^(1/q)
-       out <- list("reachplot"=tmp,"raw"=avgsidist^(1/q),"raw^q"=avgsidist,"norm"=normi,"normfac"=normfac,"dmax"=mdif,"normed"=normstruc,"optics"=optres)
+       out <- list("reachplot"=tmp,"raw"=avgsidist^(1/q),"raw^q"=avgsidist,"norm"=normi,"normfac"=normfac,"dmaxe"=mdif,"normed"=normstruc,"optics"=optres)
+        #mdif=dmax if dmax is supplied but not rang
+        #mdif=epsilon if dmax>epsilon and rang not supplied
+        #mdif=rang[2]-rang[1] if rang is supplied
        class(out) <- "cordillera"
        out
     }

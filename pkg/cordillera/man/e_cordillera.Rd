@@ -4,7 +4,7 @@
 \alias{e_cordillera}
 \title{Calculates the Optics cordillera}
 \usage{
-e_cordillera(confs, q = 1, minpts = 2, epsilon, rang = NULL,
+e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
   digits = 10, path = getwd(), plot = FALSE, ylim, scale = TRUE, ...)
 }
 \arguments{
@@ -16,7 +16,9 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, rang = NULL,
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
-\item{rang}{A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.}
+\item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
+
+\item{rang}{(old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data.}
 
 \item{digits}{round the raw corrdilrra and the norm factor to these digits. Defaults to 10.}
 

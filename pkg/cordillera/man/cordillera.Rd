@@ -4,8 +4,8 @@
 \alias{cordillera}
 \title{Calculates the Optics Cordillera}
 \usage{
-cordillera(confs, q = 1, minpts = 2, epsilon, rang = NULL, digits = 10,
-  scale = TRUE, ...)
+cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
+  digits = 10, scale = TRUE, ...)
 }
 \arguments{
 \item{confs}{numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.}
@@ -16,9 +16,11 @@ cordillera(confs, q = 1, minpts = 2, epsilon, rang = NULL, digits = 10,
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
-\item{rang}{A range of values that makes up dmax (dmax=max-min). If used for comparions this should be supplied. If no value is supplied, it is NULL (default). Then dmax is taken from the data as the difference between the largest reachability and the smallest reachability. In the latter case the cordillera is a "goodness-of-clusteredness" given the data, in the former case it also takes into account that the gaps between certain points may be larger which stands for more structure.}
+\item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
 
-\item{digits}{round the raw corrdilrra and the norm factor to these digits. Defaults to 10.}
+\item{rang}{(old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious).}
+
+\item{digits}{round the raw cordilerra and the norm factor to these digits. Defaults to 10.}
 
 \item{scale}{Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE}
 
@@ -30,7 +32,7 @@ A list with the elements
        \item $raw... The raw cordillera
        \item $norm... The normalization constant
        \item $normfac... The normalization factor (the number of times that dmax is taken)
-       \item $dmax... The maximum distance used for maximum structure
+       \item $dmaxe... The effective maximum distance used for maximum structure (either dmax or epsilon or rang[2]-rang[1]). 
        \item $normed... The normed cordillera (raw/norm)
        \item $optics... The optics object
 }
@@ -53,7 +55,7 @@ plot(cres2)
 #4 dim goodness-of-clusteredness with clusters of at least 3 points for PCA
 cres4<-cordillera(res$scores[,1:4],minpts=3,epsilon=13) 
 #4 dim goodness-of-clusteredness with clusters of at least 3 points for original data
-cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,rang=c(0,cres4$dmax))
+cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,dmax=cres4$dmaxe)
 #There is a bit more clusteredness for the PCA result
 summary(cres4)
 summary(cres)
