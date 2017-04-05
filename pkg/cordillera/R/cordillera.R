@@ -246,3 +246,37 @@ cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,scale
        out
     }
 
+
+cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,scale=TRUE,...)
+    {
+       if(scale) confs <- scale(confs)
+       if(missing(epsilon)) epsilon <- 2*diff(range(confs))
+       optres <- dbscan::optics(confs,minPts=minpts,eps=epsilon,...)
+       res <- optres$order
+       tmp <- optres$reachdist[res]
+       #tmp[1] <-  dist(rbind(confs[head(res,1),],confs[tail(res,1),])) evtl at some point #no better not
+       #tmp[1]<-tmp[2] #evtl?
+       tmp[is.na(tmp)] <- Inf
+       if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max
+       if(missing(rang)) rang <- c(0,dmax) #This sets the range to (0,dmax)
+       maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #definition of reachabilities
+       tmp[tmp>maxi] <- maxi #winsorization 
+       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the envelope the reachability plot  -> the longer the "better" 
+       n <- dim(confs)[1]
+       avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
+       mdif <- abs(max(rang)-min(rang)) #dmaxe
+       normfac <- 2*ceiling((n-1)/minpts) #the norm factor
+       normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
+       if(!isTRUE(all.equal((n-1)%%minpts,0))) normi <- round(normi - mdif^q,digits=digits) #the correction to the upper bound if n-1/p is not fully met
+       struc <- (avgsidist/normi)^(1/q) #the normed cordillera
+       if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
+       normstruc <- min(abs(struc),1) #if someone supplied a range that is to small we output 1. Also a warning? 
+       if(is.na(normstruc)) normstruc <- avgsidist^(1/q)
+       out <- list("reachplot"=tmp,"raw"=avgsidist^(1/q),"raw^q"=avgsidist,"norm"=normi,"normfac"=normfac,"dmaxe"=mdif,"normed"=normstruc,"optics"=optres)
+        #mdif=dmax if dmax is supplied but not rang
+        #mdif=epsilon if dmax>epsilon and rang not supplied
+        #mdif=rang[2]-rang[1] if rang is supplied
+       class(out) <- "cordillera"
+       out
+    }
+
