@@ -1,0 +1,31 @@
+citHeader("To cite the dops package in publications use:")
+
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+vers <- paste("R package version", meta$Version)
+
+citEntry(entry="Manual",
+         title = "cops: Cluster Optimized Proximity Scaling",
+         author = personList(as.person("Thomas Rusch"),
+                             as.person("Jan de Leeuw"),
+                             as.person("Patrick Mair")),
+         year = year,
+         note = vers,
+         textVersion =
+         paste("Rusch, Thomas and De Leeuw, Jan and Mair, Patrick (", year,"). cops: Cluster Optimized Proximity Scaling. ", vers, ".", sep=""))
+
+
+citEntry(entry = "TechReport", 
+    author = personList(as.person("Thomas Rusch"), 
+        as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "COPS: Cluster Optimized Proximity Scaling", address="Vienna, Austria", institution="WU Vienna University of Economics and Business", number="2015/1", series="Discussion Paper Series/Center for Empirical Research Methods", year = 2015, 
+    url = "http://epub.wu.ac.at/4476/", 
+    textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2015)", 
+    "COPS: Cluster optimized proximity scaling.","Discussion Paper Series / Center for Empirical Research Methods, 2015/1.","WU Vienna University of Economics and Business, Vienna."),
+    header="If cops() or cordillera() is used, please cite:")
+
+citEntry(entry = "TechReport", 
+    author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 
+    url = "http://gifi.stat.ucla.edu/janspubs/2014/notes/deleeuw_U_14c.pdf", 
+    textVersion = paste("De Leeuw, Jan (2014)", 
+    "Minimizing r-stress using nested majorisation.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
+    header="If powerStressMin() is used, please cite:")
+

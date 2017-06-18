@@ -1,0 +1,4 @@
+doc/.*[.]tex$
+doc/.*[.]jpg$
+tests/
+.devel/
