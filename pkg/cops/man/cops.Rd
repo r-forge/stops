@@ -81,18 +81,6 @@ plot(res,"reachplot")
 plot(res,"transplot")
 plot(res,"Shepard")
 
-\donttest{
-#OPTICS
-ores<-cordillera::e_optics(res$conf,minpts=2,epsilon=100)
-ores
-summary(ores)
-plot(ores)
-}
-#OPTICS cordillera
-cres<-cordillera::cordillera(res$fit$conf)
-cres
-summary(cres)
-plot(cres)
 
 \donttest{
 dis<-as.matrix(smacof::kinshipdelta)
