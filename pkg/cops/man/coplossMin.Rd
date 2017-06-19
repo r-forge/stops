@@ -6,9 +6,10 @@
 \usage{
 coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 1, cordweight, q = 1, minpts = ndim + 1, epsilon = 10,
-  rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"), verbose = 0,
-  scale = TRUE, normed = TRUE, accuracy = 1e-07, itmax = 1e+05, ...)
+  stressweight = 0.99, cordweight = 0.01, q = 1, minpts = ndim + 1,
+  epsilon = 10, rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"),
+  verbose = 0, scale = TRUE, normed = TRUE, accuracy = 1e-07,
+  itmax = 1e+05, ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}
@@ -27,9 +28,9 @@ coplossMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{init}{(optional) initial configuration}
 
-\item{stressweight}{weight to be used for the fit measure; defaults to 1}
+\item{stressweight}{weight to be used for the fit measure; defaults to 0.99}
 
-\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration as}
+\item{cordweight}{weight to be used for the cordillera; defaults to 0.01}
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 

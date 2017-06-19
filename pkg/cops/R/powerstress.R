@@ -72,7 +72,7 @@ powerStressMinOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda, 
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
     #xnorm <- enorm(xold)
     xold <- xold/enorm(xold) 
     n <- nrow (xold)
@@ -552,7 +552,7 @@ powerStressFastOLD <- function (delta, kappa=1, lambda=1, nu=1,lambdamax=lambda,
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
     xold <- xold/enorm(xold) 
     stressf <- function(x,delta,kappa,p,weightmat)
            {
@@ -672,7 +672,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = ndim)
+    if(is.null(init)) xold <- cops::torgerson (delta, p = ndim)
     xold <- xold/enorm(xold) 
     stressf <- function(x,delta,r,ndim,weightmat)
            {
@@ -786,7 +786,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
     xold <- xold / enorm (xold)
     n <- nrow (xold)
     nn <- diag (n)

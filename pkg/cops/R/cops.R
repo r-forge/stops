@@ -239,8 +239,8 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   if(length(theta)==2L) lambda <- theta[2]
   if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
- # if(is.null(init)) init <- stops::cmdscale(dis^lambda,k=ndim)$points
-  fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
+ # if(is.null(init)) init <- cops::cmdscale(dis^lambda,k=ndim)$points
+  fit <- cops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
@@ -362,7 +362,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   if(length(theta)==1L) lambda <- theta
   if(length(theta)==2L) lambda <- theta[2]
   if(length(theta)==3L) lambda <- theta[2]
-  fit <- stops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
+  fit <- cops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- 1
@@ -896,7 +896,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
         opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,control=control)
        }
       if(optimmethod=="ALJ") {
-      opt<- stops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
+      opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
       }
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
@@ -1092,7 +1092,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
         #perhaps put this into the optimization function?
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scale)) init0 <- scale(init0)
            crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
@@ -1105,7 +1105,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
                {
                  #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+                 initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
                  initcord <- cordillera::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
                  initcorrd <- initcord$normed
                  if(identical(normed,FALSE)) initcorrd <- initcord$raw
@@ -1122,7 +1122,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
     xold <- xold/enorm(xold) 
     copsf <- function(x,delta,p,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed=normed,...)
            {
@@ -1136,7 +1136,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
              stressi <- sum(weightmat*(ds-delta)^2)/2
              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
              corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
- #            corrd <- stops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot,scale=scale,...)
+ #            corrd <- cops::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,plot,scale=scale,...)
              struc <- corrd$raw
              if(normed) {
                         struc <- corrd$normed
@@ -1214,8 +1214,8 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
 #' @param ndim number of dimensions of the target space
 #' @param init (optional) initial configuration
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param cordweight weight to be used for the cordillera; if missing gets estimated from the initial configuration as  
+#' @param stressweight weight to be used for the fit measure; defaults to 0.99
+#' @param cordweight weight to be used for the cordillera; defaults to 0.01
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
@@ -1256,7 +1256,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #' 
 #'@keywords clustering multivariate
 #'@export
-coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
+coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1270,7 +1270,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
         #perhaps put this into the optimization function?
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scale)) init0 <- scale(init0)
            crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
@@ -1279,17 +1279,17 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
            }
       if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
-      if(missing(cordweight))
-               {
+      #if(missing(cordweight))
+         #      {
                  #cordweight how to fix? here we do not fix for lambda=1, kappa=1, nu=1 but for cordweight=0, so it is stress/cord for initial solution
-                 if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-                 initcord <- cordillera::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
-                 initcorrd <- initcord$normed
-                 if(identical(normed,FALSE)) initcorrd <- initcord$raw
-                 cordweight <- initsol$stress/initcorrd #use stress.m or stress?
-                 if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
-             }
+       #          if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
+        #         initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+   #              initcord <- cordillera::cordillera(initsol$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)
+    #             initcorrd <- initcord$normed
+     #            if(identical(normed,FALSE)) initcorrd <- initcord$raw
+      #           cordweight <- initsol$stress/initcorrd #use stress.m or stress?
+      #           if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
+      #       }
     r <- kappa/2
 #    p <- ndim
     deltaorig <- delta
@@ -1300,7 +1300,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+    if(is.null(init)) xold <- cops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     xold <- xold/enorm(xold) 
     copsf <- function(x,delta,r,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,...)
            {
@@ -1453,7 +1453,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
         #perhaps put this into the optimization function?
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(isTRUE(scaleX)) init0 <- scale(init0)
            crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
@@ -1471,7 +1471,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- stops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+    if(is.null(init)) xold <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     if(enormX) xold <- xold/enorm(xold)
     if(scaleX) xold <- scale(xold)
     shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,scaleX,enormX,scaleB,normed,...)
@@ -1623,7 +1623,7 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 #'@return For Variant 0 see \code{\link{shrinkCoploss0}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
-#' \donttest{
+#'\donttest{
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#COPS-C with equal weight to stress and cordillera 

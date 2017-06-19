@@ -36,7 +36,7 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' @export
 sammon <- function(d,y=NULL,k=2,...)
     {
-     if(is.null(y)) y <- stops::cmdscale(d,k,eig=TRUE)$points
+     if(is.null(y)) y <- cops::cmdscale(d,k,eig=TRUE)$points
      out <- MASS::sammon(d,y=as.matrix(y),k=k,...)
      colnames(out$points) <- paste("D",1:k,sep="") 
      out$call <- match.call()

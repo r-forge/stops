@@ -1,3 +1,7 @@
+Version 0.0-2
+
+- Changed defaults for coplossmin to stressweight=0.99, cordweight=0.01. Removed stops imports. 
+
 Version 0.0-1
 
 - Forked COPS functionality to its own package

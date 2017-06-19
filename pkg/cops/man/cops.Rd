@@ -65,7 +65,7 @@ library(cordillera)
 data(BankingCrisesDistances)
 
 #shorthand function for COPS-C (finding configuration with coploss)
-res<-coplossMin(BankingCrisesDistances[,1:69])
+res<-coplossMin(BankingCrisesDistances[,1:69],stressweight=0.98,cordweight=0.02)
 res
 summary(res)
 plot(res)
