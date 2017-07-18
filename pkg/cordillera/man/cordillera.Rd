@@ -40,7 +40,7 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as in Rusch et al., 2015. Based on optics in dbscan package.
+Calculates the OPTICS cordillera as in Rusch et al. (2017). Based on optics in dbscan package.
 }
 \section{Warning}{
  It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
