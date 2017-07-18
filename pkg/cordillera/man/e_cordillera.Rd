@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{e_cordillera}
 \alias{e_cordillera}
-\title{Calculates the Optics cordillera}
+\title{Calculates the Optics cordillera with Elki}
 \usage{
 e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
   digits = 10, path = getwd(), plot = FALSE, ylim, scale = TRUE, ...)

@@ -4,11 +4,11 @@
 \alias{cordillera}
 \title{Calculates the Optics Cordillera}
 \usage{
-cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
-  digits = 10, scale = TRUE, ...)
+cordillera(X, q = 1, minpts = 2, epsilon, distmeth = "euclidean",
+  dmax = NULL, rang, digits = 10, scale = TRUE, ...)
 }
 \arguments{
-\item{confs}{numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.}
+\item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.}
 
 \item{q}{the norm of the cordillera. Defaults to 1.}
 
@@ -16,9 +16,11 @@ cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
+\item{distmeth}{The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance.}
+
 \item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
 
-\item{rang}{(old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious).}
+\item{rang}{(DEPRECATED) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious).}
 
 \item{digits}{round the raw cordilerra and the norm factor to these digits. Defaults to 10.}
 
@@ -41,16 +43,31 @@ A list with the elements
 Calculates the OPTICS cordillera as in Rusch et al., 2015. Based on optics in dbscan package.
 }
 \section{Warning}{
- It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
+ It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
 }
 \examples{
 data(iris)
 res<-princomp(iris[,1:4])
 #2 dim goodness-of-clusteredness with clusters of at least 2 points
+#With a matrix of points
 cres2<-cordillera(res$scores[,1:2])
 cres2
 summary(cres2)
 plot(cres2)
+
+#with a dist object 
+dl0 <- dist(res$scores[,1:2],"maximum") #maximum distance
+cres0<-cordillera(dl0)
+cres0
+summary(cres0)
+plot(cres0)
+
+#with any symmetric distance/dissimilarity matrix 
+dl1 <- cluster::daisy(res$scores[,1:2],"manhattan") 
+cres1<-cordillera(dl1)
+cres1
+summary(cres1)
+plot(cres1)
 
 #4 dim goodness-of-clusteredness with clusters of at least 3 points for PCA
 cres4<-cordillera(res$scores[,1:4],minpts=3,epsilon=13) 
