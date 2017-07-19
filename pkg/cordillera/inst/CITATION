@@ -1,7 +1,5 @@
 citHeader("To cite the cordillera package in publications use:")
 
-citEntry(entry = "Article", 
-        author = personList(as.person("Thomas Rusch"), 
-        as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "Assessing and quantifying clusteredness: The {OPTICS} {C}ordillera", journal="Journal of Computational and Graphical Statistics", number="1", volume="1",pages="9-9", year = 2017, url = "http://epub.wu.ac.at/4476/", textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2015)", "Assessing and quantifying clusteredness: The OPTICS Cordillera","Journal of Computational and Graphical Statistics"))
+citEntry(entry = "Article", author = personList(as.person("Thomas Rusch"), as.person("Patrick Mair"), as.person("Kurt Hornik")), title = "Assessing and quantifying clusteredness: The {OPTICS} {C}ordillera", journal="Journal of Computational and Graphical Statistics", number="1", volume="1",pages="9-9", year = "2017", url = "http://dx.doi.org/10.1080/10618600.2017.1349664", doi="10.1080/10618600.2017.1349664", textVersion = "Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2017). Assessing and quantifying clusteredness: The OPTICS Cordillera. Journal of Computational and Graphical Statistics.")
 
 
