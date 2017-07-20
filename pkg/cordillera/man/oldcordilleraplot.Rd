@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{oldcordilleraplot}
 \alias{oldcordilleraplot}
-\title{Plot method for OPTICS cordilleras. Deprecated.}
+\title{Plot method for Cordilleras. Deprecated.}
 \usage{
 oldcordilleraplot(x, colbp = "lightgrey", coll = "black", liwd = 1.5,
   legend = FALSE, ylim, ...)

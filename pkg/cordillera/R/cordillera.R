@@ -1,6 +1,6 @@
-#' Calculates the Optics cordillera with Elki
+#' Calculates the OPTICS Cordillera with the OPTICS implementation of Elki
 #'
-#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is the old version that relied on optics; since there is now an R package for optics, the code has been refactored.
+#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is an old version that relied on external OPTICS imlementation; since there is now an R package with an optics function the code has been refactored. Only works with euclidean distance.
 #'
 #' @param confs numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.
 #' @param q  the norm of the cordillera. Defaults to 1.
@@ -77,9 +77,9 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,pat
        out
     }
 
-#' Print method for OPTICs cordilleras 
+#' Print method for Cordilleras 
 #'
-#' Prints the raw and normalized cordillera
+#' Prints the raw and normalized Cordillera
 #' 
 #' @param x an object of class optics
 #' @param ... additional arguments passed to print
@@ -103,13 +103,13 @@ summary.cordillera <- function(object,...)
 print.summary.cordillera <- function(x,...)
     {
         cat("\n")
-        cat("  OPTICS cordillera values with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n")
+        cat("  OPTICS Cordillera values with minpts=",x$minpts,"and epsilon=",x$epsilon,"\n")
         cat("\n")
         cat("   Raw OC:",x$raw,"\n","  Normalization:",x$normalization,"\n","  Normed OC:",x$normed,"\n")
         cat("\n")
     }
 
-#' Plot method for OPTICS cordilleras. Deprecated. 
+#' Plot method for Cordilleras. Deprecated. 
 #'
 #' Plots the reachability plot and adds the cordillera to it (as a line). In this plot the cordillera is proportional to the real value. 
 #' 
@@ -140,11 +140,11 @@ oldcordilleraplot <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=F
 
 
 
-#' Plot method for OPTICS cordilleras 
+#' Plot method for Cordilleras 
 #'
 #' Plots the reachability plot and adds the cordillera to it (as a line). In this plot the cordillera is proportional to the real value. 
 #' 
-#' @param x an object of class cordillera
+#' @param x an object of class "cordillera"
 #' @param colbp color of the barplot.
 #' @param coll color of the cordillera line
 #' @param liwd width of the cordillera line
@@ -168,20 +168,20 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
      }
 
 
-#' Calculates the Optics Cordillera 
+#' Calculates the OPTICS Cordillera 
 #'
-#' Calculates the OPTICS cordillera as in Rusch et al. (2017). Based on optics in dbscan package.
+#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
 #'
 #' @param X numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.  
-#' @param q  the norm of the cordillera. Defaults to 1.
-#' @param minpts the minpts argument to elki. Defaults to 2.
-#' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
+#' @param q The norm used for the Cordillera. Defaults to 2. 
+#' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link{optics}} where it is called minPts. Defaults to 2.
+#' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
 #' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
-#' @param rang (DEPRECATED) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
-#' @param digits round the raw cordilerra and the norm factor to these digits. Defaults to 10.
-#' @param scale Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE
-#' @param ... Additional arguments to be passed to optics
+#' @param rang A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
+#' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
+#' @param scale Should X be scaled to mean 0 and sd 1 if it is a assymmetric matrix or data frame? Defaults to TRUE
+#' @param ... Additional arguments to be passed to \code{\link{optics}}
 #' 
 #' @return A list with the elements
 #'      \itemize{
@@ -192,7 +192,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #'        \item $normed... The normed cordillera (raw/norm)
 #'        \item $optics... The optics object
 #' }
-#' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
+#' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed Cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
 #'
 #' @importFrom dbscan optics
 #' @importFrom stats as.dist dist
@@ -233,12 +233,9 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' plot(cres4)
 #' plot(cres)
 #' @export
-cordillera <- function(X,q=1,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=TRUE,...)
+cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=TRUE,...)
 {
-                                        #if X is a dist object, take it; otherwise if a matrix X calculate a dist object. If X is a symmetric matrix turn it into a distance object; reason is that dbscan:optics does not give the same result for dist(x) and as.matrix(dist(x))
-    #X to dist checked
-    #symm to dist checked
-                                        #dist to dist
+     #if X is a dist object, take it; otherwise if a matrix or data frame X calculate a dist object. If X is a symmetric matrix turn it into a distance object; reason is that dbscan:optics does not give the same result for dist(x) and as.matrix(dist(x))
     if(is.data.frame(X)) X <- as.matrix(X) 
     if(!inherits(X,"dist"))
         {
@@ -255,22 +252,22 @@ cordillera <- function(X,q=1,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,ran
                    stop("Input must be either a matrix or data frame of points, a symmetric matrix of distances or a dist object.")
         } else
             confs <- X 
-       if(missing(epsilon)) epsilon <- 2*max(confs)
+       if(missing(epsilon)) epsilon <- 2*max(confs) #default epsilon
        optres <- dbscan::optics(confs,minPts=minpts,eps=epsilon,...)
        res <- optres$order
        tmp <- optres$reachdist[res]
        tmp[is.na(tmp)] <- Inf
        if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max
        if(missing(rang)) rang <- c(0,dmax) #This sets the range to (0,dmax)
-       maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #definition of reachabilities
-       tmp[tmp>maxi] <- maxi #winsorization 
-       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the envelope the reachability plot  -> the longer the "better"
+       maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #definition of reachabilities from paper
+       tmp[tmp>maxi] <- maxi #winsorization effect 
+       reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically length of the the reachability plot  -> the longer the "better"
        if(!isTRUE(all.equal(length(unique(dim(as.matrix(X))[1])),1))) stop("Argument X is neither (symmetric) matrix, data frame or distance object.")
        n <- unique(dim(as.matrix(X))[1])
        avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
        mdif <- abs(max(rang)-min(rang)) #dmaxe
-       normfac <- 2*ceiling((n-1)/minpts) #the norm factor
-       normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
+       normfac <- 2*ceiling((n-1)/minpts) #the norm factor 
+       normi <- round(mdif^q*normfac,digits=digits) #the normalization constant for even division
        if(!isTRUE(all.equal((n-1)%%minpts,0))) normi <- round(normi - mdif^q,digits=digits) #the correction to the upper bound if n-1/p is not fully met
        struc <- (avgsidist/normi)^(1/q) #the normed cordillera
        if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
@@ -283,38 +280,4 @@ cordillera <- function(X,q=1,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,ran
        class(out) <- "cordillera"
        out
     }
-
-
-## cordillera <- function(X,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,scale=TRUE,...)
-##     {
-##        if(scale) X <- scale(X)
-##        if(missing(epsilon)) epsilon <- 2*diff(range(X))
-##        optres <- dbscan::optics(X,minPts=minpts,eps=epsilon,...)
-##        res <- optres$order
-##        tmp <- optres$reachdist[res]
-##        #tmp[1] <-  dist(rbind(X[head(res,1),],X[tail(res,1),])) evtl at some point #no better not
-##        #tmp[1]<-tmp[2] #evtl?
-##        tmp[is.na(tmp)] <- Inf
-##        if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max
-##        if(missing(rang)) rang <- c(0,dmax) #This sets the range to (0,dmax)
-##        maxi <- min(max(tmp[is.finite(tmp)]),max(rang)) #definition of reachabilities
-##        tmp[tmp>maxi] <- maxi #winsorization 
-##        reachdiff <- diff(tmp) #the distance in reachability from one point to the next, basically the envelope the reachability plot  -> the longer the "better" 
-##        n <- dim(X)[1]
-##        avgsidist <- round(sum(abs(reachdiff)^q,na.rm=TRUE),digits) #raw cordillera; round to three digits
-##        mdif <- abs(max(rang)-min(rang)) #dmaxe
-##        normfac <- 2*ceiling((n-1)/minpts) #the norm factor
-##        normi <- round(mdif^q*normfac,digits=digits) #the normalization contant for even division
-##        if(!isTRUE(all.equal((n-1)%%minpts,0))) normi <- round(normi - mdif^q,digits=digits) #the correction to the upper bound if n-1/p is not fully met
-##        struc <- (avgsidist/normi)^(1/q) #the normed cordillera
-##        if(!is.finite(struc) || (normi < 1e-8)) warning(paste("I encountered a numeric problem. Most likely there was a division by a value near zero. Check whether there is something odd with these values (e.g., they are below 1e-8): Raw cordillera",avgsidist,", normalization constant",normi,"."))
-##        normstruc <- min(abs(struc),1) #if someone supplied a range that is to small we output 1. Also a warning? 
-##        if(is.na(normstruc)) normstruc <- avgsidist^(1/q)
-##        out <- list("reachplot"=tmp,"raw"=avgsidist^(1/q),"raw^q"=avgsidist,"norm"=normi,"normfac"=normfac,"dmaxe"=mdif,"normed"=normstruc,"optics"=optres)
-##         #mdif=dmax if dmax is supplied but not rang
-##         #mdif=epsilon if dmax>epsilon and rang not supplied
-##         #mdif=rang[2]-rang[1] if rang is supplied
-##        class(out) <- "cordillera"
-##        out
-##     }
 

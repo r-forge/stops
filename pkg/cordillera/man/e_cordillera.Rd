@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{e_cordillera}
 \alias{e_cordillera}
-\title{Calculates the Optics cordillera with Elki}
+\title{Calculates the OPTICS Cordillera with the OPTICS implementation of Elki}
 \usage{
 e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
   digits = 10, path = getwd(), plot = FALSE, ylim, scale = TRUE, ...)
@@ -44,7 +44,7 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is the old version that relied on optics; since there is now an R package for optics, the code has been refactored.
+Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is an old version that relied on external OPTICS imlementation; since there is now an R package with an optics function the code has been refactored. Only works with euclidean distance.
 }
 \section{Warning}{
  It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.

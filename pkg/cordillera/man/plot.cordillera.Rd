@@ -2,13 +2,13 @@
 % Please edit documentation in R/cordillera.R
 \name{plot.cordillera}
 \alias{plot.cordillera}
-\title{Plot method for OPTICS cordilleras}
+\title{Plot method for Cordilleras}
 \usage{
 \method{plot}{cordillera}(x, colbp = "lightgrey", coll = "black",
   liwd = 1.5, legend = FALSE, ylim, ...)
 }
 \arguments{
-\item{x}{an object of class cordillera}
+\item{x}{an object of class "cordillera"}
 
 \item{colbp}{color of the barplot.}
 

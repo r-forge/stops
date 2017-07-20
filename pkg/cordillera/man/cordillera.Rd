@@ -2,31 +2,31 @@
 % Please edit documentation in R/cordillera.R
 \name{cordillera}
 \alias{cordillera}
-\title{Calculates the Optics Cordillera}
+\title{Calculates the OPTICS Cordillera}
 \usage{
-cordillera(X, q = 1, minpts = 2, epsilon, distmeth = "euclidean",
+cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
   dmax = NULL, rang, digits = 10, scale = TRUE, ...)
 }
 \arguments{
 \item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.}
 
-\item{q}{the norm of the cordillera. Defaults to 1.}
+\item{q}{The norm used for the Cordillera. Defaults to 2.}
 
-\item{minpts}{the minpts argument to elki. Defaults to 2.}
+\item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link{optics}} where it is called minPts. Defaults to 2.}
 
-\item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
+\item{epsilon}{The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.}
 
 \item{distmeth}{The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance.}
 
 \item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
 
-\item{rang}{(DEPRECATED) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious).}
+\item{rang}{A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious).}
 
-\item{digits}{round the raw cordilerra and the norm factor to these digits. Defaults to 10.}
+\item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE}
+\item{scale}{Should X be scaled to mean 0 and sd 1 if it is a assymmetric matrix or data frame? Defaults to TRUE}
 
-\item{...}{Additional arguments to be passed to optics}
+\item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }
 \value{
 A list with the elements
@@ -40,10 +40,10 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as in Rusch et al. (2017). Based on optics in dbscan package.
+Calculates the OPTICS cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
 }
 \section{Warning}{
- It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
+ It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed Cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
 }
 \examples{
 data(iris)

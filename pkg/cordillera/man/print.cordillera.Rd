@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{print.cordillera}
 \alias{print.cordillera}
-\title{Print method for OPTICs cordilleras}
+\title{Print method for Cordilleras}
 \usage{
 \method{print}{cordillera}(x, ...)
 }
@@ -12,6 +12,6 @@
 \item{...}{additional arguments passed to print}
 }
 \description{
-Prints the raw and normalized cordillera
+Prints the raw and normalized Cordillera
 }
 
