@@ -250,9 +250,9 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' minpts=3
 #'
 #' #original data directly
-#' cdat <- cordillera::cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q)
+#' cdat <- cordillera::cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
 #' #equivalently
-#' #dis2=dist(scale(sovisel))
+#' #dis2=dist(sovisel)
 #' #cdat2 <- cordillera::cordillera(dis2,minpts=minpts,epsilon=10,q=q) 
 #'
 #' #PCA in 2-dim

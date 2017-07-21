@@ -78,6 +78,50 @@ summary(cres4)
 summary(cres)
 plot(cres4)
 plot(cres)
+
+###############################################################################
+# Example from Rusch et al. (2017) with original data, PCA and Sammon mapping #
+###############################################################################
+
+#data preparation
+data(CAClimateIndicatorsCountyMedian)
+sovisel <- CAClimateIndicatorsCountyMedian[,-c(1,2,4,9)]
+sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x))) #normalize to [0,1]
+rownames(sovisel)  <- CAClimateIndicatorsCountyMedian[,1]
+dis <- dist(sovisel)
+
+#hyper parameters
+dmax=1.22
+q=2
+minpts=3
+
+#original data directly
+cdat <- cordillera::cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
+#equivalently
+#dis2=dist(sovisel)
+#cdat2 <- cordillera::cordillera(dis2,minpts=minpts,epsilon=10,q=q) 
+
+#PCA in 2-dim
+pca1 <- princomp(sovisel)
+pcas <- scale(pca1$scores[,1:2])
+cpca <- cordillera::cordillera(pcas,minpts=minpts,epsilon=10,q=q,dmax=dmax)
+
+#Sammon mapping in 2-dim
+sam <- MASS::sammon(dis)
+samp <- scale(sam$points)
+csam <- cordillera::cordillera(samp,epsilon=10,minpts=minpts,q=q,dmax=dmax)
+
+#results
+cdat
+cpca
+csam
+
+par(mfrow=c(3,1))
+plot(cdat)
+plot(cpca)
+plot(csam)
+par(mfrow=c(1,1))
+
 }
 \keyword{clustering}
 \keyword{multivariate}
