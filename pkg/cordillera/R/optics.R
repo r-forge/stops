@@ -1,22 +1,23 @@
-#' OPTICS function
+#' OPTICS in ELKI
 #'
-#' A rudimentary I/O interface to OPTICS in ELKI reroots intput from R to elki via the command line, runs elki.optics on an Input file (configs.txt), sets up a temporary directory opticsout, reads in the contents of the elki output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
-#' needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed (will be with release 1.0.0). Is no longer used for the rest as it has been refactored to use dbscan::optics. That's why its now called e_optics.
+#' A rudimentary I/O interface to OPTICS in 'ELKI' rerouts input from R to elki via the command line, runs elki.optics on an Input file (configs.txt), sets up a temporary directory opticsout, reads in the contents of the \code{elki} output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
+#' needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed. No plans for using this in the future.
 
 #' @param x numeric matrix or data frame
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
-#' @param minpts the minpts argument to elki. Defaults to 2.
+#' @param minpts the minpts argument to \code{elki}. Defaults to 2.
 #' @param path the path for storing the temporary files I/O files. Defaults to the current working directory.
-#' @param keep should the optics results form elki be stored in path. If TRUE, it will make a directory ./opticsout and a file config.txt
+#' @param keep should the optics results from \code{elki} be stored in path. If TRUE, it will make a directory ./opticsout and a file config.txt
 #'
-#' @return a list with the contents of the elki output file as a data frame as element
+#' @return a list with the contents of the \code{elki} output file as a data frame as element
 #' \itemize{
-#'  \item $clusterobjectorder, which is the clusterobjectorder file from ELKI. The first column is the OPTICS ordering (so the ID of the points in successive order), followed by the data in x, the next column lists the reachability followed by the predecessor of each point x[i,] in the ordering in the last column  
+#'  \item $clusterobjectorder, which is the clusterobjectorder file from \code{elki}. The first column is the OPTICS ordering (so the ID of the points in successive order), followed by the data in x, the next column lists the reachability followed by the predecessor of each point x[i,] in the ordering in the last column  
 #'  \item $eps
 #'  \item $minpts
 #' }
 #'
 #' @importFrom utils write.table read.table
+#' @importFrom yesno yesno
 #' @keywords clustering multivariate
 #' @examples
 #' \donttest{
@@ -32,9 +33,13 @@
 e_optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
   {
  # TODO: add distance function handler
- # add support for row names 
-  if(missing(epsilon)) epsilon <- 2*diff(range(x))
-  utils::write.table(x,file=paste(path,"/configs.txt",sep=""),row.names=FALSE,col.names=FALSE,quote=FALSE,sep=" ")
+                                        # add support for row names
+    if(interactive()){
+    perm <- yesno::yesno("This function will write (temporary) folders and files to your system. Shall I continue?")
+    if(!isTRUE(perm)) stop("ELKI needs to write to the file system. If you do not need ELKI's implementation, try dbscn::optics() for OPTICS cordillera() for the OPTICS Cordillera.")
+    }
+    if(missing(epsilon)) epsilon <- 2*diff(range(x))
+    utils::write.table(x,file=paste(path,"/configs.txt",sep=""),row.names=FALSE,col.names=FALSE,quote=FALSE,sep=" ")
   system(paste("elki-cli -dbc.in ",path,"/configs.txt -algorithm clustering.OPTICS -optics.minpts ",minpts," -optics.epsilon ",epsilon," -resulthandler ResultWriter -out ",path,"/opticsout -out.silentoverwrite",sep=""))
   cluobjord <- utils::read.table(paste(path,"/opticsout/clusterobjectorder.txt",sep=""),header=FALSE,fill=TRUE,stringsAsFactors=FALSE)
   if(!keep) {

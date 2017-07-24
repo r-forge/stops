@@ -1,16 +1,16 @@
-#' Calculates the OPTICS Cordillera with the OPTICS implementation of Elki
+#' Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'
 #'
-#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is an old version that relied on external OPTICS imlementation; since there is now an R package with an optics function the code has been refactored. Only works with euclidean distance.
+#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been refactored. Only works with data matrices and Euclidean distance.
 #'
 #' @param confs numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.
-#' @param q  the norm of the cordillera. Defaults to 1.
-#' @param minpts the minpts argument to elki. Defaults to 2.
+#' @param q  the norm of the OPTICS Cordillera. Defaults to 1.
+#' @param minpts the minpts argument to \code{elki}. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param rang (old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data.
-#' @param ylim The borders for the cordillera plot
-#' @param plot plot the reachability and the raw cordillera
-#' @param digits round the raw corrdilrra and the norm factor to these digits. Defaults to 10.
+#' @param ylim The borders for the OPTICS Cordillera plot
+#' @param plot plot the reachability and the raw OPTICS Cordillera
+#' @param digits round the raw OPTICS cordillera and the norm factor to these digits. Defaults to 10.
 #' @param path the path for storing the temporary files I/O files for optics. Defaults to the current working directory.
 #' @param scale Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE
 #' @param ... Additional arguments to be passed to optics
@@ -31,7 +31,7 @@
 #' 
 #' @export
 e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=getwd(),plot=FALSE,ylim,scale=TRUE,...)
-    {
+{
         if(scale) confs <- scale(confs)
         if(missing(epsilon)) epsilon <- 2*diff(range(confs))
         optres <- e_optics(confs,minpts=minpts,epsilon=epsilon,path=path,...)
@@ -77,9 +77,9 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,pat
        out
     }
 
-#' Print method for Cordilleras 
+#' Print method for the OPTICS Cordillera 
 #'
-#' Prints the raw and normalized Cordillera
+#' Prints the raw and normalized OPTICS Cordillera
 #' 
 #' @param x an object of class optics
 #' @param ... additional arguments passed to print
@@ -109,7 +109,7 @@ print.summary.cordillera <- function(x,...)
         cat("\n")
     }
 
-#' Plot method for Cordilleras. Deprecated. 
+#' Plot method for OPTICS Cordilleras. Deprecated. 
 #'
 #' Plots the reachability plot and adds the cordillera to it (as a line). In this plot the cordillera is proportional to the real value. 
 #' 
@@ -125,7 +125,8 @@ print.summary.cordillera <- function(x,...)
 #' 
 #' @export
 oldcordilleraplot <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FALSE,ylim,...)
-  {
+{
+     .Deprecated("plot")
             tmp <- x$reachplot
             rang <- c(0,min(x$optics$eps,max(tmp[is.finite(tmp)])))
             if(missing(ylim)) ylim <- c(0,max(rang))
@@ -140,7 +141,7 @@ oldcordilleraplot <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=F
 
 
 
-#' Plot method for Cordilleras 
+#' Plot method for OPTICS Cordilleras 
 #'
 #' Plots the reachability plot and adds the cordillera to it (as a line). In this plot the cordillera is proportional to the real value. 
 #' 
@@ -168,9 +169,9 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
      }
 
 
-#' Calculates the OPTICS Cordillera 
+#' Calculates The OPTICS Cordillera 
 #'
-#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
+#' Calculates the OPTICS Cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
 #'
 #' @param X numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.  
 #' @param q The norm used for the Cordillera. Defaults to 2. 

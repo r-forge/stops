@@ -20,4 +20,3 @@ Displays summaries of the reachability plot. Currently its the five points summa
 Print method for OPTICS summary 
 Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot()
 }
-

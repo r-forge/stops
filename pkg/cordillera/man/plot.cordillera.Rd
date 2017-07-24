@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{plot.cordillera}
 \alias{plot.cordillera}
-\title{Plot method for Cordilleras}
+\title{Plot method for OPTICS Cordilleras}
 \usage{
 \method{plot}{cordillera}(x, colbp = "lightgrey", coll = "black",
   liwd = 1.5, legend = FALSE, ylim, ...)
@@ -25,4 +25,3 @@
 \description{
 Plots the reachability plot and adds the cordillera to it (as a line). In this plot the cordillera is proportional to the real value.
 }
-

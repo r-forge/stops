@@ -66,4 +66,3 @@ summary(cres3d)
 plot(cres3d)
 
 }
-

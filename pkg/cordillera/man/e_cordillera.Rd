@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{e_cordillera}
 \alias{e_cordillera}
-\title{Calculates the OPTICS Cordillera with the OPTICS implementation of Elki}
+\title{Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'}
 \usage{
 e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
   digits = 10, path = getwd(), plot = FALSE, ylim, scale = TRUE, ...)
@@ -10,9 +10,9 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 \arguments{
 \item{confs}{numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.}
 
-\item{q}{the norm of the cordillera. Defaults to 1.}
+\item{q}{the norm of the OPTICS Cordillera. Defaults to 1.}
 
-\item{minpts}{the minpts argument to elki. Defaults to 2.}
+\item{minpts}{the minpts argument to \code{elki}. Defaults to 2.}
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
@@ -20,13 +20,13 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 
 \item{rang}{(old parameter) A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data.}
 
-\item{digits}{round the raw corrdilrra and the norm factor to these digits. Defaults to 10.}
+\item{digits}{round the raw OPTICS cordillera and the norm factor to these digits. Defaults to 10.}
 
 \item{path}{the path for storing the temporary files I/O files for optics. Defaults to the current working directory.}
 
-\item{plot}{plot the reachability and the raw cordillera}
+\item{plot}{plot the reachability and the raw OPTICS Cordillera}
 
-\item{ylim}{The borders for the cordillera plot}
+\item{ylim}{The borders for the OPTICS Cordillera plot}
 
 \item{scale}{Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE}
 
@@ -44,11 +44,11 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs ELKI >0.6.0 - Only tested with the ubuntu binaries. This is an old version that relied on external OPTICS imlementation; since there is now an R package with an optics function the code has been refactored. Only works with euclidean distance.
+Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been refactored. Only works with data matrices and Euclidean distance.
 }
 \section{Warning}{
  It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 }
+
 \keyword{clustering}
 \keyword{multivariate}
-

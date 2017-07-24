@@ -17,4 +17,3 @@ a data frame with the observation order and the reachabilities (invisible)
 \description{
 Prints the object ordering and the reachabilities as directly read in from ELKI.
 }
-

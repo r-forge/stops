@@ -17,4 +17,3 @@ an object of class summary.optics wit the reachabilities, the summary and minpts
 \description{
 Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the altter, use plot().
 }
-

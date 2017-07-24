@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{cordillera}
 \alias{cordillera}
-\title{Calculates the OPTICS Cordillera}
+\title{Calculates The OPTICS Cordillera}
 \usage{
 cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
   dmax = NULL, rang, digits = 10, scale = TRUE, ...)
@@ -40,11 +40,12 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
+Calculates the OPTICS Cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
 }
 \section{Warning}{
  It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed Cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
 }
+
 \examples{
 data(iris)
 res<-princomp(iris[,1:4])
@@ -125,4 +126,3 @@ par(mfrow=c(1,1))
 }
 \keyword{clustering}
 \keyword{multivariate}
-
