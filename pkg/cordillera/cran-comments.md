@@ -1,5 +1,5 @@
 ## Test environments
-* local Linux Mint 17.1 64-bit install, R 3.4.0
+* local Linux Mint 17.1 64-bit install, R 3.4.1
 * local Ubuntu 14.04, R 3.4.0
 * win-builder (devel and release)
 
@@ -16,8 +16,8 @@ There was 1 NOTE:
 This is my first package on CRAN.      
 
 ## System requirements 
-For e_optics() and e_cordillera() to work there needs to be a recent version of ELKI installed (https://elki-project.github.io/). I tested the package functionality with ELKI 0.6 release.
+For e_optics() and e_cordillera() to work there needs to be a recent version of ELKI installed (https://elki-project.github.io/). I tested the package functionality with ELKI 0.6.1 release.
 
 ## Downstream dependencies
-There are currently no downstream dependencies for this package
+There are currently no downstream dependencies for this package.
        

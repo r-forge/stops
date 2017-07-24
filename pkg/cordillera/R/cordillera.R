@@ -1,6 +1,6 @@
 #' Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'
 #'
-#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been refactored. Only works with data matrices and Euclidean distance.
+#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been re-factored. Only works with data matrices and Euclidean distance.
 #'
 #' @param confs numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.
 #' @param q  the norm of the OPTICS Cordillera. Defaults to 1.
@@ -11,7 +11,7 @@
 #' @param ylim The borders for the OPTICS Cordillera plot
 #' @param plot plot the reachability and the raw OPTICS Cordillera
 #' @param digits round the raw OPTICS cordillera and the norm factor to these digits. Defaults to 10.
-#' @param path the path for storing the temporary files I/O files for optics. Defaults to the current working directory.
+#' @param path the path for storing the temporary files I/O files for optics. Defaults to tempdir(). In any other case it prompts the user for confirmation. 
 #' @param scale Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE
 #' @param ... Additional arguments to be passed to optics
 #' 
@@ -24,13 +24,13 @@
 #'        \item $normed... The normed cordillera (raw/norm)
 #'        \item $optics... The optics object
 #' }
-#' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
+#' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 #'
 #' @importFrom graphics barplot lines
 #' @keywords clustering multivariate
 #' 
 #' @export
-e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=getwd(),plot=FALSE,ylim,scale=TRUE,...)
+e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=tempdir(),plot=FALSE,ylim,scale=TRUE,...)
 {
         if(scale) confs <- scale(confs)
         if(missing(epsilon)) epsilon <- 2*diff(range(confs))
@@ -181,7 +181,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param rang A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled to mean 0 and sd 1 if it is a assymmetric matrix or data frame? Defaults to TRUE
+#' @param scale Should X be scaled to mean 0 and sd 1 if it is a asymmetric matrix or data frame? Defaults to TRUE
 #' @param ... Additional arguments to be passed to \code{\link{optics}}
 #' 
 #' @return A list with the elements

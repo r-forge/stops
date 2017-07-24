@@ -24,7 +24,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled to mean 0 and sd 1 if it is a assymmetric matrix or data frame? Defaults to TRUE}
+\item{scale}{Should X be scaled to mean 0 and sd 1 if it is a asymmetric matrix or data frame? Defaults to TRUE}
 
 \item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }

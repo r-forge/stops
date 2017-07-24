@@ -5,7 +5,7 @@
 \title{Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'}
 \usage{
 e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
-  digits = 10, path = getwd(), plot = FALSE, ylim, scale = TRUE, ...)
+  digits = 10, path = tempdir(), plot = FALSE, ylim, scale = TRUE, ...)
 }
 \arguments{
 \item{confs}{numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.}
@@ -22,7 +22,7 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 
 \item{digits}{round the raw OPTICS cordillera and the norm factor to these digits. Defaults to 10.}
 
-\item{path}{the path for storing the temporary files I/O files for optics. Defaults to the current working directory.}
+\item{path}{the path for storing the temporary files I/O files for optics. Defaults to tempdir(). In any other case it prompts the user for confirmation.}
 
 \item{plot}{plot the reachability and the raw OPTICS Cordillera}
 
@@ -44,10 +44,10 @@ A list with the elements
 }
 }
 \description{
-Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been refactored. Only works with data matrices and Euclidean distance.
+Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been re-factored. Only works with data matrices and Euclidean distance.
 }
 \section{Warning}{
- It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
+ It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 }
 
 \keyword{clustering}

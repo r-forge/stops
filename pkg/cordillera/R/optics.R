@@ -1,12 +1,12 @@
 #' OPTICS in ELKI
 #'
-#' A rudimentary I/O interface to OPTICS in 'ELKI' rerouts input from R to elki via the command line, runs elki.optics on an Input file (configs.txt), sets up a temporary directory opticsout, reads in the contents of the \code{elki} output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
-#' needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed. No plans for using this in the future.
+#' A rudimentary I/O interface to OPTICS in 'ELKI' reroutes input from R to elki via the command line, runs elki.optics on an Input file (config.txt), sets up a temporary directory opticsout in path, reads in the contents of the \code{elki} output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
+#' needs ELKI > 0.6.0 - Only tested with the Ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed. No plans for using this in the future.
 
 #' @param x numeric matrix or data frame
 #' @param epsilon The epsilon parameter for OPTICS. Defaults to 2 times the range of x.
 #' @param minpts the minpts argument to \code{elki}. Defaults to 2.
-#' @param path the path for storing the temporary files I/O files. Defaults to the current working directory.
+#' @param path the path for storing the temporary files I/O files. Defaults to tempdir(). 
 #' @param keep should the optics results from \code{elki} be stored in path. If TRUE, it will make a directory ./opticsout and a file config.txt
 #'
 #' @return a list with the contents of the \code{elki} output file as a data frame as element
@@ -30,11 +30,12 @@
 #'
 #' 
 #' @export
-e_optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
+e_optics <- function(x,minpts=2,epsilon,path=tempdir(),keep=FALSE)
   {
  # TODO: add distance function handler
                                         # add support for row names
-    if(interactive()){
+    if(interactive())
+      {
     perm <- yesno::yesno("This function will write (temporary) folders and files to your system. Shall I continue?")
     if(!isTRUE(perm)) stop("ELKI needs to write to the file system. If you do not need ELKI's implementation, try dbscn::optics() for OPTICS cordillera() for the OPTICS Cordillera.")
     }
@@ -45,6 +46,7 @@ e_optics <- function(x,minpts=2,epsilon,path=getwd(),keep=FALSE)
   if(!keep) {
       unlink(paste(path,"/opticsout",sep=""),recursive=TRUE)
       file.remove(paste(path,"/configs.txt",sep=""))
+      if(path==tempdir()) file.remove(path)
   }
   out <- list("clusterobjectorder"=cluobjord,"epsilon"=epsilon, "minpts"=minpts)
   class(out) <- "opticse"
@@ -67,9 +69,9 @@ print.opticse <- function(x,...)
        print(outo)
        invisible(outo)
     }
-#' Summary method for OPTICs results
+#' Summary method for OPTICS results
 #'
-#' Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the altter, use plot().
+#' Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot().
 #' @param object an object of class optics
 #' @param ... additional arguments passed to summary.numeric
 #'

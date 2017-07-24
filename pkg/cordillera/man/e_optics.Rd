@@ -4,7 +4,7 @@
 \alias{e_optics}
 \title{OPTICS in ELKI}
 \usage{
-e_optics(x, minpts = 2, epsilon, path = getwd(), keep = FALSE)
+e_optics(x, minpts = 2, epsilon, path = tempdir(), keep = FALSE)
 }
 \arguments{
 \item{x}{numeric matrix or data frame}
@@ -13,7 +13,7 @@ e_optics(x, minpts = 2, epsilon, path = getwd(), keep = FALSE)
 
 \item{epsilon}{The epsilon parameter for OPTICS. Defaults to 2 times the range of x.}
 
-\item{path}{the path for storing the temporary files I/O files. Defaults to the current working directory.}
+\item{path}{the path for storing the temporary files I/O files. Defaults to tempdir().}
 
 \item{keep}{should the optics results from \code{elki} be stored in path. If TRUE, it will make a directory ./opticsout and a file config.txt}
 }
@@ -26,8 +26,8 @@ a list with the contents of the \code{elki} output file as a data frame as eleme
 }
 }
 \description{
-A rudimentary I/O interface to OPTICS in 'ELKI' rerouts input from R to elki via the command line, runs elki.optics on an Input file (configs.txt), sets up a temporary directory opticsout, reads in the contents of the \code{elki} output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
-needs ELKI > 0.6.0 - Only tested with the ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed. No plans for using this in the future.
+A rudimentary I/O interface to OPTICS in 'ELKI' reroutes input from R to elki via the command line, runs elki.optics on an Input file (config.txt), sets up a temporary directory opticsout in path, reads in the contents of the \code{elki} output file clusterobjectorder.txt and deletes I/O files and directories. Returns the contents or clusterobjectorder.txt as a data frame.
+needs ELKI > 0.6.0 - Only tested with the Ubuntu trusty binaries very rudimentary as of yet. API of ELKI is not fixed. No plans for using this in the future.
 }
 \examples{
 \donttest{

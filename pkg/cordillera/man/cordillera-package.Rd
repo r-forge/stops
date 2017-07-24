@@ -12,8 +12,8 @@ The stops package provides these main functions:
 \itemize{
 \item cordillera() ... OPTICS Cordillera using dbscan OPTICS implementation
 
-\item e_cordillera()... ... OPTICS Cordillera using ELKIS OPTICS implementation; DEPRECATED
-\item e_optics() ... An interface to ELKI's implementation of OPTICS; DEPRECATED
+\item e_cordillera()... ... OPTICS Cordillera using ELKI's OPTICS implementation
+\item e_optics() ... An interface to ELKI's implementation of OPTICS
 }
 
 Methods: 
@@ -21,7 +21,7 @@ For most of the objects returned by the high-level functions S3 classes and meth
 
 References:
 \itemize{
-\item Rusch, T., Mair, P. \& Hornik, K. (2016) Assessing and quantifying clusteredness: The OPTICS Cordillera, Report 2016/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
+\item Rusch, T., Mair, P. \& Hornik, K. (2017) Assessing and quantifying clusteredness: The OPTICS Cordillera, Journal of Computational and Graphical Statistics. 
 }
 
 Authors: Thomas Rusch
