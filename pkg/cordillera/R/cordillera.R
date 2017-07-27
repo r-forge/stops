@@ -224,15 +224,15 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' summary(cres1)
 #' plot(cres1)
 #' 
-#' #4 dim goodness-of-clusteredness with clusters of at least 3 points for PCA
-#' cres4<-cordillera(res$scores[,1:4],minpts=3,epsilon=13) 
-#' #4 dim goodness-of-clusteredness with clusters of at least 3 points for original data
-#' cres<-cordillera(iris[,1:4],minpts=3,epsilon=13,dmax=cres4$dmaxe)
-#' #There is a bit more clusteredness for the PCA result
-#' summary(cres4)
-#' summary(cres)
-#' plot(cres4)
-#' plot(cres)
+#' #4 dim goodness-of-clusteredness with clusters of at least 20 points for PCA
+#' cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13) 
+#' #4 dim goodness-of-clusteredness with clusters of at least 20 points for original data
+#' cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe)
+#' #There is a more clusteredness for the original result
+#' summary(cres4) 
+#' summary(cres) 
+#' plot(cres4) #cluster structure only a bit intelligible
+#' plot(cres) #clearly two well separated clusters
 #' 
 #' ###############################################################################
 #' # Example from Rusch et al. (2017) with original data, PCA and Sammon mapping #

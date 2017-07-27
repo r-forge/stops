@@ -2,8 +2,7 @@
 % Please edit documentation in R/optics.R
 \name{print.summary.opticse}
 \alias{print.summary.opticse}
-\title{Print method for OPTICS summary 
-Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot()}
+\title{Print method for OPTICS summary}
 \usage{
 \method{print}{summary.opticse}(x, fiven = TRUE, stemd = TRUE, ...)
 }
@@ -17,6 +16,5 @@ Displays summaries of the reachability plot. Currently its the five points summa
 \item{...}{additional arguments passed to \code{\link{stem}}}
 }
 \description{
-Print method for OPTICS summary 
 Displays summaries of the reachability plot. Currently its the five points summary of the reachabilities and a stem and leaf display. The latter should not be confused with the reachability plot. If you need the latter, use plot()
 }
