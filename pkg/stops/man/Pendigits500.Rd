@@ -18,4 +18,3 @@ The variables are
 \item digits: The digit actually written (the label)
 }
 }
-

@@ -88,4 +88,3 @@ plot(res5)
 }
 \keyword{clustering}
 \keyword{multivariate}
-

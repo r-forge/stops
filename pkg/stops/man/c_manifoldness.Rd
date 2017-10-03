@@ -20,4 +20,3 @@ y<-sqrt(100^2-x^2)
 confs<-cbind(x,y)
 c_manifoldness(confs)
 }
-

@@ -21,7 +21,7 @@
 #'    \itemize{
 #'         \item{stress:} the stress
 #'         \item{stress.m:} default normalized stress
-#'         \item{coploss:} the weighted loss value
+#'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (kappa, lambda)
 #'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements and some more
@@ -58,8 +58,8 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)   
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
 
@@ -86,7 +86,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #'    \itemize{
 #'         \item{stress:} the stress
 #'         \item{stress.m:} default normalized stress
-#'         \item{coploss:} the weighted loss value
+#'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (kappa, lambda)
 #'         \item{fit:} the returned object of the fitting procedure
@@ -127,8 +127,8 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
 
@@ -156,7 +156,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #'    \itemize{
 #'         \item{stress:} the stress
 #'         \item{stress.m:} default normalized stress
-#'         \item{coploss:} the weighted loss value
+#'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (kappa, lambda)
 #'         \item{fit:} the returned object of the fitting procedure
@@ -190,8 +190,8 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(kappa,lambda)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
 
@@ -219,7 +219,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -251,8 +251,8 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fit$stress.m <- sqrt(fit$stress)
   fit$conf <- fit$points
 #  fit$pars <- c(kappa,lambda,nu)
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
 
 #' COPS versions of Sammon mapping models (via smacofSym)
@@ -278,7 +278,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #'    \itemize{
 #'         \item{stress:} the stress
 #'         \item{stress.m:} default normalized stress
-#'         \item{coploss:} the weighted loss value
+#'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (kappa, lambda)
 #'         \item{fit:} the returned object of the fitting procedure
@@ -316,8 +316,8 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
 
@@ -346,7 +346,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -372,8 +372,8 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
   fit$conf <- fit$points
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  list(stress=fit$GOF,stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  list(stress=fit$GOF,stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
 }
 
 #' COPS version of rstress
@@ -399,7 +399,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -425,8 +425,8 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   fit$nu <- 1
  # fit$pars <- c(kappa,lambda)
  # fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
 }
 
@@ -454,7 +454,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -479,8 +479,8 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   fit$kappa <- 2
   fit$lambda <- lambda
   fit$nu <- 1
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
 }
 
@@ -508,7 +508,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -531,8 +531,8 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- 1
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
 
@@ -559,7 +559,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -586,8 +586,8 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
 
@@ -614,7 +614,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -641,8 +641,8 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
 
@@ -669,7 +669,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' \itemize{
 #'         \item stress: the stress
 #'         \item stress.m: default normalized stress
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
@@ -694,12 +694,12 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
-  copobj <- coploss(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, coploss=copobj$coploss, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
 
-#' Calculates coploss for given MDS object 
+#' Calculates copstress for given MDS object 
 #'
 #' @param obj MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -708,14 +708,14 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness. 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose (coploss level), >3 is extremely (up to MDS optimization level)
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose (copstress level), >3 is extremely (up to MDS optimization level)
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
 #' @param ... additional arguments to be passed to the cordillera function
 #'
 #' @return A list with the components
 #' \itemize{
-#'        \item coploss the weighted loss value
+#'        \item copstress the weighted loss value
 #'        \item OC the Optics cordillera value
 #'        \item parameters the parameters used for fitting (kappa, lambda)
 #'        \item cordillera the cordillera object
@@ -723,7 +723,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @keywords multivariate
 #' @import cordillera
 #' @export
-coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,scale=TRUE,...)
+copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,scale=TRUE,...)
     {
         stressi <- obj$stress.m
         kappa <- obj$kappa
@@ -738,14 +738,14 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
                    maxstruc <- 1
                    }
         ic <- stressweight*stressi - cordweight*struc
-        if(verbose>0) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
-        out <- list(coploss=ic,OC=struc,parameters=c(kappa=kappa,lambda=lambda,nu=nu),cordillera=corrd)
+        if(verbose>0) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+        out <- list(copstress=ic,OC=struc,parameters=c(kappa=kappa,lambda=lambda,nu=nu),cordillera=corrd)
         out
      }
 
 #' Profile COPS Function (aka COPS Variant 2)
 #'
-#' Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses coploss for hyperparameter selection. It is a special case of a STOPS model.  
+#' Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection. It is a special case of a STOPS model.  
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
@@ -759,7 +759,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param cordweight weight to be used for the cordillera; if missing gets estimated from the initial configuration so that coploss = 0 for theta=c(1,1) 
+#' @param cordweight weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=c(1,1) 
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
@@ -776,7 +776,7 @@ coploss <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,e
 #'
 #'@return A list with the components
 #'         \itemize{
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stress: the stress
@@ -888,21 +888,21 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
              }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,method="SANN",...)
+          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,method="SANN",...)
       }
       if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,control=control)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,control=control)
        }
       if(optimmethod=="ALJ") {
-      opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$coploss,lower=lower,upper=upper,verbose=verbose-2,...)
+      opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,verbose=verbose-2,...)
       }
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
     out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
     out$OC <- cordillera::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-    out$coploss <- opt$value
+    out$copstress <- opt$value
     out$optim <- opt
     out$stressweight <- stressweight
     out$cordweight <- cordweight
@@ -910,8 +910,8 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
     out$optimethod <- optimmethod
     out$losstype <- loss
     out$nobj <- dim(out$fit$conf)[1]
-    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with coploss=",round(out$coploss,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")
-    class(out) <- c("pcops","cops","stops")
+    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with copstress=",round(out$copstress,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")
+    class(out) <- c("pcops","stops","cops")
     out
   }
 
@@ -926,11 +926,43 @@ print.cops <- function(x,...)
     cat("Number of objects:", x$nobj, "\n")
     cat("Stress of configuration (default normalization):", x$stress, "\n")
     cat("OPTICS Cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
-    cat("Cluster optimized loss (coploss): ", x$coploss, "\n")
+    cat("Cluster optimized loss (copstress): ", x$copstress, "\n")
     cat("Stress weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
     cat("\n")
     }
+
+
+#'@export
+summary.pcops <- function(object,...)
+    {
+      sppmat <- NULL
+      if(!is.null(object$fit$spp))
+      { 
+           spp.perc <- object$fit$spp/sum(object$fit$spp) * 100
+           sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
+           colnames(sppmat) <- c("SPP", "SPP(%)")
+      } 
+      res <- list(conf=object$fit$conf,sppmat=sppmat)
+      class(res) <- "summary.pcops"
+      res
+    }
+
+#'@export
+print.summary.pcops <- function(x,...)
+    {
+    cat("\n")
+    cat("Configurations:\n")
+    print(round(x$conf, 4))
+    cat("\n\n")
+    if(!is.null(x$sppmat))
+     {   
+      cat("Stress per point:\n")
+      print(round(x$sppmat, 4))
+      cat("\n")
+     }
+    }
+
 
 #'@export
 print.pcops <- function(x,...)
@@ -943,7 +975,7 @@ print.pcops <- function(x,...)
     cat("Number of objects:", x$nobj, "\n")
     cat("MDS loss value:", x$stress.m, "\n")
     cat("OPTICS cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
-    cat("Cluster optimized loss (coploss): ", x$coploss, "\n")
+    cat("Cluster optimized loss (copstress): ", x$copstress, "\n")
     cat("MDS loss weight:",x$stressweight," OPTICS cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$optim$counts["function"], "\n")
     cat("\n")
@@ -1034,7 +1066,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 
 #' Fitting a COPS Model. (old version to be discontinued)
 #'
-#' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta.
+#' Minimizing Copstress for a clustered Power Stress MDS configuration with given hyperparameters theta.
 #'
 #' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
@@ -1060,7 +1092,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'
 #'@return A list with the components
 #'         \itemize{
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stress: the stress
@@ -1078,7 +1110,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
+copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1086,7 +1118,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
     lambda <- theta[2]
     nu <- theta[3]
     plot <- FALSE
-    if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     if(missing(optimmethod)) optimmethod <- "Newuoa"
     if(missing(rang))
         #perhaps put this into the optimization function?
@@ -1142,7 +1174,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
                         struc <- corrd$normed
                        }
              ic <- stressweight*stressi - cordweight*struc
-             if(verbose>2) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             if(verbose>2) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
              ic
             }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
@@ -1185,11 +1217,11 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
      stressn <- stressr/(sum(weightmat*deltaold^2)) #normalized to the maximum stress delta^2*lambda as the normalizing constant (was defualt until v. 0.0-16)
      stresss <- sqrt(stressn) #sqrt of stressn
      if(verbose>0) cat("*** stress (both normalized):",stressen,"; stress 1 (both normalized - default reported):",stressen1,"; sqrt raw stress (both normalized):",sqrt(stressen),"; raw stress (original data):",stressr,"; stress 1 (original data):",stress1,"; explicitly normed stress (original data):",stressn,"; sqrt explicitly normed stress (original data - used in STOPS):",stresss,"; raw stress (proximities normalized):",stresse,"; stress 1 (proximities normalized):", stresse1,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stressen1, spp=spp, ndim=p, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=sqrt(stressen1), stress.r=stressr/2, stress.n=stressn, stress.1=stress1, stress.s=stresss,stress.e=stresse,stress.en=stressen, stress.en1=stressen1,stress.e1=stresse1, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
-    out$loss <- "coploss"
+    out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-    out$coploss <- ovalue
+    out$copstress <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
     out$cordweight <- cordweight
@@ -1204,7 +1236,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 
 #' Fitting a COPS Model (Variant 1).
 #'
-#' Minimizing Coploss for a clustered Power Stress MDS configuration with given hyperparameters theta.
+#' Minimizing Copstress for a clustered Power Stress MDS configuration with given hyperparameters theta.
 #'
 #' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
@@ -1230,7 +1262,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #'
 #'@return A list with the components
 #'         \itemize{
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stress: the stress
@@ -1243,8 +1275,8 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #'@examples
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
-#'#Coploss with equal weight to stress and cordillera 
-#'res1<-coplossMin(dis,stressweight=0.5,cordweight=0.5) 
+#'#Copstress with equal weight to stress and cordillera 
+#'res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5) 
 #'res1
 #'summary(res1)
 #'plot(res1)  #super clustered
@@ -1256,7 +1288,7 @@ coplossMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
 #' 
 #'@keywords clustering multivariate
 #'@export
-coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1264,7 +1296,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
     lambda <- theta[2]
     nu <- theta[3]
     plot <- FALSE
-    if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     if(missing(optimmethod)) optimmethod <- "Newuoa"
     if(missing(rang))
         #perhaps put this into the optimization function?
@@ -1325,7 +1357,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
                         struc <- corrd$normed
                        }
              ic <- stressweight*stressi - cordweight*struc
-             if(verbose>2) cat("coploss =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+             if(verbose>2) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
              ic
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
@@ -1366,11 +1398,11 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
      if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
-    out$loss <- "coploss"
+    out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-    out$coploss <- ovalue
+    out$copstress <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
     out$cordweight <- cordweight
@@ -1385,7 +1417,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 
 #' Fitting a COPS Model by shrinking residuals to Zero (COPS-0).
 #'
-#' Minimizing coploss by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
+#' Minimizing copstress by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
 #'
 #' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
@@ -1413,7 +1445,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #'
 #' @return A list with the components
 #'         \itemize{
-#'         \item coploss: the weighted loss value
+#'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stress: the stress
@@ -1426,8 +1458,8 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' @examples
 #' dis<-as.matrix(smacof::kinshipdelta)
 #'
-#' #Coploss with shrinkage to 0 
-#' res1<-shrinkCoploss0(dis,cordweight=1,minpts=2) 
+#' #Copstress with shrinkage to 0 
+#' res1<-shrinkCopstress0(dis,cordweight=1,minpts=2) 
 #' res1
 #' summary(res1)
 #' plot(res1)  #super clustered
@@ -1439,7 +1471,7 @@ coplossMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu)
 #' 
 #' @keywords clustering multivariate
 #' @export
-shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,scaleC=TRUE,accuracy = 1e-7, itmax = 100000,normed=2,...)
+shrinkCopstress0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,scaleC=TRUE,accuracy = 1e-7, itmax = 100000,normed=2,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1447,7 +1479,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
     lambda <- theta[2]
     nu <- theta[3]
     plot <- FALSE
-    if(verbose>0) cat("Minimizing coploss with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     if(missing(optimmethod)) optimmethod <- "Newuoa"
     if(missing(rang))
         #perhaps put this into the optimization function?
@@ -1505,7 +1537,7 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
              diag(shrinkres) <- 0
              #TODO check for increasing residual
              ic <- sum(shrinkres^2)
-             if(verbose>3) cat("coploss =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             if(verbose>3) cat("copstress =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
              #delta cops/mds should be positive if cordweight is too high,no?
              ic
            }
@@ -1550,11 +1582,11 @@ shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmatm*resmat^2)/2 #raw stress on the normalized proximities and normalized distances 
      if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Coploss NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "coploss", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
-    out$loss <- "coploss"
+    out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleC)
-    out$coploss <- ovalue
+    out$copstress <- ovalue
     out$optim <- optimized
     out$cordweight <- cordweight
     out$stressweight <- 1
@@ -1614,13 +1646,13 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 
 #' High Level COPS Function
 #'
-#' Minimizing coploss for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from coploss with residual shrinkage to zero) and COPS-C (finding a configuration from coploss with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCoploss0, coplossMin and pcops.
+#' Minimizing copstress for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from copstress with residual shrinkage to zero) and COPS-C (finding a configuration from copstress with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCopstress0, copstressMin and pcops.
 #'
 #'@param dis a dissimilarity matrix or a dist object
-#'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss". Defaults to "COPS-C".
-#'@param ... arguments to be passed to shrinkCoploss0 (for Variant 0) coplossMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCoploss0}} \code{\link{coplossMin}} or \code{\link{pcops}}
+#'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","copstress-0","copstress-c","p-copstress". Defaults to "COPS-C".
+#'@param ... arguments to be passed to shrinkCopstress0 (for Variant 0) copstressMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCopstress0}} \code{\link{copstressMin}} or \code{\link{pcops}}
 #'
-#'@return For Variant 0 see \code{\link{shrinkCoploss0}}, Variant 1 see \code{\link{coplossMin}}, for Variant 2 see \code{\link{pcops}}
+#'@return For Variant 0 see \code{\link{shrinkCopstress0}}, Variant 1 see \code{\link{copstressMin}}, for Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
 #'\donttest{
@@ -1639,14 +1671,14 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 #'plot(res2)
 #' 
 #'#procrustes adjusted
-#'resadj<-conf_adjust(res2$fit$conf,res1$fit$conf)
+#'resadj<-conf_adjust(res2$conf,res1$conf)
 #'plot(resadj$ref.conf) #res 2
 #'plot(resadj$other.conf) #res 1
 #'
 #'par(mfrow=c(1,2))
 #'plot(res1,"reachplot")
 #'plot(res2,"reachplot") 
-#'
+#'par(mfrow=c(1,1))
 #'
 #'#COPS-0 to improve over an MDS result
 #'res0<-powerStressFast(dis)
@@ -1655,26 +1687,26 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 #'summary(res2a)
 #'plot(res2a)
 #'
-#'resadj<-conf_adjust(res0$fit$conf,res2a$fit$conf)
+#'resadj<-conf_adjust(res0$conf,res2a$conf)
 #'plot(resadj$ref.conf) #res 0
 #'plot(resadj$other.conf) #res 2a
 #' 
 #'
-#'#s-stress type coploss (i.e. kappa=2, lambda=2)
+#'#s-stress type copstress (i.e. kappa=2, lambda=2)
 #'res3<-cops(dis,variant="COPS-C",kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
 #'res3
 #'summary(res3)
 #'plot(res3)
 #'
-#'#Sammon stress type coploss
-#'ws<-weightmat=1/dis
+#'#Sammon stress type copstress
+#'ws<-1/dis
 #'diag(ws)<-1 
 #'res4<-cops(dis,variant="COPS-0",nu=-1,weightmat=ws,cordweight=0.5) 
 #'res4
 #'summary(res4)
 #'plot(res4)
 #' 
-#'#power-stress type profile coploss
+#'#power-stress type profile copstress
 #'# search for optimal kappa and lambda between kappa=0.5,lambda=0.5 and kappa=2,lambda=5
 #'# nu is fixed on -1
 #'ws<-1/dis
@@ -1692,12 +1724,11 @@ shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis, variant=c("0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","coploss-0","coploss-c","p-coploss","COPS-P","coploss-p"),...)
+cops <- function(dis, variant=c("0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","copstress-0","copstress-c","p-copstress","COPS-P","copstress-p","cops-c","p-cops"),...)
                  {
                  if(missing(variant)) variant <- "1"
-                 if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","coploss-0")) out <- coplossMin(dis,...)
-                 if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","coploss-c")) out <- shrinkCoploss0(dis,...)
-                 if(variant%in%c("2","Variant2","v2","profile","p-coploss","P-COPS","COPS-P","coploss-p")) out <- pcops(dis,...)
-
+                 if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","copstress-0","cops-c")) out <- copstressMin(dis,...)
+                 if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","copstress-c")) out <- shrinkCopstress0(dis,...)
+                 if(variant%in%c("2","Variant2","v2","profile","p-copstress","P-COPS","COPS-P","p-cops","copstress-p")) out <- pcops(dis,...)
                  return(out)
                  }

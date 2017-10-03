@@ -1,7 +1,7 @@
 Package: cops
 Title: Cluster Optimized Proximity Scaling
-Version: 0.0-2
-Date: 2017-06-19
+Version: 0.0-3
+Date: 2017-10-03
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"),person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut], Kurt
     Hornik [ctb]
@@ -27,4 +27,4 @@ License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
 VignetteBuilder: R.rsp
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

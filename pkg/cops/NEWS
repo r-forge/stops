@@ -1,3 +1,7 @@
+Version 0.0-3
+
+- Renamed all coploss to copstress. Added a for loop version of powerstress (intended for optimization purposes eventually). Removed all optics code. Updated docs and descriptions. Added some S3 methods for class pcops that were only in stops.  
+
 Version 0.0-2
 
 - Changed defaults for coplossMin to stressweight=0.99, cordweight=0.01. Removed stops imports. Removed cordillera fucntions.

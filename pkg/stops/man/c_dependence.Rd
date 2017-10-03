@@ -22,4 +22,3 @@ y<-2+3*x+rnorm(10)
 confs<-cbind(x,y)
 c_dependence(confs,1.5)
 }
-

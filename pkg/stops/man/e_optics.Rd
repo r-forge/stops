@@ -42,4 +42,3 @@ plot(res,withlabels=TRUE)
 }
 \keyword{clustering}
 \keyword{multivariate}
-

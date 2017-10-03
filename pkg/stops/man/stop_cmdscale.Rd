@@ -52,4 +52,3 @@ A list with the components
 STOPS version of strain
 }
 \keyword{multivariate}
-

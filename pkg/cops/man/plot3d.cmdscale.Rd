@@ -33,4 +33,3 @@
 \description{
 This methods produces a dynamic 3D configuration plot.
 }
-

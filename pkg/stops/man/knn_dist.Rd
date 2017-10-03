@@ -14,4 +14,3 @@ knn_dist(dis, k)
 \description{
 calculate k nearest neighbours from a distance matrix
 }
-

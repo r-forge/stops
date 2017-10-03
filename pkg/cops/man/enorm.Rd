@@ -14,4 +14,3 @@ enorm(x, w = 1)
 \description{
 Explicit Norm
 }
-

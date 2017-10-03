@@ -67,4 +67,3 @@ plot(res)
 \seealso{
 \code{\link{smacofSym}}
 }
-

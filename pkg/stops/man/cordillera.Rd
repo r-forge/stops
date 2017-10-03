@@ -41,6 +41,7 @@ Calculates the OPTICS cordillera as in Rusch et al., 2015. Based on optics in db
 \section{Warning}{
  It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, inifnite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 }
+
 \examples{
 data(BankingCrisesDistances)
 res<-cmdscale(BankingCrisesDistances[,1:69])
@@ -51,4 +52,3 @@ plot(cres)
 }
 \keyword{clustering}
 \keyword{multivariate}
-

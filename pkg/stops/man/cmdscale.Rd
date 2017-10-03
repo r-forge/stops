@@ -21,4 +21,3 @@ See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list wit
 \description{
 Wrapper to \code{cmdscale} for S3 class
 }
-

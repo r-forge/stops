@@ -52,4 +52,3 @@ A list with the components
 STOPS versions of Sammon mapping models (via smacofSym)
 }
 \keyword{multivariate}
-

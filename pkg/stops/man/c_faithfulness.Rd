@@ -23,4 +23,3 @@ delts<-smacof::kinshipdelta
 dis<-smacofSym(delts)$confdiss
 c_faithfulness(dis,delts,k=3)
 }
-

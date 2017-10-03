@@ -58,4 +58,3 @@ A list with the components
 COPS versions of smacofSym models
 }
 \keyword{multivariate}
-

@@ -14,4 +14,3 @@ mkPowerALTERN(x, r)
 \description{
 MakePower
 }
-

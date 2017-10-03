@@ -12,4 +12,3 @@ doubleCenter(x)
 \description{
 double centering
 }
-

@@ -52,4 +52,3 @@ A list with the components
 STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)
 }
 \keyword{multivariate}
-

@@ -51,4 +51,3 @@ A list with the components
 STOPS version of sammon with powers
 }
 \keyword{multivariate}
-

@@ -26,4 +26,3 @@ Overall there are 50 indicators of natural hazard, one indicator of social vulne
 \item The median aggregated CCSM3 projected annual precipitation for years 2000, 2049 and 2099 under scenarios A2 and B1 by county. The source of the raw data was California Energy Commission (2008). The variables are prcpS_YYYY, where S is the scenario and YYYY the year (observed or projected), so prcpB1_2069 is the projected median percipitation in that county under B1 in 2069.
 }
 }
-

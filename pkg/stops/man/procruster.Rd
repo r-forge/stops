@@ -12,4 +12,3 @@ procruster(x)
 \description{
 procruster: a procrustes function
 }
-

@@ -61,4 +61,3 @@ Details:
 \description{
 S3 plot method for smacofP objects
 }
-

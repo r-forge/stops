@@ -14,4 +14,3 @@ pdist(x, p)
 \description{
 Squared distances
 }
-

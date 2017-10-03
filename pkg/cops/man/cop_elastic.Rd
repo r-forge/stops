@@ -47,7 +47,7 @@ A list with the components
    \itemize{
         \item{stress:} the stress
         \item{stress.m:} default normalized stress
-        \item{coploss:} the weighted loss value
+        \item{copstress:} the weighted loss value
         \item{OC:} the Optics cordillera value
         \item{parameters:} the parameters used for fitting (kappa, lambda)
         \item{fit:} the returned object of the fitting procedure
@@ -58,4 +58,3 @@ A list with the components
 COPS versions of elastic scaling models (via smacofSym)
 }
 \keyword{multivariate}
-

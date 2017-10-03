@@ -58,4 +58,3 @@ A list with the components
 COPS version of sammon mapping
 }
 \keyword{multivariate}
-

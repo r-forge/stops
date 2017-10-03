@@ -14,4 +14,3 @@ torgerson(delta, p = 2)
 \description{
 Torgerson scaling
 }
-

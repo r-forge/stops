@@ -1018,7 +1018,7 @@ summary.stops <- function(object,...)
       sppmat <- NULL
       if(!is.null(object$fit$spp))
       { 
-           spp.perc <- object$fit$spp/sum(object$spp) * 100
+           spp.perc <- object$fit$spp/sum(object$fit$spp) * 100
            sppmat <- cbind(sort(object$fit$spp), sort(spp.perc))
            colnames(sppmat) <- c("SPP", "SPP(%)")
       } 

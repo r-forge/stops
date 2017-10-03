@@ -12,4 +12,3 @@ sqdist(x)
 \description{
 Squared distances
 }
-

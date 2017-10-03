@@ -32,7 +32,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
-\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that coploss = 0 for theta=c(1,1)}
+\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=c(1,1)}
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
@@ -63,7 +63,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 \value{
 A list with the components
         \itemize{
-        \item coploss: the weighted loss value
+        \item copstress: the weighted loss value
         \item OC: the Optics cordillera
         \item optim: the object returned from the optimization procedure
         \item stress: the stress
@@ -74,7 +74,7 @@ A list with the components
 }
 }
 \description{
-Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses coploss for hyperparameter selection. It is a special case of a STOPS model.
+Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection. It is a special case of a STOPS model.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
@@ -140,4 +140,3 @@ m4t #r~=1.39
 }
 \keyword{clustering}
 \keyword{multivariate}
-

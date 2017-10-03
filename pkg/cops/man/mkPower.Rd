@@ -14,4 +14,3 @@ mkPower(x, r)
 \description{
 MakePower Old
 }
-

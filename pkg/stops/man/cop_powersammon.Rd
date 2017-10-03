@@ -59,4 +59,3 @@ A list with the components
 COPS version of sammon with powers
 }
 \keyword{multivariate}
-

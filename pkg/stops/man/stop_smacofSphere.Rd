@@ -52,4 +52,3 @@ A list with the components
 STOPS versions of smacofSphere models
 }
 \keyword{multivariate}
-

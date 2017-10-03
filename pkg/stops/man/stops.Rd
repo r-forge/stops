@@ -4,6 +4,7 @@
 \name{stops}
 \alias{stops}
 \alias{stops-package}
+\alias{stops}
 \title{stops: structure optimized proximity scaling}
 \usage{
 stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
@@ -165,4 +166,3 @@ res1
 }
 \keyword{clustering}
 \keyword{multivariate}
-

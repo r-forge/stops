@@ -21,4 +21,3 @@ z<- sin(y-x)
 confs<-cbind(z,y,x)
 c_linearity(confs)
 }
-

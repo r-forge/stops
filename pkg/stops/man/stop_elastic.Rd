@@ -52,4 +52,3 @@ A list with the components
 STOPS versions of elastic scaling models (via smacofSym)
 }
 \keyword{multivariate}
-

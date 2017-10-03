@@ -81,4 +81,3 @@ plot(res1)  #super clustered
 }
 \keyword{clustering}
 \keyword{multivariate}
-

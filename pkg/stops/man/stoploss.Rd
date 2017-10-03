@@ -28,4 +28,3 @@ stoploss(obj, stressweight = 1, structures = c("cclusteredness",
 \description{
 Calculate the weighted multiobjective loss function used in STOPS
 }
-

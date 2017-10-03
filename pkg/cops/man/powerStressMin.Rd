@@ -53,11 +53,11 @@ and some additional components
 }
 }
 \description{
-An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast.
+An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
 }
 \examples{
 dis<-smacof::kinshipdelta
-res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5)
+res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,verbose=3)
 res
 summary(res)
 plot(res)
@@ -66,4 +66,3 @@ plot(res)
 \seealso{
 \code{\link{smacofSym}}
 }
-

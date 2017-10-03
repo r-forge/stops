@@ -23,4 +23,3 @@ c_mine(confs, master = NULL, alpha = 1, C = 15, var.thr = 1e-05,
 \description{
 wrapper for getting the mine coefficients
 }
-

@@ -44,4 +44,3 @@ A list with the components
 Calculates coploss for given MDS object
 }
 \keyword{multivariate}
-

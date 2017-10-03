@@ -51,4 +51,3 @@ A list with the components
 STOPS version of elastic scaling with powers
 }
 \keyword{multivariate}
-

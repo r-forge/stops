@@ -20,4 +20,3 @@ conf_adjust(conf1, conf2, verbose = FALSE, eps = 1e-12, itmax = 100)
 \description{
 conf_adjust: a function to procrustes adjust two matrices
 }
-

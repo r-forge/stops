@@ -58,4 +58,3 @@ A list with the components
 COPS versions of elastic scaling models (via smacofSym)
 }
 \keyword{multivariate}
-

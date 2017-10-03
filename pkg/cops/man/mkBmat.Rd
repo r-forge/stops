@@ -12,4 +12,3 @@ mkBmat(x)
 \description{
 Auxfunction1
 }
-

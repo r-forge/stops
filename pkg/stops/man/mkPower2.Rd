@@ -14,4 +14,3 @@ mkPower2(x, theta)
 \description{
 MakePower
 }
-

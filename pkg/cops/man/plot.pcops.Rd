@@ -31,4 +31,3 @@ Details:
 \description{
 S3 plot method for cops objects
 }
-

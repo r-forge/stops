@@ -27,4 +27,3 @@ shrinkB(x, q = 1, minpts = 2, epsilon = 10, rang = NULL,
 \description{
 Finding the shrinkage matrix for COPS-0
 }
-

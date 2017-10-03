@@ -58,4 +58,3 @@ A list with the components
 COPS version of strain
 }
 \keyword{multivariate}
-

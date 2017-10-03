@@ -920,12 +920,6 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' 
 #' @seealso \code{\link{smacofSym}}
 #' 
-#' @examples
-#' dis<-smacof::kinshipdelta
-#' system.time(powerStressMin2(as.matrix(dis),kappa=2,lambda=1.5))
-#' res2
-#' summary(res2)
-#' plot(res)
 #' 
 #' @export
 powerStressMin2 <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-10, itmax = 100000, verbose = FALSE) {

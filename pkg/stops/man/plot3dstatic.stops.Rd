@@ -14,4 +14,3 @@
 \description{
 This methods produces a static 3D configuration plot.
 }
-

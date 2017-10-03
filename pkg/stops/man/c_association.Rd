@@ -31,4 +31,3 @@ z<- sin(y-x)
 confs<-cbind(x,y,z)
 c_association(confs)
 }
-

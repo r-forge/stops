@@ -21,4 +21,3 @@ See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with 
 \description{
 Wrapper to \code{sammon} for S3 class
 }
-

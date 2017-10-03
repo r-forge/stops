@@ -29,4 +29,3 @@ Details:
 \description{
 S3 plot method for stops objects
 }
-

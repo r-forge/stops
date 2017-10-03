@@ -65,4 +65,3 @@ points(res2$par,res2$value,col="red",pch=19)
 res2
 }
 }
-

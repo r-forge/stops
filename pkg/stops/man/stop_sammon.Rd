@@ -53,4 +53,3 @@ A list with the components
 STOPS version of sammon mapping
 }
 \keyword{multivariate}
-

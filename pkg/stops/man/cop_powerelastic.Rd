@@ -59,4 +59,3 @@ A list with the components
 COPS version of elastic scaling with powers
 }
 \keyword{multivariate}
-

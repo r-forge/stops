@@ -25,4 +25,3 @@
 \description{
 Displays the reachability plot. Points with undefined/infinite minimum reachabilities are colored lighter by default.
 }
-

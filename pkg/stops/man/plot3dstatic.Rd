@@ -29,4 +29,3 @@ A static 3d plot S3 generic
 \details{
 A static 3d plot
 }
-

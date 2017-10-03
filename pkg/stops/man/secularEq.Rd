@@ -14,4 +14,3 @@ secularEq(a, b)
 \description{
 Secular Equation
 }
-
