@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{copstressMin}
 \alias{copstressMin}
-\title{Fitting a COPS Model (Variant 1).}
+\title{Fitting a COPS-C Model (COPS Variant 1).}
 \usage{
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
@@ -68,7 +68,7 @@ A list with the components
 }
 }
 \description{
-Minimizing Copstress for a clustered Power Stress MDS configuration with given hyperparameters theta.
+Minimizing Copstress for a clustered MDS configuration with given hyperparameters theta.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

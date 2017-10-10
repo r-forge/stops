@@ -7,20 +7,19 @@
 \alias{cops}
 \title{cops: cluster optimized proximity scaling}
 \usage{
-cops(dis, variant = c("0", "1", "2", "Variant0", "Variant1", "Variant2", "v0",
-  "v1", "v2", "COPS-0", "COPS-C", "P-COPS", "configuration-0",
-  "configuration-c", "profile", "copstress-0", "copstress-c", "p-copstress",
+cops(dis, variant = c("1", "2", "Variant1", "Variant2", "v1", "v2", "COPS-C",
+  "P-COPS", "configuration-c", "profile", "copstress-c", "p-copstress",
   "COPS-P", "copstress-p", "cops-c", "p-cops"), ...)
 }
 \arguments{
 \item{dis}{a dissimilarity matrix or a dist object}
 
-\item{variant}{a character string specifying which variant of COPS to fit. Allowed is any of the following "0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","copstress-0","copstress-c","p-copstress". Defaults to "COPS-C".}
+\item{variant}{a character string specifying which variant of COPS to fit. Allowed is any of the following "1","2","Variant1","Variant2","v1","v2","COPS-C","P-COPS","configuration-c","profile","copstress-c","p-copstress". Defaults to "COPS-C".}
 
-\item{...}{arguments to be passed to shrinkCopstress0 (for Variant 0) copstressMin (for Variant 1) or pcops (for Variant 2). See also \code{\link{shrinkCopstress0}} \code{\link{copstressMin}} or \code{\link{pcops}}}
+\item{...}{arguments to be passed to  \code{\link{copstressMin}} (for Variant 1) or \code{\link{pcops}} (for Variant 2).}
 }
 \value{
-For Variant 0 see \code{\link{shrinkCopstress0}}, Variant 1 see \code{\link{copstressMin}}, for Variant 2 see \code{\link{pcops}}
+For COPS-C Variant 1 see \code{\link{copstressMin}}, for P-COPS Variant 2 see \code{\link{pcops}}
 }
 \description{
 Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera (Rusch, Hornik & Mair 2017). There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters for the power transformations (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ Algorithmus).
@@ -95,7 +94,7 @@ res1
 summary(res1)
 plot(res1)
 
-#classic mds (i.e. COPS-C with stressweight=1 and cordweight=0 or COPS-0 with cordweight=0)
+#ratio mds (i.e. COPS-C with stressweight=1 and cordweight=0)
 res2<-cops(dis,variant="COPS-C",stressweight=1,cordweight=0,minpts=2) 
 res2
 summary(res2)
@@ -111,12 +110,6 @@ plot(res1,"reachplot")
 plot(res2,"reachplot") 
 par(mfrow=c(1,1))
 
-#COPS-0 to improve over an MDS result
-res0<-powerStressFast(dis)
-res2a<-cops(dis,variant="COPS-0",cordweight=1,q=2,init=res0$conf,minpts=2) 
-res2a
-summary(res2a)
-plot(res2a)
 
 resadj<-conf_adjust(res0$conf,res2a$conf)
 plot(resadj$ref.conf) #res 0
@@ -129,13 +122,6 @@ res3
 summary(res3)
 plot(res3)
 
-#Sammon stress type copstress
-ws<-1/dis
-diag(ws)<-1 
-res4<-cops(dis,variant="COPS-0",nu=-1,weightmat=ws,cordweight=0.5) 
-res4
-summary(res4)
-plot(res4)
 
 #power-stress type profile copstress
 # search for optimal kappa and lambda between kappa=0.5,lambda=0.5 and kappa=2,lambda=5

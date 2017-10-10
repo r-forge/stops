@@ -1,1109 +1,409 @@
-                                        #What follows are proof of concepts for the STOPS paper 
 
-#Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoplose
-# write stops_foo where foo is the MDS model of interest
-# also do this with a pareto approach
-
-#'c-linearity 
-#'calculates c-linearity as the multiple correlation
+######################### FOR PARALLELIZATION EVENTUALLY #################################
+#' Power Stress SMACOF
 #'
-#' @param confs a numeric matrix or data frame
-#' @param ... additional arguments to be passed to lm.fit
-#'
-#' @examples
-#' x<-1:10
-#' y<-2+3*x+rnorm(10)
-#' confs<-cbind(x,y)
-#' clinearity(confs)
-#' @export
-c_linearity <- function(confs,...)
-    {
-        y <- confs[,1]
-        n <- dim(confs)[1]
-        p <- dim(confs)[2]
-        x <- confs[,2:p]
-        tmp <- lm(y~x)
-        out <- sqrt(summary(tmp)$r.squared)
-        out
-    }
-    
-#'  Calculate the weighted multiobjective loss function used in STOPS
-#'
-#' @param obj MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere) 
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param structures which c-structuredness indices to be included in the loss
-#' @param strucweight the weights of the structuredness indices; defaults to 1/#number of structures
-#' @param strucpars a list of parameters to be passed to the c-structuredness indices in the same order as the values in structures #(alternatively a named list that has the structure name as the element name)
-#' @param type what type of weighted optimization should be used? Can be 'additive' or 'multiplicative'
-#' @param verbose verbose output
+#' An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast. Uses for loops.
 #' 
-stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity"),strucweight=rep(1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
-    {
-        #TODO make strucpars defaults
-        stressi <- obj$stress.m
-        pars <- obj$pars
-        confs <- obj$conf 
-        if("cclusteredness"%in%structures)
-            {
-              indst <- which(structures=="cclusteredness")  
-              cclusteredness <- do.call(cordillera,c(list(confs),strucpars[[indst]]))$normed
-            }                           
-        if("clinearity"%in%structures)
-            {
-               indst <- which(structures=="clinearity")
-               clinearity <- do.call(c_linearity,c(list(confs))) #,strucpars[[indst]])) has no strucpars
-           }
-        ##TODO add more structures
-        struc <- unlist(mget(structures))
-        ic <- stressi*stressweight - sum(struc*strucweight) 
-        if (type =="multiplicative") ic <- exp(stressweight*log(stressi) - sum(strucweight*log(struc))) #is this what we want? stress/structure or do we want stress - prod(structure)
-        if(verbose>0) cat("stoploss =",ic,"mdsloss =",stressi,"structuredness =",struc,"parameters =",pars,"\n")
-        #return the full combi of stress and indices or only the aggregated scalars; for aSTOPS and mSTOPS we want the latter but for a Pareto approach we want the first; get rid of the sums in ic if the first is wanted  
-        out <- list(stoploss=ic,strucindices=struc,parameters=pars)
-        out
-     }
-#' STOPS versions of smacofSym models
+#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
+#' @param kappa power of the transformation of the fitted distances; defaults to 1
+#' @param lambda the power of the transformation of the proximities; defaults to 1
+#' @param nu the power of the transformation for weightmat; defaults to 1 
+#' @param weightmat a matrix of finite weights
+#' @param init starting configuration
+#' @param ndim dimension of the configuration; defaults to 2
+#' @param acc numeric accuracy of the iteration
+#' @param itmax maximum number of iterations
+#' @param verbose should iteration output be printed; if > 1 then yes
 #'
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector for transformations
-#' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
-#' @param init (optional) initial configuration
-#' @param ... additional arguments to be passed to the fitting
-#' @param structures which structuredness indices to be included in the loss
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
-#' @param strucpars the parameters for the structuredness indices
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
-#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
-#' 
-#' 
-#' @return A list with the components
-#'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
-#'         \item{stoploss:} the weighted loss value
-#'         \item{indices:} the values of the structuredness indices
-#'         \item{parameters:} the parameters used for fitting 
-#'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
-#' }
-#' 
-#'@keywords multivariate
-#'@export
-stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"), stresstype="default") {
-  if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  if(missing(type)) type <- "additive"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
-  fit <- smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
-  fit$kappa <- 1
-  fit$lambda <- lambda
-  fit$nu <- 1
-  fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
-  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
-  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
-  fit$deltaorig <- fit$delta^(1/fit$lambda)  
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions
-  out
-}
-
-#' STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)
-#'
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param transformation function to transform the proximities or distances; need to be parameterized by theta  
-#' @param theta the theta vector of transformations
-#' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
-#' @param init (optional) initial configuration
-#' @param structures which structuredness indices to be included in the loss
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
-#' @param q the norm of the corrdillera; defaults to 1
-#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
-#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the distances (min distance minus max distance)
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param plot plot the cordillera
-#' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
-#' @param ... additional arguments to be passed to the fitting
-#' 
-#' @return A list with the components
-#'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
-#'         \item{stoploss:} the weighted loss value
-#'         \item{indices:} the values of the structuredness indices
-#'         \item{parameters:} the parameters used for fitting 
-#'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
-#' }
-#' 
-#'@keywords multivariate
-#'@export
-stop_flexsmacof <- function(dis,transformation=mkPower, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars) {
-  if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  addargs <- list(...)
-  #TODO: Other transformations parametrized by theta; use splines
-  #Transformations must be so that first argument is the dissimilarity matrix and the second the theta parameters 
-  diso <- dis
-  dis <- do.call(transformation,list(diso,theta))
-  diso <- dis
-  dis <- do.call(transformation,list(diso,theta))
-  fit <- smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
-  fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
-  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it ion the original; that is scale and unit free as Buja said
-  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- theta
-  stopobj <- stoploss_w(fit,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r/2, stress.m=fit$stress.m/2, stoploss=stopobj$stoploss, strucindices=stopoobj$strucindices, parameters=stopobj$parameters,fit=fit) #target functions
-  #TODO include the objects of the indices returned as a list? indicesfull=stopobj 
-  out
-}
-
-
-#' STOPS version of powerstress
-#'
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
-#' @param weightmat (optional) a matrix of nonnegative weights
-#' @param init (optional) initial configuration
-#' @param ndim number of dimensions of the target space
-#' @param ... additional arguments to be passed to the fitting procedure
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param structures which strcutures to look for
-#' @param strucweight weight to be used for the structures; defaults to 0.5
-#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
-#' @param stresstype which stress to report? Defaults to explicitly normalized stress
-#'
-#' @return A list with the components
+#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item stoploss: the weighted loss value
-#'         \item struc: the structuredness indices
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed dissimilarities, normalized 
+#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
+#' \item spp: Stress per point (based on stress.en) 
+#' \item ndim: Number of dimensions
+#' \item model: Name of smacof model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item type: Type of MDS model
 #' }
-#' @keywords multivariate
-#' @export
-stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
-  if(missing(stresstype)) stresstype <- "default"
-  if(missing(type)) type <- "additive"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,3)
-  wght <- weightmat
-  diag(wght) <- 1
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
-  if(stresstype=="default") fit$stress.m <- fit$stress.m
-  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
-  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
-  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
-  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
-  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[2]
-  fit$nu <- theta[3]
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucs=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
-  out 
-}
-
-#' MakePower
+#' and some additional components
+#' \itemize{
+#' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.en: a manually calculated stress on the normalized, transformed dissimilarities and normalized transformed distances which is not correct
+#' \item deltaorig: observed, untransformed dissimilarities
+#' \item weightmat: weighting matrix 
+#'}
 #'
-#' @param x matrix
-#' @param r numeric (power)
-mkPower<-function(x,theta) {
-    if(length(theta) > 1) r <- theta[2] 
-    n<-nrow(x)
-    return(abs((x+diag(n))^r)-diag(n))
-}
-
-#' High Level STOPS Function 
+#' @importFrom stats dist as.dist
 #' 
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param loss which loss function to be used for fitting, defaults to stress
-#' @param transformation function to transform the proximities and/or distances; need to be parameterized by theta; currently not used  
-#' @param theta parameters for the proximiy and distance transformation
-#' @param structures what c-structuredness should be considered 
-#' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
-#' @param init (optional) initial configuration
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the cordillera; defaults to 0.5
-#' @param strucpars list of parameters for the structuredness indices; must be in the same ordering as the indices in structures  
-#' @param optimmethod What general purpose optimizer to use? defaults to our ALJ version
-#' @param lower The lower contraints of the search region
-#' @param upper The upper contraints of the search region 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
-#' @param s number of particles if pso is used
-#' @param stresstype what stress to be used for comparisons between solutions 
-#' @param ... additional arguments to be passed to the optimization procedure
-#
-#' @return see \code{\link{cops}}
+#' @seealso \code{\link{smacofSym}}
 #' 
-#' @examples
-#' data(BankingCrisesDistances)
-#' res1<-stops(BankingCrisesDistances[,1:69],structures=c("cclusteredness","clinearity"),loss="strain",verbose=0)
-#' res1
-#'
-#' @keywords clustering multivariate
+#' 
 #' @export
-stops <- function(dis,loss=c("stress","smacofSym","powerstress"), transformation=mkPower, theta, structures=c("cclusteredness","clinearity"), ndim=2, weightmat=1-diag(nrow(dis)), init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=4,stresstype="default",...)
-    {
-      #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
-      if(inherits(dis,"dist")) dis <- as.matrix(dis)
-      if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-      if(missing(loss)) loss <- "stress"
-      if(missing(type)) type <- "additive"
-      #TODO implement a Pareto idea
-      .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress)# "strain"=stop_cmdscale,,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon) #choose the stress to minimize    
-      if(missing(strucweight)) {
-         #TODO: automatic handler of setting weights that makes sense
-         strucweight <- rep(1/length(structures),length(structures))
-         if(verbose>1) cat("Weights are stressweight=",stressweight,"strucweights=", strucweight,"\n")
+powerStressMin2 <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-10, itmax = 100000, verbose = FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    r <- kappa/2
+    p <- ndim
+    deltaorig <- delta
+    delta <- delta^lambda
+    #weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat)
+    itel <- 1
+    xold <- init
+    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
+    xold <- xold / enorm (xold)
+    n <- nrow (xold)
+    nn <- diag (n)
+    dold <- sqdist (xold)
+    rold <- sum (weightmat * delta * mkPower (dold, r))
+    nold <- sum (weightmat * mkPower (dold, 2 * r))
+    aold <- rold / nold
+    sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
+    insideloop <- function(dold,itmax,weightmat,delta,r,aold,nn,xold,sold,verbose,itel,acc)
+            {           
+    for(i in seq(1,itmax,by=1))
+      {
+      p1 <- mkPower (dold, r - 1)
+      p2 <- mkPower (dold, (2 * r) - 1)
+      by <- mkBmat (weightmat * delta * p1)
+      cy <- mkBmat (weightmat * p2)
+      ga <- 2 * sum (weightmat * p2)
+      be <- (2 * r - 1) * (2 ^ r) * sum (weightmat * delta)
+      de <- (4 * r - 1) * (4 ^ r) * sum (weightmat)
+      if (r >= 0.5) {
+        my <- by - aold * (cy - de * nn)
       }
-      if(missing(optimmethod)) optimmethod <- "ALJ"
-      if(verbose>1) cat("Starting Optimization \n ")
-      if(optimmethod=="SANN") {
-       opt<- optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,method="SANN",...)
+      if (r < 0.5) {
+        my <- (by - be * nn) - aold * (cy - ga * nn)
       }
-       if(optimmethod=="pso") {
-        addargs <- list(...)
-        control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,control=control)
-       }
-      if(optimmethod=="ALJ")  opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))$stoploss,lower=lower,upper=upper,verbose=verbose-2,...
-  )   
-    thetaopt <- opt$par
-    #refit optimal model  
-    out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,stresstype=stresstype))
-    out$stoploss <- opt$value
-    out$optim <- opt
-    out$stressweight <- stressweight
-    out$strucweight <- strucweight
-    out$call <- match.call()
-    out$optimethod <- optimmethod
-    out$losstype <- loss
-    out$nobj <- dim(out$fit$conf)[1]
-    out$type <- type
-    if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and structuredness indices=",round(out$strucindices,4),". Thanks for your patience. \n")
-    class(out) <- c("stops")
+      xnew <- my %*% xold
+      xnew <- xnew / enorm (xnew)
+      dnew <- sqdist (xnew)
+      rnew <- sum (weightmat * delta * mkPower (dnew, r))
+      nnew <- sum (weightmat * mkPower (dnew, 2 * r))
+      anew <- rnew / nnew
+      snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+      if(is.na(snew)) #if there are issues with the values
+          {
+              snew <- sold
+              dnew <- dold
+              anew <- aold
+              xnew <- xold
+          }   
+      if (verbose>2) {
+        cat (
+          formatC (itel, width = 4, format = "d"),
+          formatC (
+            sold,
+            digits = 10,
+            width = 13,
+            format = "f"
+          ),
+          formatC (
+            snew,
+            digits = 10,
+            width = 13,
+            format = "f"
+          ),
+          "\n"
+        )
+      }
+      if ((sold - snew) < acc)
+        break ()
+      itel <- i
+      xold <- xnew
+      dold <- dnew
+      sold <- snew
+      aold <- anew
+     }
+     list(itel=itel,xnew=xnew,snew=snew,anew=anew,dnew=dnew)
+     }
+     islr<-insideloop(dold,itmax,weightmat,delta,r,aold,nn,xold,sold,verbose,itel,acc)
+     xnew <- islr$xnew
+     dnew <- islr$dnew
+     anew <- islr$anew
+     snew <- islr$snew
+     itel <- islr$itel
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
+     xnew <- xnew/enorm(xnew)
+     doutm <- mkPower(sqdist(xnew),r)
+     deltam <- delta
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm) #this is an issue here!
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     weightmatm <-weightmat
+     resmat <- weightmatm*as.matrix((delta - doute)^2) #BUG
+     spp <- colMeans(resmat) #BUG
+     weightmat <- stats::as.dist(weightmatm)
+     stressen <- sum(weightmat*(doute-delta)^2)
+     if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    class(out) <- c("smacofP","smacofB","smacof")
     out
   }
 
-#'@export
-print.stops <- function(x,...)
-    {
-    cat("\nCall: ")
-    print(x$call)
-    cat("\n")
-    cat("Model: ,",x$type," STOPS with", x$loss,"loss function and theta parameters=",x$par,"\n")
-    cat("\n")
-    cat("Number of objects:", x$nobj, "\n")
-    cat("MDS loss value:", x$stress.m, "\n")
-    cat("C-Structuredness Indices:", t(data.frame(names(x$strucindices),x$strucindices)),"\n")
-    cat("Structure optimized loss (stoploss): ", x$stoploss, "\n")
-    cat("MDS loss weight: ",x$stressweight,", c-structuredness weights: ",x$strucweight,"\n",sep="")
-    cat("Number of iterations of",x$optimethod,"optimization:", x$optim$counts["function"], "\n")
-    cat("\n")
-    }
 
-#'@export
-coef.stops <- function(object,...)
-    {
-    return(c(object$par))
-    }
+########################### COPS-0 ################################################
+                                        #TODO: Some exampes code to be transferred to cops high level
 
 
-#'S3 plot method for stops objects
+#' Fitting a COPS-0 Model by shrinking residuals to Zero (COPS-0).
+#'
+#' Minimizing copstress by shrinking residulas to zero to achieve a clustered Power Stress MDS configuration with given hyperparameters theta.
+#'
+#' @param delta numeric matrix or dist object of a matrix of proximities
+#' @param kappa power transformation for fitted distances
+#' @param lambda power transformation for proximities
+#' @param nu power transformation for weights
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
+#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
+#' @param ndim number of dimensions of the target space
+#' @param init (optional) initial configuration
+#' @param cordweight weight to be used for the shrinkage; defaults to 1
+#' @param q used in cordillera and shrink matrix and controls the effect of using the norm; defaults to 2 (least squares MDS)
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}
+#' @param scaleX should X be scaled; defaults to TRUE
+#' @param enormX should X be enormed; defaults to FALSE
+#' @param scaleB should X be scaled for the shrink matrix; defaults to TRUE.
+#' @param scaleC should X be scaled for the OPTICS Cordillera; defaults to TRUE. These parameter lets one tweak the way the shrinkage works and how its quantified; the defaults lead usually to a sensible result. It might be that some scale versions weill be depreciated in future versions. 
+#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
+#' @param accuracy numerical accuracy, defaults to 1e-8
+#' @param itmax maximum number of iterations. Defaults to 100000
+#' @param normed should cordillera and shrink matrix be normed; defaults to TRUE
+#' @param ... additional arguments to be passed to the optimization procedure
+#'
+#' @return A list with the components
+#'         \itemize{
+#'         \item copstress: the weighted loss value
+#'         \item OC: the Optics cordillera
+#'         \item optim: the object returned from the optimization procedure
+#'         \item stress: the stress
+#'         \item stress.m: default normalized stress
+#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item fit: the returned object of the fitting procedure
+#'         \item cordillera: the OPTICS cordillera object
+#' }
 #' 
-#'@param x an object of class stops
-#'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot" (see details)
-#'@param main the main title of the plot
-#'@param asp aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances. 
-#'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#'
+#' #Copstress with shrinkage to 0 
+#' res1<-shrinkCopstress0(dis,cordweight=1,minpts=2) 
+#' res1
+#' summary(res1)
+#' plot(res1)  #super clustered
+#'
+#' @import cordillera
+#' @importFrom stats dist as.dist optim
+#' @importFrom minqa newuoa
+#'
+#' #'#COPS-0 to improve over an MDS result
+#'res0<-powerStressFast(dis)
+#'res2a<-cops(dis,variant="COPS-0",cordweight=1,q=2,init=res0$conf,minpts=2) 
+#'res2a
+#'summary(res2a)
+#'plot(res2a)
+
+#'
+#' #'#Sammon stress type copstress
+#'ws<-1/dis
+#'diag(ws)<-1 
+#'res4<-cops(dis,variant="COPS-0",nu=-1,weightmat=ws,cordweight=0.5) 
+#'res4
+#'summary(res4)
+#'plot(res4)
+#' @keywords clustering multivariate
+#' @export
+shrinkCopstress0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scaleX=TRUE,enormX=FALSE,scaleB=TRUE,scaleC=TRUE,accuracy = 1e-7, itmax = 100000,normed=2,...)
+{
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    kappa <- theta[1]
+    lambda <- theta[2]
+    nu <- theta[3]
+    plot <- FALSE
+    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(missing(optimmethod)) optimmethod <- "Newuoa"
+    if(missing(rang))
+        #perhaps put this into the optimization function?
+          {
+           if(verbose>1) cat ("Fitting configuration for rang. \n")    
+           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           init0 <- initsol$conf
+           if(isTRUE(scaleX)) init0 <- scale(init0)
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scaleC)$reachplot
+           cin <- max(crp)
+           rang <- c(0,1.5*cin)  
+           if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
+           }
+      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
+    r <- kappa/2
+    deltaorig <- delta
+    delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1 #new
+    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat) #sum=1
+    xold <- init
+    if(is.null(init)) xold <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+    if(enormX) xold <- xold/enorm(xold)
+    if(scaleX) xold <- scale(xold)
+    shrinkcops <- function(x,delta,r,ndim,weightmat,cordweight,q,minpts,epsilon,rang,scaleX,enormX,scaleB,normed,...)
+           {
+             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+             #try these variants again with kinship and cali:
+             #it all about how to normalize so that the shrinkage will play its part
+             #take care of r and so if sqrt(sqdist()) use r*2
+             #delta enormed, x scaled + enormed; looks good! -> looks best? 
+             #delta enormed, x scaled, dnew enormed; looks ok like #2 but a bit better
+             #delta enormed, x enormed, dnew normal; looks ok with clusters for kinship but wrong clusters; closest snew and mdsloss
+             if(scaleX) x <- scale(x)
+             if(enormX) x <- x/enorm(x)
+             delta <- delta/enorm(delta,weightmat)
+             dnew <- sqdist(x)
+             #dnew <- sqrt(sqdist(x))
+             #dnew <- dnew/enorm(dnew,weightmat)
+             #dnew <- dnew^2
+#r <- 2*r
+             rnew <- sum (weightmat * delta * mkPower (dnew, r))
+             nnew <- sum (weightmat * mkPower (dnew,  2*r))
+             anew <- rnew / nnew
+             snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+             resen <- abs(mkPower(dnew,r)-delta)
+             #resen <- abs(dnew-delta)
+             #shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+             shrinkb <- shrinkB(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleB=scaleB,normed=normed,...) 
+             #shrinkres <- resen-cordweight*resen*shrinkb/(resen+shrinkb)
+             shrinkres <- resen*(1-cordweight*(shrinkb/(resen+shrinkb)))
+             #shrinkres <- resen
+             diag(shrinkres) <- 0
+             #TODO check for increasing residual
+             ic <- sum(shrinkres^2)
+             if(verbose>3) cat("copstress =",ic,"mdslossm =",sum(resen^2),"delta(cop/mds)=",ic-sum(resen^2),"mdslosss =",snew,"delta(mds/sma)=",sum(resen^2)-snew,"\n")
+             #delta cops/mds should be positive if cordweight is too high,no?
+             ic
+           }
+     if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
+     if(optimmethod=="Newuoa") {
+         optimized <- minqa::newuoa(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat, cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleX=scaleX,scaleB=scaleB,enormX=enormX,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- optimized$feval
+         ovalue <-optimized$fval
+     }
+     if(optimmethod=="Nelder-Mead") {
+         optimized <- optim(xold,function(par) shrinkcops(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,
+                       cordweight=cordweight, q=q,minpts=minpts,epsilon=epsilon,rang=rang,scaleX=scaleX,scaleB=scaleB,enormX=enormX,normed=normed),control=list(maxit=itmax,trace=verbose),...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$val 
+     }
+     if(enormX) xnew <- xnew/enorm(xnew)
+     if(scaleX) xnew <- scale(xnew)
+     #dnew <- as.matrix(dist (xnew)^2) #alternative
+     dnew <- sqdist (xnew)
+     rnew <- sum (weightmat * delta * mkPower (dnew, r))
+     nnew <- sum (weightmat * mkPower (dnew,  2*r))
+     anew <- rnew / nnew
+     stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+     attr(xnew,"dimnames")[[1]] <- rownames(delta)
+     attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
+     doutm <- (sqrt(dnew))^kappa  #fitted powered euclidean distance
+     #doutm <- as.matrix(dist(xnew)^kappa)  #alternative 
+     deltam <- delta
+     deltaorigm <- deltaorig
+     deltaoldm <- deltaold
+     resmat <- deltam - doutm
+     delta <- stats::as.dist(delta)
+     deltaorig <- stats::as.dist(deltaorig)
+     deltaold <- stats::as.dist(deltaold)
+     doute <- doutm/enorm(doutm)
+     doute <- stats::as.dist(doute)
+     dout <- stats::as.dist(doutm)
+     spp <- colMeans(resmat)
+     weightmatm <-weightmat
+     weightmat <- stats::as.dist(weightmatm)
+     stressen <- sum(weightmatm*resmat^2)/2 #raw stress on the normalized proximities and normalized distances 
+     if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out$par <- theta
+    out$loss <- "copstress"
+    out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scaleC)
+    out$copstress <- ovalue
+    out$optim <- optimized
+    out$cordweight <- cordweight
+    out$stressweight <- 1
+    out$call <- match.call()
+    out$optimethod <- optimmethod
+    out$losstype <- out$loss
+    out$nobj <- dim(out$conf)[1]
+    class(out) <- c("cops","smacofP","smacofB","smacof")
+    out
+}
+
+
+#' Finding the shrinkage matrix for COPS-0
+#'
+#' @param x numeric matrix
+#' @param q the norm to be used
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration.
+#' @param scaleB should the X matrix be scaled before calculating the shrinkage weights; defaults to TRUE (which is sensible for relative shrinkage)
+#' @param normed should the reachability differences be normed? (1=to sup Gamma 2 = to dmax)?
+#' @param ... additional arguments to be passed to the OPTICS algorithm procedure
 #' 
-#'Details:
-#' \itemize{
-#' \item Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#' \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#' \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess smooth and a least squares line.
-#' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-#' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#'} 
-#'@export 
-plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
-    {
-     if(missing(plot.type)) plot.type <- "confplot"  
-      plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)
- }
+#' @importFrom dbscan optics
+#' 
+#'@export
+shrinkB <- function(x,q=1,minpts=2,epsilon=10,rang=NULL,scaleB=TRUE,normed=2,...)
+     {
+       shift1 <- function (v) {
+             vlen <- length(v)
+             sv <- as.vector(numeric(vlen)) 
+             sv[-1] <- v[1:(vlen - 1)]
+             sv
+        }
+        if(scaleB) x <- scale(x)
+        N <- dim(x)[1]
+        optres<-dbscan::optics(x,minPts=minpts,eps=epsilon,...)
+        optord <- optres$order
+        optind <- 1:length(optres$order)
+        indordered <- optind[optord]
+        predec <- shift1(indordered)
+        reachdist <- optres$reachdist[optres$order]
+        reachdist[!is.finite(reachdist)] <- ifelse(is.null(rang),max(reachdist[is.finite(reachdist)]),min(max(rang),max(reachdist[is.finite(reachdist)])))
+        reachdiffs <- c(NA,abs(diff(reachdist)))
+        mats <- cbind(indordered,predec,reachdiffs)
+        Bmat <- matrix(0,ncol=N,nrow=N)
+        for (i in 2:N) {
+            indo <- mats[i,]
+            Bmat[indo[1],indo[2]] <- Bmat[indo[2],indo[1]] <- indo[3]/(2^(1/q))
+        }
+        if(normed==1) Bmat <- Bmat/(((rang[2]-rang[1])^q)*(ceiling((N-1)/minpts)+floor((N-1)/minpts)))
+        if(normed==2) Bmat <- (Bmat*2^(1/q))/(rang[2]-rang[1])^q 
+        return(Bmat)
+     }
 
 
-
-
-library(smacof)
-library(stops)
-data(kinshipdelta)
-delta <- kinshipdelta
-kappa <- 1
-ndim <- p <- 2
-lambda <- 1
-weightmat <- 1-diag(nrow(delta))
-init <- NULL
-eps <- 1e-10
-itmax <- 100000
-nu <- 1
-verbose <- 2
-stressweight <- 0.5
-cordweight <- 0.5
-q <- 1
-minpts <- 2
-epsilon <- 10
-rang <- c(0,2.5)
-plot <- FALSE
-scale <- TRUE
-normed <- TRUE
-
-stressr 
-stresse 
-stressen 
-stressen1 
-stress1 
-stresse1 
-stressn 
-stresss 
-
-
-
-delta <- delta/enorm(delta)
-delta <- as.dist(delta)
-xold <- torgerson(delta)
-init <- xold/enorm(xold) 
-
-
-#################Testing Bayesian Optimziation with DiceOptim
-
-library(DiceOptim)
-d <- 2
-n <- 10
-set.seed(0)
-design <- optimumLHS(n, d)
-design <- data.frame(design)
-names(design) <- c("lambda", "kappa")
-response.branin <- apply(design, 1, branin)
-fitted.model1 <- km(design = design, response = response.branin)
-
-###################################################
-x.grid <- y.grid <- seq(0, 1, length = n.grid <- 25)
-design.grid <- expand.grid(x.grid, y.grid)
-EI.grid <- apply(design.grid, 1, EI, fitted.model1)
-
-
-###################################################
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 20)
-points(design[,1], design[,2], pch = 17, col = "blue")
-
-
-###################################################
-design1 <- design
-EI.grid1 <- EI.grid
-
-set.seed(0)
-design <- randomLHS(n, d)
-design <- data.frame(design)
-names(design) <- c("x1", "x2")
-response.branin <- apply(design, 1, branin)
-fitted.model <- km(design = design, response = response.branin)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-design2 <- design
-EI.grid2 <- EI.grid
-
-set.seed(100)
-design <- randomLHS(n, d)
-design <- data.frame(design)
-names(design)<- c("x1", "x2")
-response.branin <- apply(design, 1, branin)
-fitted.model <- km(design = design, response = response.branin)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-design3 <- design
-EI.grid3 <- EI.grid
-design <- design1
-EI.grid <- EI.grid1
-
-###################################################
-par(mfrow = c(1,3))
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 20)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-z.grid2 <- matrix(EI.grid2, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid2, 20)
-points(design2[,1], design2[ , 2], pch = 17, col = "blue")
-z.grid3 <- matrix(EI.grid3, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid3, 20)
-points(design3[ , 1], design3[ , 2], pch = 17, col = "blue")
-
-
-
-d <- 2
-nsteps <- 10
-lower <- rep(0, d)
-upper <- rep(1, d)     
-oEGO <- EGO.nsteps(model = fitted.model1, fun = branin, nsteps = nsteps, 
-  lower, upper, control = list(pop.size = 20, BFGSburnin = 2))
-
-par(mfrow = c(1, 2))
-response.grid <- apply(design.grid, 1, branin)
-z.grid <- matrix(response.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 40)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
-EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 20)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-
-
-###################################################
-hartman6.log <- function(x) {-log(-hartman6(x))}
-data(mydata)
-X.total <- matrix(unlist(mydata), 50, 6)
-nb <- 50
-X <- X.total[1:nb, ]
-y <- apply(X, 1, hartman6.log) 
-
-
-###################################################
-hartman6.mm <- km(design = data.frame(X), response = y, 
-  control = list(pop.size = 50,  max.generations = 20, wait.generations = 5, 
-  BFGSburnin = 5), optim.method = "gen")
-
-
-###################################################
-nsteps <- 50
-# don't run
-# res.nsteps <- EGO.nsteps(model = hartman6.mm, fun = hartman6.log, 
-# nsteps = nsteps, lower = rep(0, 6), upper = rep(1, 6), 
-# parinit = rep(0.5, 6), control = list(pop.size = 50, 
-# max.generations = 20, wait.generations = 5, 
-# BFGSburnin = 5), kmcontrol = NULL)
-#
-# To be compared with the current minimum of Harman6:
-hartman6.min <- -3.32
-
-
-
-
-##########
-library(DiceOptim)
-library(stops)
-d <- 2   #dimensions
-n <- 10  #starting points
-set.seed(0)
-design <- randomLHS(n, d)
-#design <- optimumLHS(n, d) #optimal design
-design <- data.frame(design)  
-names(design) <- c("kappa", "lambda")
-data(kinshipdelta)
-
-
-funo <- function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=1)$stress
-
-response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
-fitted.model1 <- km(design = design, response = response.branin)
-
-###################################################
-x.grid <- y.grid <- seq(0.0001, 1, length = n.grid <- 25)
-design.grid <- expand.grid(x.grid, y.grid)
-EI.grid <- apply(design.grid, 1, EI, fitted.model1)
-
-
-###################################################
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 20)
-points(design[,1], design[,2], pch = 17, col = "blue")
-
-
-###################################################
-design1 <- design
-EI.grid1 <- EI.grid
-
-set.seed(666)
-design <- randomLHS(n, d)
-design <- data.frame(design)
-names(design) <- c("kappa", "lambda")
-response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
-fitted.model <- km(design = design, response = response.branin)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-design2 <- design
-EI.grid2 <- EI.grid
-
-set.seed(100)
-design <- randomLHS(n, d)
-design <- data.frame(design)
-names(design)<- c("kappa", "lambda")
-response.branin <- apply(design, 1, function(x) powerStressMin(kinshipdelta,kappa=x[1],lambda=x[2],nu=1,verbose=2)$stress)
-fitted.model <- km(design = design, response = response.branin)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-design3 <- design
-EI.grid3 <- EI.grid
-design <- design1
-EI.grid <- EI.grid1
-
-###################################################
-par(mfrow = c(1,3))
-z.grid <- matrix(EI.grid, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid, 20)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-z.grid2 <- matrix(EI.grid2, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid2, 20)
-points(design2[,1], design2[ , 2], pch = 17, col = "blue")
-z.grid3 <- matrix(EI.grid3, n.grid, n.grid)
-contour(x.grid, y.grid, z.grid3, 20)
-points(design3[ , 1], design3[ , 2], pch = 17, col = "blue")
-
-
-library(DiceOptim)
-d <- 2   #dimensions
-n <- 20
-lambdamax <- 6
-kappamax <- 3
-set.seed(0)
-design <- maximinLHS(n, d)
-design <- optimumLHS(n, d)
-design <- design*matrix(c(kappamax,lambdamax),byrow=TRUE,ncol=dim(design)[2],nrow=dim(design)[1]) #to the support of lambda and kappa
-design <- data.frame(design)  
-names(design) <- c("kappa", "lambda")
-library(stops)
-data(kinshipdelta)
-funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
-
-response.postc <- apply(design, 1, funo)
-
-response.postc <- apply(design, 1, do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
-
-
-lower <- rep(0.001, d)
-upper <- c(kappamax,lambdamax)
-
-#response.ban <- apply(design, 1, fbana)
-fitted.model1 <- km(~1,design = design, response = response.postc, lower=lower, upper=upper) #Uses matern(5/2) as covariance function and constant trend #may be okay  
-fitted.model2 <- km(~1,design = design, response = response.postc, covtype="gauss", lower=lower, upper=upper) #Uses gauss as covariance function and constant trend #-> squared exponential probably too smooth
-fitted.model3 <- km(~1,design = design, response = response.postc, covtype="matern3_2", lower=lower, upper=upper) #Uses matern(3/2) as covariance function and constant trend #may be better than 5_2
-fitted.model4 <- km(~1,design = design, response = response.postc,covtype="exp", lower=lower, upper=upper) #Uses exponential as covariance function and constant trend #likely good as its very rough (is Mattern v=1/2) -> Ornstein Uhlenbeck process but perhaps too slow
-fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",control=list(trace=FALSE)) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
-#See http://www.gaussianprocess.org/gpml/chapters/RW4.pdf for covtypes
-
-fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",upper=c(2,2),control=)
-
-fitted.model <- fitted.model5
-
-###################################################
-x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
-y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
-design.grid <- expand.grid(x.grid, y.grid)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-
-nsteps <- 10
-set.seed(210485)
-oEGO1 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
-oEGO2 <- EGO.nsteps(model = fitted.model2, fun = funo, nsteps = nsteps, lower, upper)
-oEGO3 <- EGO.nsteps(model = fitted.model3, fun = funo, nsteps = nsteps, lower, upper)
-oEGO4 <- EGO.nsteps(model = fitted.model4, fun = funo, nsteps = nsteps, lower, upper)
-oEGO5 <- EGO.nsteps(model = fitted.model5, fun = funo, nsteps = nsteps, lower, upper,control=list(trace=FALSE),kmcontrol=list(trace=FALSE))
-
-logs <- capture.output({
-    oEGO5 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps,lower,upper=c(2,2));
-})
-logs
-oEGO5
-
-#response.grid <- apply(design.grid, 1, function(x) tryCatch(funo(x),error=function(e) NA))
-#save(response.grid,file="respgrid.rda")
-load("respgrid.rda")
-
-oEGO <- oEGO3
-oEGO <- oEGO5
-
-z.grid <- matrix(response.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(oEGO$value),6)))
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-#text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
-points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19,col="green")
-text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
-points(test$par[1],test$par[2], pch = 17,col="green")
-set.seed(210485)
-test <- ljoptim(c(1,1),funo,lower=lower,upper=upper,itmax=100,red=0.99,acc=1e-8,accd=1e-6)
-
-library(rgl)
-persp3d(x=x.grid, y=y.grid, z=z.grid,smooth=FALSE,col="lightblue")
-#plot3d(x=x.grid, y=y.grid, z=z.grid)
-
-par(mfrow = c(1, 2))
-EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
-z.grid <- matrix(EI.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
-
-
-#test for in STOPS.R
-library(DiceOptim)
-library(stops)
-loss <- "powerstrain" #tested, works
-loss <- "powermds" #tested, works
-loss <- "powerstress" #tested, works
-psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress) #choose the stress to minimize
-structures <- c("clinearity","cclusteredness")
-strucpars <- vector("list",length(structures))
-dis <- kinshipdelta
-weightmat <- 1-diag(dim(dis)[1])
-type <- "additive"
-.confin <- NULL
-strucweight <- rep(-1/length(structures),length(structures))
-optimmethod <- "BO"
-theta <- 1
-ndim <- 2
-stressweight <- 0.5
-verbose <- 4
-lower <- c(0.5,0.7,-0.5)
-upper <- c(2,4,2)
-optdim <- 3 #dimensions
- if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
-        if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
-        designt <- lhs::optimumLHS(kmpoints, optdim) #optimal latin hypercuve 
-        minvals <- matrix(lower,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
-        maxvals <- matrix(upper,byrow=TRUE,nrow=dim(designt)[1],ncol=dim(designt)[2])
-        design <- designt*(maxvals-minvals)+minvals #to the support of the minimum/maximum values 
-        design <- data.frame(design)  
-        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
-        surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=covtype,control=list(trace=isTRUE(verbose>2)))
-        #EGO.nsteps has no verbose argument so I capture.output and return it if desired 
-       logged <- capture.output({
-           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=nsteps)
-       })
-       if(verbose>2) print(logged)
-       thetaopt <- opt$par[which.min(opt$value),]
-       bestval <- min(opt$value)
-
-
-d <- 2   #dimensions
-n <- 20
-lambdamax <- 6
-kappamax <- 3
-set.seed(0)
-design <- maximinLHS(n, d)
-design <- optimumLHS(n, d)
-design <- design*matrix(c(kappamax,lambdamax),byrow=TRUE,ncol=dim(design)[2],nrow=dim(design)[1]) #to the support of lambda and kappa
-design <- data.frame(design)  
-names(design) <- c("kappa", "lambda")
-library(stops)
-data(kinshipdelta)
-funo <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
-
-response.postc <- apply(design, 1, funo)
-
-response.postc <- apply(design, 1, do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss)
-
-
-lower <- rep(0.001, d)
-upper <- c(kappamax,lambdamax)
-
-#response.ban <- apply(design, 1, fbana)
-fitted.model1 <- km(~1,design = design, response = response.postc, lower=lower, upper=upper) #Uses matern(5/2) as covariance function and constant trend #may be okay  
-fitted.model2 <- km(~1,design = design, response = response.postc, covtype="gauss", lower=lower, upper=upper) #Uses gauss as covariance function and constant trend #-> squared exponential probably too smooth
-fitted.model3 <- km(~1,design = design, response = response.postc, covtype="matern3_2", lower=lower, upper=upper) #Uses matern(3/2) as covariance function and constant trend #may be better than 5_2
-fitted.model4 <- km(~1,design = design, response = response.postc,covtype="exp", lower=lower, upper=upper) #Uses exponential as covariance function and constant trend #likely good as its very rough (is Mattern v=1/2) -> Ornstein Uhlenbeck process but perhaps too slow
-fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",control=list(trace=FALSE)) #Uses power exponential as covariance function and constant trend #likely the best as it is estimating the power (for power=1 it is exponential for power=2 it is gauss) and can do anything in between smooth and ragged which we need 
-#See http://www.gaussianprocess.org/gpml/chapters/RW4.pdf for covtypes
-
-fitted.model5 <- km(~1,design = design, response = response.postc, covtype="powexp",upper=c(2,2),control=)
-
-fitted.model <- fitted.model5
-
-###################################################
-x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
-y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
-design.grid <- expand.grid(x.grid, y.grid)
-EI.grid <- apply(design.grid, 1, EI, fitted.model)
-
-nsteps <- 10
-set.seed(210485)
-oEGO1 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps, lower, upper)
-oEGO2 <- EGO.nsteps(model = fitted.model2, fun = funo, nsteps = nsteps, lower, upper)
-oEGO3 <- EGO.nsteps(model = fitted.model3, fun = funo, nsteps = nsteps, lower, upper)
-oEGO4 <- EGO.nsteps(model = fitted.model4, fun = funo, nsteps = nsteps, lower, upper)
-oEGO5 <- EGO.nsteps(model = fitted.model5, fun = funo, nsteps = nsteps, lower, upper,control=list(trace=FALSE),kmcontrol=list(trace=FALSE))
-
-logs <- capture.output({
-    oEGO5 <- EGO.nsteps(model = fitted.model1, fun = funo, nsteps = nsteps,lower,upper=c(2,2));
-})
-logs
-oEGO5
-
-#response.grid <- apply(design.grid, 1, function(x) tryCatch(funo(x),error=function(e) NA))
-#save(response.grid,file="respgrid.rda")
-load("respgrid.rda")
-
-oEGO <- oEGO3
-oEGO <- oEGO5
-
-z.grid <- matrix(response.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(oEGO$value),6)))
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-#text(oEGO$par[, 1], oEGO$par[, 2], labels = 1:nsteps, pos = 3)
-points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19,col="green")
-text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
-points(test$par[1],test$par[2], pch = 17,col="green")
-set.seed(210485)
-test <- ljoptim(c(1,1),funo,lower=lower,upper=upper,itmax=100,red=0.99,acc=1e-8,accd=1e-6)
-
-library(rgl)
-persp3d(x=x.grid, y=y.grid, z=z.grid,smooth=FALSE,col="lightblue")
-#plot3d(x=x.grid, y=y.grid, z=z.grid)
-
-par(mfrow = c(1, 2))
-EI.grid <- apply(design.grid, 1, EI, oEGO$lastmodel)
-z.grid <- matrix(EI.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40)
-points(design[ , 1], design[ , 2], pch = 17, col = "blue")
-points(oEGO$par, pch = 19, col = "red")
-points(oEGO$par[which.min(oEGO$value),,drop=FALSE], pch = 19, col = "green")
-
-res1 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="BO",verbose=3,lower=c(0.1,0.1),upper=c(2,6),covtype="gauss")
-
-res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
-
-res2 <- stops(kinshipdelta,loss="powermds",theta=1,structures=c("cclusteredness","clinearity"),optimmethod="ALJ",verbose=3,lower=c(0.1,0.1),upper=c(2,6))
-
-#################Testing Bayesian Optimziation with tgp
-# this allows for nonstaitionay covariance matrices which may be better for our problems with varying degrees of smoothness and jumps
-library(tgp)
-library(stops)
-f <- function(x) stop_powermds(dis=kinshipdelta,theta=x,structures="cclusteredness",stressweight=0.8,strucweight=-0.2,strucpars=list(minpts=2,epsilon=10),verbose=1)$stoploss
-
-d <- 2   #dimensions
-lambdamax <- 6
-kappamax <- 3
-lower <- rep(0.001, d)
-upper <- c(kappamax,lambdamax)
-
-
-n <- 10
-
-set.seed(0)
-Xcand <- lhs(500,rect)
-X1 <- dopt.gp(n,X=NULL,Xcand)$XX
-X <- X1
-Z <- apply(X, 1, f)
-
-model <- btgp
-
-nudl <- Z
-out <- optim.step.tgp(f, X=X, model=model, Z=nudl, rect=rect, prev=NULL)
-
-out <- progress <- NULL
-
-
-
-## plot the progress so far
-par(mfrow=c(2,2))
-plot(out$obj, layout="surf")
-plot(out$obj, layout="as", as="improv")
-matplot(progress[,1:nrow(rect)], main="optim results",
-xlab="rounds", ylab="x[,1:2]", type="l", lwd=2)
-plot(log(progress$improv), type="l", main="max log improv",
-xlab="rounds", ylab="max log(improv)")
-
-
-test1 <- tgpoptim(c(1,1),f,lower=c(0.001,0.001),upper=c(3,6),itmax=10,verbose=2,model=btgpllm)
-
-
-
-for(i in 1:10) {
-## get recommendations for the next point to sample
-out <- optim.step.tgp(f, X=X, Z=Z, rect=rect, model = bgp,prev=out)
-## add in the inputs, and newly sampled outputs
-X <- rbind(X, out$X)
-tmp1 <- apply(out$X,1,f)
-Z <- c(Z, tmp1)
-## keep track of progress and best optimum
-progress <- rbind(progress, out$progress)
-print(progress[i,])
-}
-
-
-
-
-###################################################
-x.grid <- seq(0.001, kappamax, length = n.gridx <- 40)
-y.grid <- seq(0.001, lambdamax, length = n.gridy <- 50)
-
-load("respgrid.rda")
-
-z.grid <- matrix(response.grid, n.gridx, n.gridy)
-contour(x.grid, y.grid, z.grid, 40, main=paste("optimum at",round(min(progress$z),6)))
-points(X1[ , 1], X1[ , 2], pch = 17, col = "blue")
-points(progress[,1:nrow(rect)], pch = 19, col = "red")
-points(progress[which.min(progress$z),,drop=FALSE], pch = 19,col="green")
-
-text(oEGO$par[ , 1], oEGO$par[ , 2], labels = 1:nsteps, pos = 3)
-points(test$par[1],test$par[2], pch = 17,col="green")
-
-set.seed(210485)
-test <- ljoptim(c(1,1),funo,lower=lower,upper=upper,itmax=100,red=0.99,acc=1e-8,accd=1e-6)
-
-library(rgl)
-persp3d(x=x.grid, y=y.grid, z=z.grid,smooth=FALSE,col="lightblue")
-
-## optimize the simple exponential function
-f <- function(x) { exp2d.Z(x)$Z }
-## create the initial design with D-optimal candidates
-rect <- rbind(c(-2,6), c(-2,6))
-Xcand <- lhs(500, rect)
-X <- dopt.gp(50, X=NULL, Xcand)$XX
-Z <- f(X)
-## do 10 rounds of adaptive sampling
-out <- progress <- NULL
-for(i in 1:10) {
-## get recommendations for the next point to sample
-out <- optim.step.tgp(f, X=X, Z=Z, rect=rect, prev=out)
-## add in the inputs, and newly sampled outputs
-X <- rbind(X, out$X)
-Z <- c(Z, f(out$X))
-## keep track of progress and best optimum
-progress <- rbind(progress, out$progress)
-print(progress[i,])
-}
-## plot the progress so far
-par(mfrow=c(2,2))
-plot(out$obj, layout="surf")
-plot(out$obj, layout="as", as="improv")
-matplot(progress[,1:nrow(rect)], main="optim results",
-xlab="rounds", ylab="x[,1:2]", type="l", lwd=2)
-plot(log(progress$improv), type="l", main="max log improv",
-xlab="rounds", ylab="max log(improv)")
-
-
-
-###
-library(stops)
-
-
-lower <- 0
-upper <- 4
-set.seed(210485)
-resalj <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-8)
-
-set.seed(210485)
-reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=4,lower=lower,upper=upper,optimmethod="Kriging",model="exp",itmax=40)
-
-set.seed(210485)
-restgp <- stops(kinshipdelta,theta=1,loss="stress",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=20)
-
-theta <- seq(0,4,by=0.0005)
-theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
-theta <- sort(theta)
-pst <- vector("list",length(theta))
-for(i in 1:length(theta))
-{
-pst[[i]] <- stop_smacofSym(dis=kinshipdelta,theta=theta[i],structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=c(-0.7,-0.3,0.1),strucpars=list(list(minpts=3,epsilon=10),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL)),verbose=1)
-cat(i,"\n")
-}
-
-
-
-valos <- lapply(pst,function(x) x$stoploss)
-plot(theta,valos,type="l")
-abline(v=resalj$par[2],col="red")
-abline(v=restgp$par[2],col="green")
-abline(v=reskrig$par[2],col="blue")
-
-#########################
-library(stops)
-data(Pendigits500)
-pendss <- Pendigits500
-cols <- factor(pendss[,17])
-library(colorspace)
-levels(cols) <- rainbow_hcl(10,c=70,l=50)
-
-
-
-#pendss <- Pendigits500
-
-dis <- dist(pendss[,1:16])
-q <- 1
-rang <- c(0,0.6)
-minpts <- 5
-eps <- 10
-scale <- TRUE
-#dis <- as.matrix(dis)
-
-lower <- 1
-upper <- 6
-strucweight <- c(-500,-0.5,0.1)
-strucpars <- list(list(minpts=minpts,epsilon=eps,rang=rang),list(NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
-structures <- c("cclusteredness","cmanifoldness","ccomplexity")
-
-set.seed(210485)
-resalj <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=lower,upper=upper,optimmethod="ALJ",acc=1e-16,accd=1e-6)
-
-set.seed(210485)
-reskrig <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=6,lower=lower,upper=upper,optimmethod="Kriging",model="powexp",itmax=40)
-
-set.seed(210485)
-restgp <- stops(dis,theta=1,loss="sammon",structures=c("cclusteredness","cmanifoldness","ccomplexity"),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=lower,upper=upper,optimmethod="tgp",model="btgpllm",itmax=25)
-
-
-initsam <- sammon(dis)
-samopt <- restgp$fit
-
-names(pendss)[17] <- "digit"
-colsopt <- cols1 <- colstraj <- factor(pendss[,17])
-library(colorspace)
-levels(colsopt) <- rainbow_hcl(10,c=50,l=55)
-levels(cols1) <- rainbow_hcl(10,c=50,l=96)
-levels(colstraj) <- rainbow_hcl(10,c=50,l=99)
-tmp <- conf_adjust(samopt$points,initsam$points)
-plot(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
-     col=as.character(colsopt),type="n",xlab="D1",ylab="D2",
-     ylim=c(-5,3.7),xlim=c(-3.5,2.5))
-points(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
-       col=as.character(cols1),pch=as.character(pendss[,17]))
-arrows(scale(tmp$other.conf)[,1],scale(tmp$other.conf)[,2],
-       scale(tmp$ref.conf)[,1],scale(tmp$ref.conf)[,2],
-       col=as.character(colstraj),length=0.1)
-points(scale(tmp$ref.conf)[,1],scale(tmp$ref.conf)[,2],
-       col=as.character(colsopt),pch=as.character(pendss[,17]))
-
-library(party)
-newdatl1 <- data.frame("D1"=scale(initsam$points)[,1],
-                       "D2"=scale(initsam$points)[,2],
-                       "label"=factor(pendss[,17]))
-m1 <- ctree(label~D1+D2,newdatl1,controls=ctree_control(mincriterion=0.95))
-#plot(m1)
-newdatlo <- data.frame("D1"=scale(samopt$points)[,1],
-                       "D2"=scale(samopt$points)[,2],
-                       "label"=factor(pendss[,17]))
-m1o <- ctree(label~D1+D2,newdatlo)
-#plot(m1o)
-mall <- ctree(factor(digit)~.,data=pendss)
-library(caret)3
-cmato <- confusionMatrix(predict(m1o),pendss[,17])
-cmat1 <- confusionMatrix(predict(m1),pendss[,17])
-cmatall <- confusionMatrix(predict(mall),pendss[,17])
-cmato
-
-
-
-###### For values
-
-theta <- seq(5.001,6,by=0.001)
-#theta <- c(theta,resalj$par[2],reskrig$par[2],restgp$par[2])
-#theta <- sort(theta)
-pst <- vector("list",length(theta))
-valstop <- valstruc <- valstress <- valstressm <- vector("list",length(theta))
-for(i in 1:length(theta))
-{
-pst <- stop_sammon2(dis,theta=theta[i],structures=structures,init=torgerson(dis),stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=1)
-valstop[[i]] <- pst$stoploss
-valstruc[[i]] <- pst$strucindices
-valstress[[i]] <- pst$stress
-valstressm[[i]] <- pst$stress.m
-cat(i,"\n")
-}
-
-pstF <- pst
-
-
-save(valstop,valstruc,valstress,valstressm,file="sammongridresult2_5-6.rda")
-load("sammongridresultbits1-3.rda")
-valstop1 <- valstop
-valstruc1 <- valstruc
-valstress1 <- valstress
-valstressm1 <- valstressm
-load("sammongridresultbits3-5.rda")
-valstop2 <- valstop
-valstruc2 <- valstruc
-valstress2 <- valstress
-valstressm2 <- valstressm
-load("sammongridresultbits5-6.rda")
-valstop3 <- valstop
-valstruc3 <- valstruc
-valstress3 <- valstress
-valstressm3 <- valstressm
-
-
-
-load("sammongridresult2_1-2.rda")
-valstop1 <- valstop
-valstruc1 <- valstruc
-valstress1 <- valstress
-valstressm1 <- valstressm
-load("sammongridresult2_2-3.rda")
-valstop2 <- valstop
-valstruc2 <- valstruc
-valstress2 <- valstress
-valstressm2 <- valstressm
-load("sammongridresult2_3-5.rda")
-valstop3 <- valstop
-valstruc3 <- valstruc
-valstress3 <- valstress
-valstressm3 <- valstressm
-load("sammongridresult2_5-6.rda")
-valstop4 <- valstop
-valstruc4 <- valstruc
-valstress4 <- valstress
-valstressm4 <- valstressm
-
-
-save(resalj,reskrig,restgp,valstop,valstruc,valstress,file="~/svn/egmds/paper/sammongridresultbits.rda")
-
-valstop <- c(valstop1,valstop2,valstop3,valstop4)
-valstruc <- c(valstruc1,valstruc2,valstruc3,valstruc4)
-valclus <- lapply(valstruc, function(x) x["cclusteredness"]) 
-valmani <- lapply(valstruc, function(x) x["cmanifoldness"])
-valcomp <- lapply(valstruc, function(x) x["ccomplexity"])
-valstress <- c(valstress1,valstress2,valstress3,valstress4)
-valstressm <- c(valstressm1,valstressm2,valstressm3,valstressm4)
-
-
-
-theta <- seq(1,6,by=0.001)
-valos <- unlist(valstop1)
-plot(theta,valos,type="l")
-abline(v=resalj$par[2],col="red")
-abline(v=restgp$par[2],col="green")
-abline(v=reskrig$par[2],col="blue")
-
-
-model <- get(btgpllm)
-library(tgp)
 
 
 ###################################
-#Shrinkage cops
+#Shrinkage cops older version
 shrinkCoploss0 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL,cordweight=1,q=2,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
@@ -1256,7 +556,7 @@ shrinkB2 <- function(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,...)
      }
     
 
-
+####Another COPS model
  
 #' Fitting a COPS Model by penalizing residuals (COPS-C1).
 #'
