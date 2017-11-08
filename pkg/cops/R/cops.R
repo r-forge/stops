@@ -1139,7 +1139,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
            }
-      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
+     if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
     r <- kappa/2
     deltaorig <- delta
     delta <- delta^lambda
@@ -1155,6 +1155,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)
+             x <- jitter(x) #for numerical stability
              x <- x/enorm(x)
              #ds <- (2*as.matrix(dist(x)))^kappa
              #ds <- (2*sqrt(sqdist(x)))^kappa
