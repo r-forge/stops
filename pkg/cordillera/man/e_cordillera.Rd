@@ -5,10 +5,10 @@
 \title{Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'}
 \usage{
 e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
-  digits = 10, path = tempdir(), plot = FALSE, ylim, scale = TRUE, ...)
+  digits = 10, path = tempdir(), plot = FALSE, ylim, scale = 1, ...)
 }
 \arguments{
-\item{confs}{numeric matrix or data frame. This should probably be scaled to have mean=0 and variance=1.}
+\item{confs}{numeric matrix or data frame.}
 
 \item{q}{the norm of the OPTICS Cordillera. Defaults to 1.}
 
@@ -28,7 +28,7 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 
 \item{ylim}{The borders for the OPTICS Cordillera plot}
 
-\item{scale}{Should the confs be scaled to mean 0 and sd 1? Defaults to TRUE}
+\item{scale}{Should the confs be scaled and/or centered? 0 does nothing, 1 does both, 2 only scales with the root mean square.}
 
 \item{...}{Additional arguments to be passed to optics}
 }

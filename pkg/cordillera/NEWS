@@ -1,3 +1,7 @@
+Version 0.7-2
+
+- Added possibility to not only center and scale X, but also to only scale X with no centering. This is now scale=2.  
+
 Version 0.7-1
 
 - Fixed citation info and help file typos. Added another example. 

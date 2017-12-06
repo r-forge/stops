@@ -24,7 +24,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled to mean 0 and sd 1 if it is a asymmetric matrix or data frame? Defaults to TRUE}
+\item{scale}{Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling is done with the root mean square.If FALSE, 0 or any other nuemric value, no standardisation is applied. Defaults to TRUE.}
 
 \item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }
