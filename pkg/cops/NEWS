@@ -1,3 +1,7 @@
+Version 0.1-1
+
+- Added new scaling of configs in copstressMin for OC calculation. Using scale() distorted the optimal config. Now one can choose between sd (divided by max standard deviation), rmsq (divided by maximum root mean square), proc (Procrustes adjustement to initial fit) and std (which is the old way and now discouraged).  
+
 Version 0.1-0
 
 - Removed old versions and development versions of functions. This is the package to be submitted with the paper. Incremented to 0.1-0. Removed optics functions.   

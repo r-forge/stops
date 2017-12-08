@@ -8,8 +8,8 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
   stressweight = 0.99, cordweight = 0.01, q = 1, minpts = ndim + 1,
   epsilon = 10, rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"),
-  verbose = 0, scale = TRUE, normed = TRUE, accuracy = 1e-07,
-  itmax = 1e+05, ...)
+  verbose = 0, scale = c("sd", "rmsq", "std", "proc"), normed = TRUE,
+  accuracy = 1e-07, itmax = 1e+05, ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}
@@ -44,7 +44,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
-\item{scale}{should the configuration be scaled to mean=0 and sd=1 for calculating the cordillera? Defaults to TRUE}
+\item{scale}{Allows to scale the configuration for the OC. One of sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 

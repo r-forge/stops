@@ -1084,7 +1084,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1 for calculating the cordillera? Defaults to TRUE
+#' @param scale Allows to scale the configuration for the OC. One of sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.  
 #' @param accuracy numerical accuracy, defaults to 1e-8
 #' @param itmax maximum number of iterations. Defaults to 100000
 #' @param ... additional arguments to be passed to the optimization procedure
@@ -1117,7 +1117,121 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
+## copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=TRUE,normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
+## {
+##     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+##     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+##     kappa <- theta[1]
+##     lambda <- theta[2]
+##     nu <- theta[3]
+##     plot <- FALSE
+##     if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+##     if(missing(optimmethod)) optimmethod <- "Newuoa"
+##     if(missing(rang))
+##         #perhaps put this into the optimization function?
+##           {
+##            if(verbose>1) cat ("Fitting configuration for rang. \n")    
+##            initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+##            init0 <- initsol$conf
+##            if(isTRUE(scale)) init0 <- scale(init0)
+##            crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+##            cin <- max(crp)
+##            rang <- c(0,1.5*cin)  
+##            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
+##            }
+##      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
+##     r <- kappa/2
+##     deltaorig <- delta
+##     delta <- delta^lambda
+##     weightmato <- weightmat
+##     weightmat <- weightmat^nu
+##     weightmat[!is.finite(weightmat)] <- 1 #new
+##     deltaold <- delta
+##     delta <- delta / enorm (delta, weightmat) #sum=1
+##     xold <- init
+##     if(is.null(init)) xold <- cops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+##     xold <- xold/enorm(xold) 
+##     copsf <- function(x,delta,r,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,...)
+##            {
+##              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
+##              delta <- delta/enorm(delta,weightmat)
+##              x <- jitter(x) #for numerical stability
+##              x <- x/enorm(x)
+##              #ds <- (2*as.matrix(dist(x)))^kappa
+##              #ds <- (2*sqrt(sqdist(x)))^kappa
+##              #ds <- ds/enorm(ds)
+##              #print(ds)
+##              dnew <- sqdist (x)
+##              rnew <- sum (weightmat * delta * mkPower (dnew, r))
+##              nnew <- sum (weightmat * mkPower (dnew,  2*r))
+##              anew <- rnew / nnew
+##              stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+##              #stressi <- sum(weightmat*(ds-delta)^2)/2
+##              #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
+##                                         #    corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+##              corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...)
+##              struc <- corrd$raw
+##              if(normed) {
+##                         struc <- corrd$normed
+##                        }
+##              ic <- stressweight*stressi - cordweight*struc
+##              if(verbose>2) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
+##              ic
+##            }
+##      if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
+##      if(optimmethod=="Newuoa") {
+##          optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
+##          xnew <- matrix(optimized$par,ncol=ndim)
+##          itel <- optimized$feval
+##          ovalue <-optimized$fval
+##      }
+##      if(optimmethod=="Nelder-Mead") {
+##          optimized <- optim(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose),...)
+##          xnew <- optimized$par
+##          itel <- optimized$counts[[1]]
+##          ovalue <-optimized$val 
+##      }
+##      xnew <- xnew/enorm(xnew)
+##      dnew <- sqdist (xnew)
+##      rnew <- sum (weightmat * delta * mkPower (dnew, r))
+##      nnew <- sum (weightmat * mkPower (dnew,  2*r))
+##      anew <- rnew / nnew
+##      stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+##      attr(xnew,"dimnames")[[1]] <- rownames(delta)
+##      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
+##      doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
+##      #doutm <- as.matrix(dist(xnew)^kappa)
+##      deltam <- delta
+##      deltaorigm <- deltaorig
+##      deltaoldm <- deltaold
+##      delta <- stats::as.dist(delta)
+##      deltaorig <- stats::as.dist(deltaorig)
+##      deltaold <- stats::as.dist(deltaold)
+##      doute <- doutm/enorm(doutm)
+##      doute <- stats::as.dist(doute)
+##      dout <- stats::as.dist(doutm)
+##      resmat <- as.matrix(delta - doute)^2
+##      spp <- colMeans(resmat)
+##      weightmatm <-weightmat
+##      weightmat <- stats::as.dist(weightmatm)
+##      stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
+##      if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
+##     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+##     out$par <- theta
+##     out$loss <- "copstress"
+##     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+##     out$copstress <- ovalue
+##     out$optim <- optimized
+##     out$stressweight <- stressweight
+##     out$cordweight <- cordweight
+##     out$call <- match.call()
+##     out$optimethod <- optimmethod
+##     out$losstype <- out$loss
+##     out$nobj <- dim(out$conf)[1]
+##     class(out) <- c("cops","smacofP","smacofB","smacof")
+##     out
+## }
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc"),normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1127,135 +1241,34 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     plot <- FALSE
     if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     if(missing(optimmethod)) optimmethod <- "Newuoa"
+    if(missing(scale)) scale <- "sd"
     if(missing(rang))
         #perhaps put this into the optimization function?
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
-           if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           if(scale=="std") init0 <- scale(init0) #standardizes config before cordillera
+           if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
+             {
+                init0 <- init0/max(apply(init0,2,sd))
+             }   
+             if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
+             {
+                 testso <- scale(init0,center=FALSE)
+                 init0 <- init0/max(attr(testso,"scaled:scale"))
+             }
+             if(scale=="proc") #scales config by procrusting to init
+             {
+                 procr <- smacof::Procrustes(init,init0)
+                 init0 <- procr$Yhat
+             }
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=FALSE)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin)  
            if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
            }
      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
-    r <- kappa/2
-    deltaorig <- delta
-    delta <- delta^lambda
-    weightmato <- weightmat
-    weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1 #new
-    deltaold <- delta
-    delta <- delta / enorm (delta, weightmat) #sum=1
-    xold <- init
-    if(is.null(init)) xold <- cops::powerStressMin(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
-    xold <- xold/enorm(xold) 
-    copsf <- function(x,delta,r,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,...)
-           {
-             if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
-             delta <- delta/enorm(delta,weightmat)
-             x <- jitter(x) #for numerical stability
-             x <- x/enorm(x)
-             #ds <- (2*as.matrix(dist(x)))^kappa
-             #ds <- (2*sqrt(sqdist(x)))^kappa
-             #ds <- ds/enorm(ds)
-             #print(ds)
-             dnew <- sqdist (x)
-             rnew <- sum (weightmat * delta * mkPower (dnew, r))
-             nnew <- sum (weightmat * mkPower (dnew,  2*r))
-             anew <- rnew / nnew
-             stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-             #stressi <- sum(weightmat*(ds-delta)^2)/2
-             #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-                                        #    corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-             corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=TRUE,...)
-             struc <- corrd$raw
-             if(normed) {
-                        struc <- corrd$normed
-                       }
-             ic <- stressweight*stressi - cordweight*struc
-             if(verbose>2) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
-             ic
-           }
-     if(verbose>1) cat("Starting Minimization with",optimmethod,":\"n")
-     if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose),...)
-         xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- optimized$feval
-         ovalue <-optimized$fval
-     }
-     if(optimmethod=="Nelder-Mead") {
-         optimized <- optim(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed),control=list(maxit=itmax,trace=verbose),...)
-         xnew <- optimized$par
-         itel <- optimized$counts[[1]]
-         ovalue <-optimized$val 
-     }
-     xnew <- xnew/enorm(xnew)
-     dnew <- sqdist (xnew)
-     rnew <- sum (weightmat * delta * mkPower (dnew, r))
-     nnew <- sum (weightmat * mkPower (dnew,  2*r))
-     anew <- rnew / nnew
-     stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-     attr(xnew,"dimnames")[[1]] <- rownames(delta)
-     attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
-     doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
-     #doutm <- as.matrix(dist(xnew)^kappa)
-     deltam <- delta
-     deltaorigm <- deltaorig
-     deltaoldm <- deltaold
-     delta <- stats::as.dist(delta)
-     deltaorig <- stats::as.dist(deltaorig)
-     deltaold <- stats::as.dist(deltaold)
-     doute <- doutm/enorm(doutm)
-     doute <- stats::as.dist(doute)
-     dout <- stats::as.dist(doutm)
-     resmat <- as.matrix(delta - doute)^2
-     spp <- colMeans(resmat)
-     weightmatm <-weightmat
-     weightmat <- stats::as.dist(weightmatm)
-     stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
-     if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
-    out$par <- theta
-    out$loss <- "copstress"
-    out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
-    out$copstress <- ovalue
-    out$optim <- optimized
-    out$stressweight <- stressweight
-    out$cordweight <- cordweight
-    out$call <- match.call()
-    out$optimethod <- optimmethod
-    out$losstype <- out$loss
-    out$nobj <- dim(out$conf)[1]
-    class(out) <- c("cops","smacofP","smacofB","smacof")
-    out
-}
-
-
-copstressMin2 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.99,cordweight=0.01,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("std","rmsq","sd","proc"),normed=TRUE, accuracy = 1e-7, itmax = 100000,...)
-{
-    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
-    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    kappa <- theta[1]
-    lambda <- theta[2]
-    nu <- theta[3]
-    plot <- FALSE
-    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
-    if(missing(optimmethod)) optimmethod <- "Newuoa"
-    if(missing(rang))
-        #perhaps put this into the optimization function?
-          {
-           if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-           init0 <- initsol$conf
-           if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
-           cin <- max(crp)
-           rang <- c(0,1.5*cin)  
-           if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
-           }
-      if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration \n") 
     r <- kappa/2
     deltaorig <- delta
     delta <- delta^lambda
@@ -1344,7 +1357,7 @@ copstressMin2 <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,
      spp <- colMeans(resmat)
      weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmatm)
-    stressen <- sum(weightmat*(doute-delta)^2)#raw stress on the normalized proximities and normalized distances
+     stressen <- sum(weightmat*(doute-delta)^2)#raw stress on the normalized proximities and normalized distances
      if(scale=="std") xnew <- scale(xnew) #standardizes config before cordillera
      if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
