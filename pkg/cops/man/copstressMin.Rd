@@ -6,10 +6,11 @@
 \usage{
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 0.99, cordweight = 0.01, q = 1, minpts = ndim + 1,
+  stressweight = 0.975, cordweight = 0.025, q = 1, minpts = ndim + 1,
   epsilon = 10, rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"),
   verbose = 0, scale = c("sd", "rmsq", "std", "proc"), normed = TRUE,
-  accuracy = 1e-07, itmax = 1e+05, ...)
+  accuracy = 1e-07, itmax = 1e+05, stresstype = c("stress-1", "stress"),
+  ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}
@@ -28,9 +29,9 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{init}{(optional) initial configuration}
 
-\item{stressweight}{weight to be used for the fit measure; defaults to 0.99}
+\item{stressweight}{weight to be used for the fit measure; defaults to 0.975}
 
-\item{cordweight}{weight to be used for the cordillera; defaults to 0.01}
+\item{cordweight}{weight to be used for the cordillera; defaults to 0.025}
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
@@ -52,6 +53,8 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{itmax}{maximum number of iterations. Defaults to 100000}
 
+\item{stresstype}{which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.}
+
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
 \value{
@@ -68,7 +71,7 @@ A list with the components
 }
 }
 \description{
-Minimizing Copstress for a clustered MDS configuration with given hyperparameters theta.
+Minimizing Copstress to obtain a clustered MDS configuration with given hyperparameters theta.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

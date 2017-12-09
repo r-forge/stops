@@ -1,6 +1,6 @@
 Version 0.1-1
 
-- Added new scaling of configs in copstressMin for OC calculation. Using scale() distorted the optimal config. Now one can choose between sd (divided by max standard deviation), rmsq (divided by maximum root mean square), proc (Procrustes adjustement to initial fit) and std (which is the old way and now discouraged).  
+- Added new scaling of configs in copstressMin for OC calculation. Using scale() distorted the optimal config. Now one can choose between sd (divided by max standard deviation), rmsq (divided by maximum root mean square), proc (Procrustes adjustement to initial fit) and std (which is the old way and now discouraged). Added switch in copstressMin for choosing stress-1 and explicitly normed stress, with stress-1 now the default. Changed default stressweight and cordweight.  
 
 Version 0.1-0
 
