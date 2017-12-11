@@ -5,8 +5,7 @@
 \title{Calculates copstress for given MDS object}
 \usage{
 copstress(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
-  minpts = 2, epsilon = 10, rang = NULL, verbose = 0, scale = TRUE,
-  ...)
+  minpts = 2, epsilon = 10, rang = NULL, verbose = 0, scale = 3, ...)
 }
 \arguments{
 \item{obj}{MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)}
@@ -34,10 +33,10 @@ copstress(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
 \value{
 A list with the components
 \itemize{
-       \item copstress the weighted loss value
-       \item OC the Optics cordillera value
-       \item parameters the parameters used for fitting (kappa, lambda)
-       \item cordillera the cordillera object
+       \item copstress: the weighted loss value
+       \item OC: the Optics cordillera value
+       \item parameters: the parameters used for fitting (kappa, lambda)
+       \item cordillera: the cordillera object
 }
 }
 \description{

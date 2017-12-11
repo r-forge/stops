@@ -7,7 +7,7 @@
 cop_powerstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
   q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
-  scale = TRUE, normed = TRUE, stresstype = c("default", "stress1",
+  scale = 2, normed = TRUE, stresstype = c("default", "stress1",
   "rawstress", "normstress", "enormstress", "enormstress1"))
 }
 \arguments{
