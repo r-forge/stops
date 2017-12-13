@@ -182,7 +182,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param rang A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling is done with the root mean square.If FALSE, 0 or any other nuemric value, no standardisation is applied. Defaults to TRUE.  
+#' @param scale Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
 #' @param ... Additional arguments to be passed to \code{\link{optics}}
 #' 
 #' @return A list with the elements
@@ -226,10 +226,10 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' plot(cres1)
 #' 
 #' #4 dim goodness-of-clusteredness with clusters of at least 20 points for PCA
-#' cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13) 
+#' cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13,scale=3) 
 #' #4 dim goodness-of-clusteredness with clusters of at least 20 points for original data
-#' cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe)
-#' #There is a more clusteredness for the original result
+#' cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe,scale=3)
+#' #There is more clusteredness for the original result
 #' summary(cres4) 
 #' summary(cres) 
 #' plot(cres4) #cluster structure only a bit intelligible
@@ -255,17 +255,17 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
 #' #equivalently
 #' #dis2=dist(sovisel)
-#' #cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q) 
+#' #cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q,scale=FALSE) 
 #'
 #' #PCA in 2-dim
 #' pca1 <- princomp(sovisel)
 #' pcas <- scale(pca1$scores[,1:2])
-#' cpca <- cordillera(pcas,minpts=minpts,epsilon=10,q=q,dmax=dmax)
+#' cpca <- cordillera(pcas,minpts=minpts,epsilon=10,q=q,dmax=dmax,scale=FALSE)
 #'
 #' #Sammon mapping in 2-dim
 #' sam <- MASS::sammon(dis)
 #' samp <- scale(sam$points)
-#' csam <- cordillera(samp,epsilon=10,minpts=minpts,q=q,dmax=dmax)
+#' csam <- cordillera(samp,epsilon=10,minpts=minpts,q=q,dmax=dmax,scale=FALSE)
 #'
 #' #results
 #' cdat
@@ -279,7 +279,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' par(mfrow=c(1,1))
 #' 
 #' @export
-cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=TRUE,...)
+cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=4,...)
 {
      #if X is a dist object, take it; otherwise if a matrix or data frame X calculate a dist object. If X is a symmetric matrix turn it into a distance object; reason is that dbscan:optics does not give the same result for dist(x) and as.matrix(dist(x))
     if(is.data.frame(X)) X <- as.matrix(X) 
@@ -288,8 +288,13 @@ cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,ran
          if(!isSymmetric(X))
            {
            #if X is unsymmetric matrix or data frame, calculate distance object
-             if(scale*1!=0) X <- scale(X,center=isTRUE(scale*1==1),scale=isTRUE(scale*1==1 | scale*1==2) )
-             confs <- dist(X,method=distmeth)
+             if(scale*1!=0)
+               {
+                   X <- scale(X,center=isTRUE(scale*1==1),scale=isTRUE(scale*1==1 | scale*1==2))
+                   if(scale==3) X <- X/max(apply(X,2,sd))
+                   if(scale==4) X <- X/max(attr(scale(X,center=FALSE),"scaled:scale"))
+               }
+               confs <- dist(X,method=distmeth)
            } else
                if(isSymmetric(X))
                {

@@ -5,7 +5,7 @@
 \title{Calculates The OPTICS Cordillera}
 \usage{
 cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
-  dmax = NULL, rang, digits = 10, scale = TRUE, ...)
+  dmax = NULL, rang, digits = 10, scale = 4, ...)
 }
 \arguments{
 \item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.}
@@ -24,7 +24,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling is done with the root mean square.If FALSE, 0 or any other nuemric value, no standardisation is applied. Defaults to TRUE.}
+\item{scale}{Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
 
 \item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }
@@ -71,10 +71,10 @@ summary(cres1)
 plot(cres1)
 
 #4 dim goodness-of-clusteredness with clusters of at least 20 points for PCA
-cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13) 
+cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13,scale=3) 
 #4 dim goodness-of-clusteredness with clusters of at least 20 points for original data
-cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe)
-#There is a more clusteredness for the original result
+cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe,scale=3)
+#There is more clusteredness for the original result
 summary(cres4) 
 summary(cres) 
 plot(cres4) #cluster structure only a bit intelligible
@@ -100,17 +100,17 @@ minpts=3
 cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
 #equivalently
 #dis2=dist(sovisel)
-#cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q) 
+#cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q,scale=FALSE) 
 
 #PCA in 2-dim
 pca1 <- princomp(sovisel)
 pcas <- scale(pca1$scores[,1:2])
-cpca <- cordillera(pcas,minpts=minpts,epsilon=10,q=q,dmax=dmax)
+cpca <- cordillera(pcas,minpts=minpts,epsilon=10,q=q,dmax=dmax,scale=FALSE)
 
 #Sammon mapping in 2-dim
 sam <- MASS::sammon(dis)
 samp <- scale(sam$points)
-csam <- cordillera(samp,epsilon=10,minpts=minpts,q=q,dmax=dmax)
+csam <- cordillera(samp,epsilon=10,minpts=minpts,q=q,dmax=dmax,scale=FALSE)
 
 #results
 cdat
