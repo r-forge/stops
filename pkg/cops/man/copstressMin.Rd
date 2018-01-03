@@ -8,9 +8,9 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
   stressweight = 0.975, cordweight = 0.025, q = 1, minpts = ndim + 1,
   epsilon = 10, rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"),
-  verbose = 0, scale = c("sd", "rmsq", "std", "proc"), normed = TRUE,
-  accuracy = 1e-07, itmax = 1e+05, stresstype = c("stress-1", "stress"),
-  ...)
+  verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
+  normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
+  stresstype = c("stress-1", "stress"), ...)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}
@@ -39,13 +39,13 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
-\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}}
+\item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and 1.5 times the maximal reachability of the initial fit as upper boundary. If NULL it will be normed to each configuration's minimum and maximum distance as lower and upper bound respectively, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}}
 
 \item{optimmethod}{What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
-\item{scale}{Allows to scale the configuration for the OC. One of sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.}
+\item{scale}{Allows to scale the configuration for the OC. One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 

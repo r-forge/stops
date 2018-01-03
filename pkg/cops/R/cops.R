@@ -1081,11 +1081,11 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param q the norm of the corrdillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
-#' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the initial fit. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
+#' @param rang range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and 1.5 times the maximal reachability of the initial fit as upper boundary. If NULL it will be normed to each configuration's minimum and maximum distance as lower and upper bound respectively, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
 #' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale Allows to scale the configuration for the OC. One of sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.  
+#' @param scale Allows to scale the configuration for the OC. One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.  
 #' @param accuracy numerical accuracy, defaults to 1e-8
 #' @param itmax maximum number of iterations. Defaults to 100000
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
@@ -1119,7 +1119,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,rang=NULL,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1138,6 +1138,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
            init0 <- initsol$conf
            if(scale=="std") init0 <- scale(init0) #standardizes config before cordillera
+           if(scale=="none") init0 <- init0
            if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
                 init0 <- init0/max(apply(init0,2,sd))
@@ -1174,19 +1175,13 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)
              x <- x/enorm(x)
-             #ds <- (2*as.matrix(dist(x)))^kappa
-             #ds <- (2*sqrt(sqdist(x)))^kappa
-             #ds <- ds/enorm(ds)
-             #print(ds)
              dnew <- sqdist (x)
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
              anew <- rnew / nnew
              stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              if(stresstype=="stress-1") stressi <- sqrt(stressi)
-             #stressi <- sum(weightmat*(ds-delta)^2)/2
-             #stressi <- sum(weightmat*(ds-delta)^2)/sum(weightmat*(ds^2)) # sqrt stress 1 on the normalized transformed proximities and distances; we use this as the value returned by print
-                                        #    corrd <- cordillera::cordillera(x,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+             if(scale=="none") x <- x 
              if(scale=="std") x <- scale(x) #standardizes config before cordillera
              if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
@@ -1248,23 +1243,24 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmat*(doute-delta)^2)#raw stress on the normalized proximities and normalized distances
-     if(scale=="std") xnew <- scale(xnew) #standardizes config before cordillera
+     if(scale=="std") xnews <- scale(xnew) #standardizes config before cordillera
      if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
-                xnew <- xnew/max(apply(xnew,2,sd))
+                xnews <- xnew/max(apply(xnew,2,sd))
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
                  testso <- scale(xnew,center=FALSE)
-                 xnew <- xnew/max(attr(testso,"scaled:scale"))
+                 xnews <- xnew/max(attr(testso,"scaled:scale"))
              }
              if(scale=="proc") #scales config by procrusting to init
              {
                  procr <- smacof::Procrustes(init,xnew)
-                 xnew <- procr$Yhat
+                 xnews <- procr$Yhat
              }
+             if(scale=="none") xnews <- xnew #no standardisation
       if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, confs=xnews, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
