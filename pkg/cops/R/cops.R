@@ -769,7 +769,7 @@ copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scaled and/or centered? Is passed as to the \code{\link{cordillera}} function (0 does nothing, 1 does both, 2 only scales with the root mean square, 3 scales with the maximum standard deviation). Defaults to 3. TODO. add Procrustes. 
 #'@param s number of particles if pso is used
 #'@param stresstype what stress to be used for comparisons between solutions 
 #'@param ... additional arguments to be passed to the optimization procedure
@@ -853,7 +853,7 @@ copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=1,minpts=ndim+1,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=3,normed=TRUE,s=4,stresstype="default",...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=3,normed=TRUE,s=4,stresstype="default",...)
     {
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -866,7 +866,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
            init0 <- initsol$fit$conf
-           #if(isTRUE(scale)) init0 <- scale(init0)
+                                        #if(isTRUE(scale)) init0 <- scale(init0)
            crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin) #approximate upper bound by 1.5 times the max distance in the initial config
