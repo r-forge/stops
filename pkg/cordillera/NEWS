@@ -1,3 +1,8 @@
+Version 0.8-0
+
+- CRAN Release.
+
+
 Version 0.7-2
 
 - Added possibility to not only center and scale X, but also to only scale X with no centering with rmsq and sd. TRUE and 1 is now center and scale, 2 is now scaling each column individually but no centering, 3 is now scaling all columns by the maximum column sd, 4 is now scaling all columns by maximum column rmsq. FALSE or 0 is no scaling.    
