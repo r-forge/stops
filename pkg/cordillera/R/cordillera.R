@@ -1,6 +1,6 @@
 #' Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'
 #'
-#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been re-factored. Only works with data matrices and Euclidean distance.
+#' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been re-factored. Only works with data matrices and Euclidean distance - \code{\link{cordillera}} is more general.
 #'
 #' @param confs numeric matrix or data frame. 
 #' @param q  the norm of the OPTICS Cordillera. Defaults to 1.
@@ -170,7 +170,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
      }
 
 
-#' Calculates The OPTICS Cordillera 
+#' The OPTICS Cordillera 
 #'
 #' Calculates the OPTICS Cordillera as described in Rusch et al. (2017). Based on optics in dbscan package.
 #'
@@ -182,7 +182,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param rang A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
 #' @param ... Additional arguments to be passed to \code{\link{optics}}
 #' 
 #' @return A list with the elements
@@ -197,7 +197,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed Cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following: reachability values returned from optics, minpts, eps, the raw cordillera, dmax and the normalization factor normfac.
 #'
 #' @importFrom dbscan optics
-#' @importFrom stats as.dist dist
+#' @importFrom stats as.dist dist sd
 
 #' @keywords clustering multivariate
 #' 
@@ -225,9 +225,11 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' summary(cres1)
 #' plot(cres1)
 #' 
-#' #4 dim goodness-of-clusteredness with clusters of at least 20 points for PCA
+#' #4 dim goodness-of-clusteredness with clusters of at least 20
+#' #points for PCA
 #' cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13,scale=3) 
-#' #4 dim goodness-of-clusteredness with clusters of at least 20 points for original data
+#' #4 dim goodness-of-clusteredness with clusters of at least 20 points for original
+#' #data
 #' cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe,scale=3)
 #' #There is more clusteredness for the original result
 #' summary(cres4) 
@@ -242,7 +244,8 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' #data preparation
 #' data(CAClimateIndicatorsCountyMedian)
 #' sovisel <- CAClimateIndicatorsCountyMedian[,-c(1,2,4,9)]
-#' sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x))) #normalize to [0,1]
+#' #normalize to [0,1]
+#' sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x))) 
 #' rownames(sovisel)  <- CAClimateIndicatorsCountyMedian[,1]
 #' dis <- dist(sovisel)
 #' 
@@ -252,7 +255,8 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' minpts=3
 #'
 #' #original data directly
-#' cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
+#' cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,
+#'                    scale=0)
 #' #equivalently
 #' #dis2=dist(sovisel)
 #' #cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q,scale=FALSE) 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cordillera.R
 \name{cordillera}
 \alias{cordillera}
-\title{Calculates The OPTICS Cordillera}
+\title{The OPTICS Cordillera}
 \usage{
 cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
   dmax = NULL, rang, digits = 10, scale = 4, ...)
@@ -24,7 +24,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled if it is a asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
+\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
 
 \item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }
@@ -70,9 +70,11 @@ cres1
 summary(cres1)
 plot(cres1)
 
-#4 dim goodness-of-clusteredness with clusters of at least 20 points for PCA
+#4 dim goodness-of-clusteredness with clusters of at least 20
+#points for PCA
 cres4<-cordillera(res$scores[,1:4],minpts=20,epsilon=13,scale=3) 
-#4 dim goodness-of-clusteredness with clusters of at least 20 points for original data
+#4 dim goodness-of-clusteredness with clusters of at least 20 points for original
+#data
 cres<-cordillera(iris[,1:4],minpts=20,epsilon=13,dmax=cres4$dmaxe,scale=3)
 #There is more clusteredness for the original result
 summary(cres4) 
@@ -87,7 +89,8 @@ plot(cres) #clearly two well separated clusters
 #data preparation
 data(CAClimateIndicatorsCountyMedian)
 sovisel <- CAClimateIndicatorsCountyMedian[,-c(1,2,4,9)]
-sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x))) #normalize to [0,1]
+#normalize to [0,1]
+sovisel <- apply(sovisel,2,function(x) (x-min(x))/(max(x)-min(x))) 
 rownames(sovisel)  <- CAClimateIndicatorsCountyMedian[,1]
 dis <- dist(sovisel)
 
@@ -97,7 +100,8 @@ q=2
 minpts=3
 
 #original data directly
-cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,scale=FALSE)
+cdat <- cordillera(sovisel,distmeth="euclidean",minpts=minpts,epsilon=10,q=q,
+                   scale=0)
 #equivalently
 #dis2=dist(sovisel)
 #cdat2 <- cordillera(dis2,minpts=minpts,epsilon=10,q=q,scale=FALSE) 

@@ -21,7 +21,8 @@ For most of the objects returned by the high-level functions S3 classes and meth
 
 References:
 \itemize{
-\item Rusch, T., Hornik, K., & Mair, P. (2017) Assessing and quantifying clusteredness: The OPTICS Cordillera, Journal of Computational and Graphical Statistics. http://dx.doi.org/10.1080/10618600.2017.1349664
+\item Rusch, T., Hornik, K., & Mair, P. (2017) Assessing and quantifying clusteredness: The OPTICS Cordillera, Journal of Computational and Graphical Statistics.
+\url{http://dx.doi.org/10.1080/10618600.2017.1349664}
 }
 
 Authors: Thomas Rusch
