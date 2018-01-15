@@ -13,7 +13,7 @@
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -34,7 +34,7 @@
 #' 
 #'@keywords multivariate
 #'@export
-cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -57,8 +57,8 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
-  fit$deltaorig <- fit$delta^(1/fit$lambda)   
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  fit$deltaorig <- fit$delta^(1/fit$lambda)  
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
@@ -78,7 +78,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted 
 #' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -127,7 +127,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
@@ -148,7 +148,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted 
 #' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -190,7 +190,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(kappa,lambda)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
@@ -211,7 +211,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -251,7 +251,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fit$stress.m <- sqrt(fit$stress)
   fit$conf <- fit$points
 #  fit$pars <- c(kappa,lambda,nu)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,cordillera=copobj) #target functions
 }
 
@@ -270,7 +270,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -316,7 +316,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
   out
 }
@@ -338,7 +338,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report. Only takes cmdscales default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
@@ -372,7 +372,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
   fit$conf <- fit$points
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$GOF,stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
 }
 
@@ -391,7 +391,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -425,7 +425,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   fit$nu <- 1
  # fit$pars <- c(kappa,lambda)
  # fit$deltaorig <- fit$delta^(1/fit$lambda)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
 }
@@ -446,7 +446,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
@@ -479,7 +479,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   fit$kappa <- 2
   fit$lambda <- lambda
   fit$nu <- 1
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj)
   out
 }
@@ -500,7 +500,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to whatever whim is my default (currently explicitly normed stress)
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
@@ -531,7 +531,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- 1
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
@@ -551,7 +551,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
@@ -586,7 +586,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
@@ -606,7 +606,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale  should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
@@ -641,7 +641,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
@@ -661,7 +661,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale  should the configuration be scale adjusted
 #' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #'
@@ -694,7 +694,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, cordillera=copobj)
   out 
 }
@@ -710,7 +710,9 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness. 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose (copstress level), >3 is extremely (up to MDS optimization level)
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE
+#' @param scale should the configuration be scale adjusted.
+#' @param init a reference configuration when doing procrustes adjustment
+#' @param normed should the cordillera be normed
 #' @param ... additional arguments to be passed to the cordillera function
 #'
 #' @return A list with the components
@@ -723,14 +725,16 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @keywords multivariate
 #' @import cordillera
 #' @export
-copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2,epsilon=10,rang=NULL,verbose=0,scale=3,...)
-    {
+copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=c("std","sd","proc","none"),init,...)
+{
+        if(missing(scale)) scale <- "sd"
         stressi <- obj$stress.m
         kappa <- obj$kappa
         lambda <- obj$lambda
         nu <- obj$nu
-        confs <- obj$conf 
-        corrd <- cordillera::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,...)
+        confs <- obj$conf
+        confs <- scale_adjust(confs,init,scale=scale)
+        corrd <- cordillera::cordillera(confs,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE,...)
         struc <- corrd$raw
         maxstruc <- corrd$normi
         if(normed) {
@@ -769,7 +773,7 @@ copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled and/or centered? Is passed as to the \code{\link{cordillera}} function (0 does nothing, 1 does both, 2 only scales with the root mean square, 3 scales with the maximum standard deviation). Defaults to 3. TODO. add Procrustes. 
+#' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
 #'@param s number of particles if pso is used
 #'@param stresstype what stress to be used for comparisons between solutions 
 #'@param ... additional arguments to be passed to the optimization procedure
@@ -789,75 +793,45 @@ copstress <- function(obj,stressweight=1,cordweight=0.5,q=1,normed=TRUE,minpts=2
 #'@examples
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'set.seed(210485)
-#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) #optimum around lambda=0.16
+#'#configuration is scaled with highest column sd for calculating cordilera 
+#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) 
 #'res1
 #'summary(res1)
 #'plot(res1)
+#' 
 #'#only use cordillera for finding the parameters; 
-#'res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) #optimum around lambda=0.156
+#'res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
 #'res2
 #'summary(res2)
 #'plot(res2)
-#' 
-#'#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
-#'#the reason is the distance between sister and son
-#' 
-#'#procrustes adjusted
-#'resadj<-conf_adjust(res2$fit$points,res1$fit$points)
-#'plot(resadj$ref.conf) #res 2
-#'plot(resadj$other.conf) #res 1
-#' 
-#'par(mfrow=c(1,2))
+#'
+#'#With Procrustes adjustment to res1 
+#'res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
+#' init=res1$conf,scale="proc") 
+#'res3
+#'summary(res3)
+#'plot(res3)
+#'
+#'  
+#'par(mfrow=c(1,3))
 #'plot(res1,"reachplot")
 #'plot(res2,"reachplot")
-#' par(mfrow=c(1,1))
+#'plot(res3,"reachplot") 
+#'par(mfrow=c(1,1))
 #'
-#'\donttest{
-#'# From De Leuuw et al (2016) example 7.2.
-#'#They look at different rstress versions and compare how clustered the configuration is
-#'#where stress is minimal and that stress is a monotonically increasing function of r;
-#' dats <- c(5.63,5.27, 6.72,4.60, 5.64, 5.46,4.80, 6.22, 4.97, 3.20,7.54 ,5.12, 8.13, 7.84 ,7.80, 6.73 ,4.59 ,7.55, 6.73, 7.08, 4.08, 7.18 ,7.22 ,6.90 ,7.28 ,6.96 ,6.34 ,6.88, 6.17, 5.47, 4.67, 6.13, 6.04 ,7.42, 6.36, 7.36)
-#'num_cols <- (1 + sqrt(1 + 8*length(dats)))/2 - 1
-#'mat <- matrix(0, num_cols, num_cols)
-#'mat[row(mat) <= col(mat)] <- dats
-#'mat <- t(mat)
-#'mat <- rbind(0, mat)
-#'mat <- cbind(mat, 0)
-#'colnames(mat) <- rownames(mat) <- c(" KVP", "PvdA" , "VVD" , "ARP" , "CHU" , "CPN" , "PSP" ,  "BP", "D66")
-#'dobj <- as.dist(mat)
-#'dobj
-#'#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r~=0.17 (kappa~=0.34)
-#'#and that stress appears thus not monotonically increasing in r
-#' set.seed(210485)
-#' m1 <- pcops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
-#' m1
-#'# They observe increasing clustering for larger r which we can again do systematically:
-#'# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of at least k=2 and k=3 observations
-#' set.seed(210485)
-#' m2 <- pcops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
-#' m3 <- pcops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
-#' m2   #r~=1.24
-#' m3   #r~=1.39
-#'
-#'# It is generally better to trade off clusteredness and fit
-#' set.seed(210485)
-#' m2t <- pcops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
-#' m3t <- pcops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
-#' m2t #r~=0.08
-#' m4t #r~=1.39
-#'}
-#'
-#' @importFrom stats dist as.dist optim
-#' @importFrom pso psoptim
-#' @import cordillera
+#'@importFrom stats dist as.dist optim
+#'@importFrom pso psoptim
+#'@import cordillera
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=10,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=3,normed=TRUE,s=4,stresstype="default",...)
-    {
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",...)
+{
+      if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
       if(missing(loss)) loss <- "strain"
+      if(is.null(init)) init <- torgerson(dis)
       .confin <- init #initialize a configuration
       psfunc <- switch(loss,"strain"=cop_cmdscale,"powerstrain"=cop_cmdscale,"elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
@@ -866,26 +840,34 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
            init0 <- initsol$fit$conf
-                                        #if(isTRUE(scale)) init0 <- scale(init0)
-           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=scale)$reachplot
+           #if(scale=="std") init0 <- scale(init0)
+           #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
+                                        #if(scale=="proc") init0 <- smacof::Procrustes(init,init0)$Yhat
+           init0 <- scale_adjust(init0,.confin,scale=scale)
+           crp <- cordillera::cordillera(init0,q=q,minpts=minpts,epsilon=epsilon,scale=FALSE)$reachplot
            cin <- max(crp)
            rang <- c(0,1.5*cin) #approximate upper bound by 1.5 times the max distance in the initial config
                  #alternatives: use an adjusted boxplot idea so e.g., rang<-c(quantile(crp,0.25)-exp(-4*robustbase::mc(crp))*1.5*IQR(crp),quantile(crp,0.75)+exp(4*robustbase::mc(crp))*1.5*IQR(crp)
                  #alternatives: use an adjusted boxplot idea so e.g., c(min(crp)-exp(-4*robustbase::mc(crp))*1.5,max(crp)+exp(4*robustbase::mc(crp))*1.5) 
             if(verbose>1) cat("dmax is",max(rang),". rang is",rang,"\n")
-           #.confin <- initsol$fit$conf
            }
       if(is.null(rang) && verbose > 1) cat("rang=NULL which makes the cordillera a goodness-of-clustering relative to the largest distance of each given configuration. \n") 
       if(missing(cordweight))
-               {
+      {
+          if(!exists("initsol")) {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))  
-                 initcorrd <- cordillera::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$normed 
-                 if(identical(normed,FALSE)) initcorrd <- cordillera::cordillera(initsol$fit$conf,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
-                cordweight <- initsol$stress.m/initcorrd  
-                #cat("stress.m=",initsol$stress.m,"cord=",initcorrd,"cweight=",cordweight,"\n") 
-                if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
-             }
+                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
+          }
+            init0 <- initsol$fit$conf
+            init0 <- scale_adjust(init0,.confin,scale=scale)
+            #if(scale=="std") init0 <- scale(init0)
+            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
+            #if(scale=="proc") init0 <- smacof::Procrustes(init,init0)$Yhat
+            initcorrd <- cordillera::cordillera(init0,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=FALSE)$normed 
+            if(identical(normed,FALSE)) initcorrd <- cordillera::cordillera(initsol0,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
+            cordweight <- initsol$stress.m/initcorrd  
+            if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
+            }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
           opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,method="SANN",...)
@@ -901,7 +883,8 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
     thetaopt <- opt$par 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
     out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
-    out$OC <- cordillera::cordillera(out$fit$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale)
+    confopt <- scale_adjust(out$fit$conf,.confin,scale=scale)
+    out$OC <- cordillera::cordillera(confopt,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
     out$copstress <- opt$value
     out$optim <- opt
     out$stressweight <- stressweight
@@ -914,7 +897,25 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
     if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(opt$par,4),"with copstress=",round(out$copstress,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")
     class(out) <- c("pcops","stops","cops")
     out
-  }
+}
+
+#' Adjusts a configuration
+#' 
+#' @param conf a configuration
+#' @param ref a reference configuration (only for scale="proc") 
+#' @param scale Scale adjustment. "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the reference
+#' @return The scale adjusted configuration.
+#' @export
+scale_adjust <- function(conf,ref,scale=c("sd","std","proc","none"))
+{
+  #conf target, ref reference
+  if(scale=="std") conf <- scale(conf)
+  if(scale=="sd") conf <- conf/max(apply(conf,2,sd))
+  if(scale=="proc") conf <- smacof::Procrustes(ref,conf)$Yhat
+  if(scale=="none") conf <- conf
+  conf
+}
+
 
 #'@export
 print.cops <- function(x,...)
@@ -975,9 +976,9 @@ print.pcops <- function(x,...)
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
     cat("MDS loss value:", x$stress.m, "\n")
-    cat("OPTICS cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
+    cat("OPTICS Cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
     cat("Cluster optimized loss (copstress): ", x$copstress, "\n")
-    cat("MDS loss weight:",x$stressweight," OPTICS cordillera weight:",x$cordweight,"\n")
+    cat("MDS loss weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$optim$counts["function"], "\n")
     cat("\n")
     }
@@ -1279,7 +1280,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 
 #' High Level COPS Function
 #'
-#' Minimizing copstress for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from copstress with residual shrinkage to zero) and COPS-C (finding a configuration from copstress with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCopstress0, copstressMin and pcops.
+#' Minimizing copstress for a clustered MDS configuration. Allows to choose COPS-C (finding a configuration from copstress with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for copstressMin and pcops.
 #'
 #'@param dis a dissimilarity matrix or a dist object
 #'@param variant a character string specifying which variant of COPS to fit. Allowed is any of the following "1","2","Variant1","Variant2","v1","v2","COPS-C","P-COPS","configuration-c","profile","copstress-c","p-copstress". Defaults to "COPS-C".
@@ -1303,20 +1304,14 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'summary(res2)
 #'plot(res2)
 #' 
-#'#procrustes adjusted
-#'resadj<-conf_adjust(res2$conf,res1$conf)
-#'plot(resadj$ref.conf) #res 2
-#'plot(resadj$other.conf) #res 1
+#'#procrustes adjustment
+#'plot(Procrustes(res1$conf,res2$conf)
 #'
 #'par(mfrow=c(1,2))
 #'plot(res1,"reachplot")
 #'plot(res2,"reachplot") 
 #'par(mfrow=c(1,1))
 #'
-#'
-#'resadj<-conf_adjust(res0$conf,res2a$conf)
-#'plot(resadj$ref.conf) #res 0
-#'plot(resadj$other.conf) #res 2a
 #' 
 #'
 #'#s-stress type copstress (i.e. kappa=2, lambda=2)

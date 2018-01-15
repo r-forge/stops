@@ -4,8 +4,9 @@
 \alias{copstress}
 \title{Calculates copstress for given MDS object}
 \usage{
-copstress(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
-  minpts = 2, epsilon = 10, rang = NULL, verbose = 0, scale = 3, ...)
+copstress(obj, stressweight = 1, cordweight = 5, q = 1, minpts = 2,
+  epsilon = 10, rang = NULL, verbose = 0, normed = TRUE,
+  scale = c("std", "sd", "proc", "none"), init, ...)
 }
 \arguments{
 \item{obj}{MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)}
@@ -16,8 +17,6 @@ copstress(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
 
 \item{q}{the norm of the corrdillera; defaults to 1}
 
-\item{normed}{should the cordillera be normed; defaults to TRUE}
-
 \item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
@@ -26,9 +25,15 @@ copstress(obj, stressweight = 1, cordweight = 0.5, q = 1, normed = TRUE,
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose (copstress level), >3 is extremely (up to MDS optimization level)}
 
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
+\item{normed}{should the cordillera be normed; defaults to TRUE}
+
+\item{scale}{should the configuration be scale adjusted.}
+
+\item{init}{a reference configuration when doing procrustes adjustment}
 
 \item{...}{additional arguments to be passed to the cordillera function}
+
+\item{normed}{should the cordillera be normed}
 }
 \value{
 A list with the components

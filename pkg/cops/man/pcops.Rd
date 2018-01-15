@@ -7,10 +7,11 @@
 pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
   "rstress", "powermds", "sstress", "elastic", "powersammon", "powerelastic",
   "powerstress", "sammon2", "powerstrain"), weightmat = NULL, ndim = 2,
-  init = NULL, theta = c(1, 1, 1), stressweight = 1, cordweight, q = 1,
-  minpts = ndim + 1, epsilon = 10, rang, optimmethod = c("ALJ", "pso",
+  init = NULL, theta = c(1, 1, 1), stressweight = 1, cordweight, q = 2,
+  minpts = ndim + 1, epsilon = 100, rang, optimmethod = c("ALJ", "pso",
   "SANN"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
-  scale = 3, normed = TRUE, s = 4, stresstype = "default", ...)
+  scale = c("proc", "sd", "none", "std"), normed = TRUE, s = 4,
+  stresstype = "default", ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -50,7 +51,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
+\item{scale}{should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
@@ -79,63 +80,31 @@ Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
 set.seed(210485)
-res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) #optimum around lambda=0.16
+#configuration is scaled with highest column sd for calculating cordilera 
+res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) 
 res1
 summary(res1)
 plot(res1)
+
 #only use cordillera for finding the parameters; 
-res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) #optimum around lambda=0.156
+res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
 res2
 summary(res2)
 plot(res2)
 
-#cordillera value of res1 and res 2 very close but res 2 is a bit more clustered
-#the reason is the distance between sister and son
+#With Procrustes adjustment to res1 
+res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
+init=res1$conf,scale="proc") 
+res3
+summary(res3)
+plot(res3)
 
-#procrustes adjusted
-resadj<-conf_adjust(res2$fit$points,res1$fit$points)
-plot(resadj$ref.conf) #res 2
-plot(resadj$other.conf) #res 1
-
-par(mfrow=c(1,2))
+ 
+par(mfrow=c(1,3))
 plot(res1,"reachplot")
 plot(res2,"reachplot")
+plot(res3,"reachplot") 
 par(mfrow=c(1,1))
-
-\donttest{
-# From De Leuuw et al (2016) example 7.2.
-#They look at different rstress versions and compare how clustered the configuration is
-#where stress is minimal and that stress is a monotonically increasing function of r;
-dats <- c(5.63,5.27, 6.72,4.60, 5.64, 5.46,4.80, 6.22, 4.97, 3.20,7.54 ,5.12, 8.13, 7.84 ,7.80, 6.73 ,4.59 ,7.55, 6.73, 7.08, 4.08, 7.18 ,7.22 ,6.90 ,7.28 ,6.96 ,6.34 ,6.88, 6.17, 5.47, 4.67, 6.13, 6.04 ,7.42, 6.36, 7.36)
-num_cols <- (1 + sqrt(1 + 8*length(dats)))/2 - 1
-mat <- matrix(0, num_cols, num_cols)
-mat[row(mat) <= col(mat)] <- dats
-mat <- t(mat)
-mat <- rbind(0, mat)
-mat <- cbind(mat, 0)
-colnames(mat) <- rownames(mat) <- c(" KVP", "PvdA" , "VVD" , "ARP" , "CHU" , "CPN" , "PSP" ,  "BP", "D66")
-dobj <- as.dist(mat)
-dobj
-#We can do this in one go by setting cordweight to 0 and find that stress is minimal (0.0033) around r~=0.17 (kappa~=0.34)
-#and that stress appears thus not monotonically increasing in r
-set.seed(210485)
-m1 <- pcops(dobj,loss="rstress",lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=0,stressweight=1)
-m1
-# They observe increasing clustering for larger r which we can again do systematically:
-# When only clusteredness is of interest, we use cordweight=1 stressweight=0 and try clusters of at least k=2 and k=3 observations
-set.seed(210485)
-m2 <- pcops(dobj,loss="rstress",minpts=2,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0) 
-m3 <- pcops(dobj,loss="rstress",minpts=3,lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1,stressweight=0)
-m2   #r~=1.24
-m3   #r~=1.39
-
-# It is generally better to trade off clusteredness and fit
-set.seed(210485)
-m2t <- pcops(dobj,loss="rstress",minpts=2,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
-m3t <- pcops(dobj,loss="rstress",minpts=3,theta=c(m1$par[1],1,1),lower=c(0.05,1,1),upper=c(5,1,1),verbose=3,cordweight=1/3,stressweight=2/3)
-m2t #r~=0.08
-m4t #r~=1.39
-}
 
 }
 \keyword{clustering}

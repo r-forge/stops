@@ -38,7 +38,7 @@ cop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
+\item{scale}{should the configuration be scale adjusted}
 
 \item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }

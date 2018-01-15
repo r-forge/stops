@@ -24,7 +24,7 @@ For COPS-C Variant 1 see \code{\link{copstressMin}}, for P-COPS Variant 2 see \c
 \description{
 Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera (Rusch, Hornik & Mair 2017). There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters for the power transformations (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ Algorithmus).
 
-Minimizing copstress for a clustered MDS configuration. Allows to choose COPS-0 (finding a configuration from copstress with residual shrinkage to zero) and COPS-C (finding a configuration from copstress with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for shrinkCopstress0, copstressMin and pcops.
+Minimizing copstress for a clustered MDS configuration. Allows to choose COPS-C (finding a configuration from copstress with cordillera penalty) and profile COPS (finding hyperparameters for MDS models with power transformations). It is wrapper for copstressMin and pcops.
 }
 \details{
 The cops package provides five categories of important functions:
@@ -100,20 +100,14 @@ res2
 summary(res2)
 plot(res2)
 
-#procrustes adjusted
-resadj<-conf_adjust(res2$conf,res1$conf)
-plot(resadj$ref.conf) #res 2
-plot(resadj$other.conf) #res 1
+#procrustes adjustment
+plot(Procrustes(res1$conf,res2$conf)
 
 par(mfrow=c(1,2))
 plot(res1,"reachplot")
 plot(res2,"reachplot") 
 par(mfrow=c(1,1))
 
-
-resadj<-conf_adjust(res0$conf,res2a$conf)
-plot(resadj$ref.conf) #res 0
-plot(resadj$other.conf) #res 2a
 
 
 #s-stress type copstress (i.e. kappa=2, lambda=2)

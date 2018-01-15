@@ -37,7 +37,7 @@ cop_rstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
-\item{scale}{should the configuration be scaled to mean=0 and sd=1? Defaults to TRUE}
+\item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
