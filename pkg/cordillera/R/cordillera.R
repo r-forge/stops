@@ -1,4 +1,4 @@
-#' Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'
+#' DEPRECATED! Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'
 #'
 #' Calculates the OPTICS cordillera as described in Rusch et al. (2017). Needs 'ELKI' >=0.6.0 - only tested with the Ubuntu binaries. This is an old implementation of the OPTICS Cordillera that relied on an external OPTICS implementation; since there is now an R package with an optics function the code has been re-factored. Only works with data matrices and Euclidean distance - \code{\link{cordillera}} is more general.
 #'
@@ -12,7 +12,7 @@
 #' @param plot plot the reachability and the raw OPTICS Cordillera
 #' @param digits round the raw OPTICS cordillera and the norm factor to these digits. Defaults to 10.
 #' @param path the path for storing the temporary files I/O files for optics. Defaults to tempdir(). In any other case it prompts the user for confirmation. 
-#' @param scale Should the confs be scaled and/or centered? 0 does nothing, 1 does both, 2 only scales with the root mean square.  
+#' @param scale Should the confs be scaled and/or centered?  
 #' @param ... Additional arguments to be passed to optics
 #' 
 #' @return A list with the elements
@@ -30,10 +30,10 @@
 #' @keywords clustering multivariate
 #' 
 #' @export
-e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=tempdir(),plot=FALSE,ylim,scale=1,...)
+e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,path=tempdir(),plot=FALSE,ylim,scale=TRUE,...)
 {
-    if(scale==1) confs <- scale(confs)
-    else if(scale==2) confs <- scale(confs,center=FALSE)
+       warning("This function is deprecated (only exported for backwards compatibility).",call.=FALSE) 
+       if(scale==TRUE) confs <- scale(confs)
         if(missing(epsilon)) epsilon <- 2*diff(range(confs))
         optres <- e_optics(confs,minpts=minpts,epsilon=epsilon,path=path,...)
         res <- optres[["clusterobjectorder"]] 

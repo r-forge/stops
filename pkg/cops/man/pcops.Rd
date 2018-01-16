@@ -99,7 +99,6 @@ res3
 summary(res3)
 plot(res3)
 
- 
 par(mfrow=c(1,3))
 plot(res1,"reachplot")
 plot(res2,"reachplot")

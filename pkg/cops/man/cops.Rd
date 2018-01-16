@@ -101,7 +101,7 @@ summary(res2)
 plot(res2)
 
 #procrustes adjustment
-plot(Procrustes(res1$conf,res2$conf)
+plot(Procrustes(res1$conf,res2$conf))
 
 par(mfrow=c(1,2))
 plot(res1,"reachplot")

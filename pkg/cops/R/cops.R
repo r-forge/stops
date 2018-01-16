@@ -712,7 +712,6 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scale adjusted.
 #' @param init a reference configuration when doing procrustes adjustment
-#' @param normed should the cordillera be normed
 #' @param ... additional arguments to be passed to the cordillera function
 #'
 #' @return A list with the components
@@ -791,35 +790,34 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' }
 #' 
 #'@examples
-#'dis<-as.matrix(smacof::kinshipdelta)
-#'set.seed(210485)
-#'#configuration is scaled with highest column sd for calculating cordilera 
-#'res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) 
-#'res1
-#'summary(res1)
-#'plot(res1)
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' set.seed(210485)
+#' #configuration is scaled with highest column sd for calculating cordilera 
+#' res1<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2) 
+#' res1
+#' summary(res1)
+#' plot(res1)
 #' 
-#'#only use cordillera for finding the parameters; 
-#'res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
-#'res2
-#'summary(res2)
-#'plot(res2)
+#' #only use cordillera for finding the parameters; 
+#' res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
+#' res2
+#' summary(res2)
+#' plot(res2)
 #'
-#'#With Procrustes adjustment to res1 
-#'res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
+#' #With Procrustes adjustment to res1 
+#' res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
 #' init=res1$conf,scale="proc") 
-#'res3
-#'summary(res3)
-#'plot(res3)
+#' res3
+#' summary(res3)
+#' plot(res3)
+#' 
+#' par(mfrow=c(1,3))
+#' plot(res1,"reachplot")
+#' plot(res2,"reachplot")
+#' plot(res3,"reachplot") 
+#' par(mfrow=c(1,1))
 #'
-#'  
-#'par(mfrow=c(1,3))
-#'plot(res1,"reachplot")
-#'plot(res2,"reachplot")
-#'plot(res3,"reachplot") 
-#'par(mfrow=c(1,1))
-#'
-#'@importFrom stats dist as.dist optim
+#'@importFrom stats dist as.dist optim sd
 #'@importFrom pso psoptim
 #'@import cordillera
 #' 
@@ -864,7 +862,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
             #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
             #if(scale=="proc") init0 <- smacof::Procrustes(init,init0)$Yhat
             initcorrd <- cordillera::cordillera(init0,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=FALSE)$normed 
-            if(identical(normed,FALSE)) initcorrd <- cordillera::cordillera(initsol0,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
+            if(identical(normed,FALSE)) initcorrd <- cordillera::cordillera(init0,q=q,epsilon=epsilon,minpts=minpts,rang=rang,scale=scale)$raw
             cordweight <- initsol$stress.m/initcorrd  
             if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
             }
@@ -905,12 +903,14 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
 #' @param ref a reference configuration (only for scale="proc") 
 #' @param scale Scale adjustment. "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the reference
 #' @return The scale adjusted configuration.
+#'
+#' @importFrom stats sd
 #' @export
 scale_adjust <- function(conf,ref,scale=c("sd","std","proc","none"))
 {
   #conf target, ref reference
   if(scale=="std") conf <- scale(conf)
-  if(scale=="sd") conf <- conf/max(apply(conf,2,sd))
+  if(scale=="sd") conf <- conf/max(apply(conf,2,stats::sd))
   if(scale=="proc") conf <- smacof::Procrustes(ref,conf)$Yhat
   if(scale=="none") conf <- conf
   conf
@@ -1114,7 +1114,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'plot(res1)  #super clustered
 #'
 #' @import cordillera
-#' @importFrom stats dist as.dist optim
+#' @importFrom stats dist as.dist optim sd
 #' @importFrom minqa newuoa
 #' 
 #' 
@@ -1142,7 +1142,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            if(scale=="none") init0 <- init0
            if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
-                init0 <- init0/max(apply(init0,2,sd))
+                init0 <- init0/max(apply(init0,2,stats::sd))
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
@@ -1186,7 +1186,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              if(scale=="std") x <- scale(x) #standardizes config before cordillera
              if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
-                x <- x/max(apply(x,2,sd))
+                x <- x/max(apply(x,2,stats::sd))
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
@@ -1247,7 +1247,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      if(scale=="std") xnews <- scale(xnew) #standardizes config before cordillera
      if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
-                xnews <- xnew/max(apply(xnew,2,sd))
+                xnews <- xnew/max(apply(xnew,2,stats::sd))
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
@@ -1305,7 +1305,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'plot(res2)
 #' 
 #'#procrustes adjustment
-#'plot(Procrustes(res1$conf,res2$conf)
+#'plot(Procrustes(res1$conf,res2$conf))
 #'
 #'par(mfrow=c(1,2))
 #'plot(res1,"reachplot")

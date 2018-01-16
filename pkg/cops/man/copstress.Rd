@@ -32,8 +32,6 @@ copstress(obj, stressweight = 1, cordweight = 5, q = 1, minpts = 2,
 \item{init}{a reference configuration when doing procrustes adjustment}
 
 \item{...}{additional arguments to be passed to the cordillera function}
-
-\item{normed}{should the cordillera be normed}
 }
 \value{
 A list with the components
