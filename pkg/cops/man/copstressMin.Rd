@@ -7,8 +7,8 @@
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
   stressweight = 0.975, cordweight = 0.025, q = 1, minpts = ndim + 1,
-  epsilon = 10, rang = NULL, optimmethod = c("Nelder-Mead", "Newuoa"),
-  verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
+  epsilon = 10, dmax = NULL, rang, optimmethod = c("Nelder-Mead",
+  "Newuoa"), verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
   normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
   stresstype = c("stress-1", "stress"), ...)
 }
@@ -38,6 +38,8 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 \item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
+
+\item{dmax}{The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either max(rang) or NULL, at which point it is found as 1.5 times the values of the power stress model with the same parameters as the COPS model. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.}
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and 1.5 times the maximal reachability of the initial fit as upper boundary. If NULL it will be normed to each configuration's minimum and maximum distance as lower and upper bound respectively, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}}
 

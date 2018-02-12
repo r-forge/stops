@@ -1,3 +1,7 @@
+Version 0.1-3
+
+- Changed the verbose levels. Added the dmax argument and handling (to be consistent with cordillera). Some tweaks to how to find the rang, dmax and init configuration. Should be a tad faster now. 
+
 Version 0.1-2
 
 - Added scaling of configs in pcops for OC calculation allows now "none", "sd" (divided by max standard deviation), rmsq (divided by maximum root mean square), "proc" (Procrustes adjustment to initial fit) and "std" (which is the old way and now discouraged). For this a new function is exported. Returned optimal configuration does not get scaled. Adapted doc and removed the rstress example. 
