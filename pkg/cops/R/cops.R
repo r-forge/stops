@@ -1176,7 +1176,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     delta <- delta / enorm (delta, weightmat) #sum=1
     if(is.null(init))
     {
-        if(exists(init0)) init <- init0 else init <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+        if(exists("init0")) init <- init0 else init <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     }
     xold <- init
     xold <- xold/enorm(xold) 
@@ -1235,6 +1235,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      nnew <- sum (weightmat * mkPower (dnew,  2*r))
      anew <- rnew / nnew
      stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+     if(stresstype=="stress-1") stress <- sqrt(stress)
      attr(xnew,"dimnames")[[1]] <- rownames(delta)
      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
      doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
