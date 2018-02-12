@@ -9,12 +9,12 @@ Description: Cluster optimized proximity scaling (COPS) refers to multidimension
 Depends:
     R (>= 3.1.2),
     cordillera (>= 0.7-2),
-    smacof,
-    rgl
+    smacof
 Imports:
     MASS,
     minqa,
     pso,
+    rgl,
     scatterplot3d
 Enhances: stats
 Suggests:

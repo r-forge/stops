@@ -180,7 +180,6 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
     }
-   # invisible() #not sure why I need this here but without this it returns a list of NULLS
 }
 
 #' 3D plots: plot3d method for class cmdscale
