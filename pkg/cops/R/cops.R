@@ -829,7 +829,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
       if(missing(loss)) loss <- "strain"
-      if(is.null(init)) init <- torgerson(dis)
+      if(is.null(init)) init <- torgerson(dis,p=ndim)
       .confin <- init #initialize a configuration
       psfunc <- switch(loss,"strain"=cop_cmdscale,"powerstrain"=cop_cmdscale,"elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
@@ -1095,14 +1095,30 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'
 #'@return A list with the components
 #'         \itemize{
-#'         \item copstress: the weighted loss value
-#'         \item OC: the Optics cordillera
+#'         \item delta: the original transformed dissimilarities
+#'         \item obsdiss: the explicitly normed transformed dissimilarities (which are approximated by the fit)
+#'         \item confdiss: the fitted distances
+#'         \item conf: the configuration to which the scaling of argument scale was applied
+#'         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
+#'         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
+#'         \item niter: number of iterations of the optimizer
+#'         \item stress: the square root of explicitly normalized stress (calculated for confo)
+#'         \item spp: stress per point
+#'         \item ndim: number of dimensions
+#'         \item model: Fitted model name with optimizer
+#'         \item call: the call
+#'         \item nobj: the number of objects
+#'         \item type, loss, losstype: stresstype
+#'         \item stress.m, stress.en: other ways to calculate the stress
+#'         \item deltaorig: the original untransformed dissimilarities  
+#'         \item copstress: the copstress loss value
+#'         \item resmat: the matrix of residuals
+#'         \item weightmat: the matrix of untransformed weights 
+#'         \item OC: the (normed) OPTICS Cordillera object (calculated for scaled conf)
+#'         \item OCv: the (normed) OPTICS Cordillera value alone (calculated for scaled conf)
 #'         \item optim: the object returned from the optimization procedure
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
-#'         \item cordillera: the cordillera object
+#'         \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
+#'         \item optimmethod: The optimizer
 #' }
 #' 
 #'@examples
@@ -1121,7 +1137,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=2,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1139,8 +1155,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
         if(is.null(dmax))
            {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-           init0 <- initsol$conf
+           #initsol <- cops::powerstressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
+           initsol <- torgerson(delta^lambda,p=ndim)
+           #init0 <- initsol$conf
+           init0 <- initsol
+           init0 <- init0/enorm(init0)
            if(scale=="std") init0 <- scale(init0) #standardizes config before cordillera
            if(scale=="none") init0 <- init0
            if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
@@ -1154,6 +1173,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }
              if(scale=="proc") #scales config by procrusting to init
              {
+                 if(!exists("init")) init <- initsol
                  procr <- smacof::Procrustes(init,init0)
                  init0 <- procr$Yhat
              }
@@ -1271,18 +1291,18 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }
              if(scale=="none") xnews <- xnew #no standardisation
       if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, confs=xnews, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model="Copstress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste("Copstress",optimmethod), call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
+    out$OCv <- ifelse(normed,out$OC$normed,out$OC$raw)
     out$copstress <- ovalue
     out$optim <- optimized
     out$stressweight <- stressweight
     out$cordweight <- cordweight
-    out$call <- match.call()
     out$optimethod <- optimmethod
     out$losstype <- out$loss
-    out$nobj <- dim(out$conf)[1]
+    #out$nobj <- dim(out$conf)[1]
     class(out) <- c("cops","smacofP","smacofB","smacof")
     out
 }

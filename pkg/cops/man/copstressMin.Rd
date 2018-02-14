@@ -6,7 +6,7 @@
 \usage{
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 0.975, cordweight = 0.025, q = 1, minpts = ndim + 1,
+  stressweight = 0.975, cordweight = 0.025, q = 2, minpts = ndim + 1,
   epsilon = 10, dmax = NULL, rang, optimmethod = c("Nelder-Mead",
   "Newuoa"), verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
   normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
@@ -62,14 +62,30 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 \value{
 A list with the components
         \itemize{
-        \item copstress: the weighted loss value
-        \item OC: the Optics cordillera
+        \item delta: the original transformed dissimilarities
+        \item obsdiss: the explicitly normed transformed dissimilarities (which are approximated by the fit)
+        \item confdiss: the fitted distances
+        \item conf: the configuration to which the scaling of argument scale was applied
+        \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
+        \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
+        \item niter: number of iterations of the optimizer
+        \item stress: the square root of explicitly normalized stress (calculated for confo)
+        \item spp: stress per point
+        \item ndim: number of dimensions
+        \item model: Fitted model name with optimizer
+        \item call: the call
+        \item nobj: the number of objects
+        \item type, loss, losstype: stresstype
+        \item stress.m, stress.en: other ways to calculate the stress
+        \item deltaorig: the original untransformed dissimilarities  
+        \item copstress: the copstress loss value
+        \item resmat: the matrix of residuals
+        \item weightmat: the matrix of untransformed weights 
+        \item OC: the (normed) OPTICS Cordillera object (calculated for scaled conf)
+        \item OCv: the (normed) OPTICS Cordillera value alone (calculated for scaled conf)
         \item optim: the object returned from the optimization procedure
-        \item stress: the stress
-        \item stress.m: default normalized stress
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
-        \item cordillera: the cordillera object
+        \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
+        \item optimmethod: The optimizer
 }
 }
 \description{
