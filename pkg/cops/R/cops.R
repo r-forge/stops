@@ -1137,26 +1137,62 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #'@keywords clustering multivariate
 #'@export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu),weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=2,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=2,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+
+    ## -- Setup for MDS type
+    if(missing(type)) type <- "ratio"
+    trans <- type
+    if (trans=="ratio"){
+    trans <- "none"
+    }
+    #TODO: if we want other optimal scalings as well
+    #else if (trans=="ordinal" & ties=="primary"){
+    #trans <- "ordinalp"
+  #} else if(trans=="ordinal" & ties=="secondary"){
+  #  trans <- "ordinals"
+  #} else if(trans=="ordinal" & ties=="tertiary"){
+  #  trans <- "ordinalt"
+  #} else if(trans=="spline"){
+  #  trans <- "mspline"
+  #}
+    if(type=="interval") theta <- c(1,1,1) #We dont allow powers in intervall MDS as of yet
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
     plot <- FALSE
-    if(verbose>0) cat("Minimizing copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,".\n")
+
+    n <- dim(delta)[1]
+    
+    if(verbose>0) cat(paste("Minimizing",type,"copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,".\n")
     if(missing(optimmethod)) optimmethod <- "Newuoa"
     if(missing(scale)) scale <- "sd"
     if(missing(stresstype)) stresstype <- "stress-1"
+
+    ##-- Prepare for dissimilarity scaling
+    r <- kappa/2
+    deltaorig <- delta #delta is diss in smacof, deltaorig is delta in smacof 
+    delta <- delta^lambda
+    weightmato <- weightmat
+    weightmat <- weightmat^nu
+    weightmat[!is.finite(weightmat)] <- 1 #new
+    deltaold <- delta
+    disobj <- smacof:::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
+    ## Add an intercept to the spline base transformation
+    #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
+    
+    delta <- delta / enorm (delta, weightmat) #normalize to sum=1
+    ## --- starting rang if not given
     if(missing(rang))
         #perhaps put this into the optimization function?
-    {
+       {
         if(is.null(dmax))
            {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            #initsol <- cops::powerstressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-           initsol <- torgerson(delta^lambda,p=ndim)
+           initsol <- torgerson(delta,p=ndim)
            #init0 <- initsol$conf
            init0 <- initsol
            init0 <- init0/enorm(init0)
@@ -1185,27 +1221,27 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
         rang <- c(0,dmax) #This sets the range to (0,dmax)
         if(verbose>1) cat("dmax is",dmax,". rang is",rang,".\n")
     }
-    if(isTRUE(max(rang)!=dmax)) warning("Note: The supplied dmax and rang do not match. I took supplied rang as rang.\n") 
-    r <- kappa/2
-    deltaorig <- delta
-    delta <- delta^lambda
-    weightmato <- weightmat
-    weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1 #new
-    deltaold <- delta
-    delta <- delta / enorm (delta, weightmat) #sum=1
+    if(isTRUE(max(rang)!=dmax)) warning("Note: The supplied dmax and rang do not match. I took supplied rang as rang.\n")
+
+    ## --- starting values
     if(is.null(init))
     {
         if(exists("init0")) init <- init0 else init <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
     }
     xold <- init
-    xold <- xold/enorm(xold) 
-    copsf <- function(x,delta,r,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,init,...)
+    xold <- xold/enorm(xold)
+    copsf <- function(x,delta,disobj,r,n,ndim,weightmat,stressweight,cordweight,q,minpts,epsilon,rang,scale,normed,init,...)
            {
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
-             delta <- delta/enorm(delta,weightmat)
+             delta <- delta/enorm(delta,weightmat)             
              x <- x/enorm(x)
              dnew <- sqdist (x)
+             e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
+             e <- dist(x) #I need the dist(x) here for interval
+             dhat <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update FIXME: check if it works okay to have as.dist(weightmat) here
+             dhatt <- dhat$res #FIXME: I need the structure here to reconstruct the delta; alternatively turn all into vectors? - check how they do it in smacof
+             dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
+             delta <- as.matrix(dhatd)
              rnew <- sum (weightmat * delta * mkPower (dnew, r))
              nnew <- sum (weightmat * mkPower (dnew,  2*r))
              anew <- rnew / nnew
@@ -1236,15 +1272,16 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              if(verbose>1) cat("copstress =",ic,"mdsloss =",stressi,"OC =",struc,"minpts=",minpts,"kappa =",kappa,"lambda =",lambda,"nu=",nu,"\n")
              ic
            }
+    
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\n")
      if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
+         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$feval
          ovalue <-optimized$fval
      }
      if(optimmethod=="Nelder-Mead") {
-         optimized <- optim(xold,function(par) copsf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=verbose-2),...)
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=verbose-2),...)
          xnew <- optimized$par
          itel <- optimized$counts[[1]]
          ovalue <-optimized$val 
