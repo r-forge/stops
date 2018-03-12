@@ -5,10 +5,11 @@
 \title{Fitting a COPS-C Model (COPS Variant 1).}
 \usage{
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
-  lambda, nu), weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 0.975, cordweight = 0.025, q = 2, minpts = ndim + 1,
-  epsilon = 10, dmax = NULL, rang, optimmethod = c("Nelder-Mead",
-  "Newuoa"), verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
+  lambda, nu), type = c("ratio", "interval"), weightmat = 1 -
+  diag(nrow(delta)), ndim = 2, init = NULL, stressweight = 0.975,
+  cordweight = 0.025, q = 1, minpts = ndim + 1, epsilon = 10,
+  dmax = NULL, rang, optimmethod = c("Nelder-Mead", "Newuoa"),
+  verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
   normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
   stresstype = c("stress-1", "stress"), ...)
 }
@@ -22,6 +23,8 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 \item{nu}{power transformation for weights}
 
 \item{theta}{the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match}
+
+\item{type}{what type of MDS to fit. Currently one of "ratio" or "interval".}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_powerelastic}
 \alias{cop_powerelastic}
-\title{COPS version of elastic scaling with powers}
+\title{PCOPS version of elastic scaling with powers}
 \usage{
 cop_powerelastic(dis, theta = c(1, 1, -2), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
@@ -56,6 +56,6 @@ A list with the components
 }
 }
 \description{
-COPS version of elastic scaling with powers
+PCOPS version of elastic scaling with powers
 }
 \keyword{multivariate}

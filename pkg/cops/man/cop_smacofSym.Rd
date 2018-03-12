@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_smacofSym}
 \alias{cop_smacofSym}
-\title{COPS versions of smacofSym models}
+\title{PCOPS versions of smacofSym models}
 \usage{
 cop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
@@ -55,6 +55,6 @@ A list with the components
 }
 }
 \description{
-COPS versions of smacofSym models
+PCOPS versions of smacofSym models
 }
 \keyword{multivariate}

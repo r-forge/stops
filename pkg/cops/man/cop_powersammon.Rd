@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_powersammon}
 \alias{cop_powersammon}
-\title{COPS version of sammon with powers}
+\title{PCOPS version of sammon with powers}
 \usage{
 cop_powersammon(dis, theta = c(1, 1, -1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
@@ -56,6 +56,6 @@ A list with the components
 }
 }
 \description{
-COPS version of sammon with powers
+PCOPS version of sammon with powers
 }
 \keyword{multivariate}

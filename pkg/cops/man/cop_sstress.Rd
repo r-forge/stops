@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_sstress}
 \alias{cop_sstress}
-\title{COPS version of sstress}
+\title{PCOPS version of sstress}
 \usage{
 cop_sstress(dis, theta = c(2, 1, 1), weightmat = 1 - diag(nrow(dis)),
   init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
@@ -56,6 +56,6 @@ A list with the components
 }
 }
 \description{
-COPS version of sstress
+PCOPS version of sstress
 }
 \keyword{multivariate}

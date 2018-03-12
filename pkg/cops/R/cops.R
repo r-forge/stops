@@ -899,9 +899,9 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
 
 #' Adjusts a configuration
 #' 
-#' @param conf a configuration
-#' @param ref a reference configuration (only for scale="proc") 
-#' @param scale Scale adjustment. "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the reference
+#'@param conf a configuration
+#'@param ref a reference configuration (only for scale="proc") 
+#'@param scale Scale adjustment. "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the reference
 #' @return The scale adjusted configuration.
 #'
 #' @importFrom stats sd
@@ -1066,6 +1066,29 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 
 #' An old ratio MDS cops. Is going to be removed, only here for testing.
 #' 
+#' @param delta numeric matrix or dist object of a matrix of proximities
+#' @param kappa power transformation for fitted distances
+#' @param lambda power transformation for proximities
+#' @param nu power transformation for weights
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
+#' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
+#' @param ndim number of dimensions of the target space
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 0.975
+#' @param cordweight weight to be used for the cordillera; defaults to 0.025
+#' @param q the norm of the corrdillera; defaults to 1
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param dmax The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either a numeric value that matches max(rang) or NULL; if NULL it is found as 1.5 times (for kappa >1) or 1 times (for kappa <=1) the maximum reachbility value of the power torgerson model with the same lambda. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.   
+#' @param rang range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}     
+#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
+#' @param normed should the cordillera be normed; defaults to TRUE
+#' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.   
+#' @param accuracy numerical accuracy, defaults to 1e-8
+#' @param itmax maximum number of iterations. Defaults to 100000
+#' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
+#' @param ... additional arguments to be passed to the optimization procedure
 #' 
 #' @import cordillera
 #' @importFrom stats dist as.dist optim sd

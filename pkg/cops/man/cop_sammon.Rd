@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_sammon}
 \alias{cop_sammon}
-\title{COPS version of sammon mapping}
+\title{PCOPS version of sammon mapping}
 \usage{
 cop_sammon(dis, theta = c(1, 1, -1), ndim = 2, init = NULL,
   weightmat = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
@@ -55,6 +55,6 @@ A list with the components
 }
 }
 \description{
-COPS version of sammon mapping
+PCOPS version of sammon mapping
 }
 \keyword{multivariate}

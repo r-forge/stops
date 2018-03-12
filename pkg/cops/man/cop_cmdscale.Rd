@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_cmdscale}
 \alias{cop_cmdscale}
-\title{COPS version of strain}
+\title{PCOPS version of strain}
 \usage{
 cop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
@@ -55,6 +55,6 @@ A list with the components
 }
 }
 \description{
-COPS version of strain
+PCOPS version of strain
 }
 \keyword{multivariate}

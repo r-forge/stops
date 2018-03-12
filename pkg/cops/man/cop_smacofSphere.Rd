@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{cop_smacofSphere}
 \alias{cop_smacofSphere}
-\title{COPS versions of smacofSphere models}
+\title{PCOPS versions of smacofSphere models}
 \usage{
 cop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
   init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
@@ -55,6 +55,6 @@ A list with the components
 }
 }
 \description{
-COPS versions of smacofSphere models
+PCOPS versions of smacofSphere models
 }
 \keyword{multivariate}

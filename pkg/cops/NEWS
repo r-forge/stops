@@ -1,3 +1,7 @@
+Version 0.2-0
+
+- Changes to copstressMin: Added interval MDS for copstressMin. 
+
 Version 0.1-3
 
 - Changes to copstressMin: Changed the verbose levels. Added the dmax argument and handling (to be consistent with cordillera). Some tweaks to how to find the rang, dmax and init configuration (dmax and init if not supplied do now fit a torgerson model only) - much faster now as we no longer fit three powerstress MDS. Also, the configuration return under $conf now has the scaling from the scale argument, the unscaled configuration is now in the slot $confo. Stress is calculated for the explictly normalized config ($confo) but OC for the scaled config $conf. Scale="none" makes $conf and $confo equivalent. Changed the automatic dmax (now 1.5 times max reachability of power torgerson solution only if kappa>1, else 1 times max reachability). 
