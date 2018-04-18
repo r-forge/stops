@@ -1287,7 +1287,7 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param dmax The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either a numeric value that matches max(rang) or NULL; if NULL it is found as 1.5 times (for kappa >1) or 1 times (for kappa <=1) the maximum reachbility value of the power torgerson model with the same lambda. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.   
 #' @param rang range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}     
-#' @param optimmethod What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.
+#' @param optimmethod What optimizer to use? Choose one of NEWUOA, Nelder-Mead, Hooke-Jeeves (hkj), BB::dfsane, NlcOptim::solnl, Rsolnp::solnp, subplex::subplex, SANN (derivative free) and BFGS (numeric derivative). Usually hkj, BFGS, NEWUOA, subplex and solnl work well (depending on the smoothness of copstress). 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.   
@@ -1336,11 +1336,17 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #' @import cordillera
 #' @importFrom stats dist as.dist optim sd
 #' @importFrom minqa newuoa
+#' @importFrom dfoptim hjk
+#' @importFrom BB dfsane
+#' @importFrom solnl solnl
+#' @importFrom solnp solnp
+#' @importFrom subplex subplex
+#' 
 #' 
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa","BFGS","SANN","hjk","dfsane","solnl","solnp","subplex","snomadr"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1483,10 +1489,64 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          ovalue <-optimized$fval
      }
      if(optimmethod=="Nelder-Mead") {
-         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=verbose-2),...)
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=verbose-2,reltol=accuracy),...)
          xnew <- optimized$par
          itel <- optimized$counts[[1]]
          ovalue <-optimized$val 
+     }
+    if(optimmethod=="BFGS") {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxit=itmax,trace=verbose-2,reltol=accuracy),...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$val 
+     }
+    if(optimmethod=="SANN") {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="SANN",control=list(maxit=itmax,trace=verbose-2,reltol=accuracy),...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$val 
+     }
+     if(optimmethod=="hjk") {
+         optimized <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=verbose-2),...)
+         xnew <- optimized$par
+         itel <- optimized$feval
+         ovalue <-optimized$value 
+     }
+     if(optimmethod=="dfsane") {
+         optimized <- BB::dfsane(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=verbose-2,tol=accuracy),...)
+         xnew <- optimized$par
+         itel <- optimized$feval
+         ovalue <-optimized$residual 
+     }
+     if(optimmethod=="solnl") {
+         optimized <- NlcOptim::solnl(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),maxnFun=itmax,tolFun=accuracy,...)
+         xnew <- optimized$par
+         itel <- optimized$counts[[1]]
+         ovalue <-optimized$fn 
+     }
+     ## if(optimmethod=="isres") {
+     ##     optimized <- nloptr::isres(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),maxeval=itmax,trace=verbose-2,xtol_rel=accuracy,...)
+     ##     xnew <- optimized$par
+     ##     itel <- optimized$iter
+     ##     ovalue <-optimized$value 
+     ## }
+    if(optimmethod=="solnp") {
+         optimized <- Rsolnp::solnp(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(outer.iter=itmax,trace=verbose-2,tol=accuracy),...)
+         xnew <- matrix(optimized$pars,ncol=ndim)
+         itel <- optimized$nfuneval
+         ovalue <-tail(optimized$values,1) 
+     }
+     if(optimmethod=="subplex") {
+         optimized <- subplex::subplex(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,reltol=accuracy),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- optimized$count
+         ovalue <-optimized$value 
+     }
+    if(optimmethod=="snomadr") {
+         optimized <- crs::snomadr(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
+         xnew <- optimized$solution
+         itel <- optimized$iterations
+         ovalue <-optimized$objective 
      }
      xnew <- xnew/enorm(xnew)
      dnew <- sqdist (xnew)
