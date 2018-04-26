@@ -1,11 +1,11 @@
 Package: cops
 Title: Cluster Optimized Proximity Scaling
-Version: 0.2-0
-Date: 2018-03-12
+Version: 0.3-0
+Date: 2018-04-25
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera. There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like interval and ratio MDS for COPS-C and P-COPS with Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ Algorithm).
+Description: Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera. There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like interval and ratio MDS for COPS-C and P-COPS with Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains a function for pattern search optimization (Adaptive LJ Algorithm).
 Depends:
     R (>= 3.1.2),
     cordillera (>= 0.7-2),
@@ -15,7 +15,12 @@ Imports:
     minqa,
     pso,
     rgl,
-    scatterplot3d
+    scatterplot3d,
+    NlcOptim,
+    Rsolnp,
+    dfoptim,
+    subplex,
+    crs
 Enhances: stats
 Suggests:
     testthat,

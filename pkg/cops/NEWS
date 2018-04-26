@@ -1,3 +1,8 @@
+Version 0.3-0
+
+- Changes to copstressMin: Added new deriv free optimizers.
+
+
 Version 0.2-0
 
 - Changes to copstressMin: Added interval MDS for copstressMin. 

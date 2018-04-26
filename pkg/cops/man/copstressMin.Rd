@@ -8,9 +8,10 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   lambda, nu), type = c("ratio", "interval"), weightmat = 1 -
   diag(nrow(delta)), ndim = 2, init = NULL, stressweight = 0.975,
   cordweight = 0.025, q = 1, minpts = ndim + 1, epsilon = 10,
-  dmax = NULL, rang, optimmethod = c("Nelder-Mead", "Newuoa"),
-  verbose = 0, scale = c("sd", "rmsq", "std", "proc", "none"),
-  normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
+  dmax = NULL, rang, optimmethod = c("Nelder-Mead", "Newuoa", "BFGS",
+  "SANN", "hjk", "solnl", "solnp", "subplex", "snomadr", "twostep1", "twostep2",
+  "twostep3", "twostep4"), verbose = 0, scale = c("sd", "rmsq", "std",
+  "proc", "none"), normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
   stresstype = c("stress-1", "stress"), ...)
 }
 \arguments{
@@ -46,7 +47,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}}
 
-\item{optimmethod}{What optimizer to use? Defaults to NEWUOA, Nelder-Mead is also supported.}
+\item{optimmethod}{What optimizer to use? Choose one of NEWUOA, Nelder-Mead, Hooke-Jeeves (hjk), BB::dfsane, NlcOptim::solnl, Rsolnp::solnp, subplex::subplex, SANN (derivative free) and BFGS (numeric derivative). Usually hkj, BFGS, NEWUOA, subplex and solnl work well (depending on the smoothness of copstress). There are also combinations that are good, like hjk/NEWUOA (twostep1), hjk/BFGS (twostep2), BFGS/hjk (twostep6), BFGS/NEWUOA (twostep5), hjk/solnl (twostep3), hjk/subplex (twostep4). Use twostep1.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
