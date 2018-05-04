@@ -1341,12 +1341,13 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #' @importFrom Rsolnp solnp
 #' @importFrom subplex subplex
 #' @importFrom crs snomadr
+#' @importFrom cmaes cma_es
 #' 
 #' 
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("Nelder-Mead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","twostep1","twostep2","twostep3","twostep4"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1482,14 +1483,21 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              ic
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\n")
-     if(optimmethod=="Newuoa") {
+    if(optimmethod=="Newuoa") {
          optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$feval
          ovalue <-optimized$fval
      }
-     if(optimmethod=="Nelder-Mead") {
-         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,trace=0,reltol=accuracy),...)
+    if(optimmethod=="cmaes") {
+         xold <- as.vector(xold)
+         optimized <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- optimized$counts
+         ovalue <-optimized$value
+     }
+     if(optimmethod=="NelderMead") {
+         optimized <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax/16,trace=0,reltol=accuracy),...)
          xnew <- optimized$par
          itel <- optimized$counts[[1]]
          ovalue <-optimized$val 
@@ -1512,7 +1520,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- optimized$feval
          ovalue <-optimized$value 
      }
-    if(optimmethod=="twostep1") {
+    if(optimmethod=="hjk-Newuoa") { #twostep1
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax),...)
          xnew <- optimized1$par
          itel <- optimized1$feval
@@ -1521,7 +1529,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel+optimized$feval
          ovalue <-optimized$fval
      }
-    if(optimmethod=="twostep2") {
+    if(optimmethod=="hjk-BFGS") { #twostep2
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
          xnew <- optimized1$par
          itel <- optimized1$feval
@@ -1530,7 +1538,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel+optimized$counts[[1]]
          ovalue <-optimized$val
      }
-     if(optimmethod=="twostep6") {
+     if(optimmethod=="BFGS-hjk") { #twostep6
          optimized1 <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxit=itmax,trace=0,reltol=accuracy),...)
          xnew <- optimized1$par
          itel <- optimized1$counts[[1]]
@@ -1539,7 +1547,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel+optimized$feval
          ovalue <-optimized$val
      }
-     if(optimmethod=="twostep5") {
+     if(optimmethod=="BFGS-Newuoa") { #twostep5
          optimized1 <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxfeval=itmax,trace=0),...)
          itel <- optimized1$counts[[1]]
          xnew <- optimized1$par
@@ -1548,7 +1556,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel+optimized$feval
          ovalue <-optimized$fval
      }
-        if(optimmethod=="twostep3") {
+        if(optimmethod=="hjk-solnl") {#twostep3
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
          xnew <- optimized1$par
          itel <- optimized1$feval
@@ -1557,7 +1565,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel+optimized$counts[[1]]
          ovalue <-optimized$fn
      }
-      if(optimmethod=="twostep4") {
+      if(optimmethod=="hjk-subplex") {#twostep4
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
          xnew <- optimized1$par
          itel <- optimized1$feval
