@@ -1758,4 +1758,3 @@ cops <- function(dis, variant=c("1","2","Variant1","Variant2","v1","v2","COPS-C"
                  if(variant%in%c("2","Variant2","v2","profile","p-copstress","P-COPS","COPS-P","p-cops","copstress-p")) out <- pcops(dis,...)
                  return(out)
                  }
-

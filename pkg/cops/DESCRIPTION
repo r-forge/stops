@@ -14,17 +14,17 @@ Imports:
     MASS,
     minqa,
     pso,
-    rgl,
     scatterplot3d,
     NlcOptim,
     Rsolnp,
     dfoptim,
     subplex,
-    crs
 Enhances: stats
 Suggests:
     testthat,
-    R.rsp
+    rgl,
+    R.rsp,
+    crs
 License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
