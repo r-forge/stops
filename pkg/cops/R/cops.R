@@ -1647,10 +1647,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     if(optimmethod=="snomadr") {
         copsf2 <- function(x,params)
         {
-        return(copsf(x,delta=params[[1]],disobj=params[[2]],r=params[[3]],n=params[[4]],ndim=params[[5]],weightmat=params[[6]],stressweight=params[[7]],cordweight=params[[8]],q=params[[9]],minpts=params[[10]],epsilon=params[[11]],rang=params[[12]],scale=params[[13]],normed=params[[14]],init=params[[15]]))
+        copsf(x,delta=params[[1]],disobj=params[[2]],r=params[[3]],n=params[[4]],ndim=params[[5]],weightmat=params[[6]],stressweight=params[[7]],cordweight=params[[8]],q=params[[9]],minpts=params[[10]],epsilon=params[[11]],rang=params[[12]],scale=params[[13]],normed=params[[14]],init=params[[15]])
         }       
        params <- list(delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init)
-       optimized <- crs::snomadr(copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
+        optimized <- crs::snomadr(copsf2,params=params,#par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init)
+         ,n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
          xnew <- optimized$solution
          itel <- optimized$iterations
          ovalue <-optimized$objective 
