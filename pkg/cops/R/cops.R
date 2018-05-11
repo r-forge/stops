@@ -1497,7 +1497,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- optimized$iter
          ovalue <-optimized$value
        }
-           if(optimmethod=="direct-Newuoa") {
+        if(optimmethod=="direct-Newuoa") {
          xold <- as.vector(xold)
          optimized1 <- nloptr::direct(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
          xnew <- optimized1$par
@@ -1534,6 +1534,25 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          optimized <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$counts
+         ovalue <-optimized$value
+    }
+     if(optimmethod=="cmaes-Newuoa") {
+         xold <- as.vector(xold)
+         optimized1 <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
+         xnew <- optimized1$par
+         itel <- optimized1$counts
+         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- itel+optimized$feval
+         ovalue <-optimized$fval
+     }
+     if(optimmethod=="Newuoa-cmaes") {
+         optimized1 <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
+         xnew <- optimized1$par
+         itel <- optimized1$feval
+         optimized <- cmaes::cma_es(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
+         xnew <- matrix(optimized$par,ncol=ndim)
+         itel <- optimized$counts+itel
          ovalue <-optimized$value
      }
      if(optimmethod=="NelderMead") {
@@ -1656,24 +1675,24 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- optimized$iterations
          ovalue <-optimized$objective 
     }
-      if(optimmethod=="snomadr-Newuoa") {
-         optimized1 <- crs::snomadr(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
-         xnew <- optimized1$solution
-         itel <- optimized1$iterations
-         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
-         xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- itel+optimized$feval
-         ovalue <-optimized$fval
-      }
-        if(optimmethod=="snomadr-BFGS") {
-         optimized1 <- crs::snomadr(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
-         xnew <- optimized1$solution
-         itel <- optimized1$iterations
-        optimized <- optim(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxit=itmax-itel,trace=0,reltol=accuracy),...)
-         xnew <- optimized$par
-         itel <- itel+optimized$counts[[1]]
-         ovalue <-optimized$val
-     }
+ #     if(optimmethod=="snomadr-Newuoa") {
+ #        optimized1 <- crs::snomadr(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
+#         xnew <- optimized1$solution
+#         itel <- optimized1$iterations
+#         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+#         xnew <- matrix(optimized$par,ncol=ndim)
+#         itel <- itel+optimized$feval
+#         ovalue <-optimized$fval
+#      }
+#        if(optimmethod=="snomadr-BFGS") {
+#         optimized1 <- crs::snomadr(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=w#eightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
+#         xnew <- optimized1$solution
+#         itel <- optimized1$iterations
+#        optimized <- optim(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxit=itmax-itel,trace=0,reltol=accuracy),...)
+#         xnew <- optimized$par
+#         itel <- itel+optimized$counts[[1]]
+#         ovalue <-optimized$val
+#     }
      xnew <- xnew/enorm(xnew)
      dnew <- sqdist (xnew)
      rnew <- sum (weightmat * delta * mkPower (dnew, r))
