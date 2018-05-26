@@ -51,11 +51,11 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)  
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
@@ -121,10 +121,10 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
-  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
@@ -184,10 +184,10 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(kappa,lambda)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
@@ -248,7 +248,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
   fit$stress.n <- fit$stress.r/sum(dis)
-  fit$stress.m <- sqrt(fit$stress)
+  fit$stress.m <- fit$stress^2#TODO: Passt das?
   fit$conf <- fit$points
 #  fit$pars <- c(kappa,lambda,nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
@@ -310,10 +310,10 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
-  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa,lambda,nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
@@ -370,7 +370,8 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
   fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
   fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
-  fit$stress.m <- sqrt(fit$stress.n)
+  fit$stress <- sqrt(fit$stress.n)
+  fit$stress.m <- fit$stress.n
   fit$conf <- fit$points
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$GOF,stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
@@ -699,6 +700,79 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
   out 
 }
 
+
+#' PCOPS versions of approximated power stress models. This uses an approximation and makes use of smacof.
+#'
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the theta vector of powers; this is either a scalar of the tau and upsilon transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the tau argument and the third the upsilon argument. Defaults to 1 1 1 
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a binary matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param cordweight weight to be used for the cordillera; defaults to 0.5
+#' @param q the norm of the cordillera; defaults to 1
+#' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
+#' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
+#' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param normed should the cordillera be normed; defaults to TRUE
+#' @param scale should the configuration be scale adjusted
+#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
+#' @param ... additional arguments to be passed to the fitting procedure
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} the stress
+#'         \item{stress.m:} default normalized stress
+#'         \item{copstress:} the weighted loss value
+#'         \item{OC:} the Optics cordillera value
+#'         \item{parameters:} the parameters used for fitting (kappa, lambda)
+#'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements and some more
+#'         \item{cordillera:} the cordillera object
+#' }
+#'
+#'@importFrom stats dist as.dist
+#'@import cordillera 
+#'@import smacof
+#' 
+#'@keywords multivariate
+#'@export
+cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
+  #TODO Unfolding  
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
+  if(!all.equal(unique(as.vector(weightmat)),c(0,1))) stop("For approximated power stress, only binary weight matrices are allowed.")  
+  #kappa first argument, lambda=second
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,3)
+  if(length(theta)==2L) theta <- c(1,theta) 
+# tau <- theta
+  #if(length(theta)==3L)  {
+        tau <- theta[2]
+        ups <- theta[3]
+   #     }
+ # addargs <- list(...)                                        # addargs
+  combwght <- weightmat*(dis^ups)
+  fit <- smacof::smacofSym(dis^tau,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit$kappa <- 1
+  fit$tau <- tau
+  fit$upsilon <- ups
+  fit$stress.1 <- fit$stress
+ # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
+ # fitdis <- 2*sqrt(sqdist(fit$conf))
+  fitdis <- as.matrix(fit$confdist)
+  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
+ # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
+  fit$stress.r <- sum(combwght*(delts-fitdis)^2)
+  fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
+  fit$pars <- c(fit$kappa,fit$tau,fit$upsilon)
+  fit$deltaorig <- fit$delta^(1/fit$tau)  
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress^2, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,cordillera=copobj) #target functions
+  out
+}
+
+
 #' Calculates copstress for given MDS object 
 #'
 #' @param obj MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)
@@ -753,9 +827,10 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
 #' \itemize{
-#' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerStressMin)
-#' \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerStressMin)
-#' \item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}; workhorse is powerStressMin)
+#' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerstressMin)
+#' \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerstressMin)
+#' \item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping and elastic scaling with powers (\code{powersammon}, \code{powerelastic}, \code{powerstress}; workhorse is powerstressMin)
+#' \item Approximation to power stress: Approximated power stress (\code{apstress}; workhorse is smacof)
 #' }
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If a scalar is given as argument, it will take the role designated by the loss argument. Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
@@ -817,13 +892,20 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' plot(res3,"reachplot") 
 #' par(mfrow=c(1,1))
 #'
+#'
+#'res1<-pcops(dis,loss="powerstress",theta=c(1,1,1),lower=rep(0.1,3),upper=rep(5,3),minpts=2,verbose=3,cordweight=0.25,rang=c(0,1),weightmat=dis)
+#'res1a<-pcops(dis,loss="apstress",lower=0.1,upper=5,minpts=2,verbose=3,cordweight=0.25,rang=c(0,1))
+#'res1a
+#'summary(res1a)
+#'plot(res1a)
+#' 
 #'@importFrom stats dist as.dist optim sd
 #'@importFrom pso psoptim
 #'@import cordillera
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","direct","MADS","hjk"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -831,7 +913,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(loss)) loss <- "strain"
       if(is.null(init)) init <- torgerson(dis,p=ndim)
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss,"strain"=cop_cmdscale,"powerstrain"=cop_cmdscale,"elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic) #choose the stress to minimize
+      psfunc <- switch(loss,"strain"=cop_cmdscale,"powerstrain"=cop_cmdscale,"elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic,"apstress"=cop_apstress) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(missing(rang)) 
           {
@@ -1249,7 +1331,7 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
              }
              if(scale=="none") xnews <- xnew #no standardisation
       if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste("Copstress",optimmethod), call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste("Copstress",optimmethod), call=match.call(), nobj = dim(xnew)[1], type = "copstress", gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
@@ -1300,7 +1382,7 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #'         \itemize{
 #'         \item delta: the original transformed dissimilarities
 #'         \item obsdiss: the explicitly normed transformed dissimilarities (which are approximated by the fit)
-#'         \item confdiss: the fitted distances
+#'         \item confdist: the fitted distances
 #'         \item conf: the configuration to which the scaling of argument scale was applied
 #'         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
 #'         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
@@ -1735,7 +1817,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }
              if(scale=="none") xnews <- xnew #no standardisation
       if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste(type,"copstress",optimmethod), call=match.call(), nobj = n, type = type, gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste(type,"copstress",optimmethod), call=match.call(), nobj = n, type = type, gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)

@@ -1,3 +1,13 @@
+#TODO: Added DIRECT and NOMAD optimization to pcops. Stadnadrize teh plots and outputs to allow for all pars and also use confdist as returned objects instead of confdiss.
+
+Version 0.4-1
+
+- Changes to pcops: Standardized the returned stresses. Reported is sqrt(stress) (object$stress) throughout but used for optimization is stress (object$stress.m). 
+
+Version 0.4-0
+
+- Changes to pcops: Added the approximated power stress which can be estimated with smacof and is much faster than powerstressMin. 
+
 Version 0.3-0
 
 - Changes to copstressMin: Added new deriv free optimizers.
@@ -16,7 +26,6 @@ Version 0.1-2
 - Added scaling of configs in pcops for OC calculation allows now "none", "sd" (divided by max standard deviation), rmsq (divided by maximum root mean square), "proc" (Procrustes adjustment to initial fit) and "std" (which is the old way and now discouraged). For this a new function is exported. Returned optimal configuration does not get scaled. Adapted doc and removed the rstress example. 
 
 Version 0.1-1
-
 - Added new scaling of configs in copstressMin for OC calculation. Using scale() distorted the optimal config. Now one can choose between none, sd (divided by max standard deviation), rmsq (divided by maximum root mean square), proc (Procrustes adjustement to initial fit) and std (which is the old way and now discouraged). Added switch in copstressMin for choosing stress-1 and explicitly normed stress, with stress-1 now the default. Changed default stressweight and cordweight. Extended pcops to allow for the different scalings of X, changed default to the same as for cops-c. Now one can choose between TRUE or 1 which does centering/sd scaling the old way (each column differently now discouraged), 2 (scaling each column differently but no centering also not recommended when dealing with real distances), 3 (divided by max standard deviation), 4 (divided by maximum root mean square), FALSE or 0 for no scaling. 
 
 Version 0.1-0
