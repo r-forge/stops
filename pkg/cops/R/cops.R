@@ -842,7 +842,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
-#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"). We recommend not using the latter with the rstress, sstress and the power stress models. 
+#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We amde good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS. 
 #' @param lower The lower contraints of the search region
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
@@ -901,6 +901,9 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' 
 #'@importFrom stats dist as.dist optim sd
 #'@importFrom pso psoptim
+#'@importFrom nloptr direct directL stogo 
+#'@importFrom csr snomadr
+#'@importFrom dfoptim hjk
 #'@import cordillera
 #' 
 #'@keywords clustering multivariate
