@@ -190,28 +190,28 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if (missing(xlim)) 
             xlim <- range(as.vector(x$delta))
         if (missing(ylim))
-            ylim <- range(as.vector(x$confdiss))
+            ylim <- range(as.vector(x$confdist))
         #delta=dhats
         #proximities=obsdiss
-        #distances=confdiss
-        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        #graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
+        #distances=confdist
+        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        #graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
         #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
         #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
         if(loess) {
-                   pt <- predict(stats::loess(x$confdiss~-1+x$delta))
+                   pt <- predict(stats::loess(x$confdist~-1+x$delta))
                    graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.25)
         }
-        ptl <- predict(stats::lm(x$confdiss~-1+x$delta))
+        ptl <- predict(stats::lm(x$confdist~-1+x$delta))
         graphics::lines(x$delta[order(x$delta)],ptl[order(x$delta)],col=col[3],type="b",pch=20,cex=0.25)
-       # graphics::abline(stats::lm(x$confdiss~-1+x$delta),type="b") #no intercept for fitting
+       # graphics::abline(stats::lm(x$confdist~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
-             dreal <- as.vector(x$confdiss)^(1/kappa)
+             dreal <- as.vector(x$confdist)^(1/kappa)
              if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
              if (missing(ylab)) ylab <- "Dissimilarities"
@@ -250,11 +250,11 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if (missing(xlim)) 
             xlim <- range(as.vector(x$obsdiss))
         if (missing(ylim)) 
-            ylim <- range(as.vector(x$confdiss))
-        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdiss), main = main, 
+            ylim <- range(as.vector(x$confdist))
+        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdist), main = main, 
             type = "p", col = col, xlab = xlab, ylab = ylab, 
             xlim = xlim, ylim = ylim, ...)
-        abline(lm(x$confdiss~x$obsdiss))
+        abline(lm(x$confdist~x$obsdiss))
     }
     if (plot.type == "stressplot") {
         if(missing(col)) col <- "lightgray"
@@ -350,7 +350,7 @@ print.summary.smacofP <- function(x,...)
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed dissimilarities, normalized 
-#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item confdist: Configuration dissimilarities, NOT normalized 
 #' \item conf: Matrix of fitted configuration, NOT normalized
 #' \item stress: Default stress (stress 1, square root of the explicitly normalized stress on the normalized, transformed dissimilarities)  
 #' \item spp: Stress per point (based on stress.en) 
@@ -442,7 +442,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
       weightmat <- stats::as.dist(weightmatm)
       stressen <- sum(weightmat*(doute-delta)^2) #raw stress on the normalized proximities and normalized distances 
       if(verbose>1) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",optimized$fval,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stress, spp=spp, ndim=p, model="Power Stress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = NA, stress.m=sqrt(stress), stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stress, spp=spp, ndim=p, model="Power Stress NEWUOA", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", gamma = NA, stress.m=sqrt(stress), stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
     out
 }
@@ -466,7 +466,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed dissimilarities, normalized 
-#' \item confdiss: Configuration dissimilarities, NOT normalized 
+#' \item confdist: Configuration dissimilarities, NOT normalized 
 #' \item conf: Matrix of fitted configuration, NOT normalized
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item spp: Stress per point (based on stress.en) 
@@ -624,7 +624,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 ## #' \itemize{
 ## #' \item delta: Observed dissimilarities, not normalized
 ## #' \item obsdiss: Observed dissimilarities, normalized 
-## #' \item confdiss: Configuration dissimilarities, NOT normalized 
+## #' \item confdist: Configuration dissimilarities, NOT normalized 
 ## #' \item conf: Matrix of fitted configuration, NOT normalized
 ## #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 ## #' \item spp: Stress per point (based on stress.en) 
@@ -756,7 +756,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 ##      weightmat <- stats::as.dist(weightmatm)
 ##      stressen <- sum(weightmat*(doute-delta)^2)
 ##      if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
-##     out <- list(delta=deltaold, obsdiss=delta, confdiss=dout, conf = xnew, confb= xnewb, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew,b=bnew)
+##     out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, confb= xnewb, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew,b=bnew)
 ##     class(out) <- c("smacofP","smacofB","smacof")
 ##     out
 ##   }

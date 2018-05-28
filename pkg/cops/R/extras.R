@@ -16,7 +16,7 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      colnames(out$points) <- paste("D",1:k,sep="")
      out$call <- match.call()
      out$delta <- as.dist(d) #FIX
-     out$confdiss <- dist(out$points)
+     out$confdist <- dist(out$points)
      class(out) <- "cmdscale"
      out
  }
@@ -42,7 +42,7 @@ sammon <- function(d,y=NULL,k=2,...)
      out$call <- match.call()
      out$delta <- as.dist(d)
      out$obsdiss <- as.dist(d/enorm(d))
-     out$confdiss <- dist(out$points)
+     out$confdist <- dist(out$points)
      out$stress.m <- sqrt(out$stress)
      class(out) <- c("sammon","cmdscale")
      out
@@ -139,22 +139,22 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         if (missing(xlim)) 
             xlim <- range(as.vector(x$delta))
         if (missing(ylim)) 
-            ylim <- range(as.vector(x$confdiss))
-        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, 
+            ylim <- range(as.vector(x$confdist))
+        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, 
             type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
             col = col[1], xlim = xlim, ylim = ylim, ...)
         if(plot.type=="Shepard") {
-             pt <- predict(stats::loess(x$confdiss~x$delta))
+             pt <- predict(stats::loess(x$confdist~x$delta))
              graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
          }
-     graphics::abline(stats::lm(x$confdiss~x$delta))
+     graphics::abline(stats::lm(x$confdist~x$delta))
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
              if(is.null(x$lambda)) x$lambda <- 1
              deltao <- as.vector(x$delta^(1/x$lambda))
              deltat <- as.vector(x$delta)
-             dreal <- as.vector(x$confdiss)
+             dreal <- as.vector(x$confdist)
              if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
              if (missing(ylab)) ylab <- "Dissimilarities"
