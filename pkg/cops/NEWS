@@ -1,4 +1,8 @@
-#TODO: Added DIRECT and NOMAD optimization to pcops. Stadnadrize teh plots and outputs to allow for all pars and also use confdist as returned objects instead of confdiss.
+#TODO:  Stadnadrize teh plots and outputs to allow for all pars and 
+
+Version 0.5-0
+
+- Changes to pcops:  Added DIRECT and NOMAD optimization to pcops. Returned object is now called confdist instead of confdiss.
 
 Version 0.4-1
 

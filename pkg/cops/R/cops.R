@@ -902,7 +902,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #'@importFrom stats dist as.dist optim sd
 #'@importFrom pso psoptim
 #'@importFrom nloptr direct directL stogo 
-#'@importFrom csr snomadr
+#'@importFrom crs snomadr
 #'@importFrom dfoptim hjk
 #'@import cordillera
 #' 
@@ -1650,14 +1650,14 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          xold <- as.vector(xold)
          optimized <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- optimized$counts
+         itel <- optimized$counts[1]
          ovalue <-optimized$value
     }
      if(optimmethod=="cmaes-Newuoa") {
          xold <- as.vector(xold)
          optimized1 <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
-         xnew <- optimized1$par
-         itel <- optimized1$counts
+         xnew <- matrix(optimized1$par,ncol=ndim)
+         itel <- optimized1$counts[1]
          optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- itel+optimized$feval
@@ -1669,7 +1669,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- optimized1$feval
          optimized <- cmaes::cma_es(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- optimized$counts+itel
+         itel <- optimized$counts[1]+itel
          ovalue <-optimized$value
      }
      if(optimmethod=="NelderMead") {

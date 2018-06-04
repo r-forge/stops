@@ -34,7 +34,7 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 \itemize{
 \item delta: Observed dissimilarities, not normalized
 \item obsdiss: Observed dissimilarities, normalized 
-\item confdiss: Configuration dissimilarities, NOT normalized 
+\item confdist: Configuration dissimilarities, NOT normalized 
 \item conf: Matrix of fitted configuration, NOT normalized
 \item stress: Default stress (stress 1, square root of the explicitly normalized stress on the normalized, transformed dissimilarities)  
 \item spp: Stress per point (based on stress.en) 
