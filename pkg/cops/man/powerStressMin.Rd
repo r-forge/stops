@@ -5,7 +5,7 @@
 \title{Power Stress SMACOF}
 \usage{
 powerStressMin(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
-  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-10, itmax = 1e+05,
+  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-10, itmax = 50000,
   verbose = FALSE)
 }
 \arguments{
@@ -25,7 +25,7 @@ powerStressMin(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
 
 \item{acc}{numeric accuracy of the iteration}
 
-\item{itmax}{maximum number of iterations}
+\item{itmax}{maximum number of iterations. Default is 50000.}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }

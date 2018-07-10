@@ -5,10 +5,11 @@
 \title{COPS version of powerstress}
 \usage{
 cop_powerstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
-  init = NULL, ndim = 2, ..., stressweight = 1, cordweight = 0.5,
-  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
-  scale = 2, normed = TRUE, stresstype = c("default", "stress1",
-  "rawstress", "normstress", "enormstress", "enormstress1"))
+  init = NULL, ndim = 2, itmaxi = 10000, ..., stressweight = 1,
+  cordweight = 0.5, q = 1, minpts = ndim + 1, epsilon = 10,
+  rang = NULL, verbose = 0, scale = 2, normed = TRUE,
+  stresstype = c("default", "stress1", "rawstress", "normstress",
+  "enormstress", "enormstress1"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -20,6 +21,8 @@ cop_powerstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
 \item{init}{(optional) initial configuration}
 
 \item{ndim}{number of dimensions of the target space}
+
+\item{itmaxi}{number of iterations. default is 10000.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

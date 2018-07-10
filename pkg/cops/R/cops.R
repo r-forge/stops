@@ -3,6 +3,7 @@
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to 1). Defaults to 1 1 1 
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -34,7 +35,7 @@
 #' 
 #'@keywords multivariate
 #'@export
-cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
+cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -44,7 +45,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
   if(length(theta)==3L) lambda <- theta[2]
  # addargs <- list(...)
  # addargs
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -68,6 +69,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -100,7 +102,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...
 #' 
 #'@keywords multivariate
 #'@export
-cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -114,7 +116,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -138,6 +140,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and teh third the nu argument (here internally fixed to 1). Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -168,7 +171,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,...,str
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
-cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -178,7 +181,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
   if(length(theta)==2L) lambda <- theta[2]
   addargs <- list(...)
   addargs
-  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$stress.1 <- fit$stress
@@ -201,6 +204,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1 
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -232,7 +236,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,..
 #'
 #' 
 #' @export
-cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
+cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(length(theta)==1L) lambda <- theta
@@ -240,7 +244,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
   if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
  # if(is.null(init)) init <- cops::cmdscale(dis^lambda,k=ndim)$points
-  fit <- cops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
+  fit <- cops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
@@ -260,6 +264,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1. 
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the sammon weights)
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -291,7 +296,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,s
 #' @import cordillera
 #'@keywords multivariate
 #'@export
-cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
@@ -303,7 +308,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -328,6 +333,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second and third the lambda and the nu argument (the latter is fixed to 1). Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. No effect here.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -357,7 +363,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
+cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) lambda <- theta
   if(length(theta)==2L) lambda <- theta[2]
@@ -382,6 +388,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1 
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -409,12 +416,12 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,
 #' @keywords multivariate
 #' @import cordillera
 #' @export
-cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   kappa <- theta
   if(length(theta)==3L) kappa <- theta[1] 
-  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -437,6 +444,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -464,13 +472,13 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @keywords multivariate
 #' @import cordillera
 #' @export
-cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   if(length(theta)==3L) lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
-  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -491,6 +499,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), nu is fixed to 1. If a scalar is given it is recycled.  Defaults to 1 1 1.
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -518,11 +527,11 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @keywords multivariate
 #' @import cordillera
 #' @export
-cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -542,6 +551,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (fixed to -1). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -569,7 +579,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
@@ -577,7 +587,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
   sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
   combwght <- sammwght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -597,6 +607,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -624,7 +635,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
@@ -632,7 +643,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   elawght <- dis^(theta[2])
   diag(elawght) <- 1
   combwght <- elawght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -652,6 +663,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -679,13 +691,13 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=2,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=2,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,3)
   wght <- weightmat
   diag(wght) <- 1
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
   if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
@@ -706,6 +718,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the tau and upsilon transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the tau argument and the third the upsilon argument. Defaults to 1 1 1 
 #' @param ndim number of dimensions of the target space
+#' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a binary matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -737,7 +750,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #' 
 #'@keywords multivariate
 #'@export
-cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
+cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -753,7 +766,7 @@ cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,...,
    #     }
  # addargs <- list(...)                                        # addargs
   combwght <- weightmat*(dis^ups)
-  fit <- smacof::smacofSym(dis^tau,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^tau,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$kappa <- 1
   fit$tau <- tau
   fit$upsilon <- ups
@@ -849,7 +862,10 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
 #'@param s number of particles if pso is used
-#'@param stresstype what stress to be used for comparisons between solutions 
+#'@param stresstype what stress to be used for comparisons between solutions
+#'@param itmaxo iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.  
+#'@param itmaxi iterations of the inner step (optimization of the MDS). Defaults to 10000 (whichis huge).
+#'@param acc termination threshold difference of two successive outer minimization steps.
 #'@param ... additional arguments to be passed to the optimization procedure
 #'
 #'@return A list with the components
@@ -908,7 +924,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",acc=1e-7,itmax=500,...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",acc=1e-7,itmaxo=200,itmaxi=10000,...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -921,7 +937,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(rang)) 
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
+           initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
            init0 <- initsol$fit$conf
            #if(scale=="std") init0 <- scale(init0)
            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
@@ -939,7 +955,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       {
           if(!exists("initsol")) {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
+                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
           }
             init0 <- initsol$fit$conf
             init0 <- scale_adjust(init0,.confin,scale=scale)
@@ -953,28 +969,28 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
             }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,method="SANN",maxit=itmax,...)
+          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,method="SANN",maxit=itmaxo,...)
       }
       if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,control=control)
-          thetaopt <- opt$par
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,control=control)
+        thetaopt <- opt$par
        }
       if(optimmethod=="ALJ") {
-          opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,acc=acc,...)
+          opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc,...)
             thetaopt <- opt$par
       }
       if(optimmethod=="DIRECT") {
-          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),...)
+          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
       }
        if(optimmethod=="stogo") {
-           opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),maxeval=itmax,xtol_rel=acc,...)
+           opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),maxeval=itmaxo,xtol_rel=acc,...)
              thetaopt <- opt$par
       }
       if(optimmethod=="DIRECTL") {
-          opt<- nloptr::directL(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),...)
+          opt<- nloptr::directL(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
        }
       if(optimmethod=="MADS") {
@@ -987,17 +1003,17 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
         tmpo <- do.call(psfunc,parlist)
         return(tmpo$copstress)
        }
-       params <- list(psfunc,dis=dis,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-4,scale=scale,normed=normed,stresstype=stresstype)   
-       opt<- crs::snomadr(n=length(theta),x0=theta,eval.f=eval.f.pars,params=params,bbin=0,lb=lower,ub=upper,print.output=isTRUE(all.equal(verbose-2,0)),opts=list("MAX_BB_EVAL"=itmax),...)
+       params <- list(psfunc,dis=dis,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-4,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi)   
+       opt<- crs::snomadr(n=length(theta),x0=theta,eval.f=eval.f.pars,params=params,bbin=0,lb=lower,ub=upper,print.output=isTRUE(all.equal(verbose-2,0)),opts=list("MAX_BB_EVAL"=itmaxo),...)
        thetaopt <- opt$solution
        opt$par <- opt$solution  
        }
       if(optimmethod=="hjk") {
-          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype))$copstress,lower=lower,upper=upper,control=list(info=isTRUE(all.equal(verbose-2,0)),maxfeval=itmax,tol=acc),...)
+          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,control=list(info=isTRUE(all.equal(verbose-2,0)),maxfeval=itmaxo,tol=acc),...)
        thetaopt <- opt$par
        } 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
-    out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype))
+    out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
     confopt <- scale_adjust(out$fit$conf,.confin,scale=scale)
     out$OC <- cordillera::cordillera(confopt,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
     #out$copstress <- opt$value 
@@ -1409,7 +1425,7 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.   
 #' @param accuracy numerical accuracy, defaults to 1e-8
-#' @param itmax maximum number of iterations. Defaults to 100000
+#' @param itmax maximum number of iterations. Defaults to 50000
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
@@ -1451,6 +1467,7 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #'plot(res1)  #super clustered
 #'
 #' @import cordillera
+#' @importFrom utils tail
 #' @importFrom stats dist as.dist optim sd
 #' @importFrom minqa newuoa
 #' @importFrom dfoptim hjk
@@ -1459,12 +1476,14 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #' @importFrom subplex subplex
 #' @importFrom crs snomadr
 #' @importFrom cmaes cma_es
+#' @importFrom rgenoud genoud
+#' @importFrom GenSA GenSA
 #' 
 #' 
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 100000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 50000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1772,7 +1791,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          optimized <- Rsolnp::solnp(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(outer.iter=itmax,trace=0,tol=accuracy),...)
          xnew <- matrix(optimized$pars,ncol=ndim)
          itel <- optimized$nfuneval
-         ovalue <-tail(optimized$values,1) 
+         ovalue <-utils::tail(optimized$values,1) 
      }
      if(optimmethod=="subplex") {
          optimized <- subplex::subplex(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax,reltol=accuracy),...)

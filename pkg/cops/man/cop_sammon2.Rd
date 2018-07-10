@@ -5,8 +5,8 @@
 \title{COPS versions of Sammon mapping models (via smacofSym)}
 \usage{
 cop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
-  init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
-  minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
+  init = NULL, itmaxi = 1000, ..., stressweight = 1, cordweight = 0.5,
+  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
   normed = TRUE, scale = 3, stresstype = "default")
 }
 \arguments{
@@ -19,6 +19,8 @@ cop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
 \item{weightmat}{(optional) a matrix of nonnegative weights (NOT the sammon weights)}
 
 \item{init}{(optional) initial configuration}
+
+\item{itmaxi}{number of iterations. default is 1000.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

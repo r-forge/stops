@@ -12,7 +12,8 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
   optimmethod = c("ALJ", "pso", "SANN", "DIRECT", "DIRECTL", "stogo", "MADS",
   "hjk"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
   scale = c("proc", "sd", "none", "std"), normed = TRUE, s = 4,
-  stresstype = "default", acc = 1e-07, itmax = 500, ...)
+  stresstype = "default", acc = 1e-07, itmaxo = 200, itmaxi = 10000,
+  ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -60,6 +61,12 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 \item{s}{number of particles if pso is used}
 
 \item{stresstype}{what stress to be used for comparisons between solutions}
+
+\item{acc}{termination threshold difference of two successive outer minimization steps.}
+
+\item{itmaxo}{iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.}
+
+\item{itmaxi}{iterations of the inner step (optimization of the MDS). Defaults to 10000 (whichis huge).}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }

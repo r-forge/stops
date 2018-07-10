@@ -1,5 +1,9 @@
 #TODO:  Stadnadrize teh plots and outputs to allow for all pars and 
 
+Version 0.6-0
+
+- Changes to all methods: Changed numer of iteration defaults to much lower values (thanks to Patrick Groenen). At least a speedup of 2 is expected for COPS-C and about 10x for P-COPS. 
+
 Version 0.5-0
 
 - Changes to pcops:  Added DIRECT and NOMAD optimization to pcops. Returned object is now called confdist instead of confdiss.

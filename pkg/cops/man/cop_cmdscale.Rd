@@ -5,8 +5,8 @@
 \title{PCOPS version of strain}
 \usage{
 cop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
-  init = NULL, ..., stressweight = 1, cordweight = 0.5, q = 1,
-  minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
+  init = NULL, itmaxi = 1000, ..., stressweight = 1, cordweight = 0.5,
+  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
   scale = 3, normed = TRUE, stresstype = "default")
 }
 \arguments{
@@ -19,6 +19,8 @@ cop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
 \item{ndim}{number of dimensions of the target space}
 
 \item{init}{(optional) initial configuration}
+
+\item{itmaxi}{number of iterations. No effect here.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

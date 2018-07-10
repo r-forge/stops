@@ -5,7 +5,7 @@
 \title{Power stress minimization by NEWUOA}
 \usage{
 powerStressFast(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
-  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-12, itmax = 1e+05,
+  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-12, itmax = 50000,
   verbose = FALSE)
 }
 \arguments{
@@ -25,7 +25,7 @@ powerStressFast(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
 
 \item{acc}{The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.}
 
-\item{itmax}{maximum number of iterations}
+\item{itmax}{maximum number of iterations. Default is 50000.}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }

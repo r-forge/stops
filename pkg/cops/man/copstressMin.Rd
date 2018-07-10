@@ -12,7 +12,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
   "hjk", "solnl", "solnp", "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS",
   "BFGS-hjk", "Newuoa-hjk", "cmaes", "direct", "direct-Newuoa", "direct-BFGS",
   "genoud", "gensa"), verbose = 0, scale = c("sd", "rmsq", "std", "proc",
-  "none"), normed = TRUE, accuracy = 1e-07, itmax = 1e+05,
+  "none"), normed = TRUE, accuracy = 1e-07, itmax = 50000,
   stresstype = c("stress-1", "stress"), ...)
 }
 \arguments{
@@ -58,7 +58,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{accuracy}{numerical accuracy, defaults to 1e-8}
 
-\item{itmax}{maximum number of iterations. Defaults to 100000}
+\item{itmax}{maximum number of iterations. Defaults to 50000}
 
 \item{stresstype}{which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.}
 
