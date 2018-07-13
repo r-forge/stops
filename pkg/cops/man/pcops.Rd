@@ -30,7 +30,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
 
 \item{ndim}{number of dimensions of the target space}
 
-\item{init}{(optional) initial configuration}
+\item{init}{(optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.}
 
 \item{theta}{the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If a scalar is given as argument, it will take the role designated by the loss argument. Defaults to 1 1 1}
 
