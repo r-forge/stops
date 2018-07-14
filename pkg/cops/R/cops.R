@@ -980,7 +980,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
        }
       if(optimmethod=="ALJ") {
           opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc,...)
-             opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc)
+            # opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc)
             thetaopt <- opt$par
       }
       if(optimmethod=="DIRECT") {
