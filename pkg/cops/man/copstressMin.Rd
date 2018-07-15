@@ -56,7 +56,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{accuracy}{numerical accuracy, defaults to 1e-8}
+\item{accuracy}{numerical accuracy, defaults to 1e-7}
 
 \item{itmax}{maximum number of iterations. Defaults to 50000}
 
