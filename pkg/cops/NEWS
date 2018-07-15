@@ -1,6 +1,10 @@
 #TODO:  Stadnadrize teh plots and outputs to allow for all pars and 
 
 
+Version 0.6-2
+
+- Changes to copsc: Stress normalization that is reported and used for copstress changed. Now the default reported and used is stress-1. Setting stresstype="stress" will use stress but also report stress-1.
+
 Version 0.6-1
 
 - Changes to pcops: New initial configuration; now matches how powerstressMin does it.

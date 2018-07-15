@@ -74,14 +74,15 @@ A list with the components
         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
         \item niter: number of iterations of the optimizer
-        \item stress: the square root of explicitly normalized stress (calculated for confo)
+        \item stress: the square root of explicitly normalized stress (calculated for confo).
         \item spp: stress per point
         \item ndim: number of dimensions
         \item model: Fitted model name with optimizer
         \item call: the call
         \item nobj: the number of objects
         \item type, loss, losstype: stresstype
-        \item stress.m, stress.en: other ways to calculate the stress
+        \item stress.m: The stress used for copstress. If stresstype="stress-1" this is like $stress else it is stress^2
+        \item stress.en: another ways to calculate the stress
         \item deltaorig: the original untransformed dissimilarities  
         \item copstress: the copstress loss value
         \item resmat: the matrix of residuals

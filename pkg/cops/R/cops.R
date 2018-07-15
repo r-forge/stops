@@ -1440,14 +1440,15 @@ copstressMinOLD <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambd
 #'         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
 #'         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
 #'         \item niter: number of iterations of the optimizer
-#'         \item stress: the square root of explicitly normalized stress (calculated for confo)
+#'         \item stress: the square root of explicitly normalized stress (calculated for confo).
 #'         \item spp: stress per point
 #'         \item ndim: number of dimensions
 #'         \item model: Fitted model name with optimizer
 #'         \item call: the call
 #'         \item nobj: the number of objects
 #'         \item type, loss, losstype: stresstype
-#'         \item stress.m, stress.en: other ways to calculate the stress
+#'         \item stress.m: The stress used for copstress. If stresstype="stress-1" this is like $stress else it is stress^2
+#'         \item stress.en: another ways to calculate the stress
 #'         \item deltaorig: the original untransformed dissimilarities  
 #'         \item copstress: the copstress loss value
 #'         \item resmat: the matrix of residuals
@@ -1721,7 +1722,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          ovalue <-optimized$value 
      }
     if(optimmethod=="hjk-Newuoa") { #twostep1
-         optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax),...)
+         optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,...)
          xnew <- optimized1$par
          itel <- optimized1$feval
          optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
@@ -1769,7 +1770,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
          xnew <- optimized1$par
          itel <- optimized1$feval
-         optimized <- subplex::subplex(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax-itel+1,reltol=accuracy),...)
+         optimized <- subplex::subplex(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax-itel,reltol=accuracy),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- itel+optimized$count
          ovalue <-optimized$value
@@ -1840,8 +1841,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      rnew <- sum (weightmat * delta * mkPower (dnew, r))
      nnew <- sum (weightmat * mkPower (dnew,  2*r))
      anew <- rnew / nnew
-     stress <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-     if(stresstype=="stress-1") stress <- sqrt(stress)
+     stress.m <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
+     stress <- sqrt(stress.m)
+     if(stresstype=="stress-1") {
+         stress.m <- sqrt(stress.m)
+         }
      attr(xnew,"dimnames")[[1]] <- rownames(delta)
      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
      #doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
@@ -1876,8 +1880,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
                  xnews <- procr$Yhat
              }
              if(scale=="none") xnews <- xnew #no standardisation
-      if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress,"; stress 1 (both normalized - default reported):",sqrt(stress),"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=sqrt(stress), spp=spp, ndim=ndim, model=paste(type,"copstress",optimmethod), call=match.call(), nobj = n, type = type, gamma=NA, stress.m=stress, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+      if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress.m,"; stress 1 (both normalized - default reported):",stress,"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stress, spp=spp, ndim=ndim, model=paste(type,"copstress",optimmethod), call=match.call(), nobj = n, type = type, gamma=NA, stress.m=stress.m, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$par <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
