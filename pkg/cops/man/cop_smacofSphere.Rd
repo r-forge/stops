@@ -4,7 +4,7 @@
 \alias{cop_smacofSphere}
 \title{PCOPS versions of smacofSphere models}
 \usage{
-cop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
+cop_smacofSphere(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
   init = NULL, itmaxi = 1000, ..., stressweight = 1, cordweight = 0.5,
   q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
   normed = TRUE, scale = 3, stresstype = "default")
@@ -12,7 +12,7 @@ cop_smacofSphere(dis, theta = c(1, 1), ndim = 2, weightmat = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and teh third the nu argument (here internally fixed to 1). Defaults to 1 1 1}
+\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument. Defaults to 1 1 1}
 
 \item{ndim}{number of dimensions of the target space}
 
