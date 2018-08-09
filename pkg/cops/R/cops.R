@@ -1076,6 +1076,23 @@ print.cops <- function(x,...)
     cat("\n")
     }
 
+#'@export
+print.copsc <- function(x,...)
+    {
+    cat("\nCall: ")
+    print(x$call)
+    cat("\n")
+    cat("Model:",x$typo,"COPS-C with parameter vector=",x$parameters,"\n")
+    cat("\n")
+    cat("Number of objects:", x$nobj, "\n")
+    cat("Stress of configuration (default normalization):", x$stress, "\n")
+    cat("OPTICS Cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
+    cat("Cluster optimized loss (copstress): ", x$copstress, "\n")
+    cat("Stress weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
+    cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
+    cat("\n")
+    }
+
 
 #'@export
 summary.pcops <- function(object,...)
@@ -1216,7 +1233,8 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param lambda power transformation for proximities
 #' @param nu power transformation for weights
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
-#' @param type what type of MDS to fit. Currently one of "ratio" or "interval".
+#' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
+#' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
 #' @param ndim number of dimensions of the target space
 #' @param init (optional) initial configuration
@@ -1291,27 +1309,31 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval"), weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 50000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 50000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
     trans <- type
+    typo <- type
     if (trans=="ratio"){
     trans <- "none"
     }
     #TODO: if we want other optimal scalings as well
-    #else if (trans=="ordinal" & ties=="primary"){
-    #trans <- "ordinalp"
-  #} else if(trans=="ordinal" & ties=="secondary"){
-  #  trans <- "ordinals"
-  #} else if(trans=="ordinal" & ties=="tertiary"){
-  #  trans <- "ordinalt"
+    else if (trans=="ordinal" & ties=="primary"){
+    trans <- "ordinalp"
+    typo <- "ordinal (primary)"
+   } else if(trans=="ordinal" & ties=="secondary"){
+    trans <- "ordinals"
+    typo <- "ordinal (secondary)"
+  } else if(trans=="ordinal" & ties=="tertiary"){
+    trans <- "ordinalt"
+    typo <- "ordinal (tertiary)"
   #} else if(trans=="spline"){
   #  trans <- "mspline"
-  #}
-    if(type=="interval") theta <- c(1,1,1) #We dont allow powers in intervall MDS as of yet
+   }
+    if(type=="interval" | type =="ordinal") theta <- c(1,1,1) #We dont allow powers in interval and nonmetric MDS as of yet
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
@@ -1697,8 +1719,9 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     out$cordweight <- cordweight
     out$optimethod <- optimmethod
     out$losstype <- out$loss
+    out$type <- typo
     #out$nobj <- dim(out$conf)[1]
-    class(out) <- c("cops","smacofP","smacofB","smacof")
+    class(out) <- c("copsc","cops","smacofP","smacofB","smacof")
     out
 }
 

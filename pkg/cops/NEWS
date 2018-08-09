@@ -1,8 +1,14 @@
-#TODO:  Standardize the plots and outputs to allow for all pars and 
+#TODO:  Standardize the plots
+
+
+Version 0.7-0:
+- Added nonmetric COPS-C and docs. 
+- Changed the summary and class of cops-c and the according methods.
 
 Version 0.6-3:
+
 - Added ORCID.
-- Changed iternals of all cops function to have a $theta and $parameters argument. copstress now extracts $parameters. print function for pcops models has been updated accordingly. Also, powerstressMin now returns $parameters, $theta as well.
+- Changed internals of all cops function to have a $theta and $parameters argument. copstress now extracts $parameters. print function for pcops models has been updated accordingly. Also, powerstressMin now returns $parameters, $theta as well.
 
 Version 0.6-2
 
