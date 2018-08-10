@@ -93,7 +93,8 @@ A list with the components
         \item OCv: the (normed) OPTICS Cordillera value alone (calculated for scaled conf)
         \item optim: the object returned from the optimization procedure
         \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
-        \item optimmethod: The optimizer
+        \item optimmethod: The solver used 
+        \item type: the type of MDS fitted
 }
 }
 \description{

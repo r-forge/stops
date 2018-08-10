@@ -1,9 +1,9 @@
 #TODO:  Standardize the plots
 
-
 Version 0.7-0:
 - Added nonmetric COPS-C and docs. 
-- Changed the summary and class of cops-c and the according methods.
+- Changed the summary and class of copsc and the according methods.
+- Added $typo to output of copstressMin
 
 Version 0.6-3:
 

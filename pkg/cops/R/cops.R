@@ -1082,7 +1082,7 @@ print.copsc <- function(x,...)
     cat("\nCall: ")
     print(x$call)
     cat("\n")
-    cat("Model:",x$typo,"COPS-C with parameter vector=",x$parameters,"\n")
+    cat("Model:",x$typo,"COPS-C with parameter vector =",x$parameters,"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
     cat("Stress of configuration (default normalization):", x$stress, "\n")
@@ -1280,7 +1280,8 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'         \item OCv: the (normed) OPTICS Cordillera value alone (calculated for scaled conf)
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
-#'         \item optimmethod: The optimizer
+#'         \item optimmethod: The solver used 
+#'         \item type: the type of MDS fitted
 #' }
 #' 
 #'@examples
@@ -1708,7 +1709,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }
              if(scale=="none") xnews <- xnew #no standardisation
       if(verbose>0) cat("*** stress (both normalized - for COPS/STOPS):",stress.m,"; stress 1 (both normalized - default reported):",stress,"; stress manual (for debug only):",stressen,"; from optimization: ",ovalue,"\n")   
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stress, spp=spp, ndim=ndim, model=paste(type,"copstress",optimmethod), call=match.call(), nobj = n, type = type, gamma=NA, stress.m=stress.m, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnews, confo=xnew, pars=c(kappa,lambda,nu), niter = itel, stress=stress, spp=spp, ndim=ndim, model=paste(typo,"copstress",optimmethod), call=match.call(), nobj = n, type = type, ties=ties, gamma=NA, stress.m=stress.m, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat)
     out$parameters <- out$theta <- theta
     out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
@@ -1719,7 +1720,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     out$cordweight <- cordweight
     out$optimethod <- optimmethod
     out$losstype <- out$loss
-    out$type <- typo
+    out$typo <- typo
     #out$nobj <- dim(out$conf)[1]
     class(out) <- c("copsc","cops","smacofP","smacofB","smacof")
     out

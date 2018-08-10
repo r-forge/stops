@@ -1,7 +1,7 @@
 Package: cops
 Title: Cluster Optimized Proximity Scaling
 Version: 0.7-0
-Date: 2018-08-09
+Date: 2018-08-10
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
