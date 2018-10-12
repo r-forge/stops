@@ -20,6 +20,6 @@ calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) w
 }
 \examples{
 delts<-smacof::kinshipdelta
-dis<-smacofSym(delts)$confdiss
+dis<-smacofSym(delts)$confdist
 c_faithfulness(dis,delts,k=3)
 }
