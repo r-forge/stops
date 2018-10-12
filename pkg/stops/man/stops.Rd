@@ -9,22 +9,19 @@
 \usage{
 stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "powermds", "powerelastic", "powerstrain", "elastic", "sammon", "sammon2",
-  "smacofSphere", "powersammon", "rstress", "sstress"),
-  transformation = mkPower, theta = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
-  ndim = 2, weightmat = NULL, init = NULL, stressweight = 1,
-  strucweight, strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging",
-  "tgp"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
-  type = c("additive", "multiplicative"), s = 5, initpoints = 10,
-  itmax = 50, model, ...)
+  "smacofSphere", "powersammon", "rstress", "sstress", "isomap"), theta = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness"), ndim = 2, weightmat = NULL,
+  init = NULL, stressweight = 1, strucweight, strucpars,
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower = c(1, 1,
+  0.5), upper = c(5, 5, 2), verbose = 0, type = c("additive",
+  "multiplicative"), s = 5, initpoints = 10, itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{loss}{which loss function to be used for fitting, defaults to stress}
-
-\item{transformation}{function to transform the proximities and/or distances; need to be parameterized by theta; currently not used}
 
 \item{theta}{parameters for the proximiy and distance transformation}
 
@@ -61,6 +58,8 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
+
+\item{transformation}{function to transform the proximities and/or distances; need to be parameterized by theta; currently not used}
 }
 \value{
 see \code{\link{pcops}}

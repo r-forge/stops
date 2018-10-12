@@ -2267,3 +2267,982 @@ res/ft>res*cw
 
 1/ft>cw
 
+
+#### ---- supporting functions for the main function
+#source("myfunctions.R")
+                                       
+#### ---- The main function for LMDS algorthim:
+# Arguments:
+# Do (nXn): dissimilarity(distance) matrix
+# Inb (nXn): 1 for neighboring pairs; 0 for non-neighboring pairs; Inb[i,i] <- 1
+# X1 (nXd): intial configuration, which is not specified by default (X1=NULL).
+# random.start: Only matters when X1=NULL.
+#               =1 random normal start; =0 Classical MDS configuration start.
+# d: the dimension of the configuration
+# lambda, mu, nu: tuning parameters for generalized LMDS family
+#                 with default value for original LMDS function.
+# tau:  tuning parameter for relative strength of repulsion force; one should start
+#       with realtive large value like tau=1 and gradually lower it. Save the
+#       configuration for larger tau as the intial start for the  next choice
+#       of tau.
+# niter: number of optimizing iterations, usually 500~1000 is enough.
+# plot: =T to visualize of optimization procedure based on the first two PCs of
+#       the configuration.
+# color: a vector of length n to specify the color of the points
+
+# -- output the configuration nXd and meta-criterion
+
+boxcoxmds1 <- function(Do,Inb,X1=NULL,random.start=1,d=2,lambda=1,mu=1,nu=0,tau=1,
+                   niter=1000,plot=TRUE,color=NULL)
+{
+  #TODO:  normalization works for lambda=1 and nu=0 and any mu. Why not for tau?
+  n <- nrow(Do)
+  # Do <- Do/norm(Do) #new 
+  #Do <- dist(X)
+  #Daux <- apply(Do,2,sort)[k+1,]# choose the kth smallest distance expect 0.
+  #Inb <- ifelse(Do>Daux, 0,1)
+  k.v <-  apply(Inb, 1, sum) #neighbour vertices
+  k <- (sum(k.v)-n)/n #effective number of neighbours
+  Inb.sum <- matrix(rep(k.v, n),ncol=n)
+  Mka <- 0
+  Inb1 <- pmax(Inb,t(Inb)) # expanding the neighbors for symmetry.
+   
+  Dnu <- ifelse(Inb1==1, Do^nu, 0)
+  Dnulam <- ifelse(Inb1==1, Do^(nu+1/lambda), 0)
+  diag(Dnu) <- 0
+  diag(Dnulam) <- 0
+ 
+  cc <- (sum(Inb1)-n)/n/n*median(Dnulam[Dnulam!=0]) #stepsize multiplikator
+  t <- tau*cc #penalty
+  
+  Grad <- matrix (0, nrow=n, ncol= d)
+  if(is.null(X1) & random.start==1)
+      X1 <- matrix(rnorm(n*d),nrow=n,ncol=d)
+  if(is.null(X1) & random.start==0)
+    {
+      #J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
+      #B <- - 1/2 * J %*% Do %*% J
+      #pc <- princomp(B)
+      #X1 <- pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+      cmd <- cmds(Do)
+      X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
+        norm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+                                        # pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+
+    }
+  D1 <- dist(X1)
+  
+  X1 <- X1*norm(Do)/norm(D1)
+
+  s1 <- Inf #stressinit
+  s0 <- 2 #stress check for update
+  stepsize <-0.1
+  i <- 0
+
+while ( stepsize > 1E-5 && i < niter)
+  {
+    if (s1 >= s0 && i>1)
+    {
+       #stepsize if stress (s1) >= old s1 (=s0) oder >2   
+       stepsize<- 0.5*stepsize
+       X1 <- X0 - stepsize*normgrad
+     }
+    else 
+      {
+      #stepsize if stress (s1) < old s1       
+      stepsize <- 1.05*stepsize
+      X0 <- X1
+      D1mu2 <- D1^(mu-2)
+      diag(D1mu2) <- 0
+      D1mulam2 <- D1^(mu+1/lambda-2)
+      diag(D1mulam2) <- 0
+      M <- Dnu*D1mulam2-D1mu2*(Dnulam+t*(!Inb1))
+      E <- matrix(rep(1,n*d),n,d)
+      Grad <- X0*(M%*%E)-M%*%X0
+      normgrad <- (norm(X0)/norm(Grad))*Grad         
+      X1 <- X0 - stepsize*normgrad
+     }
+    i <- i+1
+    s0 <- s1 
+    D1 <- dist(X1)
+    
+    D1mulam <- D1^(mu+1/lambda)
+    diag(D1mulam) <- 0
+    D1mu <- D1^mu
+    diag(D1mu) <- 0
+
+    #for normalization:
+    #worst case
+    D10 <- D1*0
+    D1mulam0 <- D10^(mu+1/lambda)
+    diag(D1mulam0) <- 0
+    D1mu0 <- D10^mu
+    #best case
+    D1p <- Dnulam
+    D1mulamp <- D1p^(mu+1/lambda)
+    diag(D1mulamp) <- 0
+    D1mup <- D1p^mu
+    
+    if(mu+1/lambda==0)
+      {
+          diag(D1)<-1
+       #stress   
+          s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu
+          D10 <- -100000
+                  #ACHTUNG: Penalty term has no D0 and Dp in it so it is just a shift: otherwise the penalty makes the normalization putt 
+          s10 <- sum(Dnu*log(D10))-sum((D1mu0)*Dnulam)/mu - t*sum((D1mu-1)*(1-Inb1))/mu
+          s1p <- sum(Dnu*log(D1p))-sum((D1mup)*Dnulam)/mu - t*sum((D1mu-1)*(1-Inb1))/mu
+      }
+
+    if(mu==0)
+      {
+      diag(D1)<-1
+      #stress
+      s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
+      D10 <- -100000
+      #ACHTUNG: Penalty term has no D0 and Dp in it so it is just a shift: otherwise the penalty makes the normalization putt 
+      s10 <- sum(Dnu*(D1mulam0))/(mu+1/lambda) -sum(log(D10)*Dnulam)-t*sum(log(D10)*(1-Inb1))
+      s1p <- sum(Dnu*(D1mulamp))/(mu+1/lambda) -sum(log(D1p)*Dnulam)-t*sum(log(D1p)*(1-Inb1))
+      }
+
+    if(mu!=0&(mu+1/lambda)!=0)
+    {          
+        s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu
+        
+        #ACHTUNG: Penalty term has no D0 and Dp in it so it is just a shift: otherwise the penalty makes the normalization putt. But doesnt work for tau >0; why the penalty term is a constant so I just shift it? 
+        s10 <- sum(Dnu*(D1mulam0-1))/(mu+1/lambda)- sum((D1mu0-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu #check whether
+        s1p <- sum(Dnu*(D1mulamp-1))/(mu+1/lambda)- sum((D1mup-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu #check whether
+       #s1e <- sum(Dnu*(D1mulam))/(mu+1/lambda)-sum((D1mu)*Dnulam)/mu-t*sum((D1mu)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+
+    # s1e <- sum(Dnu*D1^2)-2*sum(D1*Dnulam)
+    # s1<- sum(Dnu*(D1-1)^2)-2*sum((D1-1)*Dnulam)
+    }
+    s1n <- (s1-s1p)/(s10-s1p)
+   # D1a <- D1
+   # X1a <- X1
+
+#    nn2 <- sum(Dnu>0)/2
+#    s1n <- 1+s1m1/nn2 #normalized  stress without the penalty
+                                        #    s1na <-1+s1/sum(Dnu*Do^2)
+
+    ## s1
+    ## s1n <- 1+s1/sum(Dnulam^2) #standardized to the restricted Dnulam^2
+    ## s1n
+    ## s2n <- 1+s1/sum(Do^(2*(nu+1/lambda))) #standardized to the overall transformed proximities
+    ## s2n
+    ## s3n <- 1+(s1/sum(Do^2)) #standardized to the overall transformed proximities
+    ## s3n
+    
+    ## #
+    ## s4n <- 1+s1/sum((Dnulam-1)^2) #standardized to the restricted Dnulam^2
+    ## s4n
+    ## s5n <- 1+s1/(sum(Dnulam^2-1)) #standardized to the restricted Dnulam^2
+    ## s5n
+    ## s6n <- 1+s1/(sum((Do-1)^2)) #standardized to the overall transformed proximities
+    ## s6n
+    ## s7n <- 1+s1/(sum(Do^2-1)) #standardized to the overall transformed proximities
+    ## s7n
+    ## s8n <- 1+s1/sum((Do^(nu+1/lambda)-1)^2) #standardized to the overall transformed proximities
+    ## s8n
+    ## s9n <- 1+s1/sum(Do^(2*(nu+1/lambda))-1) #standardized to the overall transformed proximities
+    ## s9n
+    ## s10n <- 1+s1/(sum((Do-1)^(2*(nu+1/lambda)))) #standardized to the overall transformed proximities
+    ## s10n
+    
+    ## s11n <- 1+s1/sum((Dnulam+1)^2) #standardized to the restricted Dnulam^2
+    ## s11n
+    ## s12n <- 1+s1/(sum(Dnulam^2+1)) #standardized to the restricted Dnulam^2
+    ## s12n
+    ## s13n <- 1+s1/(sum((Do+1)^(2*(nu+1/lambda)))) #standardized to the overall transformed proximities
+    ## s13n
+    ## s14n <- 1+s1/sum((Do^(nu+1/lambda)+1)^2) #standardized to the overall transformed proximities
+    ## s14n
+    ## s15n <- 1+s1/sum(Do^(2*(nu+1/lambda))+1) #standardized to the overall transformed proximities
+    ## s15n
+    ## s16n <- 1+s1/(sum((Do+1)^2)) #standardized to the overall transformed proximities
+    ## s16n
+    ## s17n <- 1+s1/(sum(Do^2+1)) #standardized to the overall transformed proximities
+    ## s17n
+
+    
+    
+  ##    #TODO what to do with the -1? s1e is without the minus 1. 
+  ## s1ne <- 1+s1e/sum(Dnulam^2) #standardized to the restricted Dnulam^2
+  ## s1ne
+  ## s2ne <- 1+s1e/sum(Do^(2*(nu+1/lambda))) #standardized to the overall transformed proximities
+  ## s2ne
+    
+                                        #sum delta^2
+#    s1n2 <- 1+(s1/(sum(D1mu*Dnulam))) #sum (D^mu)*delta
+#    s1n3 <- 1+(s1/(sum(D1mulam*Dnulam))) #sum (D^mu+1/lam)*delta
+#    s1n4 <- 1+(s1/(sum((D1mu-1)*Dnulam))) #sum (D^mu)-1*delta
+#    s1n5 <- 1+(s1/(sum((D1mulam-1)*Dnulam))) #sum (D^mu+1/lam)-1*delta
+    ## Printing and Plotting
+    if( (i+1)%% 1==0)
+      {
+#        print (paste("niter=",i+1," stress=",s1,sep=""))
+        D1.rk <- apply(D1, 1, rank)
+        D1.Inb <- ifelse(D1.rk>Inb.sum, 0, 1)
+        Nk <- (apply(D1.Inb*Inb, 1, sum)-1)/(k.v-1)
+        Mka <- sum(Nk)/n - k/n
+#          print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stressna=",round(s1na,5)," stressno-1=",round(s1m1,5)," sndelta2=",round(s1n1,5)," snd1mudelta=",round(s1n2,5)," snd1mulamdelta=",round(s1n3,5)," snd1mu-1delta=",round(s1n4,5)," snd1mulam-1delta=",round(s1n5,5),
+                                        #                       " Mk_adj=", round(Mka,5), sep=""))
+          
+           print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stress1=",round(sqrt(s1n),5)," Mk_adj=", round(Mka,5), sep=""))
+          
+      }
+##     if(plot)
+##       {
+##         conf.pc <- prcomp(X1)$x[,1:2]
+##         if(!is.null(color))
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)), xlim=range(conf.pc),
+##                    ylim=range(conf.pc), col=color,pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc), col=color)
+##           }
+##         else
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)),xlim=range(conf.pc),
+##                    ylim=range(conf.pc),pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc))
+##           }
+            
+##       }
+  }
+ # s12 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu#-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+  #s1f <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)
+  #s1s <- sum((D1mu-1)*Dnulam)/mu
+  result <- list()
+  result$X <- X1
+  result$Mka <- Mka
+#  result$pc1 <- conf.pc[,1]
+#  result$pc2 <- conf.pc[,2]
+  result$Dnulam <- Dnulam
+  result$Dnu <- Dnu
+  result$D1 <- D1
+  result$D1mu <- D1mu
+  result$D1mulam <- D1mulam
+  result$param <- (mu+1/lambda)  
+  result$stressr <- s1
+  result$stressn <- s1n
+  result$stress <- sqrt(s1n)
+# result$stress2 <- s12
+#  result$stressno1 <- s1m1
+#  result$s1f <- s1f
+#  result$s1s <- s1s
+#  result$sndelta2 <- s1n1 #TR
+#  result$sndmudelta <- s1n2
+#  result$sndmulamdelta <- s1n3
+#  result$sndmumin1delta <- s1n4
+#  result$sndmulammin1delta <- s1n5
+  return(result)
+}
+
+
+
+boxcoxmds2 <- function(Do,Inb,X1=NULL,random.start=1,d=2,lambda=1,mu=1,nu=0,tau=1,
+                   niter=1000,plot=TRUE,color=NULL)
+{
+  n <- nrow(Do)
+  # Do <- Do/norm(Do) #new 
+  #Do <- dist(X)
+  #Daux <- apply(Do,2,sort)[k+1,]# choose the kth smallest distance expect 0.
+  #Inb <- ifelse(Do>Daux, 0,1)
+  k.v <-  apply(Inb, 1, sum) #neighbour vertices
+  k <- (sum(k.v)-n)/n #effective number of neighbours
+  Inb.sum <- matrix(rep(k.v, n),ncol=n)
+  Mka <- 0
+  Inb1 <- pmax(Inb,t(Inb)) # expanding the neighbors for symmetry.
+   
+  Dnu <- ifelse(Inb1==1, Do^nu, 0)
+  Dnulam <- ifelse(Inb1==1, Do^(nu+1/lambda), 0)
+  diag(Dnu) <- 0
+  diag(Dnulam) <- 0
+
+
+   
+  cc <- (sum(Inb1)-n)/n/n*median(Dnulam[Dnulam!=0]) #stepsize multiplikator
+  t <- tau*cc #penalty
+  
+  Grad <- matrix (0, nrow=n, ncol= d)
+  if(is.null(X1) & random.start==1)
+      X1 <- matrix(rnorm(n*d),nrow=n,ncol=d)
+  if(is.null(X1) & random.start==0)
+    {
+      #J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
+      #B <- - 1/2 * J %*% Do %*% J
+      #pc <- princomp(B)
+      #X1 <- pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+      cmd <- cmds(Do)
+      X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
+        norm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+                                        # pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+
+    }
+  D1 <- dist(X1)
+  
+  X1 <- X1*norm(Do)/norm(D1)
+
+  s1 <- Inf #stressinit
+  s0 <- 2 #stress check for update
+  stepsize <-0.1
+  i <- 0
+
+while ( stepsize > 1E-5 && i < niter)
+  {
+    if (s1 >= s0 && i>1)
+    {
+       #stepsize if stress (s1) >= old s1 (=s0) oder >2   
+       stepsize<- 0.5*stepsize
+       X1 <- X0 - stepsize*normgrad
+     }
+    else 
+      {
+      #stepsize if stress (s1) < old s1       
+      stepsize <- 1.05*stepsize
+      X0 <- X1
+      D1mu2 <- D1^(mu-2)
+      diag(D1mu2) <- 0
+      D1mulam2 <- D1^(mu+1/lambda-2)
+      diag(D1mulam2) <- 0
+      M <- Dnu*D1mulam2-D1mu2*(Dnulam+t*(!Inb1))
+      E <- matrix(rep(1,n*d),n,d)
+      Grad <- X0*(M%*%E)-M%*%X0
+      normgrad <- (norm(X0)/norm(Grad))*Grad         
+      X1 <- X0 - stepsize*normgrad
+     }
+    i <- i+1
+    s0 <- s1 
+    D1 <- dist(X1)
+    D1mulam <- D1^(mu+1/lambda)
+    diag(D1mulam) <- 0
+    D1mu <- D1^mu
+    diag(D1mu) <- 0
+    if(mu+1/lambda==0)
+      {
+       diag(D1)<-1
+       #stress   
+       s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu
+       
+       #norming TODO check again that steps are correct. what to do with -1?
+       diag(D1) <- 0
+       D1e <- Dnu*D1/norm(Dnu*D1)
+       diag(D1e) <- 1
+       Dnulame <- Dnulam/enorm(Dnulam)
+       D1mue <- D1e^mu
+       #mu is the factor for making it a proper stress again
+       s1e <- mu*(sum(Dnu*log(D1e))-sum((D1mue)*Dnulame)/mu -t*sum((D1mue-1)*(1-Inb1))/mu)
+       s1n <- 1+s1e/(sum(Dnulame^2)) 
+      }
+
+    if(mu==0)
+      {
+      diag(D1)<-1
+      #stress
+      s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
+
+      #norming
+      diag(D1) <- 0
+      D1e <- Dnu*D1/norm(Dnu*D1)
+      diag(D1e) <- 1
+      Dnulame <- Dnulam/enorm(Dnulam)
+      D1mulame <- D1e^(mu+1/lambda)
+      diag(D1mulame) <- 0
+      #mu+1/lambda is the factor for making it a proper stress
+      s1e <- (mu+1/lambda)*(sum(Dnu*(D1mulame))/(mu+1/lambda)-sum(log(D1e)*Dnulame)-t*sum(log(D1e)*(1-Inb1)))  
+      s1n <- 1+s1e/(sum(Dnulame^2)) 
+      }
+
+    if(mu!=0&(mu+1/lambda)!=0)
+    {
+        s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+        
+        #norming:
+#        D1e <- (Dnu*D1)/norm(Dnu*D1)
+        X1 <- X/norm(X)
+        D1 <- dist(X1)
+        #D1e <- D1 a2
+        Dnulame <- Dnulam/norm(Dnulam)
+        #D1mulame <- (Dnu*D1e)^(mu+1/lambda) #a2
+        diag(D1mulame) <- 0
+        #D1mulame <- D1mulame/norm(D1mulame) #a2
+        #D1mue <- (Dnu*D1e)^mu #a2
+        diag(D1mue) <- 0
+        #D1mue <- D1mue/norm(D1mue) #a2
+                                        #s1e <- sum(Dnu*(D1mulame-1))/(mu+1/lambda)-sum((D1mue-1)*Dnulame)/mu-t*sum((D1mue-1)*(1-Inb1))/mu #check whether
+        #mu+1/lambda is the factor for making it a proper stress
+        s1e <- (mu+1/lambda)*((sum(Dnu*D1mulame))/(mu+1/lambda)-sum(D1mue*Dnulame)/mu-t*sum(D1mue*(1-Inb1))/mu) #check whether  
+        s1n <- 1+s1e/(sum(Dnulame^2))
+        #s1n
+#
+ #       s1 <- (sum(Dnu*D1e^2)-2*sum(D1e*Dnulame))
+   #     s1
+                                        #     1+s1/(sum(Dnulame^2))
+        
+                                        # TODO what to do with the -1?
+        #TODO check if that is correct
+    }
+#    nn2 <- sum(Dnu>0)/2
+#    s1n <- 1+s1m1/nn2 #normalized  stress without the penalty
+#    s1na <-1+s1/sum(Dnu*Do^2)         
+#    s1n <- 1+s1/sum(Dnulam^2))
+    
+                                        #sum delta^2
+#    s1n2 <- 1+(s1/(sum(D1mu*Dnulam))) #sum (D^mu)*delta
+#    s1n3 <- 1+(s1/(sum(D1mulam*Dnulam))) #sum (D^mu+1/lam)*delta
+#    s1n4 <- 1+(s1/(sum((D1mu-1)*Dnulam))) #sum (D^mu)-1*delta
+#    s1n5 <- 1+(s1/(sum((D1mulam-1)*Dnulam))) #sum (D^mu+1/lam)-1*delta
+    ## Printing and Plotting
+    if( (i+1)%% 5==0)
+      {
+#        print (paste("niter=",i+1," stress=",s1,sep=""))
+        D1.rk <- apply(D1, 1, rank)
+        D1.Inb <- ifelse(D1.rk>Inb.sum, 0, 1)
+        Nk <- (apply(D1.Inb*Inb, 1, sum)-1)/(k.v-1)
+        Mka <- sum(Nk)/n - k/n
+#          print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stressna=",round(s1na,5)," stressno-1=",round(s1m1,5)," sndelta2=",round(s1n1,5)," snd1mudelta=",round(s1n2,5)," snd1mulamdelta=",round(s1n3,5)," snd1mu-1delta=",round(s1n4,5)," snd1mulam-1delta=",round(s1n5,5),
+                                        #                       " Mk_adj=", round(Mka,5), sep=""))
+          
+           print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," Mk_adj=", round(Mka,5), sep=""))
+          
+       #    print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stress1=",round(s1a,5)," stressn1=",round(s1na,5)," Mk_adj=", round(Mka,5)," Mk_adj1=", round(Mkaa,5), sep=""))
+      }
+##     if(plot)
+##       {
+##         conf.pc <- prcomp(X1)$x[,1:2]
+##         if(!is.null(color))
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)), xlim=range(conf.pc),
+##                    ylim=range(conf.pc), col=color,pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc), col=color)
+##           }
+##         else
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)),xlim=range(conf.pc),
+##                    ylim=range(conf.pc),pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc))
+##           }
+            
+##       }
+  }
+ # s12 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu#-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+  #s1f <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)
+  #s1s <- sum((D1mu-1)*Dnulam)/mu
+  result <- list()
+  result$X <- X1
+  result$Mka <- Mka
+#  result$pc1 <- conf.pc[,1]
+#  result$pc2 <- conf.pc[,2]
+  result$Dnulam <- Dnulam
+  result$Dnu <- Dnu
+  result$D1 <- D1
+  result$D1mu <- D1mu
+  result$D1mulam <- D1mulam
+  result$param <- (mu+1/lambda)  
+  result$stress <- s1
+  result$s1n <- sqrt(s1n)
+# result$stress2 <- s12
+#  result$stressno1 <- s1m1
+#  result$s1f <- s1f
+#  result$s1s <- s1s
+#  result$sndelta2 <- s1n1 #TR
+#  result$sndmudelta <- s1n2
+#  result$sndmulamdelta <- s1n3
+#  result$sndmumin1delta <- s1n4
+#  result$sndmulammin1delta <- s1n5
+  return(result)
+}
+
+
+boxcoxmds3 <- function(Do,Inb,X1=NULL,random.start=1,d=2,lambda=1,mu=1,nu=0,tau=1,
+                   niter=1000,plot=TRUE,color=NULL)
+{
+  n <- nrow(Do)
+  # Do <- Do/norm(Do) #new 
+  #Do <- dist(X)
+  #Daux <- apply(Do,2,sort)[k+1,]# choose the kth smallest distance expect 0.
+  #Inb <- ifelse(Do>Daux, 0,1)
+  k.v <-  apply(Inb, 1, sum) #neighbour vertices
+  k <- (sum(k.v)-n)/n #effective number of neighbours
+  Inb.sum <- matrix(rep(k.v, n),ncol=n)
+  Mka <- 0
+  Inb1 <- pmax(Inb,t(Inb)) # expanding the neighbors for symmetry.
+   
+  Dnu <- ifelse(Inb1==1, Do^nu, 0)
+  Dnulam <- ifelse(Inb1==1, Do^(nu+1/lambda), 0) #Dnu*Do
+  diag(Dnu) <- 0
+  diag(Dnulam) <- 0
+
+
+   
+  cc <- (sum(Inb1)-n)/n/n*median(Dnulam[Dnulam!=0]) #stepsize multiplikator
+  t <- tau*cc #penalty
+  
+  Grad <- matrix (0, nrow=n, ncol= d)
+  if(is.null(X1) & random.start==1)
+      X1 <- matrix(rnorm(n*d),nrow=n,ncol=d)
+  if(is.null(X1) & random.start==0)
+    {
+      #J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
+      #B <- - 1/2 * J %*% Do %*% J
+      #pc <- princomp(B)
+      #X1 <- pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+      cmd <- cmds(Do)
+      X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
+        norm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+                                        # pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+
+    }
+  D1 <- dist(X1)
+  
+  X1 <- X1*norm(Do)/norm(D1)
+  
+  D1 <- dist(X1)  #new
+
+  s1 <- Inf #stressinit
+  s0 <- 2 #stress check for update
+  stepsize <-0.1
+  i <- 0
+
+while ( stepsize > 1E-5 && i < niter)
+  {
+    if (s1 >= s0 && i>1)
+    {
+       #stepsize if stress (s1) >= old s1 (=s0) oder >2   
+       stepsize<- 0.5*stepsize
+       X1 <- X0 - stepsize*normgrad
+     }
+    else 
+      {
+      #stepsize if stress (s1) < old s1       
+      stepsize <- 1.05*stepsize
+      X0 <- X1
+      D1mu2 <- D1^(mu-2)
+      diag(D1mu2) <- 0
+      D1mulam2 <- D1^(mu+1/lambda-2)
+      diag(D1mulam2) <- 0
+      M <- Dnu*D1mulam2-D1mu2*(Dnulam+t*(!Inb1))
+      E <- matrix(rep(1,n*d),n,d)
+      Grad <- X0*(M%*%E)-M%*%X0
+      normgrad <- (norm(X0)/norm(Grad))*Grad         
+      X1 <- X0 - stepsize*normgrad
+     }
+    i <- i+1
+    s0 <- s1 
+    D1 <- dist(X1)
+    D1mulam <- D1^(mu+1/lambda)
+    diag(D1mulam) <- 0
+    diag(D1mulama) <- 0 #newT    
+    D1mu <- D1^mu
+    diag(D1mu) <- 0
+    if(mu+1/lambda==0)
+      {
+          diag(D1)<-1
+       #stress   
+          s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu  
+      }
+
+    if(mu==0)
+      {
+      diag(D1)<-1
+      #stress
+      s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
+      }
+
+    if(mu!=0&(mu+1/lambda)!=0)
+    {
+##     s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+     s1<-sum(Dnu*(D1mulam-1))/2-sum((D1mu-1)*Dnulam)
+     #s1o <- 1+()
+    }
+#    nn2 <- sum(Dnu>0)/2
+#    s1n <- 1+s1m1/nn2 #normalized  stress without the penalty
+#    s1na <-1+s1/sum(Dnu*Do^2)         
+    s1n <- 1+(s1/(sum(Dnulam^2)))
+    
+                                        #sum delta^2
+#    s1n2 <- 1+(s1/(sum(D1mu*Dnulam))) #sum (D^mu)*delta
+#    s1n3 <- 1+(s1/(sum(D1mulam*Dnulam))) #sum (D^mu+1/lam)*delta
+#    s1n4 <- 1+(s1/(sum((D1mu-1)*Dnulam))) #sum (D^mu)-1*delta
+#    s1n5 <- 1+(s1/(sum((D1mulam-1)*Dnulam))) #sum (D^mu+1/lam)-1*delta
+    ## Printing and Plotting
+    if( (i+1)%% 5==0)
+      {
+#        print (paste("niter=",i+1," stress=",s1,sep=""))
+        D1.rk <- apply(D1, 1, rank)
+        D1.Inb <- ifelse(D1.rk>Inb.sum, 0, 1)
+        Nk <- (apply(D1.Inb*Inb, 1, sum)-1)/(k.v-1)
+        Mka <- sum(Nk)/n - k/n
+#          print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stressna=",round(s1na,5)," stressno-1=",round(s1m1,5)," sndelta2=",round(s1n1,5)," snd1mudelta=",round(s1n2,5)," snd1mulamdelta=",round(s1n3,5)," snd1mu-1delta=",round(s1n4,5)," snd1mulam-1delta=",round(s1n5,5),
+                                        #                       " Mk_adj=", round(Mka,5), sep=""))
+          
+           print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," Mk_adj=", round(Mka,5), sep=""))
+          
+       #    print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stress1=",round(s1a,5)," stressn1=",round(s1na,5)," Mk_adj=", round(Mka,5)," Mk_adj1=", round(Mkaa,5), sep=""))
+      }
+##     if(plot)
+##       {
+##         conf.pc <- prcomp(X1)$x[,1:2]
+##         if(!is.null(color))
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)), xlim=range(conf.pc),
+##                    ylim=range(conf.pc), col=color,pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc), col=color)
+##           }
+##         else
+##           {
+## #            if(d==2)
+##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)),xlim=range(conf.pc),
+##                    ylim=range(conf.pc),pch=16)
+## #            else
+## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## #                            xlim=range(conf.pc),ylim=range(conf.pc))
+##           }
+            
+##       }
+  }
+ # s12 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu#-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+  #s1f <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)
+  #s1s <- sum((D1mu-1)*Dnulam)/mu
+  result <- list()
+  result$X <- X1
+  result$Mka <- Mka
+#  result$pc1 <- conf.pc[,1]
+#  result$pc2 <- conf.pc[,2]
+  result$Dnulam <- Dnulam
+  result$Dnu <- Dnu
+  result$D1 <- D1
+  result$D1mu <- D1mu
+  result$D1mulam <- D1mulam
+  result$param <- (mu+1/lambda)  
+  result$stress <- s1
+  result$s1n <- s1n
+# result$stress2 <- s12
+#  result$stressno1 <- s1m1
+#  result$s1f <- s1f
+#  result$s1s <- s1s
+#  result$sndelta2 <- s1n1 #TR
+#  result$sndmudelta <- s1n2
+#  result$sndmulamdelta <- s1n3
+#  result$sndmumin1delta <- s1n4
+#  result$sndmulammin1delta <- s1n5
+  return(result)
+}
+
+
+
+## boxcoxmds2 <- function(Do,Inb,X1=NULL,random.start=1,d=2,lambda=1,mu=1,nu=0,tau=1,
+##                    niter=1000,plot=TRUE,color=NULL)
+## {
+##   n <- nrow(Do)
+##   # Do <- Do/norm(Do) #new 
+##   #Do <- dist(X)
+##   #Daux <- apply(Do,2,sort)[k+1,]# choose the kth smallest distance expect 0.
+##   #Inb <- ifelse(Do>Daux, 0,1)
+##   k.v <-  apply(Inb, 1, sum) #neighbour vertices
+##   k <- (sum(k.v)-n)/n #effective number of neighbours
+##   Inb.sum <- matrix(rep(k.v, n),ncol=n)
+##   Mka <- 0
+##   Inb1 <- pmax(Inb,t(Inb)) # expanding the neighbors for symmetry.
+   
+##   Dnu <- ifelse(Inb1==1, Do^nu, 0)
+##   Dnulam <- ifelse(Inb1==1, Do^(nu+1/lambda), 0)
+##   diag(Dnu) <- 0
+##   diag(Dnulam) <- 0
+
+
+   
+##   cc <- (sum(Inb1)-n)/n/n*median(Dnulam[Dnulam!=0]) #stepsize multiplikator
+##   t <- tau*cc #penalty
+  
+##   Grada <- matrix (0, nrow=n, ncol= d)
+##   if(is.null(X1a) & random.start==1)
+##       X1a <- matrix(rnorm(n*d),nrow=n,ncol=d) #new T
+##   if(is.null(X1) & random.start==0)
+##     {
+##       #J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
+##       #B <- - 1/2 * J %*% Do %*% J
+##       #pc <- princomp(B)
+##       #X1 <- pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+##       cmd <- cmds(Do)
+##       X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
+##         norm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+##                                         # pc$loadings[,1:d]%*%diag(pc$sdev[1:d])
+
+##     }
+##   D1a <- dist(X1a)
+##   X1a <- X1a*norm(Do)/norm(D1a)
+##   D1a <- dist(X1)   #new T
+##   s1 <- Inf #stressinit
+##   s0 <- 2 #stress check for update
+##   stepsize <-0.1
+##   i <- 0
+
+## while ( stepsize > 1E-5 && i < niter)
+##   {
+##     if (s1 >= s0 && i>1)
+##     {
+##        #stepsize if stress (s1) >= old s1 (=s0) oder >2   
+##        stepsize<- 0.5*stepsize
+##         X1a <- X0a - stepsize*normgrad #newT
+##      }
+##     else 
+##       {
+##       #stepsize if stress (s1) < old s1       
+##       stepsize <- 1.05*stepsize
+##       X0a <- X1a #new T
+##       D1mu2a <- D1a^(mu-2) #new T
+##       diag(D1mu2a) <- 0 #New T
+##       D1mulam2a <- D1a^(mu+1/lambda-2) #new T
+##       Ma <- Dnu*D1mulam2a-D1mu2a*(Dnulam+t*(!Inb1))    #new T
+##       E <- matrix(rep(1,n*d),n,d)
+##       Grada <- X0a*(Ma%*%E)-Ma%*%X0a #new T    
+##       normgrada <- (norm(X0a)/norm(Grada))*Grada #new T
+##       X1a <- X0a-stepsize*normgrada #new T
+##      }
+##     i <- i+1
+##     s0 <- s1 
+##     D1a <- dist(X1a) #new T 
+##     D1mulama <- D1a^(mu+1/lambda) #newT
+##     diag(D1mulama) <- 0 #newT
+##     D1mua <- D1a^mu #newT
+##     diag(D1mua) <- 0    
+##     if(mu+1/lambda==0)
+##       {
+##           diag(D1)<-1
+##        #stress   
+##           s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu  
+##       }
+
+##     if(mu==0)
+##       {
+##       diag(D1)<-1
+##       #stress
+##       s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
+##       }
+
+##     if(mu!=0&(mu+1/lambda)!=0)
+##     {
+## #     s1<-sum(Dnu*(D1mulam-1))/2-sum((D1mu-1)*Dnulam)
+##      s1a<-sum(Dnu*(D1mulama-1))/2-sum((D1mua-1)*Dnulam) #new
+##      #s1o <- 1+()
+##     }
+## #    nn2 <- sum(Dnu>0)/2
+## #    s1n <- 1+s1m1/nn2 #normalized  stress without the penalty
+## #    s1na <-1+s1/sum(Dnu*Do^2)         
+## #    s1n <- 1+(s1m1/(sum(Dnulam^2)))
+##     s1na <- 1+(s1m1a/(sum(Dnulam^2))) #new T
+    
+##                                         #sum delta^2
+## #    s1n2 <- 1+(s1/(sum(D1mu*Dnulam))) #sum (D^mu)*delta
+## #    s1n3 <- 1+(s1/(sum(D1mulam*Dnulam))) #sum (D^mu+1/lam)*delta
+## #    s1n4 <- 1+(s1/(sum((D1mu-1)*Dnulam))) #sum (D^mu)-1*delta
+## #    s1n5 <- 1+(s1/(sum((D1mulam-1)*Dnulam))) #sum (D^mu+1/lam)-1*delta
+##     ## Printing and Plotting
+##     if( (i+1)%% 100==0)
+##       {
+## #        print (paste("niter=",i+1," stress=",s1,sep=""))
+##  #       D1.rk <- apply(D1, 1, rank)
+##         D1.rka <- apply(D1a, 1, rank) #new T  
+##  #       D1.Inb <- ifelse(D1.rk>Inb.sum, 0, 1)
+##         D1.Inba <- ifelse(D1.rka>Inb.sum, 0, 1)
+##  #       Nk <- (apply(D1.Inb*Inb, 1, sum)-1)/(k.v-1)
+##         Nka <- (apply(D1.Inba*Inb, 1, sum)-1)/(k.v-1)  
+##  #       Mka <- sum(Nk)/n - k/n
+##         Mkaa <- sum(Nka)/n - k/n
+## #          print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stressna=",round(s1na,5)," stressno-1=",round(s1m1,5)," sndelta2=",round(s1n1,5)," snd1mudelta=",round(s1n2,5)," snd1mulamdelta=",round(s1n3,5)," snd1mu-1delta=",round(s1n4,5)," snd1mulam-1delta=",round(s1n5,5),
+##                                         #                       " Mk_adj=", round(Mka,5), sep=""))
+          
+##            print (paste("niter=",i+1," stress=",round(s1a,5)," stressn=",round(s1na,5)," Mk_adj=", round(Mkaa,5), sep=""))
+          
+##   #         print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5)," stress1=",round(s1a,5)," stressn1=",round(s1na,5)," Mk_adj=", round(Mka,5)," Mk_adj1=", round(Mkaa,5), sep=""))
+##       }
+## ##     if(plot)
+## ##       {
+## ##         conf.pc <- prcomp(X1)$x[,1:2]
+## ##         if(!is.null(color))
+## ##           {
+## ## #            if(d==2)
+## ##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)), xlim=range(conf.pc),
+## ##                    ylim=range(conf.pc), col=color,pch=16)
+## ## #            else
+## ## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## ## #                            xlim=range(conf.pc),ylim=range(conf.pc), col=color)
+## ##           }
+## ##         else
+## ##           {
+## ## #            if(d==2)
+## ##               plot(conf.pc, main=paste("Mk_adj=",round(Mka,5)),xlim=range(conf.pc),
+## ##                    ylim=range(conf.pc),pch=16)
+## ## #            else
+## ## #              scatterplot3d(conf.pc ,main=paste("Mk_adj=",round(Mka,5)),
+## ## #                            xlim=range(conf.pc),ylim=range(conf.pc))
+## ##           }
+            
+## ##       }
+##   }
+##  # s12 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu#-t*sum((D1mu-1)*(1-Inb1))/mu #check whether it should be mu+1/lambda oder (mu+1)/lambda
+##   #s1f <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)
+##   #s1s <- sum((D1mu-1)*Dnulam)/mu
+##   result <- list()
+##   result$X <- X1a
+##   result$Mka <- Mkaa
+##   result$Dnulam <- Dnulam
+##   result$Dnu <- Dnu
+##   result$D1 <- D1a
+##   result$D1mu <- D1mua
+##   result$D1mulam <- D1mulama
+##   result$stress <- s1a
+##   result$s1n <- s1na
+## # result$stress2 <- s12
+## #  result$stressno1 <- s1m1
+## #  result$s1f <- s1f
+## #  result$s1s <- s1s
+## #  result$sndelta2 <- s1n1 #TR
+## #  result$sndmudelta <- s1n2
+## #  result$sndmulamdelta <- s1n3
+## #  result$sndmumin1delta <- s1n4
+## #  result$sndmulammin1delta <- s1n5
+##   return(result)
+## }
+
+# Generate sprial data: 100 points, 3 dimension
+ang <- sqrt(seq(1.5,4,length=25))*3*pi
+spiral.dat <- cbind(rep(ang^2*cos(ang),4),
+               rep(ang^2*sin(ang),4),
+               100*rep(1:4,rep(25,4)))
+
+
+#### Calculate the distance matrix of X: n by p ####
+dist <- function(X)
+  {
+    X2 <- apply (X, 1, function(z)sum(z^2))
+    dist2 <- outer(X2, X2, "+")- 2*X%*%t(X)
+    dist2 <- ifelse(dist2<0,0,dist2)
+    return (sqrt(dist2))
+   }
+
+norm <- function(x) sqrt(sum(x^2))
+
+######### lle(X,k,d) ########
+# X -- original data: n by p
+# k -- number of neibouring points
+# d -- desired dimension
+lle <- function(X, k, d)
+  {
+
+    n <- nrow(X)
+    sigmasqr<-.55
+    XtX <- X%*%t(X)
+    x2 <- apply(X,1,function(z)sum(z^2))
+    D2 <- outer(x2,x2,"+") - 2*XtX
+
+    W<-matrix(0,n,n)
+    for(i in 1:n)
+      {
+        sel<-rank(D2[i,])<k+2 & rank(D2[i,])>1
+        ll<-sum(sel==TRUE)
+        e<-rep(1,ll)
+        D<-diag(e)
+        # solution of W suggested by paper
+        C<-solve(XtX[sel,sel]+sigmasqr*D)
+        alpha<-1-t(e)%*%C%*%X[sel,]%*%X[i,]
+        Beta<-t(e)%*%C%*%e
+        W[i,sel]<-C%*%(X[sel,]%*%X[i,]+alpha/Beta*e)
+      }
+    M <- diag(n) - W - t(W) + t(W) %*% W
+    # LLE eigen decomposition:
+    M.eig <- eigen(M)
+    # IMPORTANT: last eigenvector should be constant
+    # the reduced dimensions should be the last n-d to n-1 eigenvectors  
+    return(M.eig$vec[,(n-1):(n-d)])
+}
+
+
+
+## This function is to prepare the graph to calculate shortest path.
+# X is n by p;
+# k is the number of neighbouring points;
+# filename specify the directory to save the graph
+geod <- function(X,k=NULL,r=NULL,filename=NULL)
+  {
+    Do <- dist(X)
+    # choose the kth shortest distance, expect diagonal zeros
+    if(!is.null(k))
+      Daux <- apply(Do,2,sort)[k+1,]
+    if(!is.null(r))
+      Daux <- rep(r,nrow(X))
+    face.r <- row(Do)[Do<=Daux]
+    face.c <- col(Do)[Do<=Daux]
+    sel <- face.r != face.c
+    face.graph <- cbind(face.r, face.c, Do[Do<=Daux])[sel,]
+    if(!is.null(filename))
+    write(t(face.graph), file=filename,ncol=ncol(face.graph))
+    return(face.graph)
+  }
+
+# CMDS:
+
+#Do <- dist(cbind(x,y,z))
+cmds <- function(Do)
+  {
+    n <- nrow(Do)
+    J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
+    B <- - 1/2 * J %*% (Do^2) %*% J
+    pc <- eigen(B)
+#    pc <- princomp(covmat=B)
+    return(pc)
+  }
+
+#plot(pc$sdev)
+#plot(pc$scale)
+#plot(pc$loadings[,1:2]%*%diag(pc$sdev[1:2]))
+
+# Caculate Local LC criterion
+overlap.v <- function(X,Inb,myk)
+  {
+    myDo <- dist(X)
+    myDaux <- apply(myDo,2,sort)[myk+1,]# choose the kth largest distance
+    myInb <- ifelse(myDo>myDaux, 0,1)
+    overlap.m <- Inb*myInb
+    myoverlap.v <- apply(overlap.m, 1, sum)-1
+    return(myoverlap.v)
+  }
+
+# Updated version for LC criterion
+loc.meta <- function(Inb,conf)
+  {
+    n <- nrow(Inb)
+    k.v <- apply(Inb,1,sum)
+    k.v.mat <- matrix(rep(k.v,n),ncol=n,byrow=T)
+#    k.v.mat <- matrix(rep(k.v,n),ncol=n)
+    D1 <- dist(conf)
+    D1.rk <- apply(D1, 2, rank)
+#    D1.rk <- apply(D1, 1, rank) # row-wise ranking and column-wise fill in.
+    D1.Inb <- ifelse(D1.rk>k.v.mat, 0,1 )
+#    D1.Inb <- ifelse(D1.rk<k.v.mat+1, 1, 0)
+    Nk <- (apply(D1.Inb*Inb, 2, sum)-1)/(k.v-1)
+    Mka <- mean(Nk)-(sum(Inb)-n)/n/n
+    result <- list()
+    result$Nk <- Nk
+    result$Mka <- Mka
+    return(result)
+  }
+
+# From loc.meta to Mk_adj
+#  mean(Nk)-(sum(Inb)-n)/n/n

@@ -39,7 +39,7 @@ stop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
 \value{
 A list with the components
    \itemize{
-        \item{stress:} the stress
+        \item{stress:} Not really stress but 1-GOF where GOF is the first element returned from cmdscale (the sum of the first ndim absolute eigenvalues divided by the sum of all absolute eigenvalues)
         \item{stress.m:} default normalized stress
         \item{stoploss:} the weighted loss value
         \item{indices:} the values of the structuredness indices

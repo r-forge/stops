@@ -446,7 +446,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
+#'         \item{stress:} Not really stress but 1-GOF where GOF is the first element returned from cmdscale (the sum of the first ndim absolute eigenvalues divided by the sum of all absolute eigenvalues)
 #'         \item{stress.m:} default normalized stress
 #'         \item{stoploss:} the weighted loss value
 #'         \item{indices:} the values of the structuredness indices
@@ -478,8 +478,67 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   fit$conf <- fit$points
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  list(stress=fit$GOF,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
+  list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
 }
+
+
+
+#' STOPS version of isomap.
+#'
+#' Currently this version is a bit less flexible than the vegan one, as the only allowed parameter for isomap is the theta (k in isomap, no epsilon) and the shortest path is always estimated with argument "shortest". Also note that fragmentedOK is always set to TRUE which means that for theta that is too small only the largest conected group will be analyzed. If that's not wanted just set the theta higher.  
+#' 
+#' @param dis numeric matrix or dist object of a matrix of proximities
+#' @param theta the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Defaults to 3.
+#' @param ndim number of dimensions of the target space
+#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param init (optional) initial configuration
+#' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param structures which structuredness indices to be included in the loss
+#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+#' @param strucpars the parameters for the structuredness indices
+#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' 
+#' 
+#' @return A list with the components
+#'    \itemize{
+#'         \item{stress:} Not really stress but 1-GOF where GOF is the first element returned from cmdscale (the sum of the first ndim absolute eigenvalues divided by the sum of all absolute eigenvalues).
+#'         \item{stress.m:} default normalized stress (sqrt explicitly normalized stress; really the stress this time)
+#'         \item{stoploss:} the weighted loss value
+#'         \item{indices:} the values of the structuredness indices
+#'         \item{parameters:} the parameters used for fitting 
+#'         \item{fit:} the returned object of the fitting procedure
+#'         \item{indobj:} the index objects
+#' }
+#'
+#' @import cordillera
+#' @importFrom stats dist as.dist
+#' @importFrom vegan isomap isomapdist
+#' @keywords multivariate
+#' @export
+stop_isomap <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+  theta <- as.numeric(theta)
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(missing(type)) type <- "additive"
+  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==2L) lambda <- theta[1]
+  if(length(theta)==3L) lambda <- theta[1]
+  disi <- vegan::isomapdist(dis,k=lambda,path="shortest",fragmentedOK=TRUE)
+  fit <- stops::cmdscale(disi,k=ndim,eig=TRUE) 
+  fit$k <- lambda
+  #fit$kappa <- 1
+  #fit$nu <- 1
+  dis <- stats::as.dist(disi)
+  fitdis <- stats::dist(fit$points)
+  fit$stress.r <- sum((disi-fitdis)^2)
+  fit$stress.n <- fit$stress.r/sum(disi^2)
+  fit$stress.m <- sqrt(fit$stress.n)
+  fit$pars <- fit$k
+  fit$conf <- fit$points
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+  list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
+}
+
 
 #' STOPS version of rstress
 #'
@@ -831,7 +890,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress"), transformation=mkPower, theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
@@ -843,9 +902,9 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
       if(missing(loss)) loss <- "stress"
       if(missing(type)) type <- "additive"
-      #TODO implement a Pareto idea
+      #TODO implement a Pareto multiobjective
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress) #choose the stress to minimize
+      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap) #choose the stress to minimize
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
          strucweight <- rep(-1/length(structures),length(structures))
@@ -860,7 +919,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
        if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,control=control)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,control=control,...)
          thetaopt <- opt$par
          bestval <-  opt$value
          itel <- opt$counts["function"]

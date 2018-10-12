@@ -375,3 +375,5 @@ x0 <- x0 %*% procruster(crossprod(x0,y0))
 result <- list(ref.conf = x0, other.conf = yy, comparison.conf = y0)
 result
 }
+
+
