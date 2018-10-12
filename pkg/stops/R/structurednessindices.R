@@ -215,7 +215,7 @@ c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
-#' dis<-smacofSym(delts)$confdiss
+#' dis<-smacofSym(delts)$confdist
 #' c_faithfulness(dis,delts,k=3)
 #' @export
 c_faithfulness <- function(confdiss,obsdiss,k=3)
@@ -236,7 +236,8 @@ c_faithfulness <- function(confdiss,obsdiss,k=3)
         ndai <- ndi - k^2/(v-1)
         mda <- mean(mdai)
         nda <- mean(ndai)
-        list(mda=mda,nda=nda,md=md,nd=nd,mdai=mdai,ndai=ndai,ndi,mdi)
+        #list(mda=mda,nda=nda,md=md,nd=nd,mdai=mdai,ndai=ndai,ndi=ndi,mdi=mdi)
+        mda
     }
 
 #'calculate k nearest neighbours from a distance matrix
