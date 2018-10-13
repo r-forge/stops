@@ -58,14 +58,16 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
-
-\item{transformation}{function to transform the proximities and/or distances; need to be parameterized by theta; currently not used}
 }
 \value{
-see \code{\link{pcops}}
+A list with the components
+        \itemize{
+        \item stoploss: the weighted loss value
+        TBD
+}
 }
 \description{
-A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, COPS-0, COPS-C and P-COPS. All of these models can also be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
+A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
 
 High Level STOPS Function
 }
@@ -74,8 +76,8 @@ The stops package provides five categories of important functions:
 
 Models & Algorithms:
 \itemize{
-\item cops() and stops() ... which fit COPS and STOPS models as described in Rusch et al. (2015) and Rusch et al. (2016). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
-\item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), powerStress (e.g., Rusch et al., 2015a), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with cops_XXX where XXX is the method and setting stressweight=1 and cordweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
+\item stops() ... which fits STOPS models as described in Rusch et al. (2018). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
+\item powerStressMin()... a workhorse for fitting s-stress, r-stress (de Leeuw, 2014), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the cops or stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with cops_XXX where XXX is the method and setting stressweight=1 and cordweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
 }
 
 Structuredness Indices:
@@ -91,10 +93,8 @@ Wrappers and convenience functions:
 \itemize{
 \item conf_adjust(): procrustes adjustment of configurations 
 \item cmdscale(), sammon(): wrappers that return S3 objects
-\item coploss() ... a function to calculate coploss (Rusch et al., 2015a)
-\item cop_smacofSym(), cop_sammon(), cop_cmdscale(), cop_rstress(), cop_powerstress(),cop_smacofSphere(), cop_sammon2(), cop_elastic(), cop_sstress(), cop_powerelastic(),cop_powersammon(): cop versions of these MDS models.
-\item stop_smacofSym(), stop_powerstress(), stop_flexsmacof(): stop versions of these MDS models.
-\item stoploss() ... a function to calculate stoploss (Rusch et al., 2015b)
+\item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(), stop_isomap(): stop versions of these MDS models.
+\item stoploss() ... a function to calculate stoploss (Rusch et al., 2018)
 }
 
 Methods: 
@@ -102,9 +102,7 @@ For most of the objects returned by the high-level functions S3 classes and meth
 
 References:
 \itemize{
-\item Rusch, T., Mair, P. \& Hornik, K. (2015) COPS: Cluster optimized proximity scaling, Report 2015/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
-\item Rusch, T., Mair, P. \& Hornik, K. (2016a) Assessing and quantifying clusteredness: The OPTICS Cordillera, Report 2016/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
-\item Rusch, T., Mair, P. \& Hornik, K. (2016b) Structure based hyperparameter selection for nonlinear dimension reduction: The Structure Optimized Proximity Scaling (STOPS) framework, Report 2016/2, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
+\item Rusch, T., Mair, P. \& Hornik, K. (2018) Structure based hyperparameter selection for nonlinear dimension reduction: The Structure Optimized Proximity Scaling (STOPS) framework, Report 2018/2, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
 }
 
 Authors: Thomas Rusch, Jan de Leeuw, Patrick Mair
@@ -115,33 +113,11 @@ Maintainer: Thomas Rusch
 library(cordillera)
 data(BankingCrisesDistances)
 
-#shorthand function for COPS variant 2 (hyperparameter)
-res<-pcops(BankingCrisesDistances[,1:69])
-res
-summary(res)
-plot(res)
-plot(res,"reachplot")
-plot(res,"transplot")
-plot(res,"Shepard")
-
-\donttest{
-#OPTICS
-ores<-cordillera::e_optics(res$conf,minpts=2,epsilon=100)
-ores
-summary(ores)
-plot(ores)
-}
-#OPTICS cordillera
-cres<-cordillera::cordillera(res$fit$conf)
-cres
-summary(cres)
-plot(cres)
-
 \donttest{
 #STOPS
 strucpars<-list(c(epsilon=10,minpts=2),NULL)
-res<-stops(BankingCrisesDistances[,1:69],
-structures=c("cclusteredness","clinearity"),strucpars=strucpars)
+res<-stops(BankingCrisesDistances[,1:69],loss="strain",
+structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="Kriging")
 res
 summary(res)
 plot(res)

@@ -842,7 +842,6 @@ mkPower2<-function(x,theta) {
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress
-#' @param transformation function to transform the proximities and/or distances; need to be parameterized by theta; currently not used  
 #' @param theta parameters for the proximiy and distance transformation
 #' @param structures what c-structuredness should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
@@ -862,7 +861,11 @@ mkPower2<-function(x,theta) {
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
 #' @param ... additional arguments to be passed to the optimization procedure
 #
-#' @return see \code{\link{pcops}}
+#'@return A list with the components
+#'         \itemize{
+#'         \item stoploss: the weighted loss value
+#'         TBD
+#' }
 #' 
 #' @examples
 #' \donttest{
