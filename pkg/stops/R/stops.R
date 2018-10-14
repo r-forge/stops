@@ -66,7 +66,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if("cfaithfulness"%in%structures)
             {
                indst <- which(structures=="cfaithfulness")
-               cfaithfulness <- do.call(stops::c_faithfulness,c(list(obj$confdiss),list(obj$obsdiss),strucpars[[indst]]))$mda 
+               cfaithfulness <- do.call(stops::c_faithfulness,c(list(confs),strucpars[[indst]]))$mda 
            }
         ##TODO add more structures
         struc <- unlist(mget(structures))

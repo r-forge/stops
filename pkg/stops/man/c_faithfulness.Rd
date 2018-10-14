@@ -5,10 +5,10 @@
 \title{c-faithfulness 
 calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods}
 \usage{
-c_faithfulness(confdiss, obsdiss, k = 3)
+c_faithfulness(confs, obsdiss, k = 3)
 }
 \arguments{
-\item{confdiss}{a symmetric numeric matrix or a dist object}
+\item{confs}{a symmetric numeric matrix or a dist object}
 
 \item{obsdiss}{a symmetric numeric matrix or a dist object}
 
