@@ -209,36 +209,32 @@ c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' c-faithfulness 
 #' calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods 
 #'
-#' @param confs a symmetric numeric matrix or a dist object
+#' @param confs a numeric matrix or a dist object
 #' @param obsdiss a symmetric numeric matrix or a dist object
 #' @param k the number of nearest neighbours to be looked at
+#' @param ... additional arguments passed to dist()  
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
 #' dis<-smacofSym(delts)$confdist
 #' c_faithfulness(dis,delts,k=3)
 #' @export
-c_faithfulness <- function(confs,obsdiss,k=3)
-    {
-        nnd <- stops::knn_dist(confs,k=k)$index
-        nndelt <- stops::knn_dist(obsdiss,k=k)$index
-        ovlap <- matrix(NA,ncol=ncol(nnd),nrow=nrow(nnd))
-        v <- nrow(ovlap)
-        for(i in 1:dim(ovlap)[1])
-            {
-                ovlap[i,] <- nnd[i,]%in%nndelt[i,]
-            }
-        ndi <- rowSums(ovlap)
-        mdi <- rowMeans(ovlap)
-        nd <- mean(ndi)
-        md <- mean(mdi)
-        mdai <- mdi - k/(v-1)
-        ndai <- ndi - k^2/(v-1)
-        mda <- mean(mdai)
-        nda <- mean(ndai)
-        list(mda=mda,nda=nda,md=md,nd=nd,mdai=mdai,ndai=ndai,ndi=ndi,mdi=mdi)
-        #mda
-    }
+c_faithfulness<- function(confs,obsdiss,k=3,...)
+{
+    if(inherits(obsdiss,"dist")) obsdiss <- as.matrix(obsdiss)
+    tdiss <- apply(obsdiss,2,sort)[k+1,] 
+    nnmat <- ifelse(obsdiss>tdiss, 0, 1)
+    n <- nrow(nnmat)
+    kv <- apply(nnmat,1,sum)
+    kvmat <- matrix(rep(kv,n),ncol=n,byrow=TRUE)
+    confdist <- as.matrix(dist(conf,...))
+    confrk <- apply(confdist, 2, rank)
+    nnconf <- ifelse(confrk>kvmat, 0,1)
+    nk <- (apply(nnconf*nnmat, 2, sum)-1)/(kv-1)
+    mkadj <- mean(nk)-(sum(nnmat)-n)/n/n
+    res <- list(mda=mkadj,nk=nk)
+    return(res)
+  }
 
 #'calculate k nearest neighbours from a distance matrix
 #' @param dis distance matrix
@@ -257,3 +253,8 @@ knn_dist <- function(dis,k)
       }
       list(index=knnindex[,-1],distance=knndist[,-1])
    }
+
+
+
+
+

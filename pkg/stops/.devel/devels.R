@@ -3129,7 +3129,7 @@ spiral.dat <- cbind(rep(ang^2*cos(ang),4),
 
 
 #### Calculate the distance matrix of X: n by p ####
-dist <- function(X)
+dist2 <- function(X)
   {
     X2 <- apply (X, 1, function(z)sum(z^2))
     dist2 <- outer(X2, X2, "+")- 2*X%*%t(X)
@@ -3196,53 +3196,4 @@ geod <- function(X,k=NULL,r=NULL,filename=NULL)
     return(face.graph)
   }
 
-# CMDS:
 
-#Do <- dist(cbind(x,y,z))
-cmds <- function(Do)
-  {
-    n <- nrow(Do)
-    J <- diag(rep(1,n)) - 1/n * rep(1,n) %*% t(rep(1,n))
-    B <- - 1/2 * J %*% (Do^2) %*% J
-    pc <- eigen(B)
-#    pc <- princomp(covmat=B)
-    return(pc)
-  }
-
-#plot(pc$sdev)
-#plot(pc$scale)
-#plot(pc$loadings[,1:2]%*%diag(pc$sdev[1:2]))
-
-# Caculate Local LC criterion
-overlap.v <- function(X,Inb,myk)
-  {
-    myDo <- dist(X)
-    myDaux <- apply(myDo,2,sort)[myk+1,]# choose the kth largest distance
-    myInb <- ifelse(myDo>myDaux, 0,1)
-    overlap.m <- Inb*myInb
-    myoverlap.v <- apply(overlap.m, 1, sum)-1
-    return(myoverlap.v)
-  }
-
-# Updated version for LC criterion
-loc.meta <- function(Inb,conf)
-  {
-    n <- nrow(Inb)
-    k.v <- apply(Inb,1,sum)
-    k.v.mat <- matrix(rep(k.v,n),ncol=n,byrow=T)
-#    k.v.mat <- matrix(rep(k.v,n),ncol=n)
-    D1 <- dist(conf)
-    D1.rk <- apply(D1, 2, rank)
-#    D1.rk <- apply(D1, 1, rank) # row-wise ranking and column-wise fill in.
-    D1.Inb <- ifelse(D1.rk>k.v.mat, 0,1 )
-#    D1.Inb <- ifelse(D1.rk<k.v.mat+1, 1, 0)
-    Nk <- (apply(D1.Inb*Inb, 2, sum)-1)/(k.v-1)
-    Mka <- mean(Nk)-(sum(Inb)-n)/n/n
-    result <- list()
-    result$Nk <- Nk
-    result$Mka <- Mka
-    return(result)
-  }
-
-# From loc.meta to Mk_adj
-#  mean(Nk)-(sum(Inb)-n)/n/n
