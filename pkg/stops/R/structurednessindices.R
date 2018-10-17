@@ -256,5 +256,50 @@ knn_dist <- function(dis,k)
 
 
 
+#' c-clusteredness 
+#' calculates c-clusteredness as the OPTICS cordillera. The higher the more clustered. 
+#' 
+#' @param confs a numeric matrix or a dist object
+#' @param q The norm used for the Cordillera. Defaults to 2. 
+#' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link{optics}} where it is called minPts. Defaults to 2.
+#' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
+#' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
+#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
+#' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
+#' @param ... Additional arguments to be passed to \code{\link{optics}}
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' dis<-smacofSym(delts)$confdist
+#' c_clusteredness(dis,delts,k=3)
+#' @export
+c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=4,...)
+{
+    out <- cordillera::cordillera(confs,minpts=minpts,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=4,...)$normed
+    return(out)
+  }
 
 
+#' c-regularity 
+#' calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular. 
+#' 
+#' @param confs a numeric matrix or a dist object
+#' @param q The norm used for the Cordillera. Defaults to 2. 
+#' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
+#' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
+#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
+#' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
+#' @param ... Additional arguments to be passed to \code{\link{optics}}
+#' 
+#' @examples
+#' hpts <- sp:::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
+#' plot(hpts[,1],hpts[,2],pch=19,asp=1)
+#' c_regularity(hpts)
+#' @export
+c_regularity<- function(confs,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=4,...)
+{
+    out <- 1-cordillera::cordillera(confs,minpts=2,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=4,...)$normed
+    return(out)
+  }
