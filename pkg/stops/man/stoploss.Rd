@@ -6,9 +6,10 @@
 \usage{
 stoploss(obj, stressweight = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
-  strucweight = rep(-1/length(structures), length(structures)), strucpars,
-  type = c("additive", "multiplicative"), verbose = 0)
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+  "cregularity"), strucweight = rep(-1/length(structures),
+  length(structures)), strucpars, type = c("additive", "multiplicative"),
+  verbose = 0)
 }
 \arguments{
 \item{obj}{MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere)}

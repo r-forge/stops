@@ -7,8 +7,8 @@
 stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1), ndim = 2,
   weightmat = NULL, init = NULL, ..., structures = c("clusteredness",
   "linearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness"),
-  stressweight = 1, strucweight = rep(1/length(structures),
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+  "cregularity"), stressweight = 1, strucweight = rep(1/length(structures),
   length(structures)), strucpars, verbose = 0)
 }
 \arguments{
