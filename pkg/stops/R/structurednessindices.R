@@ -272,7 +272,7 @@ knn_dist <- function(dis,k)
 #' @examples
 #' delts<-smacof::kinshipdelta
 #' dis<-smacofSym(delts)$confdist
-#' c_clusteredness(dis,delts,k=3)
+#' c_clusteredness(dis,minpts=3)
 #' @export
 c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=4,...)
 {

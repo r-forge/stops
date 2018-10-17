@@ -34,5 +34,5 @@ calculates c-clusteredness as the OPTICS cordillera. The higher the more cluster
 \examples{
 delts<-smacof::kinshipdelta
 dis<-smacofSym(delts)$confdist
-c_clusteredness(dis,delts,k=3)
+c_clusteredness(dis,minpts=3)
 }
