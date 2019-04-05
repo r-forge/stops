@@ -5,9 +5,10 @@
 \title{PCOPS version of strain}
 \usage{
 cop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
-  init = NULL, itmaxi = 1000, ..., stressweight = 1, cordweight = 0.5,
-  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
-  scale = 3, normed = TRUE, stresstype = "default")
+  init = NULL, itmaxi = 1000, ..., stressweight = 1,
+  cordweight = 0.5, q = 1, minpts = ndim + 1, epsilon = 10,
+  rang = NULL, verbose = 0, scale = 3, normed = TRUE,
+  stresstype = "default")
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

@@ -1240,17 +1240,17 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 0.975
 #' @param cordweight weight to be used for the cordillera; defaults to 0.025
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param dmax The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either a numeric value that matches max(rang) or NULL; if NULL it is found as 1.5 times (for kappa >1) or 1 times (for kappa <=1) the maximum reachbility value of the power torgerson model with the same lambda. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.   
 #' @param rang range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}     
-#' @param optimmethod What optimizer to use? Choose one of NEWUOA, Nelder-Mead, Hooke-Jeeves (hjk), BB::dfsane, NlcOptim::solnl, Rsolnp::solnp, subplex::subplex, SANN (derivative free) and BFGS (numeric derivative). Usually hkj, BFGS, NEWUOA, subplex and solnl work well (depending on the smoothness of copstress). There are also combinations that are good, like hjk/NEWUOA (twostep1), hjk/BFGS (twostep2), BFGS/hjk (twostep6), BFGS/NEWUOA (twostep5), hjk/solnl (twostep3), hjk/subplex (twostep4). Use twostep1.   
+#' @param optimmethod What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS' . Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.   
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.   
 #' @param accuracy numerical accuracy, defaults to 1e-7
-#' @param itmax maximum number of iterations. Defaults to 50000
+#' @param itmax maximum number of iterations. Defaults to 5000.
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
@@ -1262,7 +1262,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'         \item conf: the configuration to which the scaling of argument scale was applied
 #'         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
 #'         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
-#'         \item niter: number of iterations of the optimizer
+#'         \item niter: number of iterations of the optimizer. 
 #'         \item stress: the square root of explicitly normalized stress (calculated for confo).
 #'         \item spp: stress per point
 #'         \item ndim: number of dimensions
@@ -1305,12 +1305,12 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @importFrom cmaes cma_es
 #' @importFrom rgenoud genoud
 #' @importFrom GenSA GenSA
-#' 
+#' @importFrom nloptr direct
 #' 
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 50000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 5000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -1344,7 +1344,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     labos <- rownames(delta)
     
     if(verbose>0) cat(paste("Minimizing",type,"copstress with kappa=",kappa,"lambda=",lambda,"nu=",nu,".\n"))
-    if(missing(optimmethod)) optimmethod <- "Newuoa"
+    if(missing(optimmethod)) optimmethod <- "hjk-Newuoa"
     if(missing(scale)) scale <- "sd"
     if(missing(stresstype)) stresstype <- "stress-1"
 
@@ -1460,9 +1460,10 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          ovalue <-optimized$fval
      }
        if(optimmethod=="direct") {
-         xold <- as.vector(xold)
-         optimized <- nloptr::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),#lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),
-                                     nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
+          xold <- as.vector(xold)
+          optimized <- nloptr::direct(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
+ #        optimized <- nloptr::direct(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,#n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),#lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),
+ #                                    nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$iter
          ovalue <-optimized$value

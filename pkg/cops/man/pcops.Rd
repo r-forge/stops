@@ -4,16 +4,16 @@
 \alias{pcops}
 \title{Profile COPS Function (aka COPS Variant 2)}
 \usage{
-pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon",
-  "rstress", "powermds", "sstress", "elastic", "powersammon", "powerelastic",
-  "powerstress", "sammon2", "powerstrain", "apstress"), weightmat = NULL,
-  ndim = 2, init = NULL, theta = c(1, 1, 1), stressweight = 1,
-  cordweight, q = 2, minpts = ndim + 1, epsilon = 100, rang,
-  optimmethod = c("ALJ", "pso", "SANN", "DIRECT", "DIRECTL", "stogo", "MADS",
-  "hjk"), lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
-  scale = c("proc", "sd", "none", "std"), normed = TRUE, s = 4,
-  stresstype = "default", acc = 1e-07, itmaxo = 200, itmaxi = 10000,
-  ...)
+pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
+  "sammon", "rstress", "powermds", "sstress", "elastic", "powersammon",
+  "powerelastic", "powerstress", "sammon2", "powerstrain", "apstress"),
+  weightmat = NULL, ndim = 2, init = NULL, theta = c(1, 1, 1),
+  stressweight = 1, cordweight, q = 2, minpts = ndim + 1,
+  epsilon = 100, rang, optimmethod = c("ALJ", "pso", "SANN", "DIRECT",
+  "DIRECTL", "stogo", "MADS", "hjk"), lower = c(1, 1, 0.5),
+  upper = c(5, 5, 2), verbose = 0, scale = c("proc", "sd", "none",
+  "std"), normed = TRUE, s = 4, stresstype = "default",
+  acc = 1e-07, itmaxo = 200, itmaxi = 10000, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

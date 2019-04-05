@@ -4,9 +4,9 @@
 \alias{powerStressFast}
 \title{Power stress minimization by NEWUOA}
 \usage{
-powerStressFast(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1 -
-  diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-12, itmax = 50000,
-  verbose = FALSE)
+powerStressFast(delta, kappa = 1, lambda = 1, nu = 1, weightmat = 1
+  - diag(nrow(delta)), init = NULL, ndim = 2, acc = 1e-12,
+  itmax = 50000, verbose = FALSE)
 }
 \arguments{
 \item{delta}{dist object or a symmetric, numeric data.frame or matrix of distances}

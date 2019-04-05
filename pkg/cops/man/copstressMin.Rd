@@ -5,14 +5,15 @@
 \title{Fitting a COPS-C Model (COPS Variant 1).}
 \usage{
 copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
-  lambda, nu), type = c("ratio", "interval", "ordinal"), ties = "primary",
-  weightmat = 1 - diag(nrow(delta)), ndim = 2, init = NULL,
-  stressweight = 0.975, cordweight = 0.025, q = 1, minpts = ndim + 1,
-  epsilon = 10, dmax = NULL, rang, optimmethod = c("NelderMead", "Newuoa",
-  "BFGS", "SANN", "hjk", "solnl", "solnp", "subplex", "snomadr", "hjk-Newuoa",
-  "hjk-BFGS", "BFGS-hjk", "Newuoa-hjk", "cmaes", "direct", "direct-Newuoa",
-  "direct-BFGS", "genoud", "gensa"), verbose = 0, scale = c("sd", "rmsq",
-  "std", "proc", "none"), normed = TRUE, accuracy = 1e-07, itmax = 50000,
+  lambda, nu), type = c("ratio", "interval", "ordinal"),
+  ties = "primary", weightmat = 1 - diag(nrow(delta)), ndim = 2,
+  init = NULL, stressweight = 0.975, cordweight = 0.025, q = 1,
+  minpts = ndim + 1, epsilon = 10, dmax = NULL, rang,
+  optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl",
+  "solnp", "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS", "BFGS-hjk",
+  "Newuoa-hjk", "cmaes", "direct", "direct-Newuoa", "direct-BFGS",
+  "genoud", "gensa"), verbose = 0, scale = c("sd", "rmsq", "std",
+  "proc", "none"), normed = TRUE, accuracy = 1e-07, itmax = 5000,
   stresstype = c("stress-1", "stress"), ...)
 }
 \arguments{
@@ -40,7 +41,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{cordweight}{weight to be used for the cordillera; defaults to 0.025}
 
-\item{q}{the norm of the corrdillera; defaults to 1}
+\item{q}{the norm of the cordillera; defaults to 1}
 
 \item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
@@ -50,7 +51,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}}
 
-\item{optimmethod}{What optimizer to use? Choose one of NEWUOA, Nelder-Mead, Hooke-Jeeves (hjk), BB::dfsane, NlcOptim::solnl, Rsolnp::solnp, subplex::subplex, SANN (derivative free) and BFGS (numeric derivative). Usually hkj, BFGS, NEWUOA, subplex and solnl work well (depending on the smoothness of copstress). There are also combinations that are good, like hjk/NEWUOA (twostep1), hjk/BFGS (twostep2), BFGS/hjk (twostep6), BFGS/NEWUOA (twostep5), hjk/solnl (twostep3), hjk/subplex (twostep4). Use twostep1.}
+\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS' . Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
@@ -60,7 +61,7 @@ copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
 
 \item{accuracy}{numerical accuracy, defaults to 1e-7}
 
-\item{itmax}{maximum number of iterations. Defaults to 50000}
+\item{itmax}{maximum number of iterations. Defaults to 5000.}
 
 \item{stresstype}{which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.}
 
@@ -75,7 +76,7 @@ A list with the components
         \item conf: the configuration to which the scaling of argument scale was applied
         \item confo: the unscaled but explicitly normed configuration returned from the fitting procedure. Scaling applied to confo gives conf.
         \item par, pars : the theta vector of powers tranformations (kappa,lambda,nu)
-        \item niter: number of iterations of the optimizer
+        \item niter: number of iterations of the optimizer. 
         \item stress: the square root of explicitly normalized stress (calculated for confo).
         \item spp: stress per point
         \item ndim: number of dimensions

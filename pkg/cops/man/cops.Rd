@@ -4,12 +4,11 @@
 \name{cops}
 \alias{cops}
 \alias{cops-package}
-\alias{cops}
 \title{cops: cluster optimized proximity scaling}
 \usage{
-cops(dis, variant = c("1", "2", "Variant1", "Variant2", "v1", "v2", "COPS-C",
-  "P-COPS", "configuration-c", "profile", "copstress-c", "p-copstress",
-  "COPS-P", "copstress-p", "cops-c", "p-cops"), ...)
+cops(dis, variant = c("1", "2", "Variant1", "Variant2", "v1", "v2",
+  "COPS-C", "P-COPS", "configuration-c", "profile", "copstress-c",
+  "p-copstress", "COPS-P", "copstress-p", "cops-c", "p-cops"), ...)
 }
 \arguments{
 \item{dis}{a dissimilarity matrix or a dist object}

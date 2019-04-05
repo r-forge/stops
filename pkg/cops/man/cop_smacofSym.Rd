@@ -5,9 +5,10 @@
 \title{PCOPS versions of smacofSym models}
 \usage{
 cop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
-  init = NULL, itmaxi = 1000, ..., stressweight = 1, cordweight = 0.5,
-  q = 1, minpts = ndim + 1, epsilon = 10, rang = NULL, verbose = 0,
-  normed = TRUE, scale, stresstype = "default")
+  init = NULL, itmaxi = 1000, ..., stressweight = 1,
+  cordweight = 0.5, q = 1, minpts = ndim + 1, epsilon = 10,
+  rang = NULL, verbose = 0, normed = TRUE, scale,
+  stresstype = "default")
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
