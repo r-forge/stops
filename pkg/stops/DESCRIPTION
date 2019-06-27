@@ -1,7 +1,7 @@
 Package: stops
 Title: STructure Optimized Proximity Scaling
-Version: 0.0-39
-Date: 2018-11-05
+Version: 0.0-40
+Date: 2019-28-06
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Patrick",family="Mair", role = "aut"),person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Patrick Mair [aut], Kurt
     Hornik [ctb]
@@ -25,7 +25,8 @@ Imports:
     DiceOptim,
     DiceKriging,
     tgp,
-    vegan
+    vegan,
+    scagnostics
 Enhances: stats
 Suggests:
     testthat,

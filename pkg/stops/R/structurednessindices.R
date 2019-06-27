@@ -47,10 +47,26 @@ c_linearity <- function(confs)
 #' @export
 c_dependence <- function(confs,index=1)
     {
-        if(dim(confs)[2]>2) stop("Distance correlation is not defined for more than two column vectors.")
-        y <- confs[,1]
-        x <- confs[,2]
-        out <- energy::dcor(x,y,index)
+        if(dim(confs)[2]<2) stop("Distance correlation is not defined for one column.")
+        if(dim(confs)[2]==2) {
+            x <- confs[,1]
+            y <- confs[,2]
+            out <- energy::dcor(x,y,index)
+        }
+        if(dim(confs)[2]>2) {
+            n <- ncol(confs)
+            #dist cor is symmetric so we just do it for the n(n-1)/2 possibilities
+            matpw <- rep(NA,choose(n,2)) 
+            j1 <- rep.int(1:(n-1), (n-1):1) #all k
+            j2 <- sequence((n-1):1) +j1 #all l<k
+            for(i in 1:length(matpw))
+                {
+                    x1 <- confs[,j1[i]]
+                    y1 <- confs[,j2[i]] 
+                    matpw[i] <- energy::dcor(x1,y1,index)        
+                }
+            out <- max(matpw)
+           }
         out
     }
 
@@ -71,12 +87,32 @@ c_dependence <- function(confs,index=1)
 #' @export
 c_manifoldness <- function(confs)
     {
-        if(dim(confs)[2]>2) stop("Maximal correlation is not available for more than two column vectors. You can use cassociation.")
-        #it is not symmetric so we use dim1 to explain dim2
-        x <- confs[,1]
-        y <- confs[,2]
-        tmp <- acepack::ace(x,y)
-        out <- stats::cor(tmp$tx,tmp$ty)
+        if(dim(confs)[2]<2) stop("Maximal correlation is not available for less than two column vectors.")
+        #max cor is not symmetric 
+        #if(dim(confs)[2]==2){
+        #    x <- confs[,1]
+        #    y <- confs[,2]
+        #    tmp1 <- acepack::ace(x,y)
+        #    tmp2 <- acepack::ace(y,x)
+        #    out1 <- stats::cor(tmp1$tx,tmp1$ty)
+        #    out2 <- stats::cor(tmp1$tx,tmp1$ty)
+        #    out <- max(out1,out2)
+        #}
+        if(dim(confs)[2]>=2) {
+            #max cor is not symmetric so we look at all combinations
+            n <- ncol(confs)
+            matpw <- rep(NA,n^2-n) #all combination apart from k=l
+            j1 <- expand.grid(1:n, 1:n) #all k,l combis incl k=l
+            j2 <- j1[-which(j1[,1]/j1[,2]==1),] #remove the k=l
+            for(i in 1:length(matpw))
+                {
+                    x <- confs[,j2[i,1]] #first col is k
+                    y <- confs[,j2[i,2]] #second col is l
+                    tmp <- acepack::ace(x,y)
+                    matpw[i] <- stats::cor(tmp$tx,tmp$ty) #all max corr 
+                }
+            out <- max(matpw) #maximum over all
+           }
         out
     }
 
@@ -85,28 +121,28 @@ c_manifoldness <- function(confs)
 #'
 #' @param confs a numeric matrix or data frame with two columns
 #' @param master the master column 
-#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 0.6
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM; they call it epsilon in the paper). It provides robustness.
 #' 
 #' @importFrom minerva mine
-c_mine <- function(confs,master=NULL,alpha=1,C=15,var.thr=1e-5,eps=NULL)
+c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
     {
         #if(dim(confs)[2]>2) stops("MINE is not defined for more than two column vectors.")
-        out <- minerva::mine(x=confs,master=master,alpha=alpha,C=C,var.thr=var.thr,eps=eps)
+        out <- minerva::mine(x=confs,master=master,alpha=alpha,C=C,var.thr=var.thr,eps=zeta)
         out
     }
 
 #' c-association
 #' calculates the c-association based on the maximal information coefficient 
-#' We define c-association as the maximum association between any two dimensions - or use the determinant of the MINE matrix - TBD
+#' We define c-association as the maximum association between any two dimensions
 #' 
-#' @param confs a numeric matrix or data frame with two columns
-#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
+#' @param confs a numeric matrix or data frame
+#' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 0.6
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al). It provides robustness.
 #' 
 #' @importFrom minerva mine
 #' 
@@ -117,9 +153,10 @@ c_mine <- function(confs,master=NULL,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' confs<-cbind(x,y,z)
 #' c_association(confs)
 #' @export
-c_association <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
-    {
-        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MIC
+c_association <- function(confs,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
+{
+     #symmetric
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MIC
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
         out
@@ -127,13 +164,13 @@ c_association <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 
 #' c-nonmonotonicity
 #' calculates the c-nonmonotonicity based on the maximum asymmetric score 
-#' We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#' We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions
 #' 
-#' @param confs a numeric matrix or data frame with two columns
+#' @param confs a numeric matrix or data frame
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
 #' 
 #' @importFrom minerva mine
 #' 
@@ -144,9 +181,10 @@ c_association <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' confs<-cbind(x,y,z)
 #' c_nonmonotonicity(confs)
 #' @export
-c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
-    {
-        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MAS
+c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+{
+        #symmetric
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MAS
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
         out
@@ -154,13 +192,13 @@ c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 
 #' c-functionality
 #' calculates the c-functionality based on the maximum edge value 
-#' We define c-functionality as the mean functionality between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#' We define c-functionality as the maximum functionality between any two dimensions
 #' 
 #' @param confs a numeric matrix or data frame with two columns
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
 #' 
 #' @importFrom minerva mine
 #' 
@@ -171,9 +209,10 @@ c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' confs<-cbind(x,y,z)
 #' c_functionality(confs)
 #' @export
-c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
-    {
-        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MEV
+c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+{
+    #symmetric
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MEV
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- mean(tmp) #the question is how to aggregate this for more than two dimensions, I now use the mean
         out
@@ -181,13 +220,13 @@ c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 
 #' c-complexity
 #' calculates the c-complexity based on the minimum cell number
-#' We define c-complexity as the maximum minimum cell number between any two dimensions - or use the determinant of the MINE matrix? - TBD
+#' We define c-complexity as the minimum minimum cell number between any two dimensions
 #'
-#' @param confs a numeric matrix or data frame with two columns
+#' @param confs a numeric matrix or data frame
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param eps integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
 #' 
 #' @importFrom minerva mine
 #' 
@@ -198,11 +237,12 @@ c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' confs<-cbind(x,y,z)
 #' c_complexity(confs)
 #' @export
-c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
-    {
-        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,eps=eps)$MCN
+c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+{
+    #symmetric
+        tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MCN
         tmp <- tmp[lower.tri(tmp)]
-        out <- max(tmp)
+        out <- min(tmp)
         out
     }
 
@@ -213,6 +253,7 @@ c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,eps=NULL)
 #' @param obsdiss a symmetric numeric matrix or a dist object
 #' @param k the number of nearest neighbours to be looked at
 #' @param ... additional arguments passed to dist()  
+#'
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -239,7 +280,6 @@ c_faithfulness<- function(confs,obsdiss,k=3,...)
 #'calculate k nearest neighbours from a distance matrix
 #' @param dis distance matrix
 #' @param k number of nearest neighbours (Note that with a tie, the function returns the alphanumerically first one!)
-#' @export
 knn_dist <- function(dis,k)
     {
       dis <- as.matrix(dis)  
@@ -302,4 +342,171 @@ c_regularity<- function(confs,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean
 {
     out <- 1-cordillera::cordillera(confs,minpts=2,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=scale,...)$normed
     return(out)
-  }
+}
+
+#' c-hierarchy
+#' captures how well a partition/ultrametric (obtained by hclust) explains the configuration distances. Uses variance explained for euclidean distances and deviance explained for everything else. 
+#'
+#' @param X a numeric matrix
+#' @param p the parameter of the Minokwski distances (p=2 euclidean and p=1 is manhattan)
+#' @param agglmethod the method used for creating the clustering, see \code{\link{hclust}}.
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacofSym(delts)$conf
+#' c_hierarchy(conf,p=2,agglmethod="single")
+#' @export
+#'
+c_hierarchy <- function(X,p=2,agglmethod="complete")
+{
+     #maybe not using this?
+        d <- dist(confs,method="minkowski",p=p)
+        hie <- hclust(d,method=agglmethod)
+        af <- clue::cl_validity(hie,d)
+        if(p==2) return(af[[1]])
+        if(p!=2) return(af[[2]])
+     }
+        
+#' c-outlying
+#' 
+#' Measures the c-outlying structure 
+#' 
+#' @param conf A numeric matrix.
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf3<-smacof::smacofSym(delts,ndim=3)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_outlying(conf)
+#' @export
+c_outlying<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Outlying"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Outlying",])
+    return(out)
+}
+
+#' c-convexity
+#' 
+#' Measures the c-convexity structure 
+#' 
+#' @param conf A numeric matrix.
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_convexity(conf)
+#' @export
+c_convexity<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Convex"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Convex",])
+    return(out)
+}
+
+#' c-skinniness
+#' 
+#' Measures the c-skinniness structure 
+#' 
+#' @param conf A numeric matrix.
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_skinniness(conf)
+#' @export
+c_skinniness<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Skinny"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Skinny",])
+    return(out)
+}
+
+#' c-stringiness
+#' 
+#' Measures the c-stringiness structure 
+#' 
+#' @param conf A numeric matrix.
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_stringiness(conf)
+#' @export
+c_stringiness<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Stringy"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Stringy",])
+    return(out)
+}
+
+#' c-sparsity
+#' 
+#' Measures the c-sparsity structure 
+#' 
+#' @param conf A numeric matrix.
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_sparsity(conf)
+#' @export
+c_sparsity<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Sparse"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Sparse",])
+    return(out)
+}
+
+#' c-clumpiness
+#' 
+#' Measures the c-outlying structure 
+#' 
+#' @param conf A numeric matrix.
+#' 
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_clumpiness(conf)
+#' @export
+c_clumpiness<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Clumpy"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Clumpy",])
+    return(out)
+}
+
+
+#' c-striatedness
+#' 
+#' Measures the c-striatedness structure 
+#' 
+#' @param conf A numeric matrix.
+#'
+#' @importFrom scagnostics scagnostics
+#' 
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' conf<-smacof::smacofSym(delts)$conf
+#' plot(conf,pch=19,asp=1)
+#' c_striatedness(conf)
+#' @export
+c_striatedness<- function(conf){
+    if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
+    if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Striated"])
+    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Striated",])
+    return(out)
+}
+
+
