@@ -301,13 +301,16 @@ knn_dist <- function(dis,k)
 #' 
 #' @param confs a numeric matrix or a dist object
 #' @param q The norm used for the Cordillera. Defaults to 2. 
-#' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link{optics}} where it is called minPts. Defaults to 2.
+#' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan:optics]{optics}} where it is called minPts. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
 #' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
 #' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
-#' @param ... Additional arguments to be passed to \code{\link{optics}}
+#' @param ... Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}
+#'
+#'
+#' @importFrom cordillera cordillera
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -331,7 +334,7 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
 #' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
-#' @param ... Additional arguments to be passed to \code{\link{optics}}
+#' @param ... Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}
 #' 
 #' @examples
 #' hpts <- sp:::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
@@ -347,20 +350,24 @@ c_regularity<- function(confs,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean
 #' c-hierarchy
 #' captures how well a partition/ultrametric (obtained by hclust) explains the configuration distances. Uses variance explained for euclidean distances and deviance explained for everything else. 
 #'
-#' @param X a numeric matrix
+#' @param confs a numeric matrix
 #' @param p the parameter of the Minokwski distances (p=2 euclidean and p=1 is manhattan)
 #' @param agglmethod the method used for creating the clustering, see \code{\link{hclust}}.
+#'
+#' @importFrom clue cl_validity
+#' @importFrom stats hclust
+#' 
 #' @examples
 #' delts<-smacof::kinshipdelta
 #' conf<-smacofSym(delts)$conf
 #' c_hierarchy(conf,p=2,agglmethod="single")
 #' @export
 #'
-c_hierarchy <- function(X,p=2,agglmethod="complete")
+c_hierarchy <- function(confs,p=2,agglmethod="complete")
 {
      #maybe not using this?
         d <- dist(confs,method="minkowski",p=p)
-        hie <- hclust(d,method=agglmethod)
+        hie <- stats::hclust(d,method=agglmethod)
         af <- clue::cl_validity(hie,d)
         if(p==2) return(af[[1]])
         if(p!=2) return(af[[2]])
@@ -376,8 +383,7 @@ c_hierarchy <- function(X,p=2,agglmethod="complete")
 #' @examples
 #' delts<-smacof::kinshipdelta
 #' conf3<-smacof::smacofSym(delts,ndim=3)$conf
-#' plot(conf,pch=19,asp=1)
-#' c_outlying(conf)
+#' c_outlying(conf3)
 #' @export
 c_outlying<- function(conf){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")

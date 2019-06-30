@@ -4,7 +4,7 @@
 \alias{stop_isomap2}
 \title{STOPS version of isomap over real epsilon.}
 \usage{
-stop_isomap2(dis, theta = quantile(dis, 0.1), weightmat = NULL,
+stop_isomap2(dis, theta = stats::quantile(dis, 0.1), weightmat = NULL,
   ndim = 2, init = NULL, stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence",
   "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",

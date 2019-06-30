@@ -20,13 +20,12 @@ Imports:
     acepack,
     minerva,
     energy,
-    minqa,
-    dbscan,
     DiceOptim,
     DiceKriging,
     tgp,
     vegan,
-    scagnostics
+    scagnostics,
+    clue
 Enhances: stats
 Suggests:
     sp,
@@ -36,4 +35,5 @@ License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
 VignetteBuilder: R.rsp
+Encoding: UTF-8
 RoxygenNote: 6.1.1

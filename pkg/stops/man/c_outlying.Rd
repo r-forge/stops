@@ -15,6 +15,5 @@ Measures the c-outlying structure
 \examples{
 delts<-smacof::kinshipdelta
 conf3<-smacof::smacofSym(delts,ndim=3)$conf
-plot(conf,pch=19,asp=1)
-c_outlying(conf)
+c_outlying(conf3)
 }

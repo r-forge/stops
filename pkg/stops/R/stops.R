@@ -403,7 +403,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
   wghts <- 1/dis^lambda 
   disl <- dis^lambda
   dhat <-  disl/sqrt(sum(wghts*disl^2))*sqrt(N)
-  lb <- sum(wghts*fitdis*dhat)/sum(wghts*fitsdis^2)   #Restrict config so we have a stress in [0,1] just as in smacof. Rest is unchanged. Maybe use this stress for optimization at some point?
+  lb <- sum(wghts*fitdis*dhat)/sum(wghts*fitdis^2)   #Restrict config so we have a stress in [0,1] just as in smacof. Rest is unchanged. Maybe use this stress for optimization at some point?
   fitdisnn <- lb*fitdis
   fit$stress.r <- sum(wghts*(dhat-fitdisnn)^2)/N 
   #fit$stress.n <- fit$stress.r/sum(dis^lambda)
@@ -620,11 +620,11 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
 #' }
 #'
 #' @import cordillera
-#' @importFrom stats dist as.dist
+#' @importFrom stats dist as.dist quantile
 #' @importFrom vegan isomap isomapdist
 #' @keywords multivariate
 #' @export
-stop_isomap2 <- function(dis,theta=quantile(dis,0.1),weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
