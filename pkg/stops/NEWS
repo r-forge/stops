@@ -1,6 +1,6 @@
 Version 0.0-40
 
-- Added new c-structuredness indices from scagnostics an c-hierarchy. TODO: add bc stress.
+- Added new c-structuredness indices from scagnostics an c-hierarchy. Added a [0,1] normalized stress to sammon. TODO: add bc stress.
 
 Version 0.0-39
 

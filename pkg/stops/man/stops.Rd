@@ -4,19 +4,21 @@
 \name{stops}
 \alias{stops}
 \alias{stops-package}
-\alias{stops}
 \title{stops: structure optimized proximity scaling}
 \usage{
 stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
-  "powermds", "powerelastic", "powerstrain", "elastic", "sammon", "sammon2",
-  "smacofSphere", "powersammon", "rstress", "sstress", "isomap", "isomapeps"),
-  theta = 1, structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity"), ndim = 2,
-  weightmat = NULL, init = NULL, stressweight = 1, strucweight, strucpars,
-  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower = c(1, 1,
-  0.5), upper = c(5, 5, 2), verbose = 0, type = c("additive",
-  "multiplicative"), s = 5, initpoints = 10, itmax = 50, model, ...)
+  "powermds", "powerelastic", "powerstrain", "elastic", "sammon",
+  "sammon2", "smacofSphere", "powersammon", "rstress", "sstress", "isomap",
+  "isomapeps"), theta = 1, structures = c("cclusteredness",
+  "clinearity", "cdependence", "cmanifoldness", "cassociation",
+  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+  "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+  "cskinniness", "csparsity", "cstringiness", "cclumpiness"), ndim = 2,
+  weightmat = NULL, init = NULL, stressweight = 1, strucweight,
+  strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
+  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
+  type = c("additive", "multiplicative"), s = 5, initpoints = 10,
+  itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -37,9 +39,9 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
-\item{strucpars}{list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.}
+\item{strucpars}{(possibly named with the strcuture) list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
-\item{optimmethod}{What optimizer to use? Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.}
+\item{optimmethod}{What optimizer to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.}
 
 \item{lower}{The lower contraints of the search region}
 
@@ -68,8 +70,6 @@ A list with the components
 }
 \description{
 A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
-
-High Level STOPS Function
 }
 \details{
 The stops package provides five categories of important functions:

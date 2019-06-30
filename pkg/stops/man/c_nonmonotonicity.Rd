@@ -4,12 +4,13 @@
 \alias{c_nonmonotonicity}
 \title{c-nonmonotonicity
 calculates the c-nonmonotonicity based on the maximum asymmetric score 
-We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions - or use the determinant of the MINE matrix? - TBD}
+We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions}
 \usage{
-c_nonmonotonicity(confs, alpha = 1, C = 15, var.thr = 1e-05, eps = NULL)
+c_nonmonotonicity(confs, alpha = 1, C = 15, var.thr = 1e-05,
+  zeta = NULL)
 }
 \arguments{
-\item{confs}{a numeric matrix or data frame with two columns}
+\item{confs}{a numeric matrix or data frame}
 
 \item{alpha}{an optional number of cells allowed in the X-by-Y search-grid. Default value is 1}
 
@@ -17,12 +18,12 @@ c_nonmonotonicity(confs, alpha = 1, C = 15, var.thr = 1e-05, eps = NULL)
 
 \item{var.thr}{minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.}
 
-\item{eps}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
+\item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
 }
 \description{
 c-nonmonotonicity
 calculates the c-nonmonotonicity based on the maximum asymmetric score 
-We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions - or use the determinant of the MINE matrix? - TBD
+We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions
 }
 \examples{
 x<-seq(-3,3,length.out=200)

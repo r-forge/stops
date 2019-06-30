@@ -5,11 +5,14 @@
 \title{STOPS version of strain}
 \usage{
 stop_cmdscale(dis, theta = c(1, 1, 1), weightmat = NULL, ndim = 2,
-  init = NULL, ..., stressweight = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity"), strucweight = rep(1/length(structures), length(structures)),
-  strucpars, verbose = 0, type = c("additive", "multiplicative"))
+  init = NULL, ..., stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
+  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+  "cstringiness", "cclumpiness"), strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0, type = c("additive",
+  "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

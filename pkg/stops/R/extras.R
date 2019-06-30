@@ -15,8 +15,15 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      out <- stats::cmdscale(d,k=k,eig=eig,...)
      colnames(out$points) <- paste("D",1:k,sep="")
      out$call <- match.call()
-     out$delta <- as.dist(d) #FIX
-     out$confdiss <- dist(out$points)
+     delta <- as.dist(d) #FIX
+     confdist<- dist(out$points)
+     #normalization
+     #stress <- sum((delta-confdist)^2)
+     #stress.m <- stress/sum(delta^2)
+     out$delta <- delta
+     out$confdist <- confdist
+     #out$stress <- stress
+     #out$stress.m <- stress.m
      class(out) <- "cmdscale"
      out
  }

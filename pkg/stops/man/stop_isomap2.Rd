@@ -4,12 +4,15 @@
 \alias{stop_isomap2}
 \title{STOPS version of isomap over real epsilon.}
 \usage{
-stop_isomap2(dis, theta = quantile(dis, 0.1), weightmat = NULL, ndim = 2,
-  init = NULL, stressweight = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity"), strucweight = rep(1/length(structures), length(structures)),
-  strucpars, verbose = 0, type = c("additive", "multiplicative"))
+stop_isomap2(dis, theta = quantile(dis, 0.1), weightmat = NULL,
+  ndim = 2, init = NULL, stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
+  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+  "cstringiness", "cclumpiness"), strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0, type = c("additive",
+  "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

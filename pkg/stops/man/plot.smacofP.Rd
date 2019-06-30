@@ -5,9 +5,10 @@
 \title{S3 plot method for smacofP objects}
 \usage{
 \method{plot}{smacofP}(x, plot.type = "confplot", plot.dim = c(1, 2),
-  bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex =
-  0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab,
-  ylab, xlim, ylim, legend = TRUE, legpos, loess = TRUE, ...)
+  bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1,
+  cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1,
+  main, xlab, ylab, xlim, ylim, legend = TRUE, legpos, loess = TRUE,
+  ...)
 }
 \arguments{
 \item{x}{an object of class smacofP}

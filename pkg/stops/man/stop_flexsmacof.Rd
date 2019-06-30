@@ -4,12 +4,15 @@
 \alias{stop_flexsmacof}
 \title{STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)}
 \usage{
-stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1), ndim = 2,
-  weightmat = NULL, init = NULL, ..., structures = c("clusteredness",
-  "linearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity"), stressweight = 1, strucweight = rep(1/length(structures),
-  length(structures)), strucpars, verbose = 0)
+stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1),
+  ndim = 2, weightmat = NULL, init = NULL, ...,
+  structures = c("clusteredness", "linearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
+  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+  "cstringiness", "cclumpiness"), stressweight = 1,
+  strucweight = rep(1/length(structures), length(structures)), strucpars,
+  verbose = 0)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

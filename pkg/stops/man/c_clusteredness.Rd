@@ -5,8 +5,9 @@
 \title{c-clusteredness 
 calculates c-clusteredness as the OPTICS cordillera. The higher the more clustered.}
 \usage{
-c_clusteredness(confs, minpts = 2, q = 2, epsilon = 2 * max(dist(confs)),
-  distmeth = "euclidean", dmax = NULL, digits = 10, scale = 4, ...)
+c_clusteredness(confs, minpts = 2, q = 2, epsilon = 2 *
+  max(dist(confs)), distmeth = "euclidean", dmax = NULL, digits = 10,
+  scale = 4, ...)
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}

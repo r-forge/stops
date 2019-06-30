@@ -4,12 +4,15 @@
 \alias{stop_powersammon}
 \title{STOPS version of sammon with powers}
 \usage{
-stop_powersammon(dis, theta = c(1, 1, -1), weightmat = NULL, init = NULL,
-  ndim = 2, ..., stressweight = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity"), strucweight = rep(1/length(structures), length(structures)),
-  strucpars, verbose = 0, type = c("additive", "multiplicative"))
+stop_powersammon(dis, theta = c(1, 1, -1), weightmat = NULL,
+  init = NULL, ndim = 2, ..., stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
+  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+  "cstringiness", "cclumpiness"), strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0, type = c("additive",
+  "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

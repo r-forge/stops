@@ -4,9 +4,10 @@
 \alias{c_functionality}
 \title{c-functionality
 calculates the c-functionality based on the maximum edge value 
-We define c-functionality as the mean functionality between any two dimensions - or use the determinant of the MINE matrix? - TBD}
+We define c-functionality as the maximum functionality between any two dimensions}
 \usage{
-c_functionality(confs, alpha = 1, C = 15, var.thr = 1e-05, eps = NULL)
+c_functionality(confs, alpha = 1, C = 15, var.thr = 1e-05,
+  zeta = NULL)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame with two columns}
@@ -17,12 +18,12 @@ c_functionality(confs, alpha = 1, C = 15, var.thr = 1e-05, eps = NULL)
 
 \item{var.thr}{minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.}
 
-\item{eps}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
+\item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
 }
 \description{
 c-functionality
 calculates the c-functionality based on the maximum edge value 
-We define c-functionality as the mean functionality between any two dimensions - or use the determinant of the MINE matrix? - TBD
+We define c-functionality as the maximum functionality between any two dimensions
 }
 \examples{
 x<-seq(-3,3,length.out=200)

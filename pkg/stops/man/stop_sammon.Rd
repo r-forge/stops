@@ -8,7 +8,9 @@ stop_sammon(dis, theta = c(1, 1, -1), ndim = 2, init = NULL,
   weightmat = NULL, ..., stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence",
   "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness"), strucweight = rep(1/length(structures),
+  "ccomplexity", "cfaithfulness", "chierarchy", "cconvexity",
+  "cstriatedness", "coutlying", "cskinniness", "csparsity", "cstringiness",
+  "cclumpiness"), strucweight = rep(1/length(structures),
   length(structures)), strucpars, verbose = 0, type = c("additive",
   "multiplicative"))
 }

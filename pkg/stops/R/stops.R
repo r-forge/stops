@@ -397,11 +397,17 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
+  N <- length(dis)
   dis <- stats::as.dist(dis)
   fitdis <- stats::dist(fit$points)
-  fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
-  fit$stress.n <- fit$stress.r/sum(dis)
-  fit$stress.m <- sqrt(fit$stress)
+  wghts <- 1/dis^lambda 
+  disl <- dis^lambda
+  dhat <-  disl/sqrt(sum(wghts*disl^2))*sqrt(N)
+  lb <- sum(wghts*fitdis*dhat)/sum(wghts*fitsdis^2)   #Restrict config so we have a stress in [0,1] just as in smacof. Rest is unchanged. Maybe use this stress for optimization at some point?
+  fitdisnn <- lb*fitdis
+  fit$stress.r <- sum(wghts*(dhat-fitdisnn)^2)/N 
+  #fit$stress.n <- fit$stress.r/sum(dis^lambda)
+  fit$stress.m <- sqrt(fit$stress) #or stress.r
   fit$conf <- fit$points
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
@@ -452,7 +458,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   if(length(theta)<3) theta <- rep(theta, length.out=3)
   lambda <- theta[2]
   nu <- -1
-  elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
+  elscalw <- dis^(nu*lambda) #the weighting in 
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
