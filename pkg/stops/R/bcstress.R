@@ -2,7 +2,7 @@
 #'
 #' Based on code by Lisha Chen.
 #' 
-#' @param dis dissimilarity or distance matrix
+#' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
 #' @param lambda lambda parameter 
@@ -19,12 +19,13 @@
 #' plot(res)
 #' 
 #' @export
-bcStressMin <- function(dis,init=NULL,verbose=0,ndim=2,lambda=1,mu=1,nu=0,itmax=10000)
+bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,lambda=1,mu=1,nu=0,itmax=10000)
  #Not the local MDS version, there is no neighbour concept here.  
 {
-  Do <- dis  
+  Do <- delta 
   d <- ndim
-  X1 <- init  
+  X1 <- init
+  niter <- itmax
   lambdaorig <- lambda
   lambda <- 1/lambda
   n <- nrow(Do)
@@ -111,7 +112,7 @@ while ( stepsize > 1E-5 && i < niter)
        s1n <- 1-s1/normo
     }
     ## Printing and Plotting
-    if(verbose > 3, (i+1)%%100/verbose==0)
+    if(verbose > 3 && (i+1)%%100/verbose==0)
       {
         print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(sqrt(s1n),5), sep=""))
       }

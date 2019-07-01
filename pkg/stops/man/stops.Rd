@@ -9,7 +9,7 @@
 stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "powermds", "powerelastic", "powerstrain", "elastic", "sammon",
   "sammon2", "smacofSphere", "powersammon", "rstress", "sstress", "isomap",
-  "isomapeps"), theta = 1, structures = c("cclusteredness",
+  "isomapeps", "bcstress"), theta = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
   "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
