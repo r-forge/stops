@@ -112,7 +112,7 @@ while ( stepsize > 1E-5 && i < niter)
        s1n <- 1-s1/normo
     }
     ## Printing and Plotting
-    if(verbose > 3 && (i+1)%%100/verbose==0)
+    if(verbose > 3 & (i+1)%%100/verbose==0)
       {
         print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(sqrt(s1n),5), sep=""))
       }
