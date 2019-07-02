@@ -9,16 +9,16 @@
 stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "powermds", "powerelastic", "powerstrain", "elastic", "sammon",
   "sammon2", "smacofSphere", "powersammon", "rstress", "sstress", "isomap",
-  "isomapeps", "bcstress"), theta = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness"), ndim = 2,
-  weightmat = NULL, init = NULL, stressweight = 1, strucweight,
-  strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
-  lower = c(1, 1, 0.5), upper = c(5, 5, 2), verbose = 0,
-  type = c("additive", "multiplicative"), s = 5, initpoints = 10,
-  itmax = 50, model, ...)
+  "isomapeps", "bcstress", "lmds"), theta = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence",
+  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
+  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
+  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+  "cstringiness", "cclumpiness"), ndim = 2, weightmat = NULL,
+  init = NULL, stressweight = 1, strucweight, strucpars,
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower = c(1,
+  1, 0.5), upper = c(5, 5, 2), verbose = 0, type = c("additive",
+  "multiplicative"), s = 5, initpoints = 10, itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

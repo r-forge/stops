@@ -1,6 +1,9 @@
 #' An MDS version for local MDS (Chen & Buja 2006)
 #'
 #' Based on code by Lisha Chen.
+#'
+#' @importFrom stats median
+#' @importFrom stats rnorm
 #' 
 #' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
@@ -12,7 +15,7 @@
 #'
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res< lmds(as.matrix(dis),k=2,tau=0.1)
+#' res<- lmds(as.matrix(dis),k=2,tau=0.1)
 #' res
 #' summary(res)
 #' plot(res)
@@ -46,16 +49,15 @@ lmds <- function(delta,init=NULL,ndim=3,k=2,tau=1,
    diag(Dnu) <- 0
    diag(Dnulam) <- 0
 
-  cc <- (sum(Inb1)-n)/n/n*median(Dnulam[Dnulam!=0])
+  cc <- (sum(Inb1)-n)/n/n*stats::median(Dnulam[Dnulam!=0])
   t <- tau*cc
   
   Grad <- matrix (0, nrow=n, ncol= d)
-  #if(is.null(X1) & random.start==1) X1 <- matrix(rnorm(n*d),nrow=n,ncol=d)
   if(is.null(X1))
     {
       cmd <- cmds(Do)
       X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
-        norm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+        norm(Do)/n/n*0.01*matrix(stats::rnorm(n*d),nrow=n,ncol=d)
     }
   D1 <- as.matrix(dist(X1))
   X1 <- X1*enorm(Do)/enorm(D1)
@@ -90,53 +92,75 @@ while ( stepsize > 1E-5 && i < niter)
     D1 <- as.matrix(dist(X1))
     D1mulam <- D1^(mu+1/lambda)
     Domulam <- Do^(mu+1/lambda) #new
+    D0mulam <- Do^(mu+1/lambda) #new
     diag(D1mulam) <- 0
+    diag(Domulam) <- 0
+    diag(D0mulam) <- 0
     D1mu <- D1^mu
     Domu <- Do^mu #new
     diag(D1mu) <- 0
     diag(Domu) <- 0 #new
     diag(D1) <- 0
+    D0 <- D1*0
+    D0mu <- D0^mu #new
+    diag(D0) <- 0
+    diag(D0mu)
     if(mu+1/lambda==0)
     {
         diag(D1)<-1
         diag(Do)<-1 #new
-        s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu
-        normo <-sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu -t*sum((Domu-1)*(1-Inb1))/mu
-        s1n <- 1-s1/normo
+        diag(D0) <- 1
+        s1 <-   sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu  -t*sum((D1mu-1)*(1-Inb1))/mu
+        normop <-sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu -t*sum((Domu-1)*(1-Inb1))/mu
+        normo0 <-sum(Dnu*log(D0))-sum((D0mu-1)*Dnulam)/mu -t*sum((D0mu-1)*(1-Inb1))/mu
+        #s1n <- 1-s1/normo
+        s1n <- (s1-normop)/(normo0-normop)
       }
 
     if(mu==0)
       {
           diag(D1)<-1
           diag(Do)<-1 #new
-          s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
-          normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)-t*sum(log(Do)*(1-Inb1))
-          s1n <- 1-s1/normo
+          diag(D0) <- 1
+          s1 <-    sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
+          normop <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)-t*sum(log(Do)*(1-Inb1))
+          normo0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda) -sum(log(D0)*Dnulam)-t*sum(log(D0)*(1-Inb1))
+          #s1n <- 1-s1/normo
+          s1n <- (s1-normop)/(normo0-normop)
       }
 
     if(mu!=0&(mu+1/lambda)!=0)
         {
-            s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu
-            normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu
-            s1n <- 1-s1/normo
+            s1 <-    sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu
+            normop <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu
+            normo0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu-t*sum((D0mu-1)*(1-Inb1))/mu
+                                        #  s1n <- 1-s1/normo
+             s1n <- (s1-normop)/(normo0-normop)
         }
     ## Printing and Plotting
      if(verbose > 3 & (i+1)%%100/verbose==0)
       {
-        print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(sqrt(s1n),5), sep=""))
+        print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(s1n,5), sep=""))
       }
 
   }
   result <- list()
   result$conf <- X1 #new
-  result$confdist <- D1
-  result$delta <- Do
+  result$confdist <- stats::as.dist(D1)
+  result$delta <- stats::as.dist(Do)
+  result$obsdiss <- stats::as.dist(Do)  
   result$k <- k
   result$tau <- tau
-  result$theta <- c(k,tau)
+  result$pars <- c(k,tau)
   result$stress.r <- s1
   result$stress.m <- s1n
-  result$stress <- sqrt(s1n)
+  result$call <- match.call()
+  result$ndim <- ndim
+  result$nobj <- n
+  result$niter <- i
+  result$stress <- s1n
+  result$model<- "Local MDS"
+  class(result) <- c("smacofP","smacofB","smacof")
   return(result)
 }
 

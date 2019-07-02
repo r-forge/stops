@@ -1969,76 +1969,59 @@ res/ft>res*cw
 
 1/ft>cw
 
+#source("boxcox.R")
+#source("myfunctions.R")
+#library(rgl) # for 3-D view
+# generate swiss roll data
+v <- rep(c(1:5, seq(6,10,len=10), seq(10.5, 15,len=15)), rep(5, 30))/20
+u <- rep(1:5, 30)/20
+n <- length(v)
+x <- 1/2*v*sin(4*pi*v); y <- u-1/2; z <- 1/2*v*cos(4*pi*v)
+swiss <- cbind(x,y,z) # the data 150 by 3
 
-                                       
+# Color-code the points: from the center goes red, orange, green and blue
+sel1 <- v < quantile(v,1/4)
+sel2 <- (v >= quantile(v,1/4)) & (v <quantile(v,1/2))
+sel3 <- (v >= quantile(v,1/2)) & (v <quantile(v,3/4))
+col <- rep("blue",length(v))
+col[sel1] <- "red"
+col[sel2] <- "orange"
+col[sel3] <- "green" # color vector
+plot(u,v,col=col,xlim=range(c(u,v)),ylim=range(c(u,v)))
 
-       X1 <- X0 - stepsize*normgrad
-     }
-    else 
-    {
-      stepsize <- 1.05*stepsize
-      X0 <- X1
-      D1mu2 <- D1^(mu-2)
-      diag(D1mu2) <- 0
-      D1mulam2 <- D1^(mu+1/lambda-2)
-      diag(D1mulam2) <- 0
-      M <- Dnu*D1mulam2-D1mu2*(Dnulam+t*(!Inb1))
-      E <- matrix(rep(1,n*d),n,d)
-      Grad <- X0*(M%*%E)-M%*%X0
-      normgrad <- (norm(X0)/norm(Grad))*Grad
-      X1 <- X0 - stepsize*normgrad
-     }
-    i <- i+1
-    s0 <- s1
-    D1 <- as.matrix(dist(X1))
-    D1mulam <- D1^(mu+1/lambda)
-    Domulam <- Do^(mu+1/lambda) #new
-    diag(D1mulam) <- 0
-    D1mu <- D1^mu
-    Domu <- Do^mu #new
-    diag(D1mu) <- 0
-    diag(Domu) <- 0 #new
-    diag(D1) <- 0
-    if(mu+1/lambda==0)
-    {
-        diag(D1)<-1
-        diag(Do)<-1 #new
-        s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu -t*sum((D1mu-1)*(1-Inb1))/mu
-        normo <-sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu -t*sum((Domu-1)*(1-Inb1))/mu
-        s1n <- 1-s1/normo
-      }
 
-    if(mu==0)
-      {
-          diag(D1)<-1
-          diag(Do)<-1 #new
-          s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)-t*sum(log(D1)*(1-Inb1))
-          normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)-t*sum(log(Do)*(1-Inb1))
-          s1n <- 1-s1/normo
-      }
+#xy <- cbind(u,v)
+#for(j in 0:29) lines(xy[j*5+1:5,1], xy[j*5+1:5,2])
+#for (j in 0:4) lines(xy[j+1+(0:29)*5,1],xy[j+1+(0:29)*5,2])
+#plot(x,z,col=col)
+#xy <- cbind(x,z)
+#for(j in 0:29) lines(xy[j*5+1:5,1], xy[j*5+1:5,2])
+#for (j in 0:4) lines(xy[j+1+(0:29)*5,1],xy[j+1+(0:29)*5,2])
 
-    if(mu!=0&(mu+1/lambda)!=0)
-        {
-            s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu
-            normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu
-            s1n <- 1-s1/normo
-        }
-    ## Printing and Plotting
-     if(verbose > 3 & (i+1)%%100/verbose==0)
-      {
-        print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(sqrt(s1n),5), sep=""))
-      }
+#### ---- Use Boxcox function
+# Generate the distance matrix "Do" and
+#   a matrix containing neighborhood(K-NN) information "Inb"
+k <- 6
+Do <- as.matrix(dist(swiss))
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+# Inb[i,] represents neighboring informaiton for i
 
-  }
-  result <- list()
-  result$conf <- X1 #new
-  result$confdist <- D1
-  result$delta <- Do
-  result$k <- k
-  result$tau <- tau
-  result$theta <- c(k,tau)
-  result$stress.r <- s1
-  result$stress.m <- s1n
-  result$stress <- sqrt(s1n)
-  return(result)
-}
+
+# Local MDS (with random start)
+conf1 <- boxcox(Do,  Inb, d=2, tau=1, col=col, niter=500)
+
+conf1 <- lmds(Do, k=6, ndim=2, tau=1,  itmax=500, verbose=4)
+
+# Using previous configuration as a start
+conf2 <- boxcox(Do, Inb,X1=conf1$X, d=2, tau=.1,  col=col)
+
+# Local MDS (with classical MDS start)
+conf3 <- boxcox(Do,Inb,random.start=0, d=2, tau=10, col=col)
+
+# Metric thresholding for contructing neighborhood
+Inb <- ifelse(Do>.2, 0, 1)
+conf4 <- boxcox(Do,  Inb, d=2, tau=1,col=col)
+
+# Use a different stress function with lam=3
+conf5 <-  boxcox(Do,  Inb,X1=conf4$X, d=2, lam=3, tau=0.01,col=col)

@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res< bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
+#' res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
 #' res
 #' summary(res)
 #' plot(res)
@@ -38,7 +38,7 @@ bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,lambda=1,mu=1,nu=0,itma
    if(is.null(X1))
     {
       cmd <- cmds(Do)  
-      X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+enorm(Do)/n/n*0.01*matrix(rnorm(n*d),nrow=n,ncol=d)
+      X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+enorm(Do)/n/n*0.01*matrix(stats::rnorm(n*d),nrow=n,ncol=d)
     }
   D1 <- as.matrix(dist(X1))
   
@@ -120,15 +120,24 @@ while ( stepsize > 1E-5 && i < niter)
   }
   result <- list()
   result$conf <- X1 #new
-  result$confdist <- D1
-  result$delta <- Do
+  result$confdist <- stats::as.dist(D1)
+  result$delta <- stats::as.dist(Do)
+  result$obsdiss <- stats::as.dist(Do)
   result$mu <- mu
   result$lambda <- lambda
   result$nu <- nu
+  result$pars <- c(mu,lambda,nu)
+  result$model<- "Box-Cox Stress MDS"
+  result$call <- match.call()
+  result$ndim <- ndim
+  result$nobj <- n
+  result$niter <- i
   result$theta <- c(mu,lambda,nu)
   result$stress.r <- s1
   result$stress.m <- s1n
   result$stress <- sqrt(s1n)
+  result$type <- "Box-Cox Stress"
+  class(result) <- c("smacofP","smacofB","smacof")
   return(result)
 }
 

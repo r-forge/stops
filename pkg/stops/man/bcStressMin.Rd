@@ -29,7 +29,7 @@ Based on code by Lisha Chen.
 }
 \examples{
 dis<-smacof::kinshipdelta
-res< bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
+res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
 res
 summary(res)
 plot(res)
