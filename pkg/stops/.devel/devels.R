@@ -2001,8 +2001,10 @@ plot(u,v,col=col,xlim=range(c(u,v)),ylim=range(c(u,v)))
 #### ---- Use Boxcox function
 # Generate the distance matrix "Do" and
 #   a matrix containing neighborhood(K-NN) information "Inb"
-k <- 6
+k <- 10
 Do <- as.matrix(dist(swiss))
+Do <- as.matrix(kinshipdelta)
+
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 # Inb[i,] represents neighboring informaiton for i
@@ -2011,7 +2013,37 @@ Inb <- ifelse(Do>Daux, 0, 1)
 # Local MDS (with random start)
 conf1 <- boxcox(Do,  Inb, d=2, tau=1, col=col, niter=500)
 
-conf1 <- lmds(Do, k=6, ndim=2, tau=1,  itmax=500, verbose=4)
+conf1 <- lmds(Do, k=6, ndim=2, tau=1,  itmax=500, verbose=30)
+conf1$stress
+conf1$stress.r
+conf1$stress.e
+conf1$normop
+conf1$normo0
+
+conf4 <- lmds(Do, k=6, ndim=2, tau=4,  itmax=500, verbose=30)
+conf4$stress
+conf4$stress.e
+
+
+conf0 <- lmds(Do, k=6, ndim=2, tau=0,  itmax=500, verbose=30)
+conf0$stress
+
+conf1$Domulam-conf4$Domulam
+conf1$D0mulam-conf4$D0mulam
+conf1$Domu-conf4$Domu
+conf1$D0mu-conf4$D0mu
+conf1$D1mulam-conf4$D1mulam
+conf1$D1mu-conf4$D1mu
+
+conf0$obsdiss-conf4$obsdiss
+
+par(mfrow=c(1,2))
+plot(conf1$conf)
+plot(conf1$confn)
+par(mfrow=c(1,1))
+
+
+
 
 # Using previous configuration as a start
 conf2 <- boxcox(Do, Inb,X1=conf1$X, d=2, tau=.1,  col=col)
