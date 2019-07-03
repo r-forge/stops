@@ -20,7 +20,6 @@
 #' 
 #' @export
 bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,lambda=1,mu=1,nu=0,itmax=10000)
- #Not the local MDS version, there is no neighbour concept here.  
 {
   Do <- delta 
   d <- ndim
@@ -76,48 +75,46 @@ while ( stepsize > 1E-5 && i < niter)
     s0 <- s1 
     D1 <- as.matrix(dist(X1))
     D1mulam <- D1^(mu+1/lambda)
-    Domulam <- Do^(mu+1/lambda) #new
     diag(D1mulam) <- 0
     D1mu <- D1^mu
-    Domu <- Do^mu #new
     diag(D1mu) <- 0
-    diag(Domu) <- 0 #new
-    diag(D1) <- 0
     if(mu+1/lambda==0)
       {
        diag(D1)<-1
-       diag(Do)<-1 #new
-       #stress   
        s1 <- sum(Dnu*log(D1))-sum((D1mu-1)*Dnulam)/mu 
-       #NEW: added normalization. Looks legit. 
-       normo <- sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu 
-       s1n <- 1-s1/normo
       }
 
     if(mu==0)
       {
       diag(D1)<-1
-      diag(Do)<-1 #new
-      #stress
       s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda) -sum(log(D1)*Dnulam)
-      #NEW: norming
-      normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)
-      s1n <- 1-s1/normo
       }
     if(mu!=0&(mu+1/lambda)!=0)
     {
-        s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu
-        #NEW: norming:
-       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu #-t*sum((D1mu-1)*(1-Inb1))/mu
-       s1n <- 1-s1/normo
+        s1 <- sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu     
     }
     ## Printing and Plotting
     if(verbose > 3 & (i+1)%%100/verbose==0)
       {
-        print (paste("niter=",i+1," stress=",round(s1,5)," stressn=",round(sqrt(s1n),5), sep=""))
+        print (paste("niter=",i+1," stress=",round(s1,5), sep=""))
       }
 
   }
+  #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
+  Domulam <- Do^(mu+1/lambda) #new
+  Domu <- Do^mu #new
+  diag(Domu) <- 0 #new
+  if(mu+1/lambda==0) {
+       diag(Do)<-1 #new
+       normo <- sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu
+       }
+  if(mu==0) {
+      diag(Do)<-1 #new
+      normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)
+      }
+  if(mu!=0&(mu+1/lambda)!=0) normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
+  s1n <- 1-s1/normo #normalized stress
+  
   result <- list()
   result$conf <- X1 #new
   result$confdist <- stats::as.dist(D1)

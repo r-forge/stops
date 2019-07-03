@@ -1969,6 +1969,8 @@ res/ft>res*cw
 
 1/ft>cw
 
+library(stops)
+
 #source("boxcox.R")
 #source("myfunctions.R")
 #library(rgl) # for 3-D view
@@ -1987,7 +1989,6 @@ col <- rep("blue",length(v))
 col[sel1] <- "red"
 col[sel2] <- "orange"
 col[sel3] <- "green" # color vector
-plot(u,v,col=col,xlim=range(c(u,v)),ylim=range(c(u,v)))
 
 
 #xy <- cbind(u,v)
@@ -2001,7 +2002,7 @@ plot(u,v,col=col,xlim=range(c(u,v)),ylim=range(c(u,v)))
 #### ---- Use Boxcox function
 # Generate the distance matrix "Do" and
 #   a matrix containing neighborhood(K-NN) information "Inb"
-k <- 10
+k <- 6
 Do <- as.matrix(dist(swiss))
 Do <- as.matrix(kinshipdelta)
 
@@ -2038,12 +2039,18 @@ conf1$D1mu-conf4$D1mu
 conf0$obsdiss-conf4$obsdiss
 
 par(mfrow=c(1,2))
-plot(conf1$conf)
+plot(conf1)
 plot(conf1$confn)
 par(mfrow=c(1,1))
 
+conf0 <- lmds(Do, k=6, ndim=2, tau=1,  itmax=500, verbose=30)
+conf0$stress
+plot(conf0,col=col)
 
-
+conf0 <- bcStressMin(Do,verbose=10,mu=0,lambda=3,itmax=1000)
+conf0$stress
+conf0$stress.r
+plot(conf0)
 
 # Using previous configuration as a start
 conf2 <- boxcox(Do, Inb,X1=conf1$X, d=2, tau=.1,  col=col)

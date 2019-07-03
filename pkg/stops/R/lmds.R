@@ -90,20 +90,11 @@ while ( stepsize > 1E-5 && i < niter)
     i <- i+1
     s0 <- s1
     D1 <- as.matrix(dist(X1))
-    #X1 <- X1*enorm(Do)/enorm(D1)
-    #D0 <- D1*0
     D1mulam <- D1^(mu+1/lambda)
-    #Domulam <- Do^(mu+1/lambda) #new
-    #D0mulam <- Do^(mu+1/lambda) #new
-    #D0mulam <- D0^(mu+1/lambda) #new
-    diag(D1mulam) <- 1
-    #diag(Domulam) <- 1
-    #diag(D0mulam) <- 1
+    diag(D1mulam) <- 0
     D1mu <- D1^mu
-    #Domu <- Do^mu #new
-    diag(D1mu) <- 1
-    #diag(Domu) <- 1 #new
-    diag(D1) <- 1
+    diag(D1mu) <-0
+#   diag(D1) <- 1
     #D0mu <- D0^mu #new
     #diag(D0) <- 1
     #diag(D0mu) <- 1
@@ -150,21 +141,24 @@ while ( stepsize > 1E-5 && i < niter)
   #prelims  
   X1a <- X1*enorm(Do)/enorm(D1)
   D1a <- as.matrix(dist(X1a))
-  diag(D1a) <- 1
   D0 <- D1a*0
-  diag(D0) <- 1  
+    
   D1mulama <- D1a^(mu+1/lambda)
   Domulam <- Do^(mu+1/lambda) #new
-  D0mulam <- D0^(mu+1/lambda) #probelm!
-  diag(D1mulama) <- 1
-  diag(Domulam) <- 1
-  diag(D0mulam) <- 1
+  D0mulam <- D0^(mu+1/lambda) 
+
+  diag(D1mulama) <- 0
+  diag(Domulam) <- 0
+  diag(D0mulam) <- 0
+    
   D1mua <- D1a^mu
   Domu <- Do^mu #new
   D0mu <- D0^mu #new
-  diag(D1mua) <- 1
-  diag(Domu) <- 1 #new
-  diag(D0mu) <- 1
+
+  diag(D1mua)<-0
+  diag(Domu) <- 0 #new
+  diag(D0mu) <- 0
+    
   s1e <-    sum(Dnu*(D1mulama-1))/(mu+1/lambda)-sum((D1mua-1)*Dnulam)/mu-t*sum((D1mua-1)*(1-Inb1))/mu   #stress with normed X (X1a)  
   normop <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu   #best case 
   normo0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu-t*sum((D0mu-1)*(1-Inb1))/mu #worst case
