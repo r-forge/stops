@@ -23,7 +23,7 @@ lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 1000,
 \item{verbose}{prints progress if > 3.}
 }
 \description{
-Based on code by Lisha Chen.
+An MDS version for local MDS (Chen & Buja 2006)
 }
 \examples{
 dis<-smacof::kinshipdelta
@@ -32,4 +32,7 @@ res
 summary(res)
 plot(res)
 
+}
+\author{
+Lisha Chen & Thomas Rusch
 }

@@ -1,75 +1,116 @@
 
 library(stops)
-data(BankingCrisesDistances)
-set.seed(210485)
-optstrain <- cops(BankingCrisesDistances[,1:69],loss="strain",verbose=1)
-optstress <- cops(BankingCrisesDistances[,1:69],loss="stress",verbose=3)
-optsammon <- cops(BankingCrisesDistances[,1:69],loss="sammon",verbose=3)
-optelastic <- cops(BankingCrisesDistances[,1:69],loss="elastic",verbose=3)
-optsstress <- cops(BankingCrisesDistances[,1:69],loss="sstress",verbose=3)
-optrstress <- cops(BankingCrisesDistances[,1:69],loss="rstress",verbose=3)
-optpowerstress <- cops(BankingCrisesDistances[,1:69],loss="powerstress",verbose=3)
-optpowersammon <- cops(BankingCrisesDistances[,1:69],loss="powersammon",verbose=3)
-optpowerelastic <- cops(BankingCrisesDistances[,1:69],loss="powerelastic",verbose=3)
+data(kinshipdelta)
 
+
+diss <- as.matrix(kinshipdelta)
+set.seed(210485)
+
+#############################
+# Test all losses dispatch
+structures <- c("clinearity")
+optstrain <- stops(diss,loss="strain",verbose=3,structures=structures,upper=5,lower=0) #works
+optstress <- stops(diss,loss="stress",verbose=3,structures=structures,upper=5,lower=1) #not works
+optsmacofSym <- stops(diss,loss="smacofSym",verbose=3,structures=structures,upper=5,lower=0) #not works
+optsmacofSph <- stops(diss,loss="smacofSphere",verbose=3,structures=structures,upper=5,lower=0) #not works
+optsammon <- stops(diss,loss="sammon",verbose=3,structures=structures,upper=5,lower=0) #works
+optsammon2 <- stops(diss,loss="sammon2",verbose=3,structures=structures,upper=5,lower=0) #not works
+optelastic <- stops(diss,loss="elastic",verbose=3,structures=structures,upper=5,lower=0) #not works
+optsstress <- stops(diss,loss="sstress",verbose=3,structures=structures,upper=5,lower=0) #works
+optrstress <- stops(diss,loss="rstress",verbose=3,structures=structures,upper=5,lower=0) #works
+optpowermds <- stops(diss,loss="powermds",verbose=3,structures=structures,upper=c(5,5),lower=c(0,0)) #works
+optpowerstress <- stops(diss,loss="powerstress",verbose=3,structures=structures,upper=c(5,5,5),lower=c(0,0,0)) #works
+optpowersammon <- stops(diss,loss="powersammon",verbose=3,structures=structures,upper=c(5,5,5),lower=c(0,0,0)) #works
+optpowerelastic <- stops(diss,loss="powerelastic",verbose=3,structures=structures,upper=c(5,5,5),lower=c(0,0,0)) #works
+optpowerstrain <- stops(diss,loss="powerstrain",verbose=3,structures=structures,upper=5,lower=0) #works
+optisomapk <- stops(diss,loss="isomap",verbose=3,structures=structures,upper=10,lower=2) #works
+optisomapeps <- stops(diss,loss="isomapeps",verbose=3,structures=structures,lower=50,upper=100) #works
+optbc <- stops(diss,loss="bcstress",verbose=3,structures=structures,lower=c(0,0,0),upper=c(5,5,5)) #works
+optlmds <- stops(diss,loss="lmds",theta=1,verbose=3,structures=structures,lower=c(1,0),upper=c(20,2)) #works
+
+# print method
 optstrain
 optstress
+optsmacofSym
 optsammon
+optsammon2
 optelastic
 optsstress
 optrstress
+optpowermds
 optpowerstress
 optpowersammon
 optpowerelastic
+optpowerstrain
+optelastic
+optisomapk
+optisomapeps
+optbc
+optlmds
 
-
-
+# plot method
 plot(optstrain)
 plot(optstress)
+plot(optsmacofSym)
 plot(optsammon)
+plot(optsammon2)
 plot(optelastic)
-plot(optsstress)p
-lot(optrstress)
+plot(optsstress)
+plot(optrstress)
+plot(optpowermds)
 plot(optpowerstress)
 plot(optpowersammon)
 plot(optpowerelastic)
+plot(optpowerstrain)
+plot(optelastic)
+plot(optisomapk)
+plot(optisomapeps)
+plot(optbc)
+plot(optlmds)
 
 
-data(kinshipdelta)
-dis <- as.matrix(kinshipdelta)
-res <- smacofSym(kinshipdelta)
-conf <- res$conf
-
-#test c_linearity
-c_linearity(conf)
-
-#test stoploss with clinearity additive
+###########
+#test stoploss combination
+verbose <- 3
 stressweight <- 1
-structures <- c("clinearity")
-strucweight <- rep(1/length(structures),length(structures))/2
+structures <- c("clinearity","cdependence")
 type <- c("additive")
-verbose <- 1
-res$pars <- c(1,1,1)
-res$stress.m <- res$stress
-s1a <- stoploss(res,stressweight=stressweight,structures=structures,strucweight=strucweight,type=type,verbose=verbose)
+s1a <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose)
 s1a
 #test stoploss with clinearity multiplicative
-type <- c("multiplicative")
-s1m <- stoploss(res,stressweight=stressweight,structures=structures,strucweight=strucweight,type=type,verbose=verbose)
+s1m <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="multiplicative",verbose=verbose)
 s1m
 
-#test with cclusteredness and clinearity additive
-structures <- c("cclusteredness","clinearity")
-strucpars <- list(c(eps=100,minpts=2),c(NULL))
-strucweight <- rep(1/length(structures),length(structures))
-type <- c("additive")
-s2a <- stoploss(res,stressweight=stressweight,structures=structures,strucpars=strucpars,strucweight=strucweight,type=type,verbose=verbose)
-s2a
 
-#multiplicative
-type <- c("multiplicative")
-s2b <- stoploss(res,stressweight=stressweight,structures=structures,strucpars=strucpars,strucweight=strucweight,type=type,verbose=verbose)
-s2b
+#########
+# Test optimizers
+sannres <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose,optimmethod="SANN")
+aljres <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose,optimmethod="ALJ")
+psores <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose,optimmethod="pso")
+krigres <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose,optimmethod="Kriging")
+tgpres <- stoploss(diss,stressweight=stressweight,structures=structures,strucweight=strucweight,type="additive",verbose=verbose,optimmethod="tgp")
+
+#########
+# Test different weights
+structures <- c("clinearity","cdependence")
+halfres <- stoploss(diss,stressweight=1,structures=structures,strucweight=c(-0.5,-0.5),verbose=verbose,optimmethod="ALJ")
+fullres <- stoploss(diss,stressweight=0.5,structures=structures,strucweight=c(-1,-10),verbose=verbose,optimmethod="ALJ")
+all.equal(halfres$conf,fullres$conf)
+
+
+######
+# Test  different theta lengths
+structures <- c("clinearity","cdependence")
+#theta scalar
+thetas <- stoploss(diss,stressweight=1,loss="powerstress",theta=1,structures=structures,strucweight=c(-0.5,-0.5),verbose=verbose,optimmethod="ALJ",upper=5,lower=0)
+#theta vector of 2
+thetav <- stoploss(diss,stressweight=1,loss="powerstress",theta=c(2,2),structures=structures,strucweight=c(-0.5,-0.5),verbose=verbose,optimmethod="ALJ",upper=5,lower=0)
+#theta vector of 3
+thetav <- stoploss(diss,stressweight=1,loss="powerstress",theta=c(2,2,4),structures=structures,strucweight=c(-0.5,-0.5),verbose=verbose,optimmethod="ALJ",upper=5,lower=0)
+
+
+
+
 
 #test stop_smacofSym
 sres <- stop_smacofSym(dis,structures=structures,strucpars=strucpars)
@@ -85,13 +126,6 @@ pres <- stop_powerstress(dis,theta=c(1,2,1),structures=structures,strucpars=stru
 pres <- stop_powerstress(dis,theta=c(2,2,2),structures=structures,strucpars=strucpars,type="additive")
 pres <- stop_powerstress(dis,theta=2,structures=structures,strucpars=strucpars,type="multiplicative")
 pres <- stop_powerstress(dis,theta=c(2,2,-2),weightmat=dis,structures=structures,strucpars=strucpars,type="additive")
-
-#test stops
-stopres <- stops(dis,theta=c(1,1,1),structures=structures,strucpars=strucpars,verbose=4)
-stopres <- stops(dis,theta=c(1,1,1),lower=c(1,0.2,1),upper=c(1,10,1),structures=structures,strucpars=strucpars,verbose=4)
-#more weight for clinearity
-strucweights <- c(0.5,10)
-stopres <- stops(dis,theta=c(1,1,1),lower=c(1,1,1),upper=c(1,10,1),structures=structures,strucpars=strucpars,strucweight=strucweights,verbose=4)
 
 
 library(stops)
@@ -155,11 +189,6 @@ resa
 
 
 
-
-#there seems to be a bug in stops or upstream as
-#- a<-stops(dis) cordillera(a$fit$conf) do not agree
-#- b<-cops(dis) a nd b do not agree
-
 #test for kapp=lambda=nu=1
 dis <- smacof::kinshipdelta
 kappa <- 1
@@ -180,21 +209,3 @@ resa
 resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(epsilon=10,minpts=2,rang=c(0,1.3)),type="additive",strucweight=c(-1),stressweight=0)
 resa
 
-
-library(stops)
-data(Pendigits500)
-strucpars1 <- list(list(k=10))
-diso <- dist(Pendigits500[,1:16])
-m1 <- stops(diso,structures=c("cfaithfulness"),loss="sammon",strucpars=strucpars1,verbose=3,stressweight=0,upper=c(5,10,1))
-strucpars2 <- list(list(minpts=10,epsilon=1000))
-m2 <- stops(diso,structures=c("cclusteredness"),loss="sammon",strucpars=strucpars2,verbose=3,stressweight=0,upper=c(5,10,1))
-par(mfrow=c(1,2))
-plot(m1,col=Pendigits500[,17],label.conf=list(label=FALSE))
-reso <- sammon(diso^8)
-plot(m2,col=Pendigits500[,17],label.conf=list(label=FALSE))
-library(party)
-library(caret)
-ct1 <- ctree(factor(Pendigits500[,17])~m1$fit$conf[,1]+m1$fit$conf[,2])
-confusionMatrix(predict(ct1),factor(Pendigits500[,17]))
-ct2 <- ctree(factor(Pendigits500[,17])~m2$fit$conf[,1]+m2$fit$conf[,2])
-confusionMatrix(predict(ct2),factor(Pendigits500[,17]))

@@ -1,7 +1,5 @@
 #' An MDS version for local MDS (Chen & Buja 2006)
 #'
-#' Based on code by Lisha Chen.
-#'
 #' @importFrom stats median
 #' @importFrom stats rnorm
 #' 
@@ -13,6 +11,8 @@
 #' @param itmax number of optimizing iterations, defaults to 10000.
 #' @param verbose prints progress if > 3. 
 #'
+#' @author Lisha Chen & Thomas Rusch
+#' 
 #' @examples
 #' dis<-smacof::kinshipdelta
 #' res<- lmds(as.matrix(dis),k=2,tau=0.1)
@@ -166,23 +166,23 @@ while ( stepsize > 1E-5 && i < niter)
  
   result <- list()
   result$conf <- X1 #new
-  result$confn <- X1a #new  
+  #result$confn <- X1a #new  
   result$confdist <- stats::as.dist(D1)
   result$delta <- stats::as.dist(Do)
   result$obsdiss <- stats::as.dist(Do)
-  result$Domulam <- Domulam  #should be the same across tau
-  result$D0mulam <- D0mulam #shoudl be the same across tau
-  result$Domu <- Domu#shoudl be the same across tau
-  result$D0mu <- D0mu#shoudl be the same across tau
-  result$D1mulam <- D1mulama #should not be the same across tau 
-  result$D1mu <- D1mu  #should not be the same across tau
+  #result$Domulam <- Domulam  #should be the same across tau
+  #result$D0mulam <- D0mulam #shoudl be the same across tau
+  #result$Domu <- Domu#shoudl be the same across tau
+  #result$D0mu <- D0mu#shoudl be the same across tau
+  #result$D1mulam <- D1mulama #should not be the same across tau 
+  #result$D1mu <- D1mu  #should not be the same across tau
   result$k <- k
   result$tau <- tau
   result$pars <- c(k,tau)
   result$stress.r <- s1
-  result$stress.e <- s1e  #for debug
-  result$normop <- normop  #for debug
-  result$normo0 <- normo0  #for debug  
+  #result$stress.e <- s1e  #for debug
+  #result$normop <- normop  #for debug
+  #result$normo0 <- normo0  #for debug  
   result$stress.m <- s1n
   result$call <- match.call()
   result$ndim <- ndim

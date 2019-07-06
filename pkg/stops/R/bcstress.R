@@ -1,6 +1,5 @@
 #' An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
 #'
-#' Based on code by Lisha Chen.
 #' 
 #' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
@@ -11,6 +10,8 @@
 #' @param itmax number of optimizing iterations, defaults to 10000.
 #' @param verbose prints progress if > 3. 
 #'
+#' @author Lisha Chen & Thomas Rusch
+#' 
 #' @examples
 #' dis<-smacof::kinshipdelta
 #' res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)

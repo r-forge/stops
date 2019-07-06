@@ -16,7 +16,7 @@ stop_rstress(dis, theta = c(1, 1, 1), weightmat = NULL, init = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1}
+\item{theta}{the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first element is taken to be the kappa argument for the fitted distances and the second the lambda argument (internally fixed to 1), the third the nu argument (here internally fixed to 1). Defaults to 1 1 1. Note the kappa here differs from Jan's version where r=kappa/2.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

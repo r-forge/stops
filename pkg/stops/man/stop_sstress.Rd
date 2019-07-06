@@ -16,7 +16,7 @@ stop_sstress(dis, theta = c(2, 1, 1), weightmat = NULL, init = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1}
+\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

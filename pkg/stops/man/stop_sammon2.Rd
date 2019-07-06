@@ -17,7 +17,7 @@ stop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1.}
+\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (fixed to -1). Defaults to 1 1 -1.}
 
 \item{ndim}{number of dimensions of the target space}
 
@@ -37,7 +37,7 @@ stop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
-\item{type}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
+\item{type}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'.}
 }
 \value{
 A list with the components
@@ -52,6 +52,6 @@ A list with the components
 }
 }
 \description{
-STOPS versions of Sammon mapping models (via smacofSym)
+Uses Smacof, so it can deal with a weight matrix too.
 }
 \keyword{multivariate}

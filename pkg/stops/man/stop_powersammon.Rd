@@ -17,7 +17,7 @@ stop_powersammon(dis, theta = c(1, 1, -1), weightmat = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (fixed to -1). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.}
+\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third (nu) is not free but fixed to -1. If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

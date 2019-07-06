@@ -13,7 +13,7 @@ stoploss(obj, stressweight = 1, structures = c("cclusteredness",
   strucpars, type = c("additive", "multiplicative"), verbose = 0)
 }
 \arguments{
-\item{obj}{MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere)}
+\item{obj}{object returned from a stop_* function}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 

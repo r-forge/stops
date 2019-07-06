@@ -5,7 +5,7 @@
     
 #'  Calculate the weighted multiobjective loss function used in STOPS
 #'
-#' @param obj MDS object (supported are stop_sammon, stop_cmdscale, stop_smacofSym, stop_rstress, stop_powerstress, stop_smacofSphere) 
+#' @param obj object returned from a stop_* function 
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which c-structuredness indices to be included in the loss
 #' @param strucweight the weights of the structuredness indices; defaults to -1/#number of structures
@@ -120,11 +120,12 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         #return the full combi of stress and indices or only the aggregated scalars; for aSTOPS and mSTOPS we want the latter but for a Pareto approach we want the first; get rid of the sums in ic if the first is wanted  
         out <- list(stoploss=ic,strucindices=struc,parameters=pars)
         out
-     }
+    }
+
 #' STOPS version of smacofSym models
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector for transformations
+#' @param theta the theta vector for transformations; either a scalar for the lambda (proximity) transformation or a vector of at most three elements where the second is used as the free lambda parameter (the first an third would correspond to kappa and nu respecively and are internally fixed to 1)     
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -154,6 +155,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #'@export
 stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
+  if(is.null(init)) init <- "torgerson"  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(missing(type)) type <- "additive"
@@ -165,7 +167,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   fit$lambda <- lambda
   fit$nu <- 1
   fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
@@ -178,6 +180,8 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 
 #' STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)
 #'
+#' Not functional
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param transformation function to transform the proximities or distances; need to be parameterized by theta  
 #' @param theta the theta vector of transformations
@@ -207,6 +211,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #'@import cordillera 
 #'@export
 stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
+    if(is.null(init)) init <- "torgerson" 
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -219,7 +224,7 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
   dis <- do.call(transformation,list(diso,theta))
   fit <- smacof::smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
   fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it ion the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
@@ -232,8 +237,10 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 
 #' STOPS versions of elastic scaling models (via smacofSym)
 #'
+#' Allows for a weight matrix beause of smacof.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
 #' @param init (optional) initial configuration
@@ -262,7 +269,8 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #'@keywords multivariate
 #'@export
 stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  #TODO Unfolding
+                                        #TODO Unfolding
+  if(is.null(init)) init <- "torgerson" 
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
@@ -280,9 +288,10 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
   fit$lambda <- lambda
   fit$nu <- nu
   fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
+  fit$obsdiss <- fit$dhat
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
@@ -295,7 +304,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #' STOPS versions of smacofSphere models
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to 1). Defaults to 1 1 1
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to 1). Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -324,10 +333,11 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #'@keywords multivariate
 #'@export
 stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  #TODO Unfolding
+                                        #TODO Unfolding
+  if(is.null(init)) init <- "torgerson"
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-   if(missing(type)) type <- "additive"
+  if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -338,8 +348,9 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
   fit$lambda <- lambda
   fit$nu <- 1
   fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
+  fitdis <- as.matrix(fit$confdist)
   delts <- as.matrix(fit$delta)[-1,-1]
+  fit$obsdiss <- fit$dhat 
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
@@ -353,7 +364,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
 #' STOPS version of sammon mapping
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -415,8 +426,10 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 
 #' STOPS versions of Sammon mapping models (via smacofSym)
 #'
+#' Uses Smacof, so it can deal with a weight matrix too. 
+#'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1.
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (fixed to -1). Defaults to 1 1 -1.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -426,7 +439,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'. 
 #' 
 #' 
 #' @return A list with the components
@@ -448,7 +461,8 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #'@keywords multivariate
 #'@export
 stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  theta <- as.numeric(theta)
+    theta <- as.numeric(theta)
+    if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -465,8 +479,9 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   fit$lambda <- lambda
   fit$nu <- nu
   fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdiss)
-  delts <- as.matrix(fit$delta) 
+  fitdis <- as.matrix(fit$confdist)
+  delts <- as.matrix(fit$delta)
+  fit$obsdiss <- fit$dhat
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
@@ -481,9 +496,9 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #' STOPS version of strain
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second and third the lambda and the nu argument (the latter is fixed to 1). Defaults to 1 1 1
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda (free parameter) and the third the nu argument (internally fixed to 1). Defaults to 1 1 1
 #' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
+#' @param weightmat (optional) a matrix of nonnegative weights. Not used. 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param ... additional arguments to be passed to the fitting procedure
@@ -538,7 +553,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #' Currently this version is a bit less flexible than the vegan one, as the only allowed parameter for isomap is the theta (k in isomap, no epsilon) and the shortest path is always estimated with argument "shortest". Also note that fragmentedOK is always set to TRUE which means that for theta that is too small only the largest conected group will be analyzed. If that's not wanted just set the theta higher.  
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Defaults to 3.
+#' @param theta the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Can be a vector of up to three where only the first element is used. Defaults to 3.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -570,10 +585,11 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
-  if(length(theta)==1L) lambda <- theta
+  if(length(theta)==1L) lambda <- theta #I just call the k lambda
   if(length(theta)==2L) lambda <- theta[1]
   if(length(theta)==3L) lambda <- theta[1]
   disi <- vegan::isomapdist(dis,k=lambda,path="shortest",fragmentedOK=TRUE)
+  if(length(disi)==0) stop("The distance matrix is of length 0 for the current k. Consider increasing the lower bound of the search region.")
   fit <- stops::cmdscale(disi,k=ndim,eig=TRUE) 
   fit$k <- lambda
   #fit$kappa <- 1
@@ -624,13 +640,14 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
 #' @keywords multivariate
 #' @export
 stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  theta <- as.numeric(theta)
+    theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
   if(length(theta)==1L) lambda <- theta
   if(length(theta)==2L) lambda <- theta[1]
   if(length(theta)==3L) lambda <- theta[1]
-  disi <- vegan::isomapdist(dis,epsilon=lambda,path="shortest",fragmentedOK=TRUE)
+    disi <- vegan::isomapdist(dis,epsilon=lambda,path="shortest",fragmentedOK=TRUE)
+  if(length(disi)==0) stop("The distance matrix is of length 0 for the current epsilon. Consider increasing the lower bound of the search region.")
   fit <- stops::cmdscale(disi,k=ndim,eig=TRUE) 
   fit$eps <- lambda
   #fit$kappa <- 1
@@ -650,7 +667,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=
 #' STOPS version of rstress
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1
+#' @param theta the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first element is taken to be the kappa argument for the fitted distances and the second the lambda argument (internally fixed to 1), the third the nu argument (here internally fixed to 1). Defaults to 1 1 1. Note the kappa here differs from Jan's version where r=kappa/2.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -699,7 +716,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' STOPS version of sstress
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1
+#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)). 
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim the number of dimensions of the target space
@@ -748,7 +765,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' STOPS version of powermds
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third (nu for the weights) is not free and fixed to 1. If a scalar is given it is recycled.  Defaults to 1 1 1.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
@@ -792,7 +809,7 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
 #' STOPS version of sammon with powers
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (fixed to -1). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third (nu) is not free but fixed to -1. If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
@@ -1010,8 +1027,8 @@ stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,...,str
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<2) theta <- rep(theta,length.out=2)
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
   #diag(wght) <- 1
@@ -1040,21 +1057,21 @@ mkPower2<-function(x,theta) {
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress
-#' @param theta parameters for the proximiy and distance transformation
+#' @param theta parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.      
 #' @param structures what c-structuredness should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
-#' @param strucpars (possibly named with the strcuture) list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.   
+#' @param strucpars (possibly named with the structure). List of parameter lists for the structuredness indices, so its form is \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStruc X are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one would set \code{list(list(eps=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.    
 #' @param optimmethod What optimizer to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.
-#' @param lower The lower contraints of the search region
-#' @param upper The upper contraints of the search region 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
+#' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
+#' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
+#' @param verbose numeric value hat prints information on the fitting process; >2 is pretty verbose.
 #' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
 #' @param s number of particles if pso is used
-#' @param itmax maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.
+#' @param itmax maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.
 #' @param initpoints number of initial points to fit the surrogate model for bayesian optimization; default is 10
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
 #' @param ... additional arguments to be passed to the optimization procedure
@@ -1091,7 +1108,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower=c(1,1,0.5), upper=c(5,5,2), verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower, upper, verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {

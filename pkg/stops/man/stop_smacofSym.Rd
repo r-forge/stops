@@ -16,7 +16,7 @@ stop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector for transformations}
+\item{theta}{the theta vector for transformations; either a scalar for the lambda (proximity) transformation or a vector of at most three elements where the second is used as the free lambda parameter (the first an third would correspond to kappa and nu respecively and are internally fixed to 1)}
 
 \item{ndim}{number of dimensions of the target space}
 

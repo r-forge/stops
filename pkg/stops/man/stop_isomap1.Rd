@@ -16,7 +16,7 @@ stop_isomap1(dis, theta = 3, weightmat = NULL, ndim = 2,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Defaults to 3.}
+\item{theta}{the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Can be a vector of up to three where only the first element is used. Defaults to 3.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

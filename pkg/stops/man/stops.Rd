@@ -16,16 +16,16 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
   "cstringiness", "cclumpiness"), ndim = 2, weightmat = NULL,
   init = NULL, stressweight = 1, strucweight, strucpars,
-  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower = c(1,
-  1, 0.5), upper = c(5, 5, 2), verbose = 0, type = c("additive",
-  "multiplicative"), s = 5, initpoints = 10, itmax = 50, model, ...)
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower, upper,
+  verbose = 0, type = c("additive", "multiplicative"), s = 5,
+  initpoints = 10, itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{loss}{which loss function to be used for fitting, defaults to stress}
 
-\item{theta}{parameters for the proximiy and distance transformation}
+\item{theta}{parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
 
 \item{structures}{what c-structuredness should be considered; if missing no structure is considered.}
 
@@ -39,15 +39,15 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
-\item{strucpars}{(possibly named with the strcuture) list of parameters for the structuredness indices; must be in the same ordering as the indices in structures. If missing it is set to NULL.}
+\item{strucpars}{(possibly named with the structure). List of parameter lists for the structuredness indices, so its form is \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStruc X are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one would set \code{list(list(eps=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
 \item{optimmethod}{What optimizer to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.}
 
-\item{lower}{The lower contraints of the search region}
+\item{lower}{The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
-\item{upper}{The upper contraints of the search region}
+\item{upper}{The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
-\item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
+\item{verbose}{numeric value hat prints information on the fitting process; >2 is pretty verbose.}
 
 \item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
 
@@ -55,7 +55,7 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{initpoints}{number of initial points to fit the surrogate model for bayesian optimization; default is 10}
 
-\item{itmax}{maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 5*itmax as tgp it samples 1-5 candidates from the posterior and uses the best candidate.}
+\item{itmax}{maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.}
 
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 

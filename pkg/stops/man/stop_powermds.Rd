@@ -15,7 +15,7 @@ stop_powermds(dis, theta = c(1, 1, 1), weightmat = NULL, init = NULL,
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.}
+\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third (nu for the weights) is not free and fixed to 1. If a scalar is given it is recycled.  Defaults to 1 1 1.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

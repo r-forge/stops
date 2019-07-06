@@ -66,3 +66,6 @@ plot(res)
 \seealso{
 \code{\link{smacofSym}}
 }
+\author{
+Jan de Leeuw & Thomas Rusch
+}
