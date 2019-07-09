@@ -415,13 +415,14 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
   dhat <-  disl/sqrt(sum(wghts*disl^2))*sqrt(N)
   lb <- sum(wghts*fitdis*dhat)/sum(wghts*fitdis^2)   #Restrict config so we have a stress in [0,1] just as in smacof. Rest is unchanged. Maybe use this stress for optimization at some point?
   fitdisnn <- lb*fitdis
-  fit$stress.r <- sum(wghts*(dhat-fitdisnn)^2)/N 
+  fit$stress.r <- fit$stress
+  fit$stress <- sqrt(sum(wghts*(dhat-fitdisnn)^2)/N) #sum(wghts*dhat^2))
   #fit$stress.n <- fit$stress.r/sum(dis^lambda)
-  fit$stress.m <- sqrt(fit$stress) #or stress.r
+  fit$stress.m <- fit$stress #or stress.r
   fit$conf <- fit$points
   fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,  fit=fit,stopobj=stopobj) #target functions
+  list(stress=fit$stress, stress.m=fit$stress.m, stress.r=fit$stress.r,stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,  fit=fit,stopobj=stopobj) #target functions
 }
 
 #' STOPS versions of Sammon mapping models (via smacofSym)

@@ -72,7 +72,7 @@ c_dependence <- function(confs,index=1)
 
 
 #'c-manifoldness
-#'calculates c-manifoldness as the maximal correlation coefficient
+#'calculates c-manifoldness as the highest maximal correlation coefficient (i.e., Pearson correlation of the ACE transformedvariables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped. 
 #'
 #' @param confs a numeric matrix or data frame with two columns
 #'
@@ -111,7 +111,7 @@ c_manifoldness <- function(confs)
                     tmp <- acepack::ace(x,y)
                     matpw[i] <- stats::cor(tmp$tx,tmp$ty) #all max corr 
                 }
-            out <- max(matpw) #maximum over all
+            out <- max(matpw,na.rm=TRUE) #maximum over all
            }
         out
     }

@@ -1,5 +1,6 @@
 #' An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
 #'
+#' Note that for numerical reasons the normalized stress here uses a configuration where every d(X) is 0.0001.
 #' 
 #' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
@@ -101,21 +102,44 @@ while ( stepsize > 1E-5 && i < niter)
       }
 
   }
-  #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
+                                        #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
+  X1 <- X1*sum(Do*D1)/sum(D1^2)
+  D1 <- as.matrix(dist(X1))
   Domulam <- Do^(mu+1/lambda) #new
   Domu <- Do^mu #new
   diag(Domu) <- 0 #new
   if(mu+1/lambda==0) {
+       D0 <- D1*0+0.0001 #for numerical reasons
+       #D0 <- D1*0+1
        diag(Do)<-1 #new
+       diag(D0) <- 1
+       D0mu <- D0^mu #new
+       norm0 <- sum(Dnu*log(D0))-sum((D0mu-1)*Dnulam)/mu
        normo <- sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu
+       s1n <- (s1-normo)/(norm0-normo)       
        }
   if(mu==0) {
-      diag(Do)<-1 #new
-      normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) -sum(log(Do)*Dnulam)
+       D0 <- D1*0+0.0001 #for numerical reasons
+       diag(Do)<-1 #new
+       diag(D0) <- 1
+       #D0mu <- D0^mu #new
+       D0mulam <- D0^(mu+1/lambda) #new
+       norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda) - sum(log(D0)*Dnulam)
+       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) - sum(log(Do)*Dnulam)
+      s1n <- (s1-normo)/(norm0-normo)
       }
-  if(mu!=0&(mu+1/lambda)!=0) normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
-  s1n <- 1-s1/normo #normalized stress
-  
+  if(mu!=0&(mu+1/lambda)!=0)
+  {
+       D1*0+0.0001 #D0 <- D1 #for reasons of comparabilty with the other versions
+       diag(Do)<-1 #new
+       diag(D0) <- 1
+       D0mu <- D0^mu
+       D0mulam <- D0^(mu+1/lambda) #new
+       norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu
+       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
+       s1n <- (s1-normo)/(norm0-normo)      
+      # s1n <- 1-s1/normo #normalized stress
+  }
   result <- list()
   result$conf <- X1 #new
   result$confdist <- stats::as.dist(D1)
