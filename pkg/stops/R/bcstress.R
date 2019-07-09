@@ -102,41 +102,41 @@ while ( stepsize > 1E-5 && i < niter)
       }
 
   }
-                                        #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
+  #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
   X1 <- X1*sum(Do*D1)/sum(D1^2)
   D1 <- as.matrix(dist(X1))
-  Domulam <- Do^(mu+1/lambda) #new
-  Domu <- Do^mu #new
-  diag(Domu) <- 0 #new
+  D0 <- D1*0+1e-4 #for numerical reasons
+  Dop <- Do+1e-4#for reasons of comparability with the D0 all get an extra p for "plus"
+  Dopmulam <- Dop^(mu+1/lambda) #new
+  D0mulam <- D0^(mu+1/lambda) #new
+  diag(Dopmulam) <- 0
+  diag(D0mulam) <- 0
+  Dopmu <- Dop^mu #new
+  D0mu <- D0^mu #new
+  diag(Dopmu) <- 0 #new
+  diag(D0mu) <- 0 #new
+  Dpnu <-  Dop^nu
+  Dpnulam <- Dop^(nu+1/lambda)
+  diag(Dpnu) <- 0
+  diag(Dpnulam) <- 0
   if(mu+1/lambda==0) {
-       D0 <- D1*0+0.0001 #for numerical reasons
-       #D0 <- D1*0+1
-       diag(Do)<-1 #new
        diag(D0) <- 1
-       D0mu <- D0^mu #new
-       norm0 <- sum(Dnu*log(D0))-sum((D0mu-1)*Dnulam)/mu
-       normo <- sum(Dnu*log(Do))-sum((Domu-1)*Dnulam)/mu
+       diag(Dop)<-1 #new
+       norm0 <- sum(Dpnu*log(D0))-sum((D0mu-1)*Dpnulam)/mu
+       normo <- sum(Dpnu*log(Dop))-sum((Dopmu-1)*Dpnulam)/mu
        s1n <- (s1-normo)/(norm0-normo)       
        }
   if(mu==0) {
-       D0 <- D1*0+0.0001 #for numerical reasons
-       diag(Do)<-1 #new
        diag(D0) <- 1
-       #D0mu <- D0^mu #new
-       D0mulam <- D0^(mu+1/lambda) #new
-       norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda) - sum(log(D0)*Dnulam)
-       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda) - sum(log(Do)*Dnulam)
+       diag(Dop)<-1 #new
+       norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda) - sum(log(D0)*Dpnulam)
+       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda) - sum(log(Dop)*Dpnulam)
       s1n <- (s1-normo)/(norm0-normo)
       }
   if(mu!=0&(mu+1/lambda)!=0)
   {
-       D1*0+0.0001 #D0 <- D1 #for reasons of comparabilty with the other versions
-       diag(Do)<-1 #new
-       diag(D0) <- 1
-       D0mu <- D0^mu
-       D0mulam <- D0^(mu+1/lambda) #new
-       norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu
-       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
+       norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu
+       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda)-sum((Dopmu-1)*Dpnulam)/mu
        s1n <- (s1-normo)/(norm0-normo)      
       # s1n <- 1-s1/normo #normalized stress
   }

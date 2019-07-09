@@ -23,6 +23,7 @@ e2<-powerStressMin(ekman,kappa=2*1,lambda=1)
 e1<-powerStressMin(ekman,kappa=2*0.5,lambda=1)
 e05<-powerStressMin(ekman,kappa=2*0.25,lambda=1)
 
+
 test_that("Power stress for Ekman data works",{
 #these are r stresses 
 expect_equal_to_reference(e05<-powerStressMin(ekman,kappa=2*0.25,lambda=1))

@@ -25,7 +25,7 @@ bcStressMin(delta, init = NULL, verbose = 0, ndim = 2, lambda = 1,
 \item{itmax}{number of optimizing iterations, defaults to 10000.}
 }
 \description{
-An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
+Note that for numerical reasons the normalized stress here uses a configuration where every d(X) is 0.0001.
 }
 \examples{
 dis<-smacof::kinshipdelta
