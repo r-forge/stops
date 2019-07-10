@@ -19,16 +19,21 @@ Diag = FALSE, Upper = FALSE, Labels = c(434,
 ekman <- as.matrix (1-ekman)
 wave <- row.names(ekman)
 
-e1<-bcStressMin(ekman,mu=2,lambda=1)
+e1<-bcStressMin(ekman,mu=2,lambda=1) #ok
 e1
-e2<-bcStressMin(ekman,mu=0,lambda=1)
+e2<-bcStressMin(ekman,mu=0,lambda=1) #ok
 e2
-e3<-bcStressMin(ekman,mu=1,lambda=-1) #why > 1
+e3<-bcStressMin(ekman,mu=1,lambda=-1) #ok
 e3
-e4<-bcStressMin(ekman,mu=-5,lambda=-2)
+e3$stress.r
+e4<-bcStressMin(ekman,mu=-5,lambda=-2) #invest
 e4
-e5<-bcStressMin(ekman,mu=-1,lambda=-1) #why NA
+e5<-bcStressMin(ekman,mu=-1,lambda=-1) #invest #varies
 e5
+e6<-bcStressMin(ekman,mu=2,lambda=-1) #invest
+e6
+e7<-bcStressMin(ekman,mu=3,lambda=-2) #invest 
+e7
 
 
 test_that("Power stress for Ekman data works",{
