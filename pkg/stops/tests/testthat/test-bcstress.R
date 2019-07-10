@@ -25,7 +25,7 @@ e2<-bcStressMin(ekman,mu=0,lambda=1)
 e2
 e3<-bcStressMin(ekman,mu=1,lambda=-1) #why > 1
 e3
-e4<-bcStressMin(ekman,mu=-1,lambda=1)
+e4<-bcStressMin(ekman,mu=-5,lambda=-2)
 e4
 e5<-bcStressMin(ekman,mu=-1,lambda=-1) #why NA
 e5

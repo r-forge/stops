@@ -103,7 +103,7 @@ while ( stepsize > 1E-5 && i < niter)
 
   }
   #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
-  X1 <- X1*sum(Do*D1)/sum(D1^2)
+  #X1 <- X1*(Do*D1)/sum(D1^2)
   D1 <- as.matrix(dist(X1))
   D0 <- D1*0+1e-4 #for numerical reasons
   Dop <- Do+1e-4#for reasons of comparability with the D0 all get an extra p for "plus"
@@ -135,8 +135,19 @@ while ( stepsize > 1E-5 && i < niter)
       }
   if(mu!=0&(mu+1/lambda)!=0)
   {
-       norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu
-       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda)-sum((Dopmu-1)*Dpnulam)/mu
+      D0 <- D1*0
+      D0mu <- D0^mu #new
+      diag(D0mu) <- 0 #new
+      D0mulam <- D0^(mu+1/lambda) #new
+      diag(D0mulam) <- 0
+      Domulam <- Do^(mu+1/lambda) #new
+      diag(Domulam) <- 0
+      Domu <- Do^mu #new
+      diag(Domu) <- 0 #new
+#       norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu
+#       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda)-sum((Dopmu-1)*Dpnulam)/mu
+       norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu
+       normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
        s1n <- (s1-normo)/(norm0-normo)      
       # s1n <- 1-s1/normo #normalized stress
   }
