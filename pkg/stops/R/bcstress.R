@@ -4,8 +4,8 @@
 #' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
-#' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and use normalized stress at your own risk.
-#' @param lambda lambda parameter. Should be equal or larger than -mu for everything working ok. If lambda < -mu it works but the model is strange and use normalized stress at your own risk.
+#' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
+#' @param lambda lambda parameter. Must be larger than 0.
 #' @param nu the nu parameter.
 #' @param itmax number of optimizing iterations, defaults to 10000.
 #' @param verbose prints progress if > 3.
@@ -30,6 +30,7 @@ bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itma
   d <- ndim
   X1 <- init
   niter <- itmax
+  if(lambda<=0) stop("The lambda parameter must be strictly positive.")
   lambdaorig <- lambda
   lambda <- 1/lambda
   n <- nrow(Do)
@@ -105,11 +106,37 @@ while ( stepsize > 1E-5 && i < niter)
       }
 
   }
-  #New For normalization of stress; if it doesn't work normalize the X1 to be smaller than Do
-  X1 <- X1*sum(Do*D1)/sum(D1^2)
+  #For normalization of stress
+                                        #Next steps normalize the X1 so that D^*(X) to be smaller than Delta^*
+  
+  #if((mu!=0) & (mu+lambda)!=0)
+  #{
+  #    whichd1 <- sum(Dnu*((D1mulam-1)/(mu+1/lambda))^2)
+  #    whichd2 <- sum(Dnu*((D1mu-1)/mu)^2)
+  #    whichd <- max(whichd1,whichd2)
+  #}
+  #if(mu==0)
+  #{
+  #    diag(D1) <- 1
+  #    whichd1 <- sum(Dnu*((D1mulam-1)/(mu+lambda))^2)
+  #    whichd2 <- sum(Dnu*log(D1)^2)
+  #    whichd <- max(whichd1,whichd2)
+  #}
+  #if(mu+lambda==0)
+  #{
+  #    diag(D1) <- 1
+  #    whichd1 <- sum(Dnu*log(D1)^2)
+  #    whichd2 <- sum(Dnu*((D1mu-1)/mu)^2)
+  #    whichd <- max(whichd1,whichd2)               
+  #}
+  #whichd <- sum(Dnu*D1^2)
+  #Dlam2 <- Do^(2*1/lambda)
+  #diag(Dlam2) <- 0
+  #X1 <- X1*sqrt(sum(Dnu*Dlam2))/sqrt(whichd)
+  X1 <- X1*sum(Dnu*Do*D1)/sum(Dnu*D1^2)
   D1 <- as.matrix(dist(X1)) 
   D0 <- D1*0+addD0 #for numerical reasons for mu=0 and mu+lambda=0 all get an extra p for "plus"
-  Dop <- Do# we could also add +1e-4 here for reasons of comparability with the D0
+  Dop <- Do # we could also add addD0 here for reasons of comparability with the D0
   diag(Dop) <- 0
   diag(D0) <- 0
   Dopmulam <- Dop^(mu+1/lambda) #new
@@ -148,9 +175,9 @@ while ( stepsize > 1E-5 && i < niter)
       #Domulam <- Do^(mu+1/lambda) 
       #diag(Domulam) <- 0
       #Domu <- Do^mu #new
-      #diag(Domu) <- 0 #new
-      norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu
+                                        #diag(Domu) <- 0 #new
       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda)-sum((Dopmu-1)*Dpnulam)/mu
+      norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu      
       #norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu
       #normo <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu
       s1n <- (s1-normo)/(norm0-normo)

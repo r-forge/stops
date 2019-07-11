@@ -16,9 +16,9 @@ bcStressMin(delta, init = NULL, verbose = 0, ndim = 2, mu = 1,
 
 \item{ndim}{the dimension of the configuration}
 
-\item{mu}{mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and use normalized stress at your own risk.}
+\item{mu}{mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.}
 
-\item{lambda}{lambda parameter. Should be equal or larger than -mu for everything working ok. If lambda < -mu it works but the model is strange and use normalized stress at your own risk.}
+\item{lambda}{lambda parameter. Must be larger than 0.}
 
 \item{nu}{the nu parameter.}
 
