@@ -7,20 +7,22 @@ citEntry(entry="Manual",
          title = "stops: STructure Optimized Proximity Scaling",
          author = personList(as.person("Thomas Rusch"),
                              as.person("Jan de Leeuw"),
-                             as.person("Patrick Mair")),
+                             as.person("Lisha Chen"),
+                             as.person("Patrick Mair"),
+                             as.person("Kurt Hornik")),
          year = year,
          note = vers,
          textVersion =
-         paste("Rusch, Thomas and De Leeuw, Jan and Mair, Patrick (", year,"). stops: STructure Optimized Proximity Scaling. ", vers, ".", sep=""))
+         paste("Rusch, Thomas and De Leeuw, Jan and Chen, Lisha and Mair, Patrick and Hornik, Kurt (", year,"). stops: STructure Optimized Proximity Scaling. ", vers, ".", sep=""))
 
 
 citEntry(entry = "TechReport", 
     author = personList(as.person("Thomas Rusch"), 
-        as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "COPS: Cluster Optimized Proximity Scaling", address="Vienna, Austria", institution="WU Vienna University of Economics and Business", number="2015/1", series="Discussion Paper Series/Center for Empirical Research Methods", year = 2015, 
-    url = "http://epub.wu.ac.at/4476/", 
-    textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2015)", 
-    "COPS: Cluster optimized proximity scaling.","Discussion Paper Series / Center for Empirical Research Methods, 2015/1.","WU Vienna University of Economics and Business, Vienna."),
-    header="If cops() or cordillera() is used, please cite:")
+        as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "STOPS: Structure Optimized Proximity Scaling", address="Vienna, Austria", institution="WU Vienna University of Economics and Business", number="2019/1", series="Discussion Paper Series/Center for Empirical Research Methods", year = 2019, 
+    url = "http://epub.wu.ac.at/44XX/", 
+    textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2019)", 
+    "STOPS: Structure optimized proximity scaling.","Discussion Paper Series / Center for Empirical Research Methods, 2019/1.","WU Vienna University of Economics and Business, Vienna."),
+    header="If stops() or c-structuredness indices are used, please cite:")
 
 citEntry(entry = "TechReport", 
     author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 
@@ -28,4 +30,16 @@ citEntry(entry = "TechReport",
     textVersion = paste("De Leeuw, Jan (2014)", 
     "Minimizing r-stress using nested majorisation.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
     header="If powerStressMin() is used, please cite:")
+
+citEntry(entry = "Article", 
+    author =personList(as.person("Lisha Chen"),as.person("Andreas Buja")), title = "Stress functions for nonlinear dimension reduction, proximity analysis, and graph drawing.", journal="Journal of Machine Learning Research", year = 2013, volume=14, pages="1145-1173", 
+    textVersion = paste("Chen, Lisha and Buja, Andreas (2013)", 
+    "Stress functions for nonlinear dimension reduction, proximity analysis, and graph drawing.","Journal of Machine Learning Research,","14,"," pp. 1145-1173."),
+    header="If bcStressMin() is used, please cite:")
+
+citEntry(entry = "Article", 
+    author =personList(as.person("Lisha Chen"),as.person("Andreas Buja")), title = "Local multidimensional scaling for nonlinear dimension reduction, graph drawing, and proximity analysis.", journal="Journal of the American Statistical Association", year = 2009, volume=104, pages="209-219", year = 2009, 
+    textVersion = paste("Chen, Lisha and Buja, Andreas (2009)", 
+    "Local multidimensional scaling for nonlinear dimension reduction, graph drawing, and proximity analysis.", "Journal of the American Statistical Association,","104, pp. 209-219."),
+    header="If lmds() is used, please cite:")
 
