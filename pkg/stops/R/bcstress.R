@@ -7,7 +7,7 @@
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
 #' @param nu the nu parameter.
-#' @param itmax number of optimizing iterations, defaults to 10000.
+#' @param itmax number of optimizing iterations, defaults to 5000.
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0. 
 #'
@@ -24,7 +24,7 @@
 #' plot(res)
 #' 
 #' @export
-bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itmax=10000,addD0=1e-4)
+bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itmax=5000,addD0=1e-4)
 {
   Do <- delta 
   d <- ndim

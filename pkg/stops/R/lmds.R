@@ -22,7 +22,7 @@
 #' 
 #' @export
 lmds <- function(delta,init=NULL,ndim=3,k=2,tau=1,
-                   itmax=1000,verbose=0)
+                   itmax=5000,verbose=0)
 {
     Do <- delta
     X1 <- init
