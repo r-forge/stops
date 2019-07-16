@@ -4,7 +4,7 @@
 \alias{lmds}
 \title{An MDS version for local MDS (Chen & Buja 2006)}
 \usage{
-lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 1000,
+lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 5000,
   verbose = 0)
 }
 \arguments{
@@ -14,16 +14,19 @@ lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 1000,
 
 \item{ndim}{the dimension of the configuration}
 
-\item{k}{the k neighbourhood parameter parameter}
+\item{k}{the k neighbourhood parameter}
 
-\item{tau}{the penalty parameter}
+\item{tau}{the penalty parameter (suggested to be in [0,1])}
 
-\item{itmax}{number of optimizing iterations, defaults to 10000.}
+\item{itmax}{number of optimizing iterations, defaults to 5000.}
 
-\item{verbose}{prints progress if > 3.}
+\item{verbose}{prints progress if > 4.}
 }
 \description{
 An MDS version for local MDS (Chen & Buja 2006)
+}
+\details{
+Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the repulsion term is dominating the attraction term. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value.
 }
 \examples{
 dis<-smacof::kinshipdelta

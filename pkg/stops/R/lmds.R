@@ -6,12 +6,15 @@
 #' @param delta dissimilarity or distance matrix
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
-#' @param k the k neighbourhood parameter parameter 
-#' @param tau the penalty parameter 
-#' @param itmax number of optimizing iterations, defaults to 10000.
-#' @param verbose prints progress if > 3. 
+#' @param k the k neighbourhood parameter
+#' @param tau the penalty parameter (suggested to be in [0,1]) 
+#' @param itmax number of optimizing iterations, defaults to 5000.
+#' @param verbose prints progress if > 4. 
 #'
 #' @author Lisha Chen & Thomas Rusch
+#'
+#' @details Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the repulsion term is dominating the attraction term. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value. 
+#' 
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
@@ -131,7 +134,7 @@ while ( stepsize > 1E-5 && i < niter)
     s1 <-    sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu
      #   }
     ## Printing and Plotting
-     if(verbose > 3 & (i+1)%%100/verbose==0)
+     if(verbose > 4 & (i+1)%%100/verbose==0)
       {
         print (paste("niter=",i+1," stress=",round(s1,5), sep=""))
       }
@@ -139,7 +142,8 @@ while ( stepsize > 1E-5 && i < niter)
   }
   #For normalization
   #prelims  
-  X1a <- X1*enorm(Do)/enorm(D1)
+  #X1a <- X1*enorm(Do)/enorm(D1)
+  X1a <- X1*sum(Do*D1)/sum(D1^2) #smacof norm
   D1a <- as.matrix(dist(X1a))
   D0 <- D1a*0
     

@@ -5,7 +5,7 @@
 \title{An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)}
 \usage{
 bcStressMin(delta, init = NULL, verbose = 0, ndim = 2, mu = 1,
-  lambda = 1, nu = 0, itmax = 10000, addD0 = 1e-04)
+  lambda = 1, nu = 0, itmax = 5000, addD0 = 1e-04)
 }
 \arguments{
 \item{delta}{dissimilarity or distance matrix}
@@ -22,7 +22,7 @@ bcStressMin(delta, init = NULL, verbose = 0, ndim = 2, mu = 1,
 
 \item{nu}{the nu parameter.}
 
-\item{itmax}{number of optimizing iterations, defaults to 10000.}
+\item{itmax}{number of optimizing iterations, defaults to 5000.}
 
 \item{addD0}{a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.}
 }
