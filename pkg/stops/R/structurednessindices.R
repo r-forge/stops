@@ -1,3 +1,25 @@
+#' c-inequality
+#' calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the distance matrix
+#' this is one of few c-structuredness indices not between 0 and 1
+#' @param confs a numeric matrix or data frame
+#'
+#' @importFrom stats sd mean
+#' 
+#' @examples
+#' x<-1:10
+#' y<-2+3*x+rnorm(10)
+#' z<- sin(y-x)
+#' confs<-cbind(z,y,x)
+#' c_linearity(confs)
+#' @export
+c_inequality <- function(confs)
+    {
+        distm <- dist(confs)
+        out <- sd(distm,na.rm=TRUE)/mean(distm,na.rm=TRUE)
+    }
+
+
+
 #'c-linearity
 #'calculates c-linearity as the maximum multiple correlation
 #'
@@ -165,6 +187,7 @@ c_association <- function(confs,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' c-nonmonotonicity
 #' calculates the c-nonmonotonicity based on the maximum asymmetric score 
 #' We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions
+#' this is one of few c-structuredness indices not between 0 and 1
 #' 
 #' @param confs a numeric matrix or data frame
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1

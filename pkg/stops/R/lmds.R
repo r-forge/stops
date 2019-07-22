@@ -13,7 +13,7 @@
 #'
 #' @author Lisha Chen & Thomas Rusch
 #'
-#' @details Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the repulsion term is dominating the attraction term. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value. 
+#' @details Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the absolute repulsion for the found configuration dominates the local stress substantially less than the repulsion term does for the solution of D(X)=Delta, so that the local stress difference between the found solution and perfect solution is nullified. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value. 
 #' 
 #' 
 #' @examples
@@ -163,11 +163,15 @@ while ( stepsize > 1E-5 && i < niter)
   diag(Domu) <- 0 #new
   diag(D0mu) <- 0
     
-  s1e <-    sum(Dnu*(D1mulama-1))/(mu+1/lambda)-sum((D1mua-1)*Dnulam)/mu-t*sum((D1mua-1)*(1-Inb1))/mu   #stress with normed X (X1a)  
-  normop <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu   #best case 
-  normo0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu-t*sum((D0mu-1)*(1-Inb1))/mu #worst case
-  s1n <- (s1e-normop)/(normo0-normop) #normalized stress
- 
+   # s1e <-    sum(Dnu*(D1mulama-1))/(mu+1/lambda)-sum((D1mua-1)*Dnulam)/mu-t*sum((D1mua-1)*(1-Inb1))/mu   #stress with normed X (X1a)
+  s1e <-    sum(Dnu*D1mulama)/(mu+1/lambda)-sum(D1mua*Dnulam)/mu-t*sum(D1mua*(1-Inb1))/mu   #stress with
+#    normop <- sum(Dnu*(Domulam-1))/(mu+1/lambda)-sum((Domu-1)*Dnulam)/mu-t*sum((Domu-1)*(1-Inb1))/mu   #best case
+  normop <- sum(Dnu*Domulam)/(mu+1/lambda)-sum(Domu*Dnulam)/mu-t*sum(Domu*(1-Inb1))/mu   #best case
+  #  normo0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu-t*sum((D0mu-1)*(1-Inb1))/mu #worst case
+  #normo0 <- sum(Dnu*D0mulam)/(mu+1/lambda)-sum(D0mu*Dnulam)/mu-t*sum(D0mu*(1-Inb1))/mu #worst case
+                                        #s1n <- (s1e-normop)/(normo0-normop) #normalized stress
+  s1n <- 1-s1e/normop
+    
   result <- list()
   result$conf <- X1 #new
   #result$confn <- X1a #new  
