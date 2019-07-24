@@ -1,21 +1,21 @@
 #' c-inequality
 #' calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the distance matrix
-#' this is one of few c-structuredness indices not between 0 and 1
+#' this is one of few c-structuredness indices not between 0 and 1, but 0 and infinity
 #' @param confs a numeric matrix or data frame
 #'
-#' @importFrom stats sd mean
+#' @importFrom stats dist sd
 #' 
 #' @examples
 #' x<-1:10
 #' y<-2+3*x+rnorm(10)
 #' z<- sin(y-x)
 #' confs<-cbind(z,y,x)
-#' c_linearity(confs)
+#' c_inequality(confs)
 #' @export
 c_inequality <- function(confs)
     {
-        distm <- dist(confs)
-        out <- sd(distm,na.rm=TRUE)/mean(distm,na.rm=TRUE)
+        distm <- stats::dist(confs)
+        out <- stats::sd(distm,na.rm=TRUE)/mean(distm,na.rm=TRUE)
     }
 
 
@@ -242,9 +242,10 @@ c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
     }
 
 #' c-complexity
-#' calculates the c-complexity based on the minimum cell number
+#' Calculates the c-complexity based on the minimum cell number
 #' We define c-complexity as the minimum minimum cell number between any two dimensions
-#'
+#' This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity
+#' 
 #' @param confs a numeric matrix or data frame
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 

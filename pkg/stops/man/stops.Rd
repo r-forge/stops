@@ -14,11 +14,11 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
   "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
   "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
   "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness"), ndim = 2, weightmat = NULL,
-  init = NULL, stressweight = 1, strucweight, strucpars,
-  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"), lower, upper,
-  verbose = 0, type = c("additive", "multiplicative"), s = 5,
-  initpoints = 10, itmax = 50, model, ...)
+  "cstringiness", "cclumpiness", "cinequality"), ndim = 2,
+  weightmat = NULL, init = NULL, stressweight = 1, strucweight,
+  strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
+  lower, upper, verbose = 0, type = c("additive", "multiplicative"),
+  s = 5, initpoints = 10, itmax = 50, model, ...)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

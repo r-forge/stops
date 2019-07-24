@@ -1,14 +1,18 @@
+Version 0.0-43
+
+- Added c-inequality. 
+
 Version 0.0-42
 
-- Added local MDS.
+- Added local MDS (contributed by Lisha Chen) and normalizations.
 
 Version 0.0-41
 
-- Added box cox stress.
+- Added box cox stress (contributed by Lisha Chen) and normalizations.
 
 Version 0.0-40
 
-- Added new c-structuredness indices from scagnostics an c-hierarchy. Added a [0,1] normalized stress to sammon
+- Added new c-structuredness indices from scagnostics and c-hierarchy. Added a [0,1] normalized stress to sammon
 
 Version 0.0-39
 
@@ -16,7 +20,7 @@ Version 0.0-39
 
 Version 0.0-38
 
-- Added two new structures (regularity and clusteredness wrapper) plus docs.
+- Removed the COPS and codillera functionalities from this package and transferred it to its own cops and cordillera package.  This is now only a dedicated STOPS package. Added two new structures (regularity and clusteredness wrapper) for STOPS plus docs.
 
 
 Version 0.0-37
@@ -28,10 +32,9 @@ Version 0.0-36
 
 - In accordance with optim() in tgpoptim() the $par result is now a numeric vector instead of a data frame with one row. This fixes a bug for stops() with optimmethod="tgp" and verbose of more than 1 leading to an error. Extended tgp to also return the real function values not only the surrogate and select best parameter for min real value not minimum surrogate value. 
 
-
 Version 0.0-35
 
-- Renamed shrinkCoploss to shrinkCoploss0 for COPS-0. Updated docs. Moved cordillera code to a new package. Once cordillera is on CRAN, cordillera and optics code will be removed from this package. 
+- Renamed shrinkCoploss to shrinkCoploss0 for COPS-0. Updated docs. Moved cordillera code to a new package. Once cordillera is on CRAN, cordillera and optics code will be removed from this package. We'll also fork the cops functionality to its own package eventually.
 
 Version 0.0-34
 
@@ -59,7 +62,7 @@ Version 0.0-29
 
 Version 0.0-28
 
-- New implementation for PowerStressMin (the majorization version) based on Jan's new version of rStressMin. Old version delivered correct configuration but was buggy with the stress returned.
+- New implementation for powerStressMin (the majorization version) based on Jan's new version of rStressMin. Old version delivered correct configuration but was buggy with the stress returned.
 
 Version 0.0-27
 
@@ -96,7 +99,7 @@ Version 0.0-20
 
 Version 0.0-19
 
-- Added STOPS infrastructure (fitting functions and methods); added clinearity; STOPS works for clinearity and cclusteredness; minor updates to functions for COPs; updated vignette, added some tests;  
+- Added STOPS infrastructure (fitting functions and methods); added clinearity; STOPS works for clinearity and cclusteredness; minor updates to functions for COPS; updated vignette, added some tests;  
 
 Version 0.0-18
 
@@ -120,7 +123,7 @@ Version 0.0-14
 
 Version 0.0-13
 
-- Recalculated the CA Climate data set. Added more tests. removed intercept in fitted model of transplots. 
+- Recalculated the CA Climate data set. Added more tests. Removed intercept in fitted model of transplots. 
 
 Version 0.0-12
 

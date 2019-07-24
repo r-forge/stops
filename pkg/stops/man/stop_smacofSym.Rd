@@ -9,7 +9,7 @@ stop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
   "cdependence", "cmanifoldness", "cassociation", "cnonmonotonicity",
   "cfunctionality", "ccomplexity", "cfaithfulness", "chierarchy",
   "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness"), stressweight = 1,
+  "cstringiness", "cclumpiness", "cinequality"), stressweight = 1,
   strucweight = rep(1/length(structures), length(structures)), strucpars,
   verbose = 0, type = c("additive", "multiplicative"))
 }

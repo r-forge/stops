@@ -10,7 +10,7 @@ stop_flexsmacof(dis, transformation = mkPower2, theta = c(1, 1),
   "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
   "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
   "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness"), stressweight = 1,
+  "cstringiness", "cclumpiness", "cinequality"), stressweight = 1,
   strucweight = rep(1/length(structures), length(structures)), strucpars,
   verbose = 0)
 }

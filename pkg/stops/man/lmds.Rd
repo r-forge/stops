@@ -26,7 +26,7 @@ lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 5000,
 An MDS version for local MDS (Chen & Buja 2006)
 }
 \details{
-Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the repulsion term is dominating the attraction term. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value.
+Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the absolute repulsion for the found configuration dominates the local stress substantially less than the repulsion term does for the solution of D(X)=Delta, so that the local stress difference between the found solution and perfect solution is nullified. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value.
 }
 \examples{
 dis<-smacof::kinshipdelta

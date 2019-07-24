@@ -8,9 +8,10 @@ stoploss(obj, stressweight = 1, structures = c("cclusteredness",
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
   "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness"),
-  strucweight = rep(-1/length(structures), length(structures)),
-  strucpars, type = c("additive", "multiplicative"), verbose = 0)
+  "cskinniness", "csparsity", "cstringiness", "cclumpiness",
+  "cinequality"), strucweight = rep(-1/length(structures),
+  length(structures)), strucpars, type = c("additive", "multiplicative"),
+  verbose = 0)
 }
 \arguments{
 \item{obj}{object returned from a stop_* function}

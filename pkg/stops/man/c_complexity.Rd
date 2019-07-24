@@ -3,8 +3,9 @@
 \name{c_complexity}
 \alias{c_complexity}
 \title{c-complexity
-calculates the c-complexity based on the minimum cell number
-We define c-complexity as the minimum minimum cell number between any two dimensions}
+Calculates the c-complexity based on the minimum cell number
+We define c-complexity as the minimum minimum cell number between any two dimensions
+This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity}
 \usage{
 c_complexity(confs, alpha = 1, C = 15, var.thr = 1e-05,
   zeta = NULL)
@@ -22,8 +23,9 @@ c_complexity(confs, alpha = 1, C = 15, var.thr = 1e-05,
 }
 \description{
 c-complexity
-calculates the c-complexity based on the minimum cell number
+Calculates the c-complexity based on the minimum cell number
 We define c-complexity as the minimum minimum cell number between any two dimensions
+This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity
 }
 \examples{
 x<-seq(-3,3,length.out=200)

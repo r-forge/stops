@@ -9,9 +9,10 @@ stop_lmds(dis, theta = c(2, 0.5), weightmat = NULL, init = NULL,
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
   "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+  "cskinniness", "csparsity", "cstringiness", "cclumpiness",
+  "cinequality"), strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0, type = c("additive",
+  "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -28,7 +29,7 @@ stop_lmds(dis, theta = c(2, 0.5), weightmat = NULL, init = NULL,
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
-\item{structures}{which strcutures to look for}
+\item{structures}{which structures to look for}
 
 \item{strucweight}{weight to be used for the structures; defaults to 0.5}
 

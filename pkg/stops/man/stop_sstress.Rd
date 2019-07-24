@@ -9,9 +9,10 @@ stop_sstress(dis, theta = c(2, 1, 1), weightmat = NULL, init = NULL,
   "clinearity", "cdependence", "cmanifoldness", "cassociation",
   "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
   "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+  "cskinniness", "csparsity", "cstringiness", "cclumpiness",
+  "cinequality"), strucweight = rep(1/length(structures),
+  length(structures)), strucpars, verbose = 0, type = c("additive",
+  "multiplicative"))
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
