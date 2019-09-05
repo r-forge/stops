@@ -4,10 +4,12 @@
 \alias{c_convexity}
 \title{c-convexity}
 \usage{
-c_convexity(conf)
+c_convexity(conf, aggr = max)
 }
 \arguments{
 \item{conf}{A numeric matrix.}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \description{
 Measures the c-convexity structure

@@ -21,10 +21,11 @@ c_inequality <- function(confs)
 
 
 #'c-linearity
-#'calculates c-linearity as the maximum multiple correlation
+#'calculates c-linearity as the aggregated multiple correlations
 #'
 #' @param confs a numeric matrix or data frame
-#'
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
+#' 
 #' @importFrom stats lm summary.lm
 #' 
 #' @examples
@@ -34,7 +35,7 @@ c_inequality <- function(confs)
 #' confs<-cbind(z,y,x)
 #' c_linearity(confs)
 #' @export
-c_linearity <- function(confs)
+c_linearity <- function(confs,aggr=max)
     {
         confs <- scale(confs)
         p <- dim(confs)[2]
@@ -47,15 +48,16 @@ c_linearity <- function(confs)
              tmp[i] <- summary(stats::lm(y~x))$r.squared
             # rsq[i] <- summary(tmp[i])$r.squared
            }
-        out <- sqrt(max(tmp))
+        out <- aggr(sqrt(tmp))
         out
     }
 
 
 #'c-dependence
-#'calculates c-dependence as the distance correlation 
+#'calculates c-dependence as the aggregated distance correlation 
 #'
 #' @param confs a numeric matrix or data frame with two columns
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @param index exponent on Euclidean distance, in (0,2]
 #'
 #'
@@ -67,7 +69,7 @@ c_linearity <- function(confs)
 #' confs<-cbind(x,y)
 #' c_dependence(confs,1.5)
 #' @export
-c_dependence <- function(confs,index=1)
+c_dependence <- function(confs,aggr=max,index=1)
     {
         if(dim(confs)[2]<2) stop("Distance correlation is not defined for one column.")
         if(dim(confs)[2]==2) {
@@ -87,17 +89,18 @@ c_dependence <- function(confs,index=1)
                     y1 <- confs[,j2[i]] 
                     matpw[i] <- energy::dcor(x1,y1,index)        
                 }
-            out <- max(matpw)
+            out <- aggr(matpw)
            }
         out
     }
 
 
 #'c-manifoldness
-#'calculates c-manifoldness as the highest maximal correlation coefficient (i.e., Pearson correlation of the ACE transformedvariables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped. 
+#'calculates c-manifoldness as the aggregated maximal correlation coefficient (i.e., Pearson correlation of the ACE transformedvariables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped. 
 #'
 #' @param confs a numeric matrix or data frame with two columns
-#'
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
+#' 
 #' @importFrom acepack ace
 #' @importFrom stats cor
 #' 
@@ -107,7 +110,7 @@ c_dependence <- function(confs,index=1)
 #' confs<-cbind(x,y)
 #' c_manifoldness(confs)
 #' @export
-c_manifoldness <- function(confs)
+c_manifoldness <- function(confs,aggr=max)
     {
         if(dim(confs)[2]<2) stop("Maximal correlation is not available for less than two column vectors.")
         #max cor is not symmetric 
@@ -133,7 +136,7 @@ c_manifoldness <- function(confs)
                     tmp <- acepack::ace(x,y)
                     matpw[i] <- stats::cor(tmp$tx,tmp$ty) #all max corr 
                 }
-            out <- max(matpw,na.rm=TRUE) #maximum over all
+            out <- aggr(matpw,na.rm=TRUE) #maximum over all
            }
         out
     }
@@ -158,9 +161,10 @@ c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 
 #' c-association
 #' calculates the c-association based on the maximal information coefficient 
-#' We define c-association as the maximum association between any two dimensions
+#' We define c-association as the aggregated association between any two dimensions
 #' 
 #' @param confs a numeric matrix or data frame
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 0.6
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
@@ -175,21 +179,22 @@ c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_association(confs)
 #' @export
-c_association <- function(confs,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
+c_association <- function(confs,aggr=max,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 {
      #symmetric
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MIC
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
-        out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
+        out <- aggr(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
         out
     }
 
 #' c-nonmonotonicity
 #' calculates the c-nonmonotonicity based on the maximum asymmetric score 
-#' We define c-nonmonotonicity as the maximum nonmonotonicity between any two dimensions
+#' We define c-nonmonotonicity as the aggregated nonmonotonicity between any two dimensions
 #' this is one of few c-structuredness indices not between 0 and 1
 #' 
 #' @param confs a numeric matrix or data frame
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
@@ -204,20 +209,21 @@ c_association <- function(confs,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_nonmonotonicity(confs)
 #' @export
-c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_nonmonotonicity <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
         #symmetric
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MAS
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
-        out <- max(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
+        out <- aggr(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
         out
     }
 
 #' c-functionality
 #' calculates the c-functionality based on the maximum edge value 
-#' We define c-functionality as the maximum functionality between any two dimensions
+#' We define c-functionality as the aggregated functionality between any two dimensions
 #' 
 #' @param confs a numeric matrix or data frame with two columns
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to mean
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
@@ -232,21 +238,22 @@ c_nonmonotonicity <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_functionality(confs)
 #' @export
-c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_functionality <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
     #symmetric
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MEV
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
-        out <- mean(tmp) #the question is how to aggregate this for more than two dimensions, I now use the mean
+        out <- aggr(tmp) 
         out
     }
 
 #' c-complexity
 #' Calculates the c-complexity based on the minimum cell number
-#' We define c-complexity as the minimum minimum cell number between any two dimensions
+#' We define c-complexity as the aggregated minimum cell number between any two dimensions
 #' This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity
 #' 
 #' @param confs a numeric matrix or data frame
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to min.
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
@@ -261,12 +268,12 @@ c_functionality <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_complexity(confs)
 #' @export
-c_complexity <- function(confs,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_complexity <- function(confs,aggr=min,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
     #symmetric
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MCN
         tmp <- tmp[lower.tri(tmp)]
-        out <- min(tmp)
+        out <- aggr(tmp)
         out
     }
 
@@ -402,6 +409,7 @@ c_hierarchy <- function(confs,p=2,agglmethod="complete")
 #' Measures the c-outlying structure 
 #' 
 #' @param conf A numeric matrix.
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -409,10 +417,10 @@ c_hierarchy <- function(confs,p=2,agglmethod="complete")
 #' conf3<-smacof::smacofSym(delts,ndim=3)$conf
 #' c_outlying(conf3)
 #' @export
-c_outlying<- function(conf){
+c_outlying<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Outlying"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Outlying",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Outlying",])
     return(out)
 }
 
@@ -421,6 +429,7 @@ c_outlying<- function(conf){
 #' Measures the c-convexity structure 
 #' 
 #' @param conf A numeric matrix.
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -429,10 +438,10 @@ c_outlying<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_convexity(conf)
 #' @export
-c_convexity<- function(conf){
+c_convexity<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Convex"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Convex",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Convex",])
     return(out)
 }
 
@@ -441,6 +450,8 @@ c_convexity<- function(conf){
 #' Measures the c-skinniness structure 
 #' 
 #' @param conf A numeric matrix.
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
+#' 
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -449,10 +460,10 @@ c_convexity<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_skinniness(conf)
 #' @export
-c_skinniness<- function(conf){
+c_skinniness<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Skinny"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Skinny",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Skinny",])
     return(out)
 }
 
@@ -461,6 +472,8 @@ c_skinniness<- function(conf){
 #' Measures the c-stringiness structure 
 #' 
 #' @param conf A numeric matrix.
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
+#' 
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -469,10 +482,10 @@ c_skinniness<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_stringiness(conf)
 #' @export
-c_stringiness<- function(conf){
+c_stringiness<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Stringy"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Stringy",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Stringy",])
     return(out)
 }
 
@@ -481,6 +494,7 @@ c_stringiness<- function(conf){
 #' Measures the c-sparsity structure 
 #' 
 #' @param conf A numeric matrix.
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -489,10 +503,10 @@ c_stringiness<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_sparsity(conf)
 #' @export
-c_sparsity<- function(conf){
+c_sparsity<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Sparse"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Sparse",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Sparse",])
     return(out)
 }
 
@@ -501,7 +515,7 @@ c_sparsity<- function(conf){
 #' Measures the c-outlying structure 
 #' 
 #' @param conf A numeric matrix.
-#' 
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -510,10 +524,10 @@ c_sparsity<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_clumpiness(conf)
 #' @export
-c_clumpiness<- function(conf){
+c_clumpiness<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Clumpy"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Clumpy",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Clumpy",])
     return(out)
 }
 
@@ -523,7 +537,7 @@ c_clumpiness<- function(conf){
 #' Measures the c-striatedness structure 
 #' 
 #' @param conf A numeric matrix.
-#'
+#' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -532,10 +546,10 @@ c_clumpiness<- function(conf){
 #' plot(conf,pch=19,asp=1)
 #' c_striatedness(conf)
 #' @export
-c_striatedness<- function(conf){
+c_striatedness<- function(conf,aggr=max){
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Striated"])
-    if(dim(conf)[2]>2) out <- max(scagnostics::scagnostics(conf)["Striated",])
+    if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Striated",])
     return(out)
 }
 

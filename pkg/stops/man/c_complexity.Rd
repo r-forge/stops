@@ -4,14 +4,16 @@
 \alias{c_complexity}
 \title{c-complexity
 Calculates the c-complexity based on the minimum cell number
-We define c-complexity as the minimum minimum cell number between any two dimensions
+We define c-complexity as the aggregated minimum cell number between any two dimensions
 This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity}
 \usage{
-c_complexity(confs, alpha = 1, C = 15, var.thr = 1e-05,
+c_complexity(confs, aggr = min, alpha = 1, C = 15, var.thr = 1e-05,
   zeta = NULL)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to min.}
 
 \item{alpha}{an optional number of cells allowed in the X-by-Y search-grid. Default value is 1}
 
@@ -24,7 +26,7 @@ c_complexity(confs, alpha = 1, C = 15, var.thr = 1e-05,
 \description{
 c-complexity
 Calculates the c-complexity based on the minimum cell number
-We define c-complexity as the minimum minimum cell number between any two dimensions
+We define c-complexity as the aggregated minimum cell number between any two dimensions
 This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity
 }
 \examples{

@@ -4,10 +4,12 @@
 \alias{c_striatedness}
 \title{c-striatedness}
 \usage{
-c_striatedness(conf)
+c_striatedness(conf, aggr = max)
 }
 \arguments{
 \item{conf}{A numeric matrix.}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \description{
 Measures the c-striatedness structure

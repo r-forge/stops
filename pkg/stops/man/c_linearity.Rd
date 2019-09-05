@@ -3,16 +3,18 @@
 \name{c_linearity}
 \alias{c_linearity}
 \title{c-linearity
-calculates c-linearity as the maximum multiple correlation}
+calculates c-linearity as the aggregated multiple correlations}
 \usage{
-c_linearity(confs)
+c_linearity(confs, aggr = max)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \description{
 c-linearity
-calculates c-linearity as the maximum multiple correlation
+calculates c-linearity as the aggregated multiple correlations
 }
 \examples{
 x<-1:10

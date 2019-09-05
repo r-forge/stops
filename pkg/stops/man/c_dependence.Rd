@@ -3,18 +3,20 @@
 \name{c_dependence}
 \alias{c_dependence}
 \title{c-dependence
-calculates c-dependence as the distance correlation}
+calculates c-dependence as the aggregated distance correlation}
 \usage{
-c_dependence(confs, index = 1)
+c_dependence(confs, aggr = max, index = 1)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame with two columns}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 
 \item{index}{exponent on Euclidean distance, in (0,2]}
 }
 \description{
 c-dependence
-calculates c-dependence as the distance correlation
+calculates c-dependence as the aggregated distance correlation
 }
 \examples{
 x<-1:10

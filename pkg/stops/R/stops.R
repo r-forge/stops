@@ -5,7 +5,7 @@
     
 #'  Calculate the weighted multiobjective loss function used in STOPS
 #'
-#' @param obj object returned from a stop_* function 
+#' @param obj object returned inside a stops function 
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which c-structuredness indices to be included in the loss
 #' @param strucweight the weights of the structuredness indices; defaults to -1/#number of structures
@@ -176,7 +176,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions
@@ -298,7 +298,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$obsdiss <- fit$dhat
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
@@ -358,7 +358,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
   fit$obsdiss <- fit$dhat 
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
@@ -425,7 +425,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
   #fit$stress.n <- fit$stress.r/sum(dis^lambda)
   fit$stress.m <- fit$stress #or stress.r
   fit$conf <- fit$points
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   list(stress=fit$stress, stress.m=fit$stress.m, stress.r=fit$stress.r,stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,  fit=fit,stopobj=stopobj) #target functions
 }
@@ -490,7 +490,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   fit$obsdiss <- fit$dhat
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
@@ -546,7 +546,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
   fit$stress.n <- fit$stress.r/sum(dis^(2*lambda))
   fit$stress.m <- sqrt(fit$stress.n)
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$conf <- fit$points
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
@@ -605,7 +605,7 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
   fit$stress.r <- sum((disi-fitdis)^2)
   fit$stress.n <- fit$stress.r/sum(disi^2)
   fit$stress.m <- sqrt(fit$stress.n)
-  fit$pars <- fit$k
+  fit$pars <- c(k=fit$k)
   fit$conf <- fit$points
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
@@ -663,7 +663,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=
   fit$stress.r <- sum((disi-fitdis)^2)
   fit$stress.n <- fit$stress.r/sum(disi^2)
   fit$stress.m <- sqrt(fit$stress.n)
-  fit$pars <- fit$eps
+  fit$pars <- c(eps=fit$eps)
   fit$conf <- fit$points
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
@@ -712,7 +712,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
   fit$kappa <- theta[1]
   fit$lambda <- 1
   fit$nu <- 1
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out
@@ -761,7 +761,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
   fit$kappa <- 2
   fit$lambda <- flambda
   fit$nu <- 1
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out
@@ -807,6 +807,7 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- 1
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -855,7 +856,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kapp=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -904,7 +905,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -951,7 +952,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
-  fit$pars <- c(fit$kappa,fit$lambda,fit$nu)
+  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -997,7 +998,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,...
   fit$mu <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
-  fit$pars <- c(fit$mu,fit$lambda,fit$nu)
+  fit$pars <- c(mu=fit$mu,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -1041,7 +1042,7 @@ stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,...,str
   fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,...)
   fit$k <- theta[1]
   fit$tau <- theta[2]
-  fit$pars <- c(fit$k,fit$tau)
+  fit$pars <- c(k=fit$k,tau=fit$tau)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -1215,7 +1216,7 @@ print.stops <- function(x,...)
     cat("\nCall: ")
     print(x$call)
     cat("\n")
-    cat("Model:",x$type,"STOPS with", x$loss,"loss function and theta parameters=",x$parameters,"\n")
+    cat("Model:",x$type,"STOPS with", x$loss,"loss function and theta parameter vector",paste("(",paste(attr(x$parameters,"names"),collapse=" "),")",sep="")," = ",x$parameters,"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
     cat("MDS loss value:", x$stress.m, "\n")

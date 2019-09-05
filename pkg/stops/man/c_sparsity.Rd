@@ -4,10 +4,12 @@
 \alias{c_sparsity}
 \title{c-sparsity}
 \usage{
-c_sparsity(conf)
+c_sparsity(conf, aggr = max)
 }
 \arguments{
 \item{conf}{A numeric matrix.}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \description{
 Measures the c-sparsity structure

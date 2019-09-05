@@ -4,10 +4,12 @@
 \alias{c_skinniness}
 \title{c-skinniness}
 \usage{
-c_skinniness(conf)
+c_skinniness(conf, aggr = max)
 }
 \arguments{
 \item{conf}{A numeric matrix.}
+
+\item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \description{
 Measures the c-skinniness structure
