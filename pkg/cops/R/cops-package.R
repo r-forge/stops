@@ -43,6 +43,7 @@
 #' library(cordillera)
 #' data(BankingCrisesDistances)
 #'
+#' \donttest{
 #' #shorthand function for COPS-C (finding configuration with copstress)
 #' res<-cops(BankingCrisesDistances[,1:69],variant="COPS-C",stressweight=0.98,cordweight=0.02)
 #' res
@@ -60,7 +61,7 @@
 #' plot(res,"reachplot")
 #' plot(res,"transplot")
 #' plot(res,"Shepard")
-#'
+#'}
 #'
 #' @docType package
 #' @name cops

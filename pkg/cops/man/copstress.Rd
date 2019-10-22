@@ -15,7 +15,7 @@ copstress(obj, stressweight = 1, cordweight = 5, q = 1, minpts = 2,
 
 \item{cordweight}{weight to be used for the cordillera; defaults to 0.5}
 
-\item{q}{the norm of the corrdillera; defaults to 1}
+\item{q}{the norm of the cordillera; defaults to 1}
 
 \item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to 2}
 

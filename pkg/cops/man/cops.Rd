@@ -66,6 +66,7 @@ Maintainer: Thomas Rusch
 library(cordillera)
 data(BankingCrisesDistances)
 
+\donttest{
 #shorthand function for COPS-C (finding configuration with copstress)
 res<-cops(BankingCrisesDistances[,1:69],variant="COPS-C",stressweight=0.98,cordweight=0.02)
 res
@@ -82,33 +83,20 @@ plot(res)
 plot(res,"reachplot")
 plot(res,"transplot")
 plot(res,"Shepard")
+}
 
-
-\donttest{
 dis<-as.matrix(smacof::kinshipdelta)
 
 #COPS-C with equal weight to stress and cordillera 
-res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,minpts=2) 
+res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,
+minpts=2,itmax=1000) #use higher itmax in real
 res1
 summary(res1)
 plot(res1)
-
-#ratio mds (i.e. COPS-C with stressweight=1 and cordweight=0)
-res2<-cops(dis,variant="COPS-C",stressweight=1,cordweight=0,minpts=2) 
-res2
-summary(res2)
-plot(res2)
-
-#procrustes adjustment
-plot(Procrustes(res1$conf,res2$conf))
-
-par(mfrow=c(1,2))
 plot(res1,"reachplot")
-plot(res2,"reachplot") 
-par(mfrow=c(1,1))
 
 
-
+\donttest{
 #s-stress type copstress (i.e. kappa=2, lambda=2)
 res3<-cops(dis,variant="COPS-C",kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
 res3
@@ -121,7 +109,9 @@ plot(res3)
 # nu is fixed on -1
 ws<-1/dis
 diag(ws)<-1 
-res5<-cops(dis,variant="P-COPS",loss="powerstress",theta=c(1.4,3,-1),lower=c(1,0.5,-1),upper=c(3,5,-1),weightmat=ws,stressweight=0.9,cordweight=0.1) 
+res5<-cops(dis,variant="P-COPS",loss="powerstress",
+theta=c(1.4,3,-1),lower=c(1,0.5,-1),upper=c(3,5,-1),weightmat=ws,
+stressweight=0.9,cordweight=0.1) 
 res5
 summary(res5)
 plot(res5)

@@ -490,7 +490,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,verbose=3)
+#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
 #' res
 #' summary(res)
 #' plot(res)

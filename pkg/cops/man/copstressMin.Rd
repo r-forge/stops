@@ -105,7 +105,7 @@ Minimizing Copstress to obtain a clustered MDS configuration with given hyperpar
 dis<-as.matrix(smacof::kinshipdelta)
 
 #Copstress with equal weight to stress and cordillera 
-res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5) 
+res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,itmax=1000) #use higher itmax about 10000 
 res1
 summary(res1)
 plot(res1)  #super clustered

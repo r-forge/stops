@@ -38,7 +38,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
 
 \item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=c(1,1)}
 
-\item{q}{the norm of the corrdillera; defaults to 1}
+\item{q}{the norm of the cordillera; defaults to 1}
 
 \item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
 
@@ -60,7 +60,7 @@ pcops(dis, loss = c("stress", "smacofSym", "smacofSphere", "strain",
 
 \item{s}{number of particles if pso is used}
 
-\item{stresstype}{what stress to be used for comparisons between solutions}
+\item{stresstype}{what stress to be used for comparisons between solutions. Currently not implemented and pcops uses explicitly normalized stress for copstress (not stress-1). Stress-1 is reported by the print function though.}
 
 \item{acc}{termination threshold difference of two successive outer minimization steps.}
 
@@ -76,8 +76,8 @@ A list with the components
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera
         \item optim: the object returned from the optimization procedure
-        \item stress: the stress
-        \item stress.m: default normalized stress
+        \item stress: the stress (square root of stress.m)
+        \item stress.m: default normalized stress 
         \item parameters: the parameters used for fitting (kappa, lambda)
         \item fit: the returned object of the fitting procedure
         \item cordillera: the cordillera object
@@ -95,31 +95,6 @@ res1
 summary(res1)
 plot(res1)
 
-#only use cordillera for finding the parameters; 
-res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
-res2
-summary(res2)
-plot(res2)
-
-#With Procrustes adjustment to res1 
-res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
-init=res1$conf,scale="proc") 
-res3
-summary(res3)
-plot(res3)
-
-par(mfrow=c(1,3))
-plot(res1,"reachplot")
-plot(res2,"reachplot")
-plot(res3,"reachplot") 
-par(mfrow=c(1,1))
-
-
-res1<-pcops(dis,loss="powerstress",theta=c(1,1,1),lower=rep(0.1,3),upper=rep(5,3),minpts=2,verbose=3,cordweight=0.25,rang=c(0,1),weightmat=dis)
-res1a<-pcops(dis,loss="apstress",lower=0.1,upper=5,minpts=2,verbose=3,cordweight=0.25,rang=c(0,1))
-res1a
-summary(res1a)
-plot(res1a)
 
 }
 \keyword{clustering}

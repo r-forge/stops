@@ -1,7 +1,11 @@
 #' PCOPS versions of smacofSym models
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to 1). Defaults to 1 1 1 
+#' @param theta the theta vector of powers; this is either a scalar of the lambda
+#' transformation for the observed proximities, or a vector where the first is the
+#' kappa argument for the fitted distances (here internally fixed to 1) and the
+#' second the lambda argument and the third the nu argument (here internally fixed to 1).
+#' Defaults to 1 1 1 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -395,7 +399,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itma
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -451,7 +455,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -507,7 +511,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -560,7 +564,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -617,7 +621,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -674,7 +678,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness.
@@ -799,7 +803,7 @@ cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itma
 #' @param obj MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; defaults to 0.5
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to 2
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the distances (min distance minus max distance). If NULL (default) the cordillera will be normed to each configuration's maximum distance, so an absolute value of goodness-of-clusteredness. 
@@ -859,7 +863,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param init (optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param cordweight weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=c(1,1) 
-#' @param q the norm of the corrdillera; defaults to 1
+#' @param q the norm of the cordillera; defaults to 1
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}     
@@ -870,7 +874,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
 #'@param s number of particles if pso is used
-#'@param stresstype what stress to be used for comparisons between solutions
+#'@param stresstype what stress to be used for comparisons between solutions. Currently not implemented and pcops uses explicitly normalized stress for copstress (not stress-1). Stress-1 is reported by the print function though.   
 #'@param itmaxo iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.  
 #'@param itmaxi iterations of the inner step (optimization of the MDS). Defaults to 10000 (whichis huge).
 #'@param acc termination threshold difference of two successive outer minimization steps.
@@ -881,8 +885,8 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera
 #'         \item optim: the object returned from the optimization procedure
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
+#'         \item stress: the stress (square root of stress.m)
+#'         \item stress.m: default normalized stress 
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
@@ -897,31 +901,6 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' summary(res1)
 #' plot(res1)
 #' 
-#' #only use cordillera for finding the parameters; 
-#' res2<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2) 
-#' res2
-#' summary(res2)
-#' plot(res2)
-#'
-#' #With Procrustes adjustment to res1 
-#' res3<-pcops(dis,loss="strain",stressweight=0,lower=0.1,upper=5,minpts=2,
-#' init=res1$conf,scale="proc") 
-#' res3
-#' summary(res3)
-#' plot(res3)
-#' 
-#' par(mfrow=c(1,3))
-#' plot(res1,"reachplot")
-#' plot(res2,"reachplot")
-#' plot(res3,"reachplot") 
-#' par(mfrow=c(1,1))
-#'
-#'
-#'res1<-pcops(dis,loss="powerstress",theta=c(1,1,1),lower=rep(0.1,3),upper=rep(5,3),minpts=2,verbose=3,cordweight=0.25,rang=c(0,1),weightmat=dis)
-#'res1a<-pcops(dis,loss="apstress",lower=0.1,upper=5,minpts=2,verbose=3,cordweight=0.25,rang=c(0,1))
-#'res1a
-#'summary(res1a)
-#'plot(res1a)
 #' 
 #'@importFrom stats dist as.dist optim sd
 #'@importFrom pso psoptim
@@ -1134,7 +1113,7 @@ print.pcops <- function(x,...)
     cat("Model: P-COPS with", x$loss,"loss function and theta parameter vector =",x$parameters,"\n")
     cat("\n")
     cat("Number of objects:", x$nobj, "\n")
-    cat("MDS loss value:", x$stress.m, "\n")
+    cat("MDS loss value:", x$stress, "\n")
     cat("OPTICS Cordillera: Raw", x$OC$raw,"Normed", x$OC$normed,"\n")
     cat("Cluster optimized loss (copstress): ", x$copstress, "\n")
     cat("MDS loss weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
@@ -1288,7 +1267,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#Copstress with equal weight to stress and cordillera 
-#'res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5) 
+#'res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,itmax=1000) #use higher itmax about 10000 
 #'res1
 #'summary(res1)
 #'plot(res1)  #super clustered
@@ -1739,31 +1718,18 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'@return For COPS-C Variant 1 see \code{\link{copstressMin}}, for P-COPS Variant 2 see \code{\link{pcops}}
 #' 
 #'@examples
-#'\donttest{
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#COPS-C with equal weight to stress and cordillera 
-#'res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,minpts=2) 
+#'res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,
+#' minpts=2,itmax=1000) #use higher itmax in real
 #'res1
 #'summary(res1)
 #'plot(res1)
-#'
-#'#ratio mds (i.e. COPS-C with stressweight=1 and cordweight=0)
-#'res2<-cops(dis,variant="COPS-C",stressweight=1,cordweight=0,minpts=2) 
-#'res2
-#'summary(res2)
-#'plot(res2)
-#' 
-#'#procrustes adjustment
-#'plot(Procrustes(res1$conf,res2$conf))
-#'
-#'par(mfrow=c(1,2))
 #'plot(res1,"reachplot")
-#'plot(res2,"reachplot") 
-#'par(mfrow=c(1,1))
-#'
 #' 
 #'
+#'\donttest{
 #'#s-stress type copstress (i.e. kappa=2, lambda=2)
 #'res3<-cops(dis,variant="COPS-C",kappa=2,lambda=2,stressweight=0.5,cordweight=0.5) 
 #'res3
@@ -1776,7 +1742,9 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'# nu is fixed on -1
 #'ws<-1/dis
 #'diag(ws)<-1 
-#'res5<-cops(dis,variant="P-COPS",loss="powerstress",theta=c(1.4,3,-1),lower=c(1,0.5,-1),upper=c(3,5,-1),weightmat=ws,stressweight=0.9,cordweight=0.1) 
+#'res5<-cops(dis,variant="P-COPS",loss="powerstress",
+#' theta=c(1.4,3,-1),lower=c(1,0.5,-1),upper=c(3,5,-1),weightmat=ws,
+#' stressweight=0.9,cordweight=0.1) 
 #'res5
 #'summary(res5)
 #'plot(res5)

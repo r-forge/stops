@@ -24,7 +24,7 @@ citEntry(entry = "TechReport",
 
 citEntry(entry = "TechReport", 
     author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 
-    url = "http://gifi.stat.ucla.edu/janspubs/2014/notes/deleeuw_U_14c.pdf", 
+    url = "http://deleeuwpdx.net/janspubs/2014/notes/deleeuw_U_14c.pdf", 
     textVersion = paste("De Leeuw, Jan (2014)", 
     "Minimizing r-stress using nested majorisation.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
     header="If powerStressMin() is used, please cite:")
