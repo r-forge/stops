@@ -1,2 +1,2 @@
 library(testthat)
-test_check("stops")
+test_check("cops")

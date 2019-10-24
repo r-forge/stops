@@ -1,6 +1,6 @@
 context("cmdscale and sammon")
 
-library(stops)
+library(cops)
 
 initsam <- sammon(dis^3)
 expect_that(initsam,is_a("sammon"))
