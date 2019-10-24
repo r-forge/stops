@@ -11,6 +11,15 @@ There was 1 NOTE:
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Thomas Rusch <thomas.rusch@wu.ac.at>'
 
+## Win-builder results
+## r-devel
+There were no ERRORs or WARNINGs.
+
+There was 1 NOTE:
+
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Thomas Rusch <thomas.rusch@wu.ac.at>'
+
 New submission
  
 Possibly mis-spelled words in DESCRIPTION:
@@ -22,7 +31,15 @@ Possibly mis-spelled words in DESCRIPTION:
   clusteredness (7:295)
   proximities (7:211)
 
-  proximities and clusteredness are flagged but I think they are false positives. All the other words are own names or abbreviations and not misspelled.
+proximities and clusteredness are flagged but I think they are false positives. All the other words are own names or abbreviations and not misspelled.
+
+## r-release
+There was an additional NOTE.
+
+* checking files in 'vignettes' ... NOTE
+Package has no Sweave vignette sources and no VignetteBuilder field.
+
+The package currently has no vignettes or vignettes/ folder.
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
