@@ -2,7 +2,7 @@
 % Please edit documentation in R/powerstress.R
 \name{mkPowerALTERN}
 \alias{mkPowerALTERN}
-\title{MakePower}
+\title{Take matrix to a power}
 \usage{
 mkPowerALTERN(x, r)
 }
@@ -11,6 +11,9 @@ mkPowerALTERN(x, r)
 
 \item{r}{numeric (power)}
 }
+\value{
+a matrix
+}
 \description{
-MakePower
+Take matrix to a power
 }

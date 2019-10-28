@@ -38,7 +38,6 @@
 #'@import smacof
 #' 
 #'@keywords multivariate
-#'@export
 cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -105,7 +104,6 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itm
 #'@import cordillera 
 #' 
 #'@keywords multivariate
-#'@export
 cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -174,7 +172,6 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=
 #'@import cordillera 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
-#'@export
 cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -240,7 +237,6 @@ cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,
 #' @keywords multivariate
 #'
 #' 
-#' @export
 cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -300,7 +296,6 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmax
 #' @import smacof
 #' @import cordillera
 #'@keywords multivariate
-#'@export
 cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -367,7 +362,6 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itma
 #' @importFrom stats dist as.dist
 #' @import cordillera
 #' @keywords multivariate
-#' @export
 cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) lambda <- theta
@@ -421,7 +415,6 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itma
 #' }
 #' @keywords multivariate
 #' @import cordillera
-#' @export
 cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -477,7 +470,6 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @import cordillera
-#' @export
 cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -533,7 +525,6 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @import cordillera
-#' @export
 cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -586,7 +577,6 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @import cordillera
 #' @keywords multivariate
-#' @export
 cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -643,7 +633,6 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' }
 #' @import cordillera
 #' @keywords multivariate
-#' @export
 cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -700,7 +689,6 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 #' }
 #' @import cordillera
 #' @keywords multivariate
-#' @export
 cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -761,7 +749,6 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #'@import smacof
 #' 
 #'@keywords multivariate
-#'@export
 cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -822,7 +809,6 @@ cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itma
 #' }
 #' @keywords multivariate
 #' @import cordillera
-#' @export
 copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=c("std","sd","proc","none"),init,...)
 {
         if(missing(scale)) scale <- "sd"
@@ -1026,7 +1012,6 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
 #' @return The scale adjusted configuration.
 #'
 #' @importFrom stats sd
-#' @export
 scale_adjust <- function(conf,ref,scale=c("sd","std","proc","none"))
 {
   #conf target, ref reference
@@ -1072,7 +1057,6 @@ print.copsc <- function(x,...)
     cat("\n")
     }
 
-
 #'@export
 summary.pcops <- function(object,...)
     {
@@ -1103,7 +1087,6 @@ print.summary.pcops <- function(x,...)
      }
     }
 
-
 #'@export
 print.pcops <- function(x,...)
     {
@@ -1121,15 +1104,15 @@ print.pcops <- function(x,...)
     cat("\n")
     }
 
-#'@export
 #'@importFrom stats coef
+#'@export 
 coef.cops <- function(object,...)
 {
   return(object$parameters)
  }
 
 
-#'S3 plot method for cops objects
+#'S3 plot method for p-cops objects
 #' 
 #'@param x an object of class cops
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","transplot", "Shepard", "stressplot" (see details)
@@ -1146,8 +1129,13 @@ coef.cops <- function(object,...)
 #' \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with loess smoothing lines 
 #' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#'} 
-#'@export 
+#'}
+#'@export
+#'@examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' resl<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2)
+#' plot(resl)
+#' plot(resl,plot.type="Shepard")
 plot.pcops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
@@ -1184,7 +1172,11 @@ plot.pcops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
 #' \item Stress decomposition plot (plot.type = "stressplot", only for SMACOF objects in $fit): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'} 
-#'@export 
+#'@export
+#'@examples
+#'dis<-as.matrix(smacof::kinshipdelta)
+#'resl<-copstressMin(dis,itmax=20)
+#'plot(resl)
 plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  

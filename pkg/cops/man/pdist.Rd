@@ -2,15 +2,18 @@
 % Please edit documentation in R/powerstress.R
 \name{pdist}
 \alias{pdist}
-\title{Squared distances}
+\title{Squared p-distances}
 \usage{
 pdist(x, p)
 }
 \arguments{
 \item{x}{numeric matrix}
 
-\item{p}{p>0 the minkoswki distance}
+\item{p}{p>0 the Minkoswki distance}
+}
+\value{
+squared Minkowski distance matrix
 }
 \description{
-Squared distances
+Squared p-distances
 }

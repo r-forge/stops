@@ -31,3 +31,8 @@ Details:
 \description{
 S3 plot method for cops objects
 }
+\examples{
+dis<-as.matrix(smacof::kinshipdelta)
+resl<-copstressMin(dis,itmax=20)
+plot(resl)
+}

@@ -9,6 +9,9 @@ sqdist(x)
 \arguments{
 \item{x}{numeric matrix}
 }
+\value{
+squared distance matrix
+}
 \description{
 Squared distances
 }

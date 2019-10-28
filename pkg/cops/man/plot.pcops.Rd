@@ -2,7 +2,7 @@
 % Please edit documentation in R/cops.R
 \name{plot.pcops}
 \alias{plot.pcops}
-\title{S3 plot method for cops objects}
+\title{S3 plot method for p-cops objects}
 \usage{
 \method{plot}{pcops}(x, plot.type = c("confplot"), main, asp = NA, ...)
 }
@@ -29,5 +29,11 @@ Details:
 }}
 }
 \description{
-S3 plot method for cops objects
+S3 plot method for p-cops objects
+}
+\examples{
+dis<-as.matrix(smacof::kinshipdelta)
+resl<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2)
+plot(resl)
+plot(resl,plot.type="Shepard")
 }

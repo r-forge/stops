@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimizations.R
 \name{ljoptim}
 \alias{ljoptim}
-\title{(Adaptive) Version of Luus-Jaakola Optimization}
+\title{(Adaptive) Version of Luus-Jakola Optimization}
 \usage{
 ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
   acc = 1e-06, accd = 1e-04, itmax = 1000, verbose = 0,
@@ -32,7 +32,7 @@ ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
 \item{adaptive}{should the adaptive version be used? defaults to TRUE.}
 }
 \value{
-A list with the components (\code{\link{optim}})
+A list with the components (see also \code{\link{optim}})
 \itemize{
      \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
      \item value The value of the objective function at the optimum (min fun)

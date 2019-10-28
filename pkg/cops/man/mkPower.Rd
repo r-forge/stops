@@ -2,7 +2,7 @@
 % Please edit documentation in R/powerstress.R
 \name{mkPower}
 \alias{mkPower}
-\title{MakePower Old}
+\title{Take matrix to a power}
 \usage{
 mkPower(x, r)
 }
@@ -11,6 +11,9 @@ mkPower(x, r)
 
 \item{r}{numeric (power)}
 }
+\value{
+a matrix
+}
 \description{
-MakePower Old
+Take matrix to a power
 }

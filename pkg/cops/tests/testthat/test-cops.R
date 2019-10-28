@@ -46,7 +46,7 @@ test_that("cops loss argument work right",{
         expect_that(test13$fit,is_a("smacofP"))
     })
 
-test_that("cops ndim argument"{
+test_that("cops ndim argument",{
         #ndim      
         test12 <- cops(dis,loss="strain",ndim=3)
         expect_that(dim(test12$fit$points)[2],equals(3))

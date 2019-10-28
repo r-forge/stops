@@ -2,7 +2,8 @@
 % Please edit documentation in R/powerstress.R
 \name{enorm}
 \alias{enorm}
-\title{Explicit Norm}
+\title{Explicit Normalization
+Normalizes distances}
 \usage{
 enorm(x, w = 1)
 }
@@ -11,6 +12,10 @@ enorm(x, w = 1)
 
 \item{w}{weight}
 }
+\value{
+a constant
+}
 \description{
-Explicit Norm
+Explicit Normalization
+Normalizes distances
 }

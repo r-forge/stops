@@ -62,3 +62,8 @@ Details:
 \description{
 S3 plot method for smacofP objects
 }
+\examples{
+dis<-as.matrix(smacof::kinshipdelta)
+res<-powerStressMin(dis)
+plot(res)
+}

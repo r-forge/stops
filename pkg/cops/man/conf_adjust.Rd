@@ -17,6 +17,9 @@ conf_adjust(conf1, conf2, verbose = FALSE, eps = 1e-12, itmax = 100)
 
 \item{itmax}{maximum number of iterations}
 }
+\value{
+a list with ref.conf being the reference configuration, other.conf the adjusted coniguration and comparison.conf the comparison configuration
+}
 \description{
 conf_adjust: a function to procrustes adjust two matrices
 }

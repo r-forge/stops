@@ -7,7 +7,10 @@
 procruster(x)
 }
 \arguments{
-\item{x}{mumeric matrix}
+\item{x}{numeric matrix}
+}
+\value{
+a matrix
 }
 \description{
 procruster: a procrustes function

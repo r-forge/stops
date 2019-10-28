@@ -5,11 +5,14 @@
 #' @param eig indicates whether eigenvalues should be returned.
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'
+#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'.
 #'
 #' @importFrom stats cmdscale as.dist dist
 #' 
 #' @export
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' res<-cmdscale(dis)
 cmdscale <- function(d,k=2,eig=TRUE,...)
     {
      out <- stats::cmdscale(d,k=k,eig=eig,...)
@@ -34,6 +37,9 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' @importFrom stats as.dist dist 
 #' 
 #' @export
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' res<-sammon(dis)
 sammon <- function(d,y=NULL,k=2,...)
     {
      if(is.null(y)) y <- cops::cmdscale(d,k,eig=TRUE)$points
@@ -71,6 +77,7 @@ print.cmdscale <- function(x,...)
     cat("GOF:", x$GOF, "\n")
     cat("\n")
     }
+
 #'@export
 summary.cmdscale <- function(object,...)
     {
@@ -199,7 +206,7 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
 #' @param sphere.rgl If 'TRUE', rgl sphere (background) is plotted.
 #' @param ... Further plot arguments passed: see 'plot3d' in package 'rgl' for detailed information.
 #'
-#' @import rgl 
+#' @import rgl
 #' @export
 plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
 {
@@ -282,7 +289,6 @@ plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ..
 plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
 {
     ndim <- dim(x$points)[2]
-    options(locatorBell = FALSE)
     if (ndim < 3) 
         stop("No 3D plots can be drawn for ndim < 3 !")
     if (length(plot.dim) != 3) 
@@ -310,11 +316,11 @@ plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, z
     pr <- scatterplot3d::scatterplot3d(x1, y1, z1, type = "n", main = main1, xlab = xlab, ylab = ylab, zlab = zlab, ...)
     text(pr$xyz.convert(x1, y1, z1), labels = rownames(x$points), col = col1)
 }
+
 #'procruster: a procrustes function 
 #'
-#'@param x mumeric matrix
-#'
-#'@export
+#'@param x numeric matrix
+#'@return a matrix
 procruster <- function (x) 
 {
     sx <- svd(x)
@@ -328,7 +334,7 @@ procruster <- function (x)
 #'@param verbose should adjustment be output; default to FALSE
 #'@param eps numerical accuracy
 #'@param itmax maximum number of iterations
-#' 
+#'@return a list with ref.conf being the reference configuration, other.conf the adjusted coniguration and comparison.conf the comparison configuration
 #'@export
 conf_adjust<- function(conf1,conf2,verbose = FALSE,eps = 1e-12, itmax = 100)
  {

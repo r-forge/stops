@@ -1,4 +1,4 @@
-#' (Adaptive) Version of Luus-Jaakola Optimization
+#' (Adaptive) Version of Luus-Jakola Optimization
 #'
 #' Adaptive means that the search space reduction factors in the number of iterations; makes convergence faster at about 100 iterations 
 #' 
@@ -14,7 +14,7 @@
 #' @param itmax maximum number of iterations
 #' @param adaptive should the adaptive version be used? defaults to TRUE.
 #' 
-#' @return A list with the components (\code{\link{optim}})
+#' @return A list with the components (see also \code{\link{optim}})
 #' \itemize{
 #'      \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
 #'      \item value The value of the objective function at the optimum (min fun)
@@ -24,7 +24,6 @@
 #' }
 #'
 #' @importFrom stats runif
-#' 
 #' @examples
 #' fbana <- function(x) {
 #' x1 <- x[1]

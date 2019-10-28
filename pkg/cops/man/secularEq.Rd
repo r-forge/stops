@@ -11,6 +11,9 @@ secularEq(a, b)
 
 \item{b}{matrix}
 }
+\value{
+a matrix
+}
 \description{
 Secular Equation
 }

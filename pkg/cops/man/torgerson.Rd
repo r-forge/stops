@@ -11,6 +11,13 @@ torgerson(delta, p = 2)
 
 \item{p}{target space dimensions}
 }
+\value{
+a n x p matrix (the configuration)
+}
 \description{
 Torgerson scaling
+}
+\examples{
+dis<-as.matrix(smacof::kinshipdelta)
+res<-torgerson(dis)
 }

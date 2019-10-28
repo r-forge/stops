@@ -1,6 +1,7 @@
-#' double centering 
+#' Double centering of a matrix
 #'
 #' @param x numeric matrix
+#' @return the double centered matrix
 doubleCenter <- function(x) {
         n <- dim(x)[1]
         m <- dim(x)[2]
@@ -14,18 +15,22 @@ doubleCenter <- function(x) {
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
+#' @return a n x p matrix (the configuration)
 #' @export
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' res<-torgerson(dis)
 torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
     v <- pmax(z$values,0)
     return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
 }
 
-#' Explicit Norm
-#'
+#' Explicit Normalization
+#' Normalizes distances
 #' @param x numeric matrix 
 #' @param w weight
-#' @export
+#' @return a constant 
 enorm <- function (x, w=1) {
     return (sqrt (sum (w * (x ^ 2))))
 }
@@ -33,18 +38,18 @@ enorm <- function (x, w=1) {
 #' Squared distances
 #'
 #' @param x numeric matrix
-#' @export
+#' @return squared distance matrix
 sqdist <- function (x) {
     s <- tcrossprod (x)
     v <- diag (s)
     return (outer (v, v, "+") - 2 * s)
 }
 
-#' Squared distances
+#' Squared p-distances
 #'
 #' @param x numeric matrix
-#' @param p p>0 the minkoswki distance 
-#' @export
+#' @param p p>0 the Minkoswki distance
+#' @return squared Minkowski distance matrix
 pdist <- function (x,p) {
     s <- tcrossprod (x)
     v <- diag (s)
@@ -52,8 +57,9 @@ pdist <- function (x,p) {
 }
 
 #' Auxfunction1
-#'
+#' only used internally
 #' @param x matrix
+#' @return a matrix 
 mkBmat <- function (x) {
     d <- rowSums (x)
     x <- -x
@@ -61,12 +67,11 @@ mkBmat <- function (x) {
     return (x)
 }
 
-#' MakePower
+#' Take matrix to a power 
 #'
 #' @param x matrix
 #' @param r numeric (power)
-#'
-#' @export
+#' @return a matrix
 mkPowerALTERN<-function(x,r) {
     n<-nrow(x)
     tmp <- abs((x+diag(n))^r)-diag(n)
@@ -74,12 +79,11 @@ mkPowerALTERN<-function(x,r) {
     return(tmp)
 }
 
-#' MakePower Old
+#' Take matrix to a power 
 #'
 #' @param x matrix
 #' @param r numeric (power)
-#'
-#' @export
+#' @return a matrix
 mkPower<-function(x,r) {
     n<-nrow(x)
     tmp <- abs((x+diag(n))^r)-diag(n)
@@ -93,6 +97,7 @@ mkPower<-function(x,r) {
 #' @param b matrix
 #'
 #' @importFrom stats uniroot
+#' @return a matrix
 secularEq<-function(a,b) {
     n<-dim(a)[1]
     eig<-eigen(a)
@@ -145,7 +150,11 @@ secularEq<-function(a,b) {
 #' @importFrom graphics plot text identify legend
 #' @importFrom stats loess lm predict 
 #' 
-#' @export 
+#' @export
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' res<-powerStressMin(dis)
+#' plot(res)
 plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
 {
     x1 <- plot.dim[1]
@@ -306,7 +315,6 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         text(xylabels, rownames(x$conf), pos = 1, cex = 0.7)
     }
  }
-
 
 #'@export
 summary.smacofP <- function(object,...)
