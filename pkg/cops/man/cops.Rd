@@ -3,12 +3,15 @@
 \docType{package}
 \name{cops}
 \alias{cops}
-\alias{cops-package}
 \title{cops: cluster optimized proximity scaling}
 \usage{
-cops(dis, variant = c("1", "2", "Variant1", "Variant2", "v1", "v2",
-  "COPS-C", "P-COPS", "configuration-c", "profile", "copstress-c",
-  "p-copstress", "COPS-P", "copstress-p", "cops-c", "p-cops"), ...)
+cops(
+  dis,
+  variant = c("1", "2", "Variant1", "Variant2", "v1", "v2", "COPS-C", "P-COPS",
+    "configuration-c", "profile", "copstress-c", "p-copstress", "COPS-P", "copstress-p",
+    "cops-c", "p-cops"),
+  ...
+)
 }
 \arguments{
 \item{dis}{a dissimilarity matrix or a dist object}
@@ -50,7 +53,7 @@ Wrappers and convenience functions:
 }
 
 Methods: 
-For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.
+For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.   
 
 References:
 \itemize{

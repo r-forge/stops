@@ -4,9 +4,19 @@
 \alias{ljoptim}
 \title{(Adaptive) Version of Luus-Jakola Optimization}
 \usage{
-ljoptim(x, fun, ..., red = ifelse(adaptive, 0.99, 0.95), lower, upper,
-  acc = 1e-06, accd = 1e-04, itmax = 1000, verbose = 0,
-  adaptive = TRUE)
+ljoptim(
+  x,
+  fun,
+  ...,
+  red = ifelse(adaptive, 0.99, 0.95),
+  lower,
+  upper,
+  acc = 1e-06,
+  accd = 1e-04,
+  itmax = 1000,
+  verbose = 0,
+  adaptive = TRUE
+)
 }
 \arguments{
 \item{x}{optional starting values}

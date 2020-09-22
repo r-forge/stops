@@ -24,7 +24,7 @@
 #' plot(res)
 #' 
 #' @export
-bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itmax=5000,addD0=1e-4)
+bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itmax=2000,addD0=1e-4)
 {
   Do <- delta 
   d <- ndim

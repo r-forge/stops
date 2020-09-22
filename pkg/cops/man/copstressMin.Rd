@@ -4,17 +4,35 @@
 \alias{copstressMin}
 \title{Fitting a COPS-C Model (COPS Variant 1).}
 \usage{
-copstressMin(delta, kappa = 1, lambda = 1, nu = 1, theta = c(kappa,
-  lambda, nu), type = c("ratio", "interval", "ordinal"),
-  ties = "primary", weightmat = 1 - diag(nrow(delta)), ndim = 2,
-  init = NULL, stressweight = 0.975, cordweight = 0.025, q = 1,
-  minpts = ndim + 1, epsilon = 10, dmax = NULL, rang,
-  optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl",
-  "solnp", "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS", "BFGS-hjk",
-  "Newuoa-hjk", "cmaes", "direct", "direct-Newuoa", "direct-BFGS",
-  "genoud", "gensa"), verbose = 0, scale = c("sd", "rmsq", "std",
-  "proc", "none"), normed = TRUE, accuracy = 1e-07, itmax = 5000,
-  stresstype = c("stress-1", "stress"), ...)
+copstressMin(
+  delta,
+  kappa = 1,
+  lambda = 1,
+  nu = 1,
+  theta = c(kappa, lambda, nu),
+  type = c("ratio", "interval", "ordinal"),
+  ties = "primary",
+  weightmat = 1 - diag(nrow(delta)),
+  ndim = 2,
+  init = NULL,
+  stressweight = 0.975,
+  cordweight = 0.025,
+  q = 1,
+  minpts = ndim + 1,
+  epsilon = 10,
+  dmax = NULL,
+  rang,
+  optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl", "solnp",
+    "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS", "BFGS-hjk", "Newuoa-hjk", "cmaes",
+    "direct", "direct-Newuoa", "direct-BFGS", "genoud", "gensa"),
+  verbose = 0,
+  scale = c("sd", "rmsq", "std", "proc", "none"),
+  normed = TRUE,
+  accuracy = 1e-07,
+  itmax = 5000,
+  stresstype = c("stress-1", "stress"),
+  ...
+)
 }
 \arguments{
 \item{delta}{numeric matrix or dist object of a matrix of proximities}

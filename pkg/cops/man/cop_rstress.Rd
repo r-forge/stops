@@ -4,12 +4,26 @@
 \alias{cop_rstress}
 \title{PCOPS version of rstress}
 \usage{
-cop_rstress(dis, theta = c(1, 1, 1), weightmat = 1 - diag(nrow(dis)),
-  init = NULL, ndim = 2, itmaxi = 10000, ..., stressweight = 1,
-  cordweight = 0.5, q = 1, minpts = ndim + 1, epsilon = 10,
-  rang = NULL, verbose = 0, scale = 3, normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress",
-  "enormstress", "enormstress1"))
+cop_rstress(
+  dis,
+  theta = c(1, 1, 1),
+  weightmat = 1 - diag(nrow(dis)),
+  init = NULL,
+  ndim = 2,
+  itmaxi = 10000,
+  ...,
+  stressweight = 1,
+  cordweight = 0.5,
+  q = 1,
+  minpts = ndim + 1,
+  epsilon = 10,
+  rang = NULL,
+  verbose = 0,
+  scale = 3,
+  normed = TRUE,
+  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
+    "enormstress1")
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

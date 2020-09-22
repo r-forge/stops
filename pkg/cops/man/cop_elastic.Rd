@@ -4,11 +4,25 @@
 \alias{cop_elastic}
 \title{PCOPS versions of elastic scaling models (via smacofSym)}
 \usage{
-cop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = 1,
-  init = NULL, itmaxi = 1000, ..., stressweight = 1,
-  cordweight = 0.5, q = 1, minpts = ndim + 1, epsilon = 10,
-  rang = NULL, verbose = 0, normed = TRUE, scale = 3,
-  stresstype = "default")
+cop_elastic(
+  dis,
+  theta = c(1, 1, -2),
+  ndim = 2,
+  weightmat = 1,
+  init = NULL,
+  itmaxi = 1000,
+  ...,
+  stressweight = 1,
+  cordweight = 0.5,
+  q = 1,
+  minpts = ndim + 1,
+  epsilon = 10,
+  rang = NULL,
+  verbose = 0,
+  normed = TRUE,
+  scale = 3,
+  stresstype = "default"
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

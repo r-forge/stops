@@ -4,9 +4,20 @@
 \alias{copstress}
 \title{Calculates copstress for given MDS object}
 \usage{
-copstress(obj, stressweight = 1, cordweight = 5, q = 1, minpts = 2,
-  epsilon = 10, rang = NULL, verbose = 0, normed = TRUE,
-  scale = c("std", "sd", "proc", "none"), init, ...)
+copstress(
+  obj,
+  stressweight = 1,
+  cordweight = 5,
+  q = 1,
+  minpts = 2,
+  epsilon = 10,
+  rang = NULL,
+  verbose = 0,
+  normed = TRUE,
+  scale = c("std", "sd", "proc", "none"),
+  init,
+  ...
+)
 }
 \arguments{
 \item{obj}{MDS object (supported are sammon, cmdscale, smacof, rstress, powermds)}

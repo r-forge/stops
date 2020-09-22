@@ -1,5 +1,8 @@
 #TODO:  Standardize the plots
 
+Version 1.1-0:
+  - Added rpowerstress, a powerstress model that restricts the transformations for dissimilarities and distances to be equal. Changed a (extra and not used) slot name of the p-cops models from $cordillera to $copsobj. Updated docs.   
+
 Version 1.0-0:
   - Updated docs, examples and description to pass CRAN checks. This is the first release.  
 
