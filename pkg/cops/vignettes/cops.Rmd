@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-In this document we give a high-level, relatively non technical introduction to the functionality available in the `cops` package for fitting multidimensional scaling (MDS; Borg & Groenen 2005) models that have an emphasis on providing a clustered configuration. We start with a short introduction to COPS and the models that we have available. We then explain fitting of these models with the `cops` package and show how to fit those. For illustration we use the `smacof::kinshipdelta` data set (Rosenberg, S. & Kim, M. P., 1975) which lists percentages of how often 15 kinship terms were not grouped together by college students. 
+In this document we give a high-level, relatively non-technical introduction to the functionality available in the `cops` package for fitting multidimensional scaling (MDS; Borg & Groenen 2005) models that have an emphasis on providing a clustered configuration. We start with a short introduction to COPS and the models that we have available. We then explain fitting of these models with the `cops` package and show how to fit those. For illustration we use the `smacof::kinshipdelta` data set (Rosenberg, S. & Kim, M. P., 1975) which lists percentages of how often 15 kinship terms were not grouped together by college students. 
 
 ```{r}
 library(cops)
@@ -222,7 +222,7 @@ Here we combine a normalized stress function $\sigma'_{\text{stress}}(X|\bm\thet
 \end{equation}
 with scalarization weights $v_1,v_2 \in \mathbb{R}_+$, which is minimized over all possible $X$.
 
-In COPS-C the parameters $\bm\theta, v_1, v_2$ and $\gamma$ are all treated as given. We recommend to use the convex combination $v_2=1-v_1$ with $0 \leq v_1 \leq 1$. For a given $\bm\theta$ if $v_2=0$ the result of (\ref{eq:spstressv1}) is the same as solving the respective stress problem, minimizing copstress in this variant jitters the configuration towards a more clustered arrangement, the strength of which is governed by the values of $v_1, v_2$. 
+In COPS-C the parameters $\bm\theta, v_1, v_2$ and $\gamma$ are all treated as given. Minimizing copstress in this variant jitters the configuration towards a more clustered arrangement, the strength of which is governed by the values of $v_1, v_2$. We recommend to use the convex combination $v_2=1-v_1$ with $0 \leq v_1 \leq 1$. For a given $\bm\theta$, if $v_2=0$ the result of (\ref{eq:spstressv1}) is the same as solving the respective stress problem. 
 
 If the $\sigma'_{\text{stress}}(X|\bm\theta)$ allows for different transformation of dissimilarities and distances (e.g., powerstress), we expect researchers and practictioners to start from identic transformations. If need arises, e.g., to avoid a problem of near-indifferentiation, one can exploit the flexibility of employing different transformations. For that case we point out that the configuration may then represent a relation that is somewhat further apart of the main aim in MDS of faithfully reproducing the dissimilarities by distances in a comparable space but may allow some desired aspects to be revealed in a graphical representation.
 
@@ -235,6 +235,15 @@ COPS-C can be fit with the function `copstressMin`. The mandatory arguments is `
 cc.res1<-copstressMin(kinshipdelta)
 cc.res1
 ```
+
+A number of plots are available.
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(cc.res1,"confplot")
+plot(cc.res1,"Shepard")
+plot(cc.res1,"transplot")
+plot(cc.res1,"reachplot")
+````
 
 The print function outputs information about the COPS-C model. In this case we fitted a ratio COPS-C that uses the standard MDS stress (all transformation parameters 1). There were 15 objects and the square root of stress of the configuration is 0.268 (compared to 0.267 for standard MDS, see above). The normed OPTICS cordillera value is 0.245, compared to 0.13 for standard MDS (with 0 being no clusteredness and 1 perfect clusteredness, see below). We also get information on $v_1$ and $V_2$ which were 0.975 and 0.025 respectively (the default values). The copstress value is 0.255, but we stress that this isn't particulalry important for interpretation.
 
@@ -342,55 +351,47 @@ COPS-C is a very difficult optimization problem and we resort to heuristics to s
 
 
 ### P-COPS
+The second variant of COPS uses the copstress to select the transformation parameters, so that when fitted as powerstress or any of the other badness-of-fit functions, the corresponding configuration has higher clusteredness than a standard MDS (there's also a chance that the standard MDS will be selected). This can be thought of as a profile method as we use the copstress not for direct minimzation of the objective but as criterion for parameter selection and the minimization to obtain the configuration happens only with the unpenalized badness-of-fit function. 
 
-
-A special STOPS model is COPS (Rusch et al. 2015a) for "Cluster Optimized Proximity Scaling". This is also one of the main use cases for STOPS models. Let us write $X(\theta)=\arg\min_X \sigma_{MDS}(X,\theta)$ for the optimal configuration for given transformation parameter $\theta$. Following the outline of STOPS the overall objective function, which we call \emph{cluster optimized loss (coploss)}, is a weighted combination of the $\theta-$parametrized loss function, $\sigma_{MDS}\left(X(\theta),\theta\right)$, and a c-clusteredness measure, the OPTICS cordillera or $OC(X(\theta);\epsilon,k,q)$ to be optimized as a function of $\theta$ or
+Let us write $X(\theta)=\arg\min_X \sigma_{MDS}(X,\theta)$ for the optimal configuration for given transformation parameter vector $\theta$. The objective function for parameter selection is again \emph{cluster optimized stress (copstress)}, and is again the weighted combination of the $\theta-$parametrized loss function, $\sigma_{MDS}\left(X(\theta),\theta\right)$, and the c-clusteredness measure, the OPTICS cordillera or $OC(X(\theta);\epsilon,k,q)$ but this time to be optimized as a function of $\theta$ or
 \begin{equation}
 \label{eq:spstress}
 \text{coploss}(\theta) = v_1 \cdot \sigma_{MDS}\left(X(\theta),\theta \right) - v_2 \cdot \text{OC}\left(X(\theta);\epsilon,k,q\right) 
 \end{equation}
-with $v_1,v_2 \in \mathbb{R}$ controlling how much weight should be given to the scaling fit measure and the c-clusteredness. In general $v_2,v_2$ are either \emph{a priori} determined values that make sense for the application or may be used to trade-off fit and c-clusteredness in a way for them to be commensurable. In the latter case we suggest taking the fit function value as it is ($v_1=1$) and fixing the scale such that $\text{coploss}=0$ for the scaling result with no transformations ($\theta=\theta_0$), i.e.,
+with $v_1,v_2 \in \mathbb{R}$ controlling how much weight should be given to the badness-of-fit measure and c-clusteredness. In general $v_1,v_2$ are either \emph{a priori} determined values that make sense for the application or may be used to trade-off fit and c-clusteredness in a way for them to be commensurable. In the latter case we suggest taking the fit function value as it is ($v_1=1$) and fixing the scale such that $\text{copstress}=0$ for the scaling result with the identity transformation ($\theta=\theta_0$), i.e.,
 \begin{equation}
 \label{eq:spconstant0}
 v^{0}_{1}=1, \quad v^{0}_2=\frac{\sigma_{MDS}\left(X(\theta_0),\theta_0\right)}{\text{OC}\left(X(\theta_0);\epsilon,k,q\right)},
 \end{equation}
-with $\theta_0=(1,1)^\top$ in case of loss functions with power transformations. Thus an increase of 1 in the MDS loss measure can be compensated by an increase of $v^0_1/v^0_2$ in c-clusteredness. Selecting $v_1=1,v_2=v^{0}_2$ this way is in line with the idea of pushing the configurations towards a more clustered appearance relative to the initial solution. 
+with $\theta_0=(1,1,1)^\top$ in case of loss functions with power transformations. Thus an increase of 1 in the MDS loss measure can be compensated by an increase of $v^0_1/v^0_2$ in c-clusteredness. Selecting $v_1=1,v_2=v^{0}_2$ this way is in line with looking for a parameter combination that would lead to a configuration that has a more clustered appearance relative to the standard MDS. 
 
- Another possibility is to choose them in such a way that $\text{coploss}=0$ in the optimum value, i.e., choosing $v^{opt}_{1}, v^{opt}_2$ so that 
-  \begin{equation}
-v^{opt}_1 \cdot \sigma_{MDS}\left(X(\theta^*),\theta^*\right)-v^{opt}_2 \cdot \text{OC}\left(X(\theta^*);\epsilon,k,q \right) = 0 
-\end{equation}
-with $\theta^*:=\arg\min_\theta \text{coploss}(\theta)$. This is in line with having $\text{coploss}(\theta)>0$ for $\theta \neq \theta^*$ and allows to optimize over $v_1,v_2$. 
-
-The optimization problem in COPS is then to find    
+The optimization problem in P-COPS is then to find    
 \begin{equation}
 \label{eq:soemdsopt2}
 \arg\min_{\theta} \text{coploss}(\theta)
 \end{equation}
-by doing
+by evaluating
 \begin{equation} 
 \label{eq:soemdsopt}
 v_1 \cdot \sigma_{MDS}\left(X(\theta),\theta\right) - v_2 \cdot \text{OC}\left(X(\theta);\epsilon,k,q\right) \rightarrow \min_\theta! 
 \end{equation}
-For a given $\theta$ if $v_2=0$ than the result of optimizing the above is the same as solving the respective original PS problem. Letting $\theta$ be variable, $v_2=0$ will minimize the loss over configurations obtained from using different $\theta$.
+For a given $\theta$ if $v_2=0$ than the result of optimizing the above is the same as solving the respective original MDS problem. Letting $\theta$ be variable, $v_2=0$ will minimize the loss over configurations obtained from using different $\theta$.
 
-<!-- [//]: Minimizing coploss is difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization} to be used in Step 3 that usually converges in less than 200 iterations to an acceptable solution. We suggest to use the latter.
---!>
+#### Examples & Usage 
+The dedicated function for P-COPS is called `pcops`. The two main arguments are again the dissimilarity matrix and which MDS model that should be used (`loss`).  Then `pcops` optimizes over $\theta$ with the values given in `theta` being used as starting parameters (if not given, they are all 1).  
 
-The c-clusteredness index we use is the OPTICS cordillera which measures how clustered a configuration appears. It is based on the OPTICS algorithm that outputs an ordering together with a distance. The OPTICS cordillera is now simply an agregation of that information. Since we know what constitutes a maximally clustered result, we can derive an upper bound and normalize the index to lie between 0 and 1. If it is maximally clustered, the index gets a value of 1,and it gets 0 if all points are equidistant to their nearest neighbours (a matchstick embedding). See Rusch et al (2015a) for details. 
+`pcops(diss,loss,...)`
 
-#### Usage 
-Even though one can fit a COPS model with `stops`, there is a dedicated function `cops`. Its syntax works pretty much like in `stops` only that the `structure` argument is non-existant. 
-
-`cops(dis,loss,...)`
-
-For the example we use a COPS model for a classical scaling (`strain` loss) 
+For the example we can use a P-COPS model for a classical scaling with power transformations of the dissimilarities (`strain` or ``powerstrain` loss) 
 
 ```{r}
-resc<-cops(kinshipdelta,loss="strain")
+set.seed(666)
+resc<-pcops(kinshipdelta,loss="strain",minpts=2)
 resc
-summary(resc)
 ```
+
+The transformation parameters selected is 1.498 for the dissimilarities (as in strain/powerstrain only the dissimilarities are subjected to a power transformation). The resulting badness-of-fit value is 0.45 (this is not a stress, see `cmdscale` for its interpretation) and the c-clusteredness value is 0.33. 
+
 A number of plots are availabe
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
@@ -400,75 +401,7 @@ plot(resc,"transplot")
 plot(resc,"reachplot")
 ````
 
-For convenience it is also possible to use the `cops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `cordweight`, the weight of the OPTICS cordillera, to 0. Then the function optimizes the MDS loss function only. 
-
-```{r}
-resca<-cops(kinshipdelta,cordweight=0,loss="strain")
-resca
-```
-
-Here the results match the result from using the standard `cordweight`. We can give more weight to the c-clusteredness though:
-
-```{r}
-rescb<-cops(kinshipdelta,cordweight=20,loss="strain")
-rescb
-```
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(resca,main="with cordweight=0")
-plot(rescb,main="with cordweight=20")
-```
-
-This result has more c-clusteredness but less fit. The higher c-clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observations to make up a cluster, `minpts=2`). 
-
-
-### STOPS
-
-Following Rusch et al. (2015b) the general idea  is that from given observations $\Delta$ we look for a configuration $X$. This achieves this by minimizing some loss function $\sigma_{MDS}(X^*;\Delta^*)$ where the $\Delta^*, X^*$ are functions of the $\Delta$ and $X$. The $X$ has properties with regards to its structural appearance, which we call _c-structuredness_ for configuration-structuredness. There are different types of c-structuredness people might be interested in (say, how clustered the result is, or that dimensions are orthogonal or if there is some submanifold that the data live on). We developed indices for these types of c-structuredness that capture that essence in the configuration.
-
-We have as part of a STOPS model a proximity scaling loss function $\sigma_{MDS}(\cdot)$, a $\Delta$ and an $X$ and some transformation $f_{ij}(\delta_{ij};\theta)$ and $g_{ij}(d_{ij};\theta)$ that is parametrized (with $\theta$ either finite or infinite dimensional, e.g., a transformation applied to all observations like a power transformation or even an individual transformation per object). These transformations achieve a sort of push towards more structure, so different values for $\theta$ will in general lead to different c-structuredness.
-
-We further have $K$ different indices $I_k(X)$ that measure different types of c-structuredness. We can then define \emph{STOPS} as methods that are of the form (additive STOPS)
-\begin{equation}
-  \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = v_0 \cdot \sigma_{MDS}(X^*(\theta)) + \sum^K_{k=1} v_k I_k(X(\theta))
-\end{equation}
- or (multiplicative STOPS)
-\begin{equation}
-  \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta) = \sigma_{MDS}(X^*(\theta))^{v_0} \cdot \prod^K_{k=1} I_k(X(\theta))^{v_k} 
-\end{equation}
-(which can be expressed as aSTOPS by logarithms). Here the $v_0,...,v_k$ are weights that determine how the individual parts (mds loss and c-structuredness indices) are aggregated. 
-
-<!-- [//]: Note that in this formulation the aggregation is a sum/product, so the weights must be negative if the mds loss should be penalized and a higher index stands for more structure. Alternatively, the `stressweight` can be negative and the `strucweight` positive. 
---!>
-
-
-The job is then to find 
-\begin{equation}  
- \arg\min_{\vartheta}\ \text{aSTOPS}(X, \theta, v_0, \dots, v_k; \Delta)\ \text{or} \ \arg\min_{\vartheta}\ \text{mSTOPS}(X, \theta, v_0, \dots, v_k; \Delta)
-\end{equation} 
-where $\vartheta \subseteq \{X,\theta, v_0, \dots, v_k\}$.  Typically $\vartheta$ will be a subset of all possible parameters here (e.g., the weights might be given _a priori_). Currently, the transformations that can be used in `stops` are limited to power transformations. 
-
-Minimizing stoploss can be difficult. In `stops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. Implemented are a simulated annealing (`optimmethod="SANN"`) or particle swarm optimization (`optimmethod="pso"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure \citep{luus1973optimization}. We suggest to use the latter. A Bayesian optimization approach is currently under way.
-
-Currently the following c-structuredness types are supported:
-
-* **c-clusteredness** (`cclusteredness`): A clustered appearance of the configuration ($I_k$ is the normed OPTICS cordillera (COPS; Rusch et al. 2015a); 0 means no c-clusteredness, 1 means perfect c-clusteredness)
-* **c-linearity** (`clinearity`): Projections lie close to a linear subspace of the configuration ($I_k$ is maximal multiple correlation; 0 means orthogonal, 1 means perfectly linear) 
-* **c-manifoldness** (`cmanifoldness`): Projections lie on a sub manifold of the configuration ($I_k$ is maximal correlation (Sarmanov, 1958); only available for two dimensions; 1 means perfectly smooth function)
-* **c-dependence** (`cdependence`): Random vectors of projections onto the axes are stochastically dependent ($I_k$ is distance correlation (Szekely et al., 2007); only available for two dimensions; 0 means they are stochastically independent)
-* **c-association** (`cassociation`): Pairwise nonlinear association between dimensions ($I_k$ is the pairwise maximal maximum information coefficient (Reshef et al. 2011), 1 means perfect functional association)  
-* **c-nonmonotonicity** (`cnonmonotonicity`): Deviation from monotonicity ($I_k$ is the pairwise maximal maximum assymmetry score (Reshef et al. 2011), the higher the less monotone)  
-* **c-functionality** (`cfunctionality`): Pairwise functional, smooth, noise-free relationship between dimensions ($I_k$ is the mean pairwise maximum edge value (Reshef et al. 2011), 1 means perfect functional association)
-* **c-complexity** (`ccomplexity`): Measures the degree of complexity of the functional relationship between any two dimensions ($I_k$ is the pairwise maximal minimum cell number (Reshef et al. 2011), the higher the more complex) 
-* **c-faithfulness** (`cfaithfulness`): How accurate is the neighbourhood of $\Delta$ preserved in $D$ ($I_k$ is the adjusted Md index of Chen \& Buja, 2013; note that this index deviates from the others by being a function of both $X^*$ and $\Delta^*$ rather than $X^*$ alone)
-* c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
-
-<!--[//]: c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented) * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented) * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented) * c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented) * c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)
---!>
-
-If we have a single $I(X)=OC(X)$, the OPTICS cordillera (Rusch et al. 2015a), and the transformations applied are power transformations and the weights for the $I(X)$ is negative we essentially have COPS (see below).    
-
-For the MDS loss (argument `loss` in functions `stops` and `cops`), the functions currently support all losses derived from _powerstress_ and _powerstrain_ and can in principle be fitted with `powerStressMin` alone. However, for many models offer dedicated functions that either use workhorses that are more optimized for the problem at hand and/or restrict the parameter space for the distance/proximity transformations and thus can be faster. They are: 
+The different losses (MDS models) that are available for P-COPS are
 
 * `stress`, `smacofSym`: Kruskall's stress; Workhorse: `smacofSym`, Optimization over $\lambda$
 * `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimizes over $\lambda$
@@ -480,175 +413,59 @@ For the MDS loss (argument `loss` in functions `stops` and `cops`), the function
 * `powermds`: MDS with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
 * `powersammon`: Sammon scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
 * `powerelastic`: Elastic scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
-* `powerstress`: Power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$, $\nu$
- 
-#### Usage 
+* `apstress`: Approximate power stress model; Workhorse: `smacofSym`, Optimization over $\lambda$, $\nu$
+* `rpowerstress`: restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$ and $\lambda$ together (which are restricted to be equal), and $\nu$
 
-The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissimilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the PS loss (see above for the types of structures and losses). The parameters for the structuredness indices should be given with `strucpars`, a list whose elements are lists corresponding to each structuredness index and listing the parameters (if the default should be used the list element should be set to `NULL`). The PS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. One can pass additional parameters to the fitting workhorses with `...`.
+Note: Anything that uses `powerStressMin` as workhorse is a bit slow. 
 
-`stops(dis, structures = c("cclusteredness","clinearity"), loss="stress", ...)`
-
-One then has all the S3 methods of `smacofP` at one's disposal.
-
-For example, let us fit an mSTOPS model that looks for a transformation of the $\delta_{ij}$ so that a) the result has maximal c-clusteredness (which is 1 in the best case, so we set a negative weight for this structure) b) the projection onto the principal axes are nearly orthogonal (c-clinearity close to 0, so we set a positive weight for this structure) c) but the projections onto the principal axes should be stochastically dependent (negative weight on c-dependence) and d) the fit of the MDS is also factored in (so we set positive weight on the MDS loss). Since we use mSTOPS and a negative weight for c-linearity and c-dependence, a c-linearity/c-dependence close to 0 will overall dominate the stoploss function with the other two criteria being more of an afterthought - in aSTOPS that would be different. 
-
-[!!]: This is generally the approach to be chosen: We _minimize_ the stoploss, so a c-structuredness index that should be (numerically) large needs a _negative weight_ and a c-structuredness index that should be (numerically) small needs a _positive weight_.  
-
-We first set up the parameters for the structuredness indices. For the OPTICS cordillera we use a $d_{max}$ of 1, epsilon=10 and minpts=2, for c-linearity we have no parameters (so using `NULL` will work) and for the c-dependence we have a single parameter, `index`, which we set to 2.   
+It is also possible to use the `pcops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `cordweight`, the weight of the OPTICS cordillera, to 0. Then the function optimizes for the transformation parameters based on the MDS loss function only. 
 
 ```{r}
-strucpars<-list(list(epsilon=10,minpts=2,rang=c(0,1.3)), #cordillera
-                NULL,     # c-linearity (has no parameters)
-                list(index=2) #c-dependence
-                ) 
-
+set.seed(666)
+resca<-pcops(kinshipdelta,cordweight=0,loss="strain",minpts=2)
+resca
 ```
 
+Here the results match the result from using the standard `cordweight` suggestion. We can give more weight to the c-clusteredness though:
+
 ```{r}
-ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="multiplicative")
-ressm
+set.seed(666)
+rescb<-pcops(kinshipdelta,cordweight=20,loss="strain",minpts=2)
+rescb
 ```
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(ressm)
+plot(resca,main="with cordweight=0")
+plot(rescb,main="with cordweight=20")
 ```
 
-Let us compare this with the corresponding aSTOPS
+This result has more c-clusteredness but less goodness-of-fit. The higher c-clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observations to make up a cluster, `minpts=2`). 
+
+As in COPS-C we have a number of parameters to guide and change the behaviour of P-COPS. Many are equal to the ones explained in the COPS-C section, including `minpts`, `weightmat`, `ndim`, `init`, `stressweight`, `cordweight`, `q`, `epsilon`, `rang`, `scale`.
+
+An important set of arguments unique to P-COPS are `lower` and `upper` which are the boundaries of the search space in which to look for the parameters. They need to be of the same length as the `theta` argument. Naturally, the larger the search space is, the longer it can take to find the optimal parameters. Default values are `lower = c(1, 1, 0.5)` and `upper = c(5, 5, 2)`. Let's change the search space to include values between $0.1$ and $1.6$ (in the above example $1.5$ was the optimal parameter). 
 
 ```{r}
-ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="additive")
-ressa
+set.seed(666)
+rescc<-pcops(kinshipdelta,loss="strain",minpts=2,lower=c(0.1,0.1,0.1),upper=c(1.6,1.6,1.6))
+rescc
 ```
+The optimal $\lambda$ found is again around $1.498$ resulting in a badness of fit of $0.45$ and a clusteredness of $0.398$, so by extending the search space we found no better transformation.  
 
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(ressa)
-```
+The number of iterations can be controlled with the `itmaxi` and `itmaxo` arguments. `itmaxi` (default 10000) refers to the maximum number of iterations for the inner part (the MDS optimization) and `itmaxo` (default 200) refers to the maximum number of iterations for the outer search that tries to find the optimal $\theta$. The higher `itmaxi` argument is the closer the configuration that is evaluated for copstress is to a local optimum and the higher `itmaxo` is the more values for the transformation parameters will be tried (which also depends on the optimizer). Time-wise there is a trade-off here between how deep (`itmaxi`) we want to go and how broad (`itmaxo`). In our experience `itmaxi` doesn't need to be very high and it is better to have a higher `itmaxo`, which is probably why in one of life's great mysteries we set the default values exactly the other way round.
 
-We see that the c-clusteredness is higher as compared to the mSTOPS result - we have a number of distinct object clusters (with at least minpts=2) and they are more spread out and distributed more evenly. The dimensions on the other hand are now farther from being orthogonal but the stochastic dependence is higher (which is a non-linear one obviously). 
-
-When choosing a c-structuredness index, one needs to be clear what structure one might be interested in and how it interacts with the PS loss chosen. Consider the following example: We fit a `powermds` model to the kinship data and want to maximize c-association (i.e., any non-linear relationship) and c-manifoldness but minimize the c-linearity. In other words we try to find a power transformation of $\Delta$ and $D$ so that the objects are positioned in the configuration in such a way that the projection onto the principal axes are as close as possible to being related by a smooth but non-linear function. 
-
-```{r,eval=FALSE}
-resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",verbose=0,strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5))
-```
-
-```{r,echo=FALSE,eval=FALSE}
-set.seed(210485)
-ressax<-stops(kinshipdelta,theta=c(1.88,1.00,1),loss="powermds",stressweight=0,structures=c("cclusteredness"),strucweight=c(-1),verbose=3,strucpars=list(list(epsilon=10,minpts=2,rang=c(0,1.3))),type="additive")
-ressax
-set.seed(210485)
-ressax2<-cops(kinshipdelta,theta=c(1.88,1.00,1),loss="powermds",stressweight=0,cordweight=c(1),verbose=3,epsilon=10,minpts=2,rang=c(0,1.3))
-ressax2
-ressax3<-cops(kinshipdelta,loss="powermds",stressweight=0,cordweight=c(1),verbose=3,epsilon=10,minpts=2,rang=NULL)
-ressax3
-resa1<-stops(kinshipdelta,theta=c(2,1.00,1),structures=c("cassociation"),loss="powermds",verbose=3,strucpars=list(list(NULL)),type="additive",strucweight=-1,stressweight=0,acc=1e-16)
-resa2<-stops(kinshipdelta,theta=c(3.066,1.001,1.388),structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(list(epsilon=10,rang=c(0,1.3),minpts=2)),type="additive",strucweight=-1,stressweight=0)
-resa5<-stops(kinshipdelta,theta=c(3.066,1.001,1.388),structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(list(epsilon=10,rang=c(0,1.3),minpts=5)),type="additive",strucweight=-1,stressweight=0)
-```
-
-```{r,echo=FALSE,eval=TRUE}
-resa<-stops(kinshipdelta,theta=c(2.9429394,1.67850653,1.57140404), structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",verbose=0,strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),itmax=1)
-```
+Let's look at that in action
 
 ```{r}
-resa
+set.seed(666)
+rescd<-pcops(kinshipdelta,loss="strain",minpts=2,itmaxi=2000,itmaxo=1000)
+rescd
 ```
 
-We see in this model (`resa`) that indeed the c-association is 1, which says we have a near perfect non-linear relationship. How does this relationship look like? 
+which doesn't really change much compared to how it was with the default values (optimal parameter is now $1.499$). 
 
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(resa)
-```
+Minimizing copstress for P-COPS is pretty difficult. For `pcops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. The metaheuristic can be chosen with the `optimmethod` argument. Implemented are simulated annealing (`optimmethod="SANN"`), particle swarm optimization (`optimmethod="pso"`), DIRECT (`optimmethod="DIRECT"`), DIRECTL (`optimmethod="DIRECTL"`), mesh-adaptive direct search (`optimmethod="MADS"`), stochastic global optimization (`optimmethod="stogo"`), Hooke-Jeeves pattern search (`optimmethods="hjk"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure. Default is "ALJ" that usually converges in less than 200 iterations to an acceptable solution. 
 
-It is a parabolic shape, so the projections are so that the points on D2 are a near parabolic function of the D1 (projecting onto some structure resembling a conic section is often the case for r-stress which is essentially what we got here - setting a negative weight on c-assocation can combat that if that is an artefact). What we can also see is that there are three clear clusters, so c-clusteredness should be high. But when looking at the OPTICS cordillera here, we find that the OPTICS cordillera is lower than for the result from above with using `stress` and lambda=2.66 (the `ressa` model).
-
-```{r}
-c1<-cordillera(resa$fit$conf,minpts=2,epsilon=10,rang=c(0,1.3))
-c2<-cordillera(ressa$fit$conf,minpts=2,epsilon=10,rang=c(0,1.3))
-c1
-c2
-```    
-
-This discrepancy comes from the definition of c-clusteredness (Rusch et al, 2015a) where more clusters, more spread-out clusters, more evenly distributed clusters and denser clusters all increase c-clusteredness. In the example with maximizing c-association we have two very dense clusters of 5 points and 1 relatively non-dense cluster of five other points. In the model maximizing c-clusteredness (and others) we get 6 relatively moderate dense clusters with 2 or 3 points each, which is also the minimum number of points we wanted to be grouped together. Most importantly, they are projected onto a much larger range of the target space as the $X$ obtained from the `stress` loss is different than the one obtained from the `powermds` loss, so the $d_{max}$ is very different. Since we use the normed OPTICS cordillera there, we look at c-clusteredness relative to the most clustered appearance with two points per cluster. Thus, the second result has more c-clusteredness. If we would define a cluster as having at most 5 points then c-clusteredness of the result with high c-association also has a large c-clusteredness because then the clusters found match the definition of high c-clusteredness. 
-
-```{r}
-c3<-cordillera(resa$fit$conf,minpts=5,epsilon=10,rang=c(0,1.3))
-c3
-```      
-Note that it may just as well be possible to have a high c-association and no c-clusteredness at all (e.g., points lying equidistant on a smooth non-linear curve). Note also that the models are not necessarily comparable due to different stress functions - the transformation in `powermds` that is optimal with respect to c-clusteredness would be different. 
-
-Indeed one can optimize for c-clusteredness alone and using it as a "goodness-of-clusteredness" index (i.e., the $d_{max}$ is not constant over configurations but varies conditional on the configuration) then we get a projection with c-clusteredness of 0.67.  
- 
-```{r,echo=FALSE,eval=FALSE}
-resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=0,strucpars=list(epsilon=10,rang=c(0,1.3),minpts=2),type="additive",strucweight=-1,stressweight=0)
-cordillera(resa2$fit$conf,epsilon=5.52,rang=c(0,2.12225),q=10)
-#huge cordillera - becausee this way q is set to 10 as we only say "eps" - epsilon is no problem?
-resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=0,strucpars=list(list(eps=10,rang=NULL,minpts=2)),type="additive",strucweight=-1,stressweight=0)
-```
-
-```{r,eval=FALSE}
-resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=0,strucpars=list(list(epsilon=10,rang=NULL,minpts=2)),type="additive",strucweight=-1,stressweight=0)
-```
-
-For convenience it is also possible to use the `stops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `strucweight`, the weight of any c-structuredness, to 0. Then the function optimizes the MDS loss function only. 
-
-```{r,eval=FALSE}
-ressa<-stops(kinshipdelta,structure=c("clinearity"),strucweight=0,loss="stress",verbose=0)
-```
-
-
-## Other Functions
-The package also provides functions that are used by the `cops` and `stops` and `powerStressMin` functions but may be of interest to a end user beyond that.
-
-### OPTICS and OPTICS cordillera
-For calculating a COPS solution, we need the OPTICS algorithm and the OPTICS cordillera. In the package we also provide a rudimentary interface to the OPTICS impementation in ELKI. 
-
-```{r}     
-data(iris)
-res<-optics(iris[,1:4],minpts=2,epsilon=1000)
-print(res)
-summary(res)
-```
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(res,withlabels=TRUE)
-```
-
-and a function for calculating and displaying the OPTICS cordillera.      
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-cres<-cordillera(iris[,1:4],minpts=2,epsilon=1000,scale=FALSE)
-cres
-summary(cres)
-```
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(cres)
-```
-
-### Optimization
-Since the inner optimization problem in STOPS models is hard and takes long, Rusch et al. (2015a) developed a metaheuristic for the outer optimization problem that needs typically less calls to the inner minimization than `pso` or `SANN`, albeit without the guarantees of convergence to a global minimum for non-smooth functions. It is an adaptation of the Luus-Jaakola random search (Luus & Jaakola 1973). It can used with the function `ljoptim` which modeled its output after `optim`. It needs as arguments `x` a starting value, `fun` a function to optimize, a `lower` and `upper` box constraint for the search region. By using the argument `adaptive=TRUE` or `FALSE` one can switch between our adaptive version and the original LJ algorithm. Accuracy of the optimization can be controlled with the `maxit` (maximum number of iterations), `accd` (terminates after the length of the search space is below this number ) and `acc` arguments (terminates if difference of two subsequent function values are below this value).  
-
-We optimize a "Wild Function" with the non-adaptive LJ version (and numerical accuracies of at least `1e-16` for `accd` and `acc`).
- 
-```{r}
-set.seed(210485)
-fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
-res2
-```
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")
-points(res2$par,res2$value,col="red",pch=19)
-```    
-
-### Procrustes Adjustment
-We also provide a procrustes adjustment to make two configurations visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
-
-```{r,eval=FALSE}
-conf_adjust(conf1,conf2) 
-```
 
 
 ##References
