@@ -1,7 +1,10 @@
 #TODO:  Standardize the plots
 
+Version 1.1-1:
+  - Added a vignette.
+
 Version 1.1-0:
-  - Added rpowerstress, a powerstress model that restricts the transformations for dissimilarities and distances to be equal. Changed a (extra and not used) slot name of the p-cops models from $cordillera to $copsobj. Updated docs.   
+  - Added rpowerstress, a powerstress model that restricts the transformations for dissimilarities and distances to be equal. Changed an (extra and not used) slot name of the pcops models from $cordillera to $copsobj. Updated docs.   
 
 Version 1.0-0:
   - Updated docs, examples and description to pass CRAN checks. This is the first release.  
@@ -59,7 +62,7 @@ Version 0.1-3
 
 Version 0.1-2
 
-- Added scaling of configs in pcops for OC calculation allows now "none", "sd" (divided by max standard deviation), rmsq (divided by maximum root mean square), "proc" (Procrustes adjustment to initial fit) and "std" (which is the old way and now discouraged). For this a new function is exported. Returned optimal configuration does not get scaled.
+- Added scaling of configs in pcops for OC calculation allows now "none", "sd" (divided by max standard deviation), "rmsq" (divided by maximum root mean square), "proc" (Procrustes adjustment to initial fit) and "std" (which is the old way and now discouraged). For this a new function is exported. Returned optimal configuration does not get scaled.
 - Adapted doc and removed the rstress example. 
 
 Version 0.1-1
