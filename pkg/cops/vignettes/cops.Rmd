@@ -1,10 +1,10 @@
 ---
-title: "A tutorial on Cluster Optimized Proximity Scaling (COPS)"
+title: "A Tutorial on Cluster Optimized Proximity Scaling (COPS)"
 author: "Thomas Rusch"
-date: "`r Sys.Date()`"
+date: "`r Sys.Date()`"  
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{A tutorial on Cluster Optimized Proximity Scaling (COPS)}
+  %\VignetteIndexEntry{A Tutorial on Cluster Optimized Proximity Scaling (COPS)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -255,7 +255,7 @@ plot(cc.res1,"confplot")
 plot(cc.res1,"Shepard")
 plot(cc.res1,"transplot")
 plot(cc.res1,"reachplot")
-````
+```
 
 The print function outputs information about the COPS-C model. In this case we fitted a ratio COPS-C that uses the standard MDS stress (all transformation parameters 1). There were 15 objects and the square root of stress of the configuration is 0.268 (compared to 0.267 for standard MDS, see above). The normed OPTICS cordillera value is 0.245, compared to 0.13 for standard MDS (with 0 being no clusteredness and 1 perfect clusteredness, see below). We also get information on $v_1$ and $V_2$ which were 0.975 and 0.025 respectively (the default values). The copstress value is 0.255, but we stress that this isn't particulalry important for interpretation.
 
@@ -293,7 +293,7 @@ cc.res1.20000
 ```
 
 `ndim`
-: If we want to find the approximation in $R^N$ we can change the `ndim` argument, where $ndim=N$. Default is a 2D space, so `ndim=2. Let's do a COPS-C in a 3D target space.
+: If we want to find the approximation in $R^N$ we can change the `ndim` argument, where `ndim=N`. Default is a 2D space, so `ndim=2`. Let's do a COPS-C in a 3D target space.
 
 ```{r}
 cc.res1a<-copstressMin(kinshipdelta,ndim=3)
@@ -301,12 +301,13 @@ cc.res1a$conf
 ```
 
 `minpts`
-: An important parameter is the minimum number that must comprise a cluster, `minpts`. Default is `ndim+1`, which is typically 3 but should really be selected based on substantive considerations (and must be $\geq 2$). It can also be varied in different runs to explore the clusteredness structure. If we set minpts=2, we see that the 2 object clusters are pushed more towards each other
+: An important parameter is the minimum number that must comprise a cluster, `minpts`. Default is `ndim+1`, which is typically 3 but should really be selected based on substantive considerations (and must be $\geq 2$). It can also be varied in different runs to explore the clusteredness structure. If we set `minpts=2`, we see that the two object clusters are pushed more towards each other.
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
 cc.res2<-copstressMin(kinshipdelta,minpts=2)
 plot(cc.res2)
 ```
+
 
 `stressweight` and `cordweight`
 : The scalarization weights $v_1, v_2$ can be changed with `stressweight` and `cordweight`. They encode how strong stress and cordillera should respectively be weighted for the scalarization. The higher `stressweight` is in relation to `cordweight` the more weight is put on stress (so a more faithful representation to the MDS result). The default values are `stressweight=0.975` and `cordweight=0.025`. We suggest to put much more weight on stress to not create an articifical configuration. Let's look at the effect of changing it to `stressweight=0.8`, `cordweight=0.2`--- we see we have much more clusteredness now (0.73) but badness-of-fit has also ramped up a lot to 0.33 and the representation may no longer be very faithful to the real dissimilarities.
@@ -319,8 +320,9 @@ cc.res3
 plot(cc.res3)
 ```
 
+
 `weightmat`
-: Dissimilarity weights ($z_{ij}$ and $w_{ij}$ can be set as `weightmat`. This must be a matrix of the same dimensions as the dissimilarity argument `delta`. Let's say we found out that there was a study error where comparing cousins with Aunt was messed up, so we want ot ignore that dissimilarity .
+: Dissimilarity weights ($z_{ij}$ and $w_{ij}$) can be set as `weightmat`. This must be a matrix of the same dimensions as the dissimilarity argument `delta`. Let's say we found out that there was a study error where comparing cousins with Aunt was messed up, so we want ot ignore that dissimilarity .
 
 ```{r}
 weights<-1-diag(nrow(kinshipdelta)) #set up the weights
@@ -329,6 +331,7 @@ weights[c("Cousin","Aunt"),c("Aunt","Cousin")]<-0 #set the Aunt/Cousin dissimila
 cc.res3a<-copstressMin(kinshipdelta,weightmat=weights)
 cc.res3a
 ```
+
 
 `kappa`, `lambda`, `nu` and `theta`
 : The arguments `kappa`, `lambda`, `nu` and `theta` all allow to fit power transformations (if a `theta` is given it overrides the other values), with `kappa` being the distance power transformation, `lambda` the proximity power transformation and `nu` the power transformation for the weights. `theta` is a vector collecting `c(kappa,lambda,nu)`. Let's fit an s-stress COPS-C.
@@ -340,46 +343,48 @@ cc.res4a<-copstressMin(kinshipdelta,theta=c(2,2,1))
 cc.res4a
 ```
 
+
 Models
 : So far we fit COPS-C with ratio MDS and power transformations only. We support more transformations for COPS-C (`dis` is the observed dissimilarity matrix)
 
-* **Ratio COPS-C**: Setting `type="ratio"` and `kappa=1`, `lambda=1` (default model). 
-* **Non-metric (ordinal) COPS-C**: Setting `type="ordinal"` with different handling of `ties` (`"primary"`, `"secondary"`, `"tertiary"`. See `?smacof::mds`) .
-* **Interval COPS-C**: Setting `type="interval"`.
-* **ALSCAL COPS-C**: Setting `type="ratio"` and`kappa=2` and `lambda=2`.
-* **Power Stress COPS-C**: Setting `type="ratio"` and `kappa` and `lambda` to the desired values.
-* **Sammon mapping COPS-C**: Setting `weightmat=dis`, `nu=-1` (for all types).
-* **Elastic scaling COPS-C**: Setting `weightmat=dis`, `nu=-2` (for all types).
-* **Multiscale COPS-C**: Can be approximated by setting `kappa` close to zero (say `kappa=0.0001`) and manually transforming `disms<-log(dis); diag(dism)<-0` and then set the argument `delta=disms`.
+: * **Ratio COPS-C**: Setting `type="ratio"` and `kappa=1`, `lambda=1` (default model). 
+: * **Non-metric (ordinal) COPS-C**: Setting `type="ordinal"` with different handling of `ties` (`"primary"`, `"secondary"`, `"tertiary"`. See `?smacof::mds`) .
+: * **Interval COPS-C**: Setting `type="interval"`.
+: * **ALSCAL COPS-C**: Setting `type="ratio"` and`kappa=2` and `lambda=2`.
+: * **Power Stress COPS-C**: Setting `type="ratio"` and `kappa` and `lambda` to the desired values.
+: * **Sammon mapping COPS-C**: Setting `weightmat=dis`, `nu=-1` (for all types).
+: * **Elastic scaling COPS-C**: Setting `weightmat=dis`, `nu=-2` (for all types).
+: * **Multiscale COPS-C**: Can be approximated by setting `kappa` close to zero (say `kappa=0.0001`) and manually transforming `disms<-log(dis); diag(dism)<-0` and then set the argument `delta=disms`.
 
-Some options can also be combined. Note that it is currently not possible to use transformation parameters with interval and non-metric MDS.
+: Some options can also be combined. Note that it is currently not possible to use transformation parameters with interval and non-metric MDS.
 
-Let's fit a non-metric elastic scaling COPS-C model with secondary handling of ties.
+: Let's fit a non-metric elastic scaling COPS-C model with secondary handling of ties.
 
 ```{r}
 cc.res5<-copstressMin(kinshipdelta,type="ordinal",ties="secondary",weightmat=as.matrix(kinshipdelta),nu=-2)
 cc.res5
 ```
 
+
 OC parameters
 : Because COPS-C uses the OPTICS cordillera to measure clusteredness, it is possible to change a few parameters of how clusteredness is measured.
 
-`minpts` is the most important one and we already discussed that.
+: `minpts` is the most important one and we already discussed that.
 
-Additional parameters include `q` which is the parameter for the $L_p$-norm of the OPTICS Cordillera and is typically 1 (default) or 2. A higher value of `q` can be thought of as pronouncing the ups and downs relatively stronger.
+: Additional parameters include `q` which is the parameter for the $L_p$-norm of the OPTICS Cordillera and is typically 1 (default) or 2. A higher value of `q` can be thought of as pronouncing the ups and downs relatively stronger.
 
-The parameter `epsilon` relates to the maximum neighbourhood radius around a point to look for possible other points in a cluster and also relates to the density that a cluster must have. It influences the number of points that are classified as noise by OPTICS and improves runtime of OPTICS the smaller it is. It is not a praticularly intuitive parameter but for most MDS application it should suffice to just set it "sufficiently large" so all points are considered as possible neighbours of each other. It should only be changed to a lower value if the concept of "noise points" is useful for a data set (e.g., objects that are not supposed to be in a cluster anyway).
+: The parameter `epsilon` relates to the maximum neighbourhood radius around a point to look for possible other points in a cluster and also relates to the density that a cluster must have. It influences the number of points that are classified as noise by OPTICS and improves runtime of OPTICS the smaller it is. It is not a praticularly intuitive parameter but for most MDS application it should suffice to just set it "sufficiently large" so all points are considered as possible neighbours of each other. It should only be changed to a lower value if the concept of "noise points" is useful for a data set (e.g., objects that are not supposed to be in a cluster anyway).
 
-Finally `dmax` and `rang` relate to the normalization and winsorization distance for the cordillera, essentially as the maximum distance between points that we still take into account. This can be used for make the index more robust to outliers in the configuration so that the algorithm doesn't just achieve a higher index by placing some points very far away from the rest. If `dmax` is NULL, the normalization is set to (0,1.5 x the maximum reachability distance for the torgerson model). If it is set too low, the normed cordillera value may be too high. Similarly, `rang` alows to set the whole normalization interval and is (0,dmax) by default. If `max(rang)` and `dmax` do not agree a warning is printed and `rang` takes precedence. These parameters can be used to explor different winsorization limits for robustness checks.
+: Finally `dmax` and `rang` relate to the normalization and winsorization distance for the cordillera, essentially as the maximum distance between points that we still take into account. This can be used for make the index more robust to outliers in the configuration so that the algorithm doesn't just achieve a higher index by placing some points very far away from the rest. If `dmax` is NULL, the normalization is set to (0,1.5 x the maximum reachability distance for the torgerson model). If it is set too low, the normed cordillera value may be too high. Similarly, `rang` alows to set the whole normalization interval and is (0,dmax) by default. If `max(rang)` and `dmax` do not agree a warning is printed and `rang` takes precedence. These parameters can be used to explor different winsorization limits for robustness checks.
 
-Let's look at their effects. First we set `q=2` and see that the effect of clusteredness is a bit more pronounced as compared to `q=1` (because larger ups and downs in the cordillera are weighted a higher)
+: Let's look at their effects. First we set `q=2` and see that the effect of clusteredness is a bit more pronounced as compared to `q=1` (because larger ups and downs in the cordillera are weighted a higher)
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
 cc.res6<-copstressMin(kinshipdelta,q=2)
 plot(cc.res6,plot.type="reachplot") 
 ```
 
-Let's lower `epsilon` to 0.6 and `minpts` to 2 which means that points that are beyond that distance are no longer possible to be considered as cluster members of each other which allows COPS to have "Sister" and "Brother" pushed out of their respective clusters of "Daughter, Mother" and "Father, Son" and have all those two object clusters really tightly packed. The single objects would now be noise points.
+: Let's lower `epsilon` to 0.6 and `minpts` to 2 which means that points that are beyond that distance are no longer possible to be considered as cluster members of each other which allows COPS to have "Sister" and "Brother" pushed out of their respective clusters of "Daughter, Mother" and "Father, Son" and have all those two object clusters really tightly packed. The single objects would now be noise points.
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
 cc.res6a<-copstressMin(kinshipdelta,epsilon=0.6,minpts=2)
@@ -387,7 +392,7 @@ plot(cc.res6a,plot.type="reachplot")
 plot(cc.res6a)
 ```
 
-Let's also change `dmax` to 1 to make the index more robust. The effect is that "Cousin" is now less far away from the rest.
+: Let's also change `dmax` to 1 to make the index more robust. The effect is that "Cousin" is now less far away from the rest.
 
 ```{r,fig.show='hold',fig.width=8,fig.height=8}
 cc.res6b<-copstressMin(kinshipdelta,dmax=1)
@@ -398,6 +403,7 @@ plot(cc.res6b)
 : Finally, we have `scale` which influences the scale of the axis. In COPS we're only interested in the relatvie placement of the objects rather than the scale, so the scale is somewhat aribtrary. It can be set to be `sd` (divided by the largest standard deviation of any column; default), `none` where no scaling is applied,  `proc` which deos procrustes adjustment of the final configuration to the starting configuration, `rmsq` (configuration divided by the maximum root mean square of the columns) and `std` which standardizes all columns (NOTE: this does not preserve the relative distances of the optimal configuration and should probably never have been implemented in the first place).
 
 There are some more arguments which are described in `?copstressMin`.
+
 
 Optimizers
 : COPS-C is a very difficult optimization problem and we resort to heuristics to solve it. There are a large number of such global optimization heuristics supported in `cops`. The default is `hjk-Newuoa` and will typically work quite well. Another good optimizer is `CMA-ES` but that has a tendency to fail. See `?copstressMin` for the available solvers for the argument `optimmethod` and the supplement to the original article for an empirical comparison. 
@@ -451,26 +457,27 @@ plot(resc,"confplot")
 plot(resc,"Shepard")
 plot(resc,"transplot")
 plot(resc,"reachplot")
-````
+```
+
+
 Models
 : The different losses (MDS models) that are available for P-COPS are
+: * `stress`, `smacofSym`: Kruskall's stress; Workhorse: `smacofSym`, Optimization over $\lambda$
+: * `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimizes over : $\lambda$
+: * `strain`, `powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\lambda$
+: * `sammon`, `sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\lambda$
+: * `elastic`: Elastic scaling; Workhorse: `smacofSym`, Optimization over $\lambda$
+: * `sstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\lambda$ 
+: * `rstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\kappa$
+: * `powermds`: MDS with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
+: * `powersammon`: Sammon scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
+: * `powerelastic`: Elastic scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
+: * `apstress`: Approximate power stress model; Workhorse: `smacofSym`, Optimization over $\lambda$, $\nu$
+: * `rpowerstress`: restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$ and  $\lambda$ together (which are restricted to be equal), and $\nu$
 
-* `stress`, `smacofSym`: Kruskall's stress; Workhorse: `smacofSym`, Optimization over $\lambda$
-* `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimizes over $\lambda$
-* `strain`, `powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\lambda$
-* `sammon`, `sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\lambda$
-* `elastic`: Elastic scaling; Workhorse: `smacofSym`, Optimization over $\lambda$
-* `sstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\lambda$ 
-* `rstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\kappa$
-* `powermds`: MDS with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
-* `powersammon`: Sammon scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
-* `powerelastic`: Elastic scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
-* `apstress`: Approximate power stress model; Workhorse: `smacofSym`, Optimization over $\lambda$, $\nu$
-* `rpowerstress`: restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$ and $\lambda$ together (which are restricted to be equal), and $\nu$
+: Note: Anything that uses `powerStressMin` as workhorse is a bit slow. 
 
-Note: Anything that uses `powerStressMin` as workhorse is a bit slow. 
-
-It is also possible to use the `pcops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `cordweight`, the weight of the OPTICS cordillera, to 0. Then the function optimizes for the transformation parameters based on the MDS loss function only. 
+: It is also possible to use the `pcops` function for finding the loss-optimal transformation in the the non-augmented models specified in `loss`, by setting the `cordweight`, the weight of the OPTICS cordillera, to 0. Then the function optimizes for the transformation parameters based on the MDS loss function only. 
 
 ```{r}
 set.seed(666)
@@ -478,7 +485,7 @@ resca<-pcops(kinshipdelta,cordweight=0,loss="strain",minpts=2)
 resca
 ```
 
-Here the results match the result from using the standard `cordweight` suggestion. We can give more weight to the c-clusteredness though:
+: Here the results match the result from using the standard `cordweight` suggestion. We can give more weight to the c-clusteredness though:
 
 ```{r}
 set.seed(666)
@@ -491,9 +498,11 @@ plot(resca,main="with cordweight=0")
 plot(rescb,main="with cordweight=20")
 ```
 
-This result has more c-clusteredness but less goodness-of-fit. The higher c-clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observations to make up a cluster, `minpts=2`). 
+: This result has more c-clusteredness but less goodness-of-fit. The higher c-clusteredness is discernable in the Grandfather/Brother and Grandmother/Sister clusters (we used a minimum number of 2 observations to make up a cluster, `minpts=2`). 
 
-As in COPS-C we have a number of parameters to guide and change the behaviour of P-COPS. Many are equal to the ones explained in the COPS-C section, including `minpts`, `weightmat`, `ndim`, `init`, `stressweight`, `cordweight`, `q`, `epsilon`, `rang`, `scale`.
+
+As in COPS-C we have a number of parameters to guide and change the behaviour of P-COPS. Many are equal to the ones explained in the COPS-C section, including `minpts`, `weightmat`, `ndim`, `init`, `stressweight`, `cordweight`, `q`, `epsilon`, `rang`, `scale`. See the description there.
+
 
 `lower` and `upper`
 : An important set of arguments unique to P-COPS are `lower` and `upper` which are the boundaries of the search space in which to look for the parameters. They need to be of the same length as the `theta` argument. Naturally, the larger the search space is, the longer it can take to find the optimal parameters. Default values are `lower = c(1, 1, 0.5)` and `upper = c(5, 5, 2)`. Note this can also be used to set a quasi-restriction on parameters, if there is no canned loss function that does that. In that case we would just set the boundaries very close together, so, say we'd like to use powerstress and search for optimal $\kappa$ and $\lambda$ but fix the `nu` to be $-2.5$, we can then set `lower = c(0,0,-2.5001)` and `upper = c(5,5,-2.4990)` so $\nu$ will be searched for only in the narrrow band between $(-2.501,-2.499)$. Let's change the search space to include values between $0.1$ and $1.6$ (in the above example $1.5$ was the optimal parameter). 
@@ -503,12 +512,14 @@ set.seed(666)
 rescc<-pcops(kinshipdelta,loss="strain",minpts=2,lower=c(0.1,0.1,0.1),upper=c(1.6,1.6,1.6))
 rescc
 ```
-The optimal $\lambda$ found is again around $1.498$ resulting in a badness of fit of $0.45$ and a clusteredness of $0.398$, so by extending the search space we found no better transformation.  
+
+: The optimal $\lambda$ found is again around $1.498$ resulting in a badness of fit of $0.45$ and a clusteredness of $0.398$, so by extending the search space we found no better transformation.  
+
 
 `itmaxi` and `itmaxo`
 : The number of iterations can be controlled with the `itmaxi` and `itmaxo` arguments. `itmaxi` (default 10000) refers to the maximum number of iterations for the inner part (the MDS optimization) and `itmaxo` (default 200) refers to the maximum number of iterations for the outer search that tries to find the optimal $\theta$. The higher `itmaxi` argument is the closer the configuration that is evaluated for copstress is to a local optimum and the higher `itmaxo` is the more values for the transformation parameters will be tried (which also depends on the optimizer). Time-wise there is a trade-off here between how deep (`itmaxi`) we want to go and how broad (`itmaxo`). In our experience `itmaxi` doesn't need to be very high and it is better to have a higher `itmaxo`, which is probably why in one of life's great mysteries we set the default values exactly the other way round.
 
-Let's look at that in action
+: Let's look at that in action, which doesn't really change much compared to how it was with the default values (optimal parameter is now $1.499$).
 
 ```{r}
 set.seed(666)
@@ -516,7 +527,7 @@ rescd<-pcops(kinshipdelta,loss="strain",minpts=2,itmaxi=2000,itmaxo=1000)
 rescd
 ```
 
-which doesn't really change much compared to how it was with the default values (optimal parameter is now $1.499$). 
+
 Optimizers
 : Minimizing copstress for P-COPS is pretty difficult. For `pcops` we use a nested algorithm combining optimization that internally first solves for $X$ given $\theta$, $\arg\min_X \sigma_{MDS}\left(X,\theta\right)$, and then optimize over $\theta$ with a metaheuristic. The metaheuristic can be chosen with the `optimmethod` argument. Implemented are simulated annealing (`optimmethod="SANN"`), particle swarm optimization (`optimmethod="pso"`), DIRECT (`optimmethod="DIRECT"`), DIRECTL (`optimmethod="DIRECTL"`), mesh-adaptive direct search (`optimmethod="MADS"`), stochastic global optimization (`optimmethod="stogo"`), Hooke-Jeeves pattern search (`optimmethods="hjk"`) and a variant of the Luus-Jaakola (`optimmethod="ALJ"`) procedure. Default is "ALJ" that usually converges in less than 200 iterations to an acceptable solution. 
 
@@ -558,23 +569,15 @@ dm #the dmax to be used for COPS
 
 * Kruskal JB (1964).  Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis. Psychometrika, 29 (1), 1-27.
 
-* Luus R, Jaakola T (1973).  \Optimization by direct search and systematic reduction of the size of search region. American Institute of Chemical Engineers Journal (AIChE), 19 (4), 760-766.
+* Luus R, Jaakola T (1973). Optimization by direct search and systematic reduction of the size of search region. American Institute of Chemical Engineers Journal (AIChE), 19 (4), 760-766.
 
 * McGee VE (1966). The multidimensional analysis of 'elastic' distances. British Journal of Mathematical and Statistical Psychology, 19 (2), 181-196.
-
-* Reshef D, Reshef Y, Finucane H, Grossman S, McVean G, Turnbaugh P, Lander E, Mitzenmacher M, Sabeti P (2011). Detecting novel associations in large datasets. Science, 334, 6062.
 
 * Rosenberg, S. & Kim, M. P. (1975). The method of sorting as a data gathering procedure in multivariate research. Multivariate Behavioral Research, 10, 489-502.
 
 * Rusch, T., Mair, P. and Hornik, K. (2015a) COPS: Cluster Optimized Proximity Scaling. Discussion Paper Series / Center for Empirical Research Methods, 2015/1. WU Vienna University of Economics and Business, Vienna.
 
-* Rusch,  T.,  Mair,  P. and Hornik, K. (2015b). Structuredness  Indices  and  Augmented  Nonlinear Dimension Reduction. In preparation.
-
 * Sammon JW (1969). A nonlinear mapping for data structure analysis. IEEE Transactions on Computers, 18 (5), 401-409
-
-* Sarmanov OV (1958) The maximum correlation coefficient (symmetric case). Dokl. Akad. Nauk SSSR, 120 : 4 (1958), 715 - 718.
-
-* Székely, G. J. Rizzo, M. L. and Bakirov, N. K. (2007). Measuring and testing independence by correlation of distances, The Annals of Statistics, 35:6, 2769–2794.
 
 * Takane Y, Young F, de Leeuw J (1977). Nonmetric individual differences multidimensional scaling: an alternating least squares method with optimal scaling features. Psychometrika, 42 (1), 7-67.
 
