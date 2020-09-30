@@ -463,7 +463,7 @@ plot(resc,"reachplot")
 Models
 : The different losses (MDS models) that are available for P-COPS are
 : * `stress`, `smacofSym`: Kruskall's stress; Workhorse: `smacofSym`, Optimization over $\lambda$
-: * `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimizes over : $\lambda$
+: * `smacofSphere`: Kruskall's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimization over $\lambda$
 : * `strain`, `powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\lambda$
 : * `sammon`, `sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\lambda$
 : * `elastic`: Elastic scaling; Workhorse: `smacofSym`, Optimization over $\lambda$
@@ -473,7 +473,8 @@ Models
 : * `powersammon`: Sammon scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
 : * `powerelastic`: Elastic scaling with powers; Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$
 : * `apstress`: Approximate power stress model; Workhorse: `smacofSym`, Optimization over $\lambda$, $\nu$
-: * `rpowerstress`: restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$ and  $\lambda$ together (which are restricted to be equal), and $\nu$
+: * `rpowerstress`: Restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\kappa$ and  $\lambda$ together (which are restricted to be equal), and $\nu$
+: * `powerstress`: Power stress model (POST-MDS); Workhorse: `powerStressMin`, Optimization over $\kappa$, $\lambda$, and $\nu$
 
 : Note: Anything that uses `powerStressMin` as workhorse is a bit slow. 
 
