@@ -1,0 +1,213 @@
+---
+title: "Using The OPTICS Cordillera"
+author: "Thomas Rusch"
+date: "`r Sys.Date()`"  
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Uisng the OPTICS Cordillera}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+In this document we give a high-level tutorial for using the functionality available in the `cordillera` package. The technical details are described in Rusch, Hornik & Mair (2018). 
+
+The idea of the OPTICS cordillera (OC) is to quantify the "clusteredness" that is inherent in a data matrix $X$ in $R^N$. We understand clusteredness to be a spatial property of the overall arrangement of vectors in the $N$-dimensional space. There exists a continuum ranging from no clusteredness to perfect clusteredness and we qunatify where on that continuum a data matrix falls. Crucially, it is not the same thing as actually having or assigning clusters, it is more of a structural property of the whole data matrix. To make that distinction clearer, we also refer to this as the "accumulation tendency" and the clusters of points as accumulation. In that it shares some similarity to measures of spatial arrangement, like Ripley's k-function, only that we try to specifically capture clusteredness. A perhaps more familiar analogy to clusteredness would be whether the vectors in a data matrix are somehow associated or not; the specific type of association being equivalent to how clustering relates to clusteredness. 
+Clusteredness as measured by the OC can be thought of as a summary of all the clustering information in the data matrix and in that being akin to what hierarchical clustering does, only we aggregate this into a single unidimensional measure. If a data matrix has high clusteredness then the clustering can be visually appreciated in a plot and a clustering method applied to that data matrix will typically work well.   
+
+The OC is a nonparametric measure in the sense of trying to make as little assumptions as possible. The underlying "cluster" definition is density-based and derived from Ekster et al. It is also underlying the DBSCAN algorithm. Essentially clusters are defined as accumulations of points that are close to each other ("density-connected" on some distance metric) or as regions with a high density of points that are separated from each other by regions of low or no point density. This definition also allows for nested clusters as regions of higher density within regions of lower density. Furthermore it contains a concept of "noise" points which are points in regions where the overall density is too low for this to count as a cluster. To achieve this only two assumptions must be made: First, that a cluster comprises at least $k$ observations (`minpts`) and that the density is assessed within a maximum radius $\epsilon$ around each point (anything not matching that will count as noise). Due to this setup there is no need to make decisions a priori about the number of accumulations or clusters, nor about the specific shape, intracluster variance or centroid. This illustrates why the concept is appealing for measuring the "clusteredness" as opposed to a specific concrete clustering.         
+
+```{r,message=FALSE}
+library(dbscan)
+library(cordillera)
+```
+
+### OPTICS
+The OPTICS algorithm is at the heart of the OPTICS cordillera. An R native OPTICS implementation is available in the `dbscan` package. We also provide a rudimentary interface to the OPTICS reference impementation in ELKI (which would have to be installed for it to work). OPTICS stands for Ordering Points To Infer Clustering Structure and is essentially the hierarchical clustering version of DBSCAN. It abstracts from a concrete $\varepsilon$ by allowing for a maximum $\varepsilon$, $\epsilon$ up to which all $\varepsilon$ are taken into account (so it juts needs to be "large enough"). If OPTICS would be limited to only a specific $\varepsilon$ (like cutting a dendrogram at a specific height) it would result in the DBSCAN clustering. 
+
+Due to this being a hierarchical clustering idea, OPTICS doesn't give a concrete clustering but orders the points based on a quantity derived from $k$ and $\epsilon$ called "reachability". This ordering is quite complex and happens algorithmically, so it can't be expressed in close form. What results is the tuple of ordering of the points/row vectors $x_i$ in $X$, $R(X)$, together with the associated reachability $r_i$ for $x_i$. This tuple contains the *complete clustering structure* within $X$ up to the maximum radius $\epsilon$ given an accumulation must comparise at least $k$ points. It holds that points that are subsequent in the ordering and have relatively low reachability belong to the same accumulation, whereas points that are far away from each other in the ordering or subsequent points with relatively high reachabilility belong to different accumulations. Every high reachability signals the beginning of a new accumulation.    
+
+This can be plotted with the ordering of the $x_i$ on the $x$-axis and their associated reachability $r_i$ on the $y$-axis. This plot is coined the "reachability plot" and is the visual expression of the complete clustering structure within $X$ up to the maximum radius $\epsilon$ given an accumulation must comparise at least $k$ points. The reachability plot is similar to a dendrogram in that it can be cut at some level $\varepsilon \leq \epsilon$ to yield a concrete clustering (the corresponding DBSCAN clustering for $k$ and $\varepsilon$). 
+
+To illustrate let's first create a strange cluster situation in 2D.
+```{r,fig=TRUE}  
+library(clusterSim)
+#three spherical clusters with different variance with n=66 each
+n<-198
+set.seed(1)
+x <- cbind(
+  x = c(runif(1, -2, 5) + rnorm(n/3, sd=0.2), runif(1, -2, 5) + rnorm(n/3, sd=0.3), runif(1, -2, 5) + rnorm(n/3, sd=0.05)),
+  y = c(runif(1, -3, 5) + rnorm(n/3, sd=0.2), runif(1, -3, 5) + rnorm(n/3, sd=0.3), runif(1, 0, 4) + rnorm(n/3, sd=0.05))
+)  
+cl<-c(rep(1:3,each=n/3)) #the clusters
+#two worm clusters of size 100 each
+set.seed(1)
+sw<-shapes.worms(100,shape1x1=-2,shape1x2=0.5,shape2x1=-0.3,shape2x2=3)
+#noise
+set.seed(5)
+ns<-cbind(runif(10,-2,5),runif(10,-2,5))
+x<-rbind(x,sw$data,ns)
+#x<-rbind(x,sw$data)
+cl<-c(cl,sw$cluster+3,rep(8,10))
+#cl<-c(cl,sw$cluster+3)
+
+plot(x, col=cl,pch=19,xlim=c(-3,5),ylim=c(-3,6))
+```
+We see that there are 5 clusters, two are the worms, three are spherical with different variance. The green spherical cluster is nested within the blue worm. Additonally, we have 10 noise points (in grey). 
+
+The clustering structure is clear when looking at the plot: The black, red, turquoise, green and blue clusters have a higher density of points than the surrounding area. All clusters but the green cluster are separated by regions of low or no point density. Low density because there are some noise points. The green cluster is a high density region within the blue cluster. This situation is extremely difficult to disentangle for a cluster algorithm that uses centroids, assumes constant variances or spherical shapes. Yet, we see that is quite clustered as an overall plot.  
+
+OPTICS can help us with characterizing the situation. Let's run OPTICS on this, with the minimum number of points comprising a cluster to be $k=20$ and a large $\epsilon=10$.
+
+```{r}
+ores<-optics(x,minPts=20,eps=10)
+print(ores)
+```
+The OPTICS ordering is available as `$order` and the reachabilities via `$reachdist`. We can plot those and color the plot based on the known clustering. 
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(ores,col=cl[ores$order])
+```
+
+The interpretation is now this: Each "valley" in the plot stands for a cluster and each cluster is separated by a peak. Valleys after low peaks are typically nested clusters. The deeper the valley, denser the cluster and the higher the peak, the more separated the clusters. From left to right we see that, the first valley is the black cluster, and then we have a peak signalling the start of the next cluster (the blue one). Then there is a peak signalling a new cluster (the green cluster) but that peak is relatively small compared to the other peaks, so we can assume that the green cluster is nested within the blue cluster (although that is certainly not conclusive here, it could also be that the green cluster is just close to the blue cluster). The next peak is signalling the turqoise cluster and then we have the red cluster after the next peak. To the topmost right are a number of high reachabilities, which would stand for noise. Note that some of the noise points are classified to be withing a cluster as they are in the density region of some of our clusters. 
+
+It is of course easy to make the connections with the color coding and interpreting that without the color codes is much harder but we already see a pattern when compared to the 2D plot: We chose a $k$ that elicited that we have 5 clusters, that the densest cluster is the green one, followed by black, red and then the two worms. So generally we can say that 1) the deeper a valley the clearer the clustering 2) the more valleys we have the clearer the clustering and 3) the higher the peaks are the clearer the clustering. 
+
+Compare this to the following situation where we moved the turqoise cluster closer to the blue one together, shifted the red and black clusters closer to the blue one and increased the variance of the red and back clusters. 
+```{r,fig=TRUE}
+x2<-x
+x2[which(cl==5),1]<-x2[which(cl==5),1]-0.5
+x2[which(cl==5),2]<-x2[which(cl==5),2]-2
+x2[which(cl==1),1]<-x2[which(cl==1),1]*1.5
+x2[which(cl==1),2]<-(x2[which(cl==1),2]+1.2)*1.5
+x2[which(cl==2),1]<-(x2[which(cl==2),1]-1.5)*1.5
+x2[which(cl==2),2]<-x2[which(cl==2),2]*1.5
+plot(x2, col=cl,pch=19,xlim=c(-3,5),ylim=c(-3,6))
+```
+
+This plot looks less clearly structured (clustered) than the one from before which is easiest to be seen without the coloring
+```{r}
+par(mfrow=c(1,2))
+plot(x,pch=19, xlim=c(-3,5),ylim=c(-3,6))
+plot(x2,pch=19, xlim=c(-3,5),ylim=c(-3,6))
+```
+
+Let's look at what OPTICS tells us about the less clustered situation
+```{r,fig=TRUE}
+ores2<-optics(x2,minPts=20,eps=10)
+plot(ores2,col=cl[ores2$order])
+```
+
+We still see that OPTICS does a fairly good job in identifying the number of clusters but notice that the valleys are relatively less deep for black and red and that the peaks are much smaller compared to the first.
+
+Now let's have turqoise, black and red basically merged.
+
+```{r,fig=TRUE}
+x3<-x
+x3[which(cl==5),1]<-x3[which(cl==5),1]-1
+x3[which(cl==5),2]<-x3[which(cl==5),2]-5
+x3[which(cl==1),1]<-x3[which(cl==1),1]*2
+x3[which(cl==1),2]<-(x3[which(cl==1),2]+1.5)*2
+x3[which(cl==2),1]<-(x3[which(cl==2),1]-1.8)*2
+x3[which(cl==2),2]<-x3[which(cl==2),2]*2
+plot(x3, col=cl,pch=19,xlim=c(-3,5),ylim=c(-3,6))
+```
+
+This plot looks even much less clearly structured (clustered) than the ones from before. This is now just a weird-shaped blob and looks like there's not really any clustering going on. Again this is easiest to be seen without the coloring. 
+```{r}
+par(mfrow=c(1,3))
+plot(x,pch=19, xlim=c(-3,5),ylim=c(-3,6))
+plot(x2,pch=19, xlim=c(-3,5),ylim=c(-3,6))
+plot(x3,pch=19, xlim=c(-3,5),ylim=c(-3,6))
+```
+
+Let's look at what OPTICS tells us about the least clustered situation
+```{r,fig=TRUE}
+ores3<-optics(x3,minPts=20,eps=10)
+plot(ores3,col=cl[ores3$order])
+```
+
+It can now only identify the dense green cluster and the rest is basically just a blurred mass. Note that the peaks and the valleys are not very different or that the difference of subsequent reachabilities over the ordering is not very large (apart for the green cluster).   
+
+Let's look at the three reachability plots next to each other
+
+```{r,fig=TRUE}
+par(mfrow=c(1,3))
+plot(ores,col=cl[ores$order],ylim=c(0,2))
+plot(ores2,col=cl[ores2$order],ylim=c(0,2))
+plot(ores3,col=cl[ores3$order],ylim=c(0,2))
+
+```
+
+So, if we agreee that the first situation is the most clustered, then the second and that one more than the third, we see that in OPTICS this translates to less "up and down" of the reachability plot for the less clustered situations, or less "raggedness" of the reachability plot.  
+
+### The OPTICS Cordillera
+
+This observation is now at the starting point for the OPTICS Cordillera. Say, we don't want to look at a reachability plot every time, but want one number that tells us how clustered a plot/data matrix is. We saw that in a more clustered situation, the "up and down" of the reachability plot in the sense of higher peaks and deeper valleys and bigger differences between the two, and the more clusters we have (so more peaks and more valleys), would give us a indication of the clusteredness in the data matrix.  
+
+What the OPTICS cordillera now does is precisely that: It measures the raggedness of the reachability plot by taking the norm of the subsequent reachability differences over the OPTICS ordering. The larger norm is, the more peaks, the more valleys we have, the deeper the valleys, the higher the peaks are, in short the more ragged the reachability plot is. And more of that means more clusteredness. This is where the name "cordillera" comes from. 
+
+Let's calculate the OPTICS Cordillera for these situations with the `minpts=20`, `epsilon=10` as before and a maximum winsorization distance of `dmax=1.5` (this is for robustness so reachabilities larger than 1.5 get set to 1.5, see below).
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+cres1<-cordillera(x,minpts=20,epsilon=10,dmax=1.5,scale=FALSE)
+summary(cres1)
+cres2<-cordillera(x2,minpts=20,epsilon=10,dmax=1.5,scale=FALSE)
+summary(cres2)
+cres3<-cordillera(x3,minpts=20,epsilon=10,dmax=1.5,scale=FALSE)
+summary(cres3)
+```
+
+We see that both the Raw OC (the length of the "up and down") and the normalized version Normed OC (see below) are highest for the first situation, then for the second, then for the third - exactly as we saw it in the plots above. So the OC is doing what it should.
+
+The OC can also be visualized and is proportional to the fat black enveloping line in the reachability plot.
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+par(mfrow=c(1,3))
+plot(cres1)
+plot(cres2)
+plot(cres3)
+```
+We can clearly see that the length of the first black line is the longest (just imagine walking this in the Alps!). 
+
+
+
+## References
+
+* Borg I, Groenen PJ (2005). Modern multidimensional scaling:  Theory and applications.  2nd edition. Springer, New York
+
+* Buja A, Swayne DF, Littman ML, Dean N, Hofmann H, Chen L (2008). Data visualization with multidimensional scaling. Journal of Computational and Graphical Statistics, 17 (2), 444-472.
+
+* Chen L, Buja A (2013). Stress functions for nonlinear dimension reduction, proximity analysis, and graph drawing. Journal of Machine Learning Research, 14, 1145-1173.
+
+* de Leeuw J (2014). Minimizing r-stress using nested majorization. Technical Report, UCLA, Statistics Preprint Series.
+
+* de Leeuw J, Mair P (2009). Multidimensional Scaling Using Majorization:  SMACOF in R. Journal of Statistical Software, 31 (3), 1-30. 
+
+* Kruskal JB (1964).  Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis. Psychometrika, 29 (1), 1-27.
+
+* Luus R, Jaakola T (1973). Optimization by direct search and systematic reduction of the size of search region. American Institute of Chemical Engineers Journal (AIChE), 19 (4), 760-766.
+
+* McGee VE (1966). The multidimensional analysis of 'elastic' distances. British Journal of Mathematical and Statistical Psychology, 19 (2), 181-196.
+
+* Rosenberg, S. & Kim, M. P. (1975). The method of sorting as a data gathering procedure in multivariate research. Multivariate Behavioral Research, 10, 489-502.
+
+* Rusch, T., Mair, P. and Hornik, K. (2015a) COPS: Cluster Optimized Proximity Scaling. Discussion Paper Series / Center for Empirical Research Methods, 2015/1. WU Vienna University of Economics and Business, Vienna.
+
+* Sammon JW (1969). A nonlinear mapping for data structure analysis. IEEE Transactions on Computers, 18 (5), 401-409
+
+* Takane Y, Young F, de Leeuw J (1977). Nonmetric individual differences multidimensional scaling: an alternating least squares method with optimal scaling features. Psychometrika, 42 (1), 7-67.
+
+* Torgerson WS (1958). Theory and methods of scaling. Wiley.
+
+
+* Venables WN, Ripley BD (2002). Modern Applied Statistics with S. Fourth edition. Springer, New York. 
+
+
+
+

@@ -1,7 +1,7 @@
 Package: cordillera
 Title: Calculation of the OPTICS Cordillera
-Version: 0.8-2
-Date: 2019-04-16
+Version: 0.9-0
+Date: 2020-10-01
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"),comment=c(ORCID="0000-0002-7773-2096")),
              person(given="Patrick",family="Mair", role = "ctb"),
 	     person(given="Kurt",family="Hornik", role = "ctb",comment=c(ORCID="0000-0003-4198-9911"))
@@ -12,7 +12,8 @@ Description: Functions for calculating the OPTICS Cordillera. The OPTICS Cordill
 Depends: R (>= 3.1.2),
 SystemRequirements: ELKI (>=0.6.0 if used)
 Imports: dbscan, yesno
-Suggests: cluster, scatterplot3d, MASS
+Suggests: cluster, scatterplot3d, MASS, R.rsp
+VignetteBuilder: R.rsp
 License: GPL-2 | GPL-3
 LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
