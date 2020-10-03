@@ -1,6 +1,6 @@
 Version 0.9-0
 
-- Added a vignette. 
+- Added a vignette. Changed the scale default to FALSE. Attention: In the version for the JCGS paper we had as default `scale=4` and this would now have to be specified explicitly in that R script. We also changed the default dmax which is now Q3+1.5*IQR of the reachabilities (Q3 being the third quartile and IQR being  the interquartile range) 
 
 Version 0.8-2
 

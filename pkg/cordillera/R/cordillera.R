@@ -43,7 +43,8 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,pat
         #TODO newer elki returns unicode \342 instead of infinity so we need to work around that, works now but we suppress coercion warning
         tmp <- suppressWarnings(as.numeric(tmp))
         tmp[is.na(tmp)] <- Inf
-        if(is.null(dmax)) dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to max reachability if max < eps or eps if eps < max; so this allows to do robustness stuff.
+        if(is.null(dmax)) dmax <- min(epsilon, quantile(tmp[is.finite(tmp)],0.75)+IQR(tmp[is.finite(tmp)]))
+       # dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to the definition of the non-outlying region of Tukey reachability if max < eps or eps if eps < max; so this allows to do robustness stuff.
         if(missing(rang)) rang <- c(0,dmax) #This sets the range to min to max if max < eps or eps if eps < max; so this allows to do robustness stuff.
         # is eps if no range is given and eps < max reachability or if eps < range and < max reachability
         # is max range if range is given and < max reachability, eps  
@@ -182,7 +183,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param rang A range of values for making up dmax. If supplied it overrules the dmax parameter and rang[2]-rang[1] is returned as dmax in the object. If no value is supplied rang is taken to be (0, dmax) taken from the data. Only use this when you know what you're doing, which would mean you're me (and even then we should be cautious). 
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to FALSE. 
 #' @param ... Additional arguments to be passed to \code{\link{optics}}
 #' 
 #' @return A list with the elements
@@ -283,7 +284,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' par(mfrow=c(1,1))
 #' 
 #' @export
-cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=4,...)
+cordillera <- function(X,q=2,minpts=2,epsilon,distmeth="euclidean",dmax=NULL,rang,digits=10,scale=FALSE,...)
 {
      #if X is a dist object, take it; otherwise if a matrix or data frame X calculate a dist object. If X is a symmetric matrix turn it into a distance object; reason is that dbscan:optics does not give the same result for dist(x) and as.matrix(dist(x))
     if(is.data.frame(X)) X <- as.matrix(X) 
