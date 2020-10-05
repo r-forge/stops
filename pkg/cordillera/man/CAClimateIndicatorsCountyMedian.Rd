@@ -3,7 +3,9 @@
 \name{CAClimateIndicatorsCountyMedian}
 \alias{CAClimateIndicatorsCountyMedian}
 \title{Climate Change Indicators of Californian Counties}
-\format{A data frame with 58 rows and 52 variables}
+\format{
+A data frame with 58 rows and 52 variables
+}
 \source{
 \itemize{
 \item Cooley (2012) \url{http://www.energy.ca.gov/2012publications/CEC-500-2012-013/CEC-500-2012-013.pdf}
@@ -15,7 +17,7 @@
 A dataset containing various observed and projected indicators of climate change related natural hazards for 58 Californian counties. The values are actually the medians of the distribution over all spatial measurement points. It is a compiled data set from three sources and aggregated them to the county level. The projected data were derived under two different scenarios (A2, the high emission scenario and B1, the moderate emission scenario). It further contains the county value of the California social vulnerability index.
 }
 \details{
-Overall there are 50 indicators of natural hazard, one indicator of social vulnerability and 1 identifier of the county which were:
+Overall there are 50 indicators of natural hazard, one indicator of social vulnerability and 1 identifier of the county which were: 
 
 \itemize{
 \item county The county name identifier

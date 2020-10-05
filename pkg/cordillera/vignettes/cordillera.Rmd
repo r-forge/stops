@@ -4,7 +4,7 @@ author: "Thomas Rusch"
 date: "`r Sys.Date()`"  
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Uisng the OPTICS Cordillera}
+  %\VignetteIndexEntry{Using the OPTICS Cordillera}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

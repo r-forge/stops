@@ -2,10 +2,22 @@
 % Please edit documentation in R/cordillera.R
 \name{e_cordillera}
 \alias{e_cordillera}
-\title{Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'}
+\title{DEPRECATED! Calculates the OPTICS Cordillera with the OPTICS implementation of 'ELKI'}
 \usage{
-e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
-  digits = 10, path = tempdir(), plot = FALSE, ylim, scale = 1, ...)
+e_cordillera(
+  confs,
+  q = 1,
+  minpts = 2,
+  epsilon,
+  dmax = NULL,
+  rang,
+  digits = 10,
+  path = tempdir(),
+  plot = FALSE,
+  ylim,
+  scale = TRUE,
+  ...
+)
 }
 \arguments{
 \item{confs}{numeric matrix or data frame.}
@@ -28,7 +40,7 @@ e_cordillera(confs, q = 1, minpts = 2, epsilon, dmax = NULL, rang,
 
 \item{ylim}{The borders for the OPTICS Cordillera plot}
 
-\item{scale}{Should the confs be scaled and/or centered? 0 does nothing, 1 does both, 2 only scales with the root mean square.}
+\item{scale}{Should the confs be scaled and/or centered?}
 
 \item{...}{Additional arguments to be passed to optics}
 }

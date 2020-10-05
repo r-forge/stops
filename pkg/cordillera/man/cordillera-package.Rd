@@ -25,7 +25,7 @@ References:
 \url{http://dx.doi.org/10.1080/10618600.2017.1349664}
 }
 
-Authors: Thomas Rusch
+Authors: Thomas Rusch 
 
 Maintainer: Thomas Rusch
 }

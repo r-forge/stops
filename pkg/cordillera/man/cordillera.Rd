@@ -4,8 +4,18 @@
 \alias{cordillera}
 \title{The OPTICS Cordillera}
 \usage{
-cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
-  dmax = NULL, rang, digits = 10, scale = 4, ...)
+cordillera(
+  X,
+  q = 2,
+  minpts = 2,
+  epsilon,
+  distmeth = "euclidean",
+  dmax = NULL,
+  rang,
+  digits = 10,
+  scale = FALSE,
+  ...
+)
 }
 \arguments{
 \item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.}
@@ -16,7 +26,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{epsilon}{The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.}
 
-\item{distmeth}{The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance.}
+\item{distmeth}{The distance to be computed if X is not a symmetric matrix (those from \code{\link{dist}} are available) or a dist object (otherwise ignored). Defaults to Euclidean distance.}
 
 \item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
 
@@ -24,7 +34,7 @@ cordillera(X, q = 2, minpts = 2, epsilon, distmeth = "euclidean",
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
+\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to FALSE.}
 
 \item{...}{Additional arguments to be passed to \code{\link{optics}}}
 }

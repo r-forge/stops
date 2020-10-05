@@ -4,8 +4,15 @@
 \alias{plot.opticse}
 \title{Plot method for OPTICS results}
 \usage{
-\method{plot}{opticse}(x, withlabels = FALSE, col = "grey55",
-  colna = "grey80", border = graphics::par("bg"), names.arg, ...)
+\method{plot}{opticse}(
+  x,
+  withlabels = FALSE,
+  col = "grey55",
+  colna = "grey80",
+  border = graphics::par("bg"),
+  names.arg,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class optics}

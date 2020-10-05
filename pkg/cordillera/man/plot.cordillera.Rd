@@ -4,8 +4,15 @@
 \alias{plot.cordillera}
 \title{Plot method for OPTICS Cordilleras}
 \usage{
-\method{plot}{cordillera}(x, colbp = "lightgrey", coll = "black",
-  liwd = 1.5, legend = FALSE, ylim, ...)
+\method{plot}{cordillera}(
+  x,
+  colbp = "lightgrey",
+  coll = "black",
+  liwd = 1.5,
+  legend = FALSE,
+  ylim,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class "cordillera"}
