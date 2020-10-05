@@ -20,7 +20,7 @@ cop_smacofSym(
   rang = NULL,
   verbose = 0,
   normed = TRUE,
-  scale,
+  scale = "sd",
   stresstype = "default"
 )
 }

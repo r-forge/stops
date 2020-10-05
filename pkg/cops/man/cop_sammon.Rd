@@ -19,7 +19,7 @@ cop_sammon(
   epsilon = 10,
   rang = NULL,
   verbose = 0,
-  scale = 3,
+  scale = "sd",
   normed = TRUE,
   stresstype = "default"
 )

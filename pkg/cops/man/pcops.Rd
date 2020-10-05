@@ -72,7 +72,7 @@ pcops(
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose. Note that for models with some parameters fixed, the iteration progress of the optimizer shows different values also for the fixed parameters because due to the modular setup we always optimize over a three parameter vector. These values are inconsequential however as internally they will be fixed.}
 
-\item{scale}{should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.}
+\item{scale}{should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1 (typically not a good idea), "sd" scales the configuration by the maximum standard devation of any column (default), "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
@@ -92,7 +92,7 @@ pcops(
 A list with the components
         \itemize{
         \item copstress: the weighted loss value
-        \item OC: the Optics cordillera
+        \item OC: the OPTICS cordillera for the scaled configuration (as defined by scale) 
         \item optim: the object returned from the optimization procedure
         \item stress: the stress (square root of stress.m)
         \item stress.m: default normalized stress 

@@ -20,7 +20,7 @@ cop_smacofSphere(
   rang = NULL,
   verbose = 0,
   normed = TRUE,
-  scale = 3,
+  scale = "sd",
   stresstype = "default"
 )
 }

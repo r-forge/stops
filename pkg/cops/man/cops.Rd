@@ -9,7 +9,7 @@ cops(
   dis,
   variant = c("1", "2", "Variant1", "Variant2", "v1", "v2", "COPS-C", "P-COPS",
     "configuration-c", "profile", "copstress-c", "p-copstress", "COPS-P", "copstress-p",
-    "cops-c", "p-cops"),
+    "cops-c", "p-cops", "copsc", "pcops"),
   ...
 )
 }

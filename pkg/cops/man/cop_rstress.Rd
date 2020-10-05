@@ -19,7 +19,7 @@ cop_rstress(
   epsilon = 10,
   rang = NULL,
   verbose = 0,
-  scale = 3,
+  scale = "sd",
   normed = TRUE,
   stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
     "enormstress1")

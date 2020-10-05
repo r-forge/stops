@@ -20,7 +20,7 @@ cop_sammon2(
   rang = NULL,
   verbose = 0,
   normed = TRUE,
-  scale = 3,
+  scale = "sd",
   stresstype = "default"
 )
 }

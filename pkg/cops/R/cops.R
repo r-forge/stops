@@ -38,7 +38,7 @@
 #'@import smacof
 #' 
 #'@keywords multivariate
-cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
+cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -104,7 +104,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itm
 #'@import cordillera 
 #' 
 #'@keywords multivariate
-cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -172,7 +172,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=
 #'@import cordillera 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
-cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -237,7 +237,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,
 #' @keywords multivariate
 #'
 #' 
-cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
+cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(length(theta)==1L) lambda <- theta
@@ -296,7 +296,7 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmax
 #' @import smacof
 #' @import cordillera
 #'@keywords multivariate
-cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale=3,stresstype="default") {
+cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
@@ -362,7 +362,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itma
 #' @importFrom stats dist as.dist
 #' @import cordillera
 #' @keywords multivariate
-cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype="default") {
+cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype="default") {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) lambda <- theta
   if(length(theta)==2L) lambda <- theta[2]
@@ -415,7 +415,7 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itma
 #' }
 #' @keywords multivariate
 #' @import cordillera
-cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   kappa <- theta
@@ -470,7 +470,7 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @import cordillera
-cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   lambda <- theta
@@ -525,7 +525,7 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' }
 #' @keywords multivariate
 #' @import cordillera
-cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
@@ -577,7 +577,7 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @import cordillera
 #' @keywords multivariate
-cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
@@ -633,7 +633,7 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' }
 #' @import cordillera
 #' @keywords multivariate
-cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale=3,normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
@@ -807,7 +807,7 @@ cop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
 #'@import smacof
 #' 
 #'@keywords multivariate
-cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale,stresstype="default") {
+cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -916,7 +916,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param upper The upper contraints of the search region 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose. Note that for models with some parameters fixed, the iteration progress of the optimizer shows different values also for the fixed parameters because due to the modular setup we always optimize over a three parameter vector. These values are inconsequential however as internally they will be fixed. 
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1, "sd" scales the configuration by the maximum standard devation of any column, "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
+#' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1 (typically not a good idea), "sd" scales the configuration by the maximum standard devation of any column (default), "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
 #'@param s number of particles if pso is used
 #'@param stresstype what stress to be used for comparisons between solutions. Currently not implemented and pcops uses explicitly normalized stress for copstress (not stress-1). Stress-1 is reported by the print function though.   
 #'@param itmaxo iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.  
@@ -927,7 +927,7 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #'@return A list with the components
 #'         \itemize{
 #'         \item copstress: the weighted loss value
-#'         \item OC: the Optics cordillera
+#'         \item OC: the OPTICS cordillera for the scaled configuration (as defined by scale) 
 #'         \item optim: the object returned from the optimization procedure
 #'         \item stress: the stress (square root of stress.m)
 #'         \item stress.m: default normalized stress 
@@ -1277,7 +1277,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param optimmethod What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS' . Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.   
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
-#' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.   
+#' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "std" (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".   
 #' @param accuracy numerical accuracy, defaults to 1e-7
 #' @param itmax maximum number of iterations. Defaults to 5000.
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
@@ -1807,12 +1807,12 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #' 
 #'@keywords clustering multivariate
 #'@export
-cops <- function(dis, variant=c("1","2","Variant1","Variant2","v1","v2","COPS-C","P-COPS","configuration-c","profile","copstress-c","p-copstress","COPS-P","copstress-p","cops-c","p-cops"),...)
+cops <- function(dis, variant=c("1","2","Variant1","Variant2","v1","v2","COPS-C","P-COPS","configuration-c","profile","copstress-c","p-copstress","COPS-P","copstress-p","cops-c","p-cops","copsc","pcops"),...)
 {
     #variant=c("0","1","2","Variant0","Variant1","Variant2","v0","v1","v2","COPS-0","COPS-C","P-COPS","configuration-0","configuration-c","profile","copstress-0","copstress-c","p-copstress","COPS-P","copstress-p","cops-c","p-cops")
                  if(missing(variant)) variant <- "COPS-C"
-                 if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","copstress-c","cops-c")) out <- copstressMin(dis,...)
+                 if(variant%in%c("1","Variant1","v1","configuration-c","COPS-C","copstress-c","cops-c","copsc")) out <- copstressMin(dis,...)
 #                 if(variant%in%c("0","Variant0","v0","configuration-0","COPS-0","copstress-c")) stop("Not yet implemented") out <- shrinkCopstress0(dis,...)
-                 if(variant%in%c("2","Variant2","v2","profile","p-copstress","P-COPS","COPS-P","p-cops","copstress-p")) out <- pcops(dis,...)
+                 if(variant%in%c("2","Variant2","v2","profile","p-copstress","P-COPS","COPS-P","p-cops","copstress-p","pcops")) out <- pcops(dis,...)
                  return(out)
                  }

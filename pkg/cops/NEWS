@@ -1,7 +1,10 @@
 #TODO:  Standardize the plots
 
+Version 1.1-2:
+  - Set all standardisations for P-COPS functions to "sd".
+
 Version 1.1-1:
-  - Added a vignette.
+  - Added a vignette. Set all standardisations for P-COPS functions to "sd".
 
 Version 1.1-0:
   - Added rpowerstress, a powerstress model that restricts the transformations for dissimilarities and distances to be equal. Changed an (extra and not used) slot name of the pcops models from $cordillera to $copsobj. Updated docs.   

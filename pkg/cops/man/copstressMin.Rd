@@ -73,7 +73,7 @@ copstressMin(
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
-\item{scale}{Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of none (so no scaling), sd (configuration divided by the maximum standard deviation of the columns), std (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), proc (procrustes adjustment to the initial fit) and rmsq (configuration divided by the maximum root mean square of the columns). Default is sd.}
+\item{scale}{Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "std" (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
