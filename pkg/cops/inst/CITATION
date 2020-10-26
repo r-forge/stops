@@ -17,10 +17,10 @@ citEntry(entry="Manual",
 citEntry(entry = "TechReport", 
     author = personList(as.person("Thomas Rusch"), 
         as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "COPS: Cluster Optimized Proximity Scaling", address="Vienna, Austria", institution="WU Vienna University of Economics and Business", number="2015/1", series="Discussion Paper Series/Center for Empirical Research Methods", year = 2015, 
-    url = "http://epub.wu.ac.at/4476/", 
+    url = "https://epub.wu.ac.at/4476/", 
     textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2015)", 
     "COPS: Cluster optimized proximity scaling.","Discussion Paper Series / Center for Empirical Research Methods, 2015/1.","WU Vienna University of Economics and Business, Vienna."),
-    header="If cops() or cordillera() is used, please cite:")
+    header="If cops() is used, please cite:")
 
 citEntry(entry = "TechReport", 
     author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 

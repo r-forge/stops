@@ -553,6 +553,26 @@ dm #the dmax to be used for COPS
 
 * Staying true to the exploratory nature, trying out different setups and comparing them is a good idea, especially with respect to the cordillera parameters and scalarization weights.
 
+* `dmax` is an important parameter to bring out clusteredness. While the default value for `dmax` works well in many cases, it is nevertheless a good idea to try out different values. One strategy that we found useful (particularly with COPS-C) is to fit the standard MDS and then investigating the reachability plot of the cordillera. If `dmax` is too high, this is typically apparent (and can happen easily if there is very little clusteredness in the plot and the whole data set is considered by OPTICS to be essentially one cluster).  Similarly, it pays out to investigate the reachability plot for a fitted COPS model (`plot(...,plot.type="reachplot")`) and see if the `dmax` was set too large (or not large enough). Here's an example for the `GOPdtm` data from package `smacof`.
+```{r,fig=TRUE}
+data(GOPdtm)
+dis <- dist(t(GOPdtm))
+cops0 <- copstressMin(dis,stressweight=1,cordweight=0,minpts=2,q=2,itmax=10000)
+par(mfrow=c(1,2))
+plot(cops0)
+plot(cops0,plot.type="reachplot")
+par(mfrow=c(1,1))
+```
+We see here that `dmax` is quite high (around 1.7), leading to a less pronounced normed cordillera. But we also see that this large `dmax` comes from reachabililties that are sort of outlying or associated with noise points due to the high `eps` ("government" and "freedom" in particular). We'd therefore set `dmax` lower here when fitting a COPS-C model, say to 1.
+```{r,fig=TRUE}
+cops1<-copstressMin(dis,dmax=1,stressweight=0.99,cordweight=0.01,minpts=2,q=2,itmax=10000)
+par(mfrow=c(1,2))
+plot(cops1)
+plot(cops1,plot.type="reachplot")
+par(mfrow=c(1,1))
+```
+We now see that the `dmax` is well calibrated and both the cordillera and the configuration plot show high clusteredness with respect to two or more object clusters even for small `cordweight`. 
+
 * We envisioned, tested and applied the functions in the `cops` package for small to moderate data sizes (up to 200 objects). The more objects we have, the more difficult the problem becomes, both with respect to finding the optima and the time it will take to get them. It can also be that the COPS result is not really illuminating with a large number of objects. This is ongoing research, so use at your own risk. We're always interested in hearing experiences, though, if something goes awry. 
 
 
@@ -583,7 +603,6 @@ dm #the dmax to be used for COPS
 * Takane Y, Young F, de Leeuw J (1977). Nonmetric individual differences multidimensional scaling: an alternating least squares method with optimal scaling features. Psychometrika, 42 (1), 7-67.
 
 * Torgerson WS (1958). Theory and methods of scaling. Wiley.
-
 
 * Venables WN, Ripley BD (2002). Modern Applied Statistics with S. Fourth edition. Springer, New York. 
 
