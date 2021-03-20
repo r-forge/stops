@@ -1,12 +1,11 @@
 Package: cordillera
 Title: Calculation of the OPTICS Cordillera
-Version: 0.9-0
-Date: 2020-10-04
+Version: 0.9-1
+Date: 2020-10-27
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"),comment=c(ORCID="0000-0002-7773-2096")),
              person(given="Patrick",family="Mair", role = "ctb"),
-	     person(given="Kurt",family="Hornik", role = "ctb",comment=c(ORCID="0000-0003-4198-9911"))
-	     )
-Author: Thomas Rusch [aut, cre], Patrick Mair [ctb], Kurt Hornik [ctb]
+	     person(given="Kurt",family="Hornik", role = "ctb",comment=c(ORCID="0000-0003-4198-9911")))
+Author: Thomas Rusch [aut, cre] (<https://orcid.org/0000-0002-7773-2096>), Patrick Mair [ctb], Kurt Hornik [ctb] (<https://orcid.org/0000-0003-4198-9911>)
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
 Description: Functions for calculating the OPTICS Cordillera. The OPTICS Cordillera measures the amount of 'clusteredness' in a numeric data matrix within a distance-density based framework for a given minimum number of points comprising a cluster, as described in Rusch, Hornik, Mair (2018) <doi:10.1080/10618600.2017.1349664>. There is an R native version and a version that uses 'ELKI', with methods for printing, summarizing, and plotting the result. There also is an interface to the reference implementation of OPTICS in 'ELKI'.
 Depends: R (>= 3.1.2),

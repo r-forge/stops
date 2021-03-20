@@ -20,7 +20,7 @@
 #' @format A data frame with 58 rows and 52 variables
 #' @source
 #' \itemize{
-#' \item Cooley (2012) \url{http://www.energy.ca.gov/2012publications/CEC-500-2012-013/CEC-500-2012-013.pdf}
+#' \item Cooley (2012) \url{https://web.archive.org/web/20190804090217/https://ww2.energy.ca.gov/2012publications/CEC-500-2012-013/CEC-500-2012-013.pdf} 
 #' \item Heberger (2009) \url{http://pacinst.org/reports/sea_level_rise/files/Blk_fld.zip}
 #' \item California Energy Comission (2008) \url{http://cal-adapt.org/data/}
 #' }

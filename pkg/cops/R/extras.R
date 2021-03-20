@@ -133,6 +133,8 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         }
     }
     if (plot.type %in% c("Shepard","resplot")) {
+        delt <- as.vector(x$delta) #new in 1-2.0
+        confd <- as.vector(x$confdist) #new in 1-2.0
         if(missing(col)) col <- c("grey60","grey65") 
         if (missing(main)) 
             main <- ifelse(plot.type=="Shepard",paste("Linearized Shepard Diagram"),paste("Residual plot"))
@@ -144,17 +146,17 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
             ylab <- "Transformed Configuration Distances"
         else ylab <- ylab
         if (missing(xlim)) 
-            xlim <- range(as.vector(x$delta))
+            xlim <- range(delt)
         if (missing(ylim)) 
-            ylim <- range(as.vector(x$confdist))
-        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, 
+            ylim <- range(confd)
+        graphics::plot(delt, confd, main = main, 
             type = "p", pch = ifelse(plot.type=="Shepard",20,1), cex = ifelse(plot.type=="Shepard",0.75,1), xlab = xlab, ylab = ylab, 
             col = col[1], xlim = xlim, ylim = ylim, ...)
         if(plot.type=="Shepard") {
-             pt <- predict(stats::loess(x$confdist~x$delta))
-             graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.5)
-         }
-     graphics::abline(stats::lm(x$confdist~x$delta))
+           pt <- predict(stats::loess(confd~delt))
+           graphics::lines(delt[order(delt)],pt[order(delt)],col=col[2],type="b",pch=20,cex=0.5)
+        }
+     graphics::abline(stats::lm(confd~delt))
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30","grey60")
@@ -180,78 +182,12 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
             graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
          }
     if (plot.type == "stressplot") {
-        plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
-        replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
+        warning("Plot not supported for this class. Please use a stress-based MDS.")
     }
     if (plot.type == "bubbleplot") {
-        plot(-10:10,-10:10,type="n",axes=FALSE, xlab="",ylab="")
-        replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
+        warning("Plot not supported for this class. Please use a stress-based MDS.")
     }
-}
-
-#' 3D plots: plot3d method for class cmdscale
-#'
-#' This methods produces a dynamic 3D configuration plot.
-#'
-#' 
-#' @param x object of class cmdscale
-#' @param plot.dim vector of length 3 with dimensions to be plotted
-#' @param xlab label of x axis
-#' @param ylab label of y axis
-#' @param zlab label of z axis
-#' @param col color of the text labels
-#' @param main plot title
-#' @param bgpng Background image from rgl library; 'NULL' for white background
-#' @param ax.grid If 'TRUE', axes grid is plotted.
-#' @param sphere.rgl If 'TRUE', rgl sphere (background) is plotted.
-#' @param ... Further plot arguments passed: see 'plot3d' in package 'rgl' for detailed information.
-#'
-#' @import rgl
-#' @export
-plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
-{
-    ndim <- dim(x$points)[2]
-    if (ndim < 3) 
-        stop("No 3D plots can be drawn for ndim < 3 !")
-    if (length(plot.dim) != 3) 
-        stop("plot.dim must be of length 3!")
-    pd1 <- plot.dim[1]
-    pd2 <- plot.dim[2]
-    pd3 <- plot.dim[3]
-    if (pd3 > ndim) 
-        stop("Only", ndim, "dimensions were extracted!")
-    x1 <- x$points[, pd1]
-    y1 <- x$points[, pd2]
-    z1 <- x$points[, pd3]
-    if (missing(xlab)) 
-        xlab <- paste("Dimension", pd1)
-    if (missing(ylab)) 
-        ylab <- paste("Dimension", pd2)
-    if (missing(zlab)) 
-        zlab <- paste("Dimension", pd3)
-    if (is.null(bgpng)) {
-        texture1 <- NULL
     }
-    else {
-        texture1 <- system.file(paste("textures/", bgpng, sep = ""), 
-            package = "rgl")
-    }
-    if (missing(main)) 
-        main1 <- "Configuration Plot"
-    else main1 <- main
-    if (missing(col)) 
-        col1 <- "blue"
-    else col1 <- col
-    open3d()
-    bg3d(sphere = sphere.rgl, texture = texture1, back = "filled", 
-        color = "white")
-    text3d(x1, y1, z1, texts = rownames(x$points), col = col1, 
-        alpha = 1, ...)
-    axes3d(c("x", "y", "z"), labels = TRUE, color = "black", 
-        alpha = 1)
-    title3d(xlab = xlab, ylab = ylab, zlab = zlab, main = main1, 
-        color = "black", alpha = 1)
-}
 
 
 #' A static 3d plot S3 generic 

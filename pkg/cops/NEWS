@@ -1,5 +1,8 @@
 #TODO:  Standardize the plots
 
+Version 1.2-0:
+  - Removed rgl functions. Updated reference to the JCGS publication. Fixed a bug in plot.cmdscale and plot.smacofP for plot.type="Shepard" and plot.type="resplot".  
+
 Version 1.1-3:
   - Touchups for URLs and citation for CRAN.
 

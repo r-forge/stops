@@ -155,6 +155,12 @@ secularEq<-function(a,b) {
 #' dis<-as.matrix(smacof::kinshipdelta)
 #' res<-powerStressMin(dis)
 #' plot(res)
+#' plot(res,"reachplot")
+#' plot(res,"Shepard")
+#' plot(res,"resplot")
+#' plot(res,"transplot")
+#' plot(res,"stressplot")
+#' plot(res,"bubbleplot")
 plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
 {
     x1 <- plot.dim[1]
@@ -186,6 +192,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         }
     }
     if (plot.type == "Shepard") {
+        delts <- as.vector(x$delta)
+        confd <- as.vector(x$confdist)
         if(missing(col)) col <- c("grey60","grey50","black")
         if (missing(main)) 
             main <- paste("Linearized Shepard Diagram")
@@ -203,16 +211,16 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         #delta=dhats
         #proximities=obsdiss
         #distances=confdist
-        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        graphics::plot(delts, confd, main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
         #graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
         #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
         #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
         if(loess) {
-                   pt <- predict(stats::loess(x$confdist~-1+x$delta))
-                   graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.25)
+                   pt <- predict(stats::loess(confd~-1+delts))
+                   graphics::lines(delts[order(delts)],pt[order(delts)],col=col[2],type="b",pch=20,cex=0.25)
         }
-        ptl <- predict(stats::lm(x$confdist~-1+x$delta))
-        graphics::lines(x$delta[order(x$delta)],ptl[order(x$delta)],col=col[3],type="b",pch=20,cex=0.25)
+        ptl <- predict(stats::lm(confd~-1+delts))
+        graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[3],type="b",pch=20,cex=0.25)
        # graphics::abline(stats::lm(x$confdist~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {
@@ -245,7 +253,9 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
                 graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
             }
          }
-     if (plot.type == "resplot") {
+if (plot.type == "resplot") {
+        obsd <- as.vector(x$obsd)
+        confd <- as.vector(x$confdist)
         if(missing(col)) col <- "darkgrey" 
         if (missing(main)) 
             main <- paste("Residual plot")
@@ -257,13 +267,13 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             ylab <- "Configuration Distances"
         else ylab <- ylab
         if (missing(xlim)) 
-            xlim <- range(as.vector(x$obsdiss))
+            xlim <- range(obsd)
         if (missing(ylim)) 
-            ylim <- range(as.vector(x$confdist))
-        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdist), main = main, 
+            ylim <- range(confd)
+        graphics::plot(obsd, confd, main = main, 
             type = "p", col = col, xlab = xlab, ylab = ylab, 
             xlim = xlim, ylim = ylim, ...)
-        abline(lm(x$confdist~x$obsdiss))
+        abline(lm(confd~obsd))
     }
     if (plot.type == "stressplot") {
         if(missing(col)) col <- "lightgray"

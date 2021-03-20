@@ -82,4 +82,10 @@ S3 plot method for smacofP objects
 dis<-as.matrix(smacof::kinshipdelta)
 res<-powerStressMin(dis)
 plot(res)
+plot(res,"reachplot")
+plot(res,"Shepard")
+plot(res,"resplot")
+plot(res,"transplot")
+plot(res,"stressplot")
+plot(res,"bubbleplot")
 }

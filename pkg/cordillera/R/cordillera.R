@@ -27,6 +27,7 @@
 #' @section Warning: It may happen that the (normed) cordillera cannot be calculated properly (e.g. division by zero, infinite raw cordillera, q value to high etc.). A warning will be printed and the normed cordillera is either 0, 1 (if infinity is involved) or NA. In that case one needs to check one or more of the following reachability values returned from optics, minpts, eps, the raw cordillera, dmax or the normalization factor.
 #'
 #' @importFrom graphics barplot lines
+#' @importFrom stats IQR quantile
 #' @keywords clustering multivariate
 #' 
 #' @export
@@ -43,7 +44,7 @@ e_cordillera <- function(confs,q=1,minpts=2,epsilon,dmax=NULL,rang,digits=10,pat
         #TODO newer elki returns unicode \342 instead of infinity so we need to work around that, works now but we suppress coercion warning
         tmp <- suppressWarnings(as.numeric(tmp))
         tmp[is.na(tmp)] <- Inf
-        if(is.null(dmax)) dmax <- min(epsilon, quantile(tmp[is.finite(tmp)],0.75)+IQR(tmp[is.finite(tmp)]))
+        if(is.null(dmax)) dmax <- min(epsilon, stats::quantile(tmp[is.finite(tmp)],0.75)+stats::IQR(tmp[is.finite(tmp)]))
        # dmax <- min(epsilon,max(tmp[is.finite(tmp)])) #This sets the dmax to the definition of the non-outlying region of Tukey reachability if max < eps or eps if eps < max; so this allows to do robustness stuff.
         if(missing(rang)) rang <- c(0,dmax) #This sets the range to min to max if max < eps or eps if eps < max; so this allows to do robustness stuff.
         # is eps if no range is given and eps < max reachability or if eps < range and < max reachability
