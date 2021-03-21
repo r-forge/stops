@@ -1,8 +1,7 @@
 ## Test environments
-* local Linux Mint 20 install, R 4.0.3
+* local Linux Mint 20.1 install, R 4.0.4
 * local Linux Mint 19.2 install, R 4.0.3
-* local Linux Mint 19.2 install, R 4.0.3.
-* win-builder (devel, release and oldrel)
+* win-builder (devel, release, oldrel)
 
 ## R CMD check results
 There were no ERRORs or WARNINGs or NOTEs. 

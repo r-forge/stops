@@ -1,6 +1,6 @@
 #' cops: cluster optimized proximity scaling
 #' 
-#' Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera (Rusch, Hornik & Mair 2018). There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters for the power transformations (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ Algorithmus).
+#' About the package cops: Cluster optimized proximity scaling (COPS) refers to multidimensional scaling methods that aim at pronouncing the clustered appearance of the configuration. They achieve this by transforming proximities/distances with power functions and augment the fitting criterion with a clusteredness index, the OPTICS Cordillera (Rusch, Hornik & Mair 2018). There are two variants: One for finding the configuration directly for given parameters (COPS-C), and one for using the augmented fitting criterion to find optimal parameters for the power transformations (P-COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a COPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress. All of these models can also solely be fit as MDS with power transformations. The package further contains functions for optimization (Adaptive LJ Algorithmus).
 #'
 #' The cops package provides five categories of important functions:
 #'
@@ -30,9 +30,8 @@
 #'
 #' References:
 #' \itemize{
-#' \item Rusch, T., Mair, P. & Hornik, K. (2015) COPS: Cluster optimized proximity scaling, Report 2015/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
-#' \item Rusch, T., Hornik, K. & Mair, P. (2018) Assessing and quantifying clusteredness: The OPTICS Cordillera. Journal of Computational and Graphical Statistics, 27 (1), 220-233. \url{http://dx.doi.org/10.1080/10618600.2017.1349664}
-#' \item Rusch, T., Mair, P. & Hornik, K. (2021) Cluster optimized proximity scaling. Journal of Computational and Graphical Statistics.  \url{https://doi.org/10.1080/10618600.2020.1869027}
+#' \item Rusch, T., Hornik, K. & Mair, P. (2018) Assessing and quantifying clusteredness: The OPTICS Cordillera. Journal of Computational and Graphical Statistics, 27 (1), 220-233. \doi{10.1080/10618600.2017.1349664}
+#' \item Rusch, T., Mair, P. & Hornik, K. (2021) Cluster optimized proximity scaling. Journal of Computational and Graphical Statistics. \doi{10.1080/10618600.2020.1869027}
 #' }
 #' 
 #'Authors: Thomas Rusch, Jan de Leeuw, Patrick Mair
@@ -67,7 +66,6 @@
 #' plot(res,"transplot")
 #' plot(res,"Shepard")
 #'}
-#' 
 #' @docType package
 #' @name cops
 NULL

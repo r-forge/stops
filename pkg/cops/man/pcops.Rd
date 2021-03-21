@@ -40,7 +40,7 @@ pcops(
 \itemize{
 \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerstressMin)
 \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerstressMin)
-\item Power transformations of fitted distances and observed proximities: Powermds \code{powermds}, Sammon mapping/ elastic scaling with powers (\code{powersammon}, \code{powerelastic}), powerstress (POST-MDS,\code{powerstress}), restricted powerstress with equal transformations for delta and d (\code{rpowerstress}); workhorse is powerstressMin)
+\item Power transformations of fitted distances and observed proximities: Powermds (\code{powermds}), Sammon mapping/elastic scaling with powers (\code{powersammon}, \code{powerelastic} ), powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for delta and d (\code{rpowerstress}); workhorse is powerstressMin)
 \item Approximation to power stress: Approximated power stress (\code{apstress}; workhorse is smacof)
 }}
 

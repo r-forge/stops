@@ -57,6 +57,7 @@ pdist <- function (x,p) {
 }
 
 #' Auxfunction1
+#' 
 #' only used internally
 #' @param x matrix
 #' @return a matrix 
@@ -67,17 +68,6 @@ mkBmat <- function (x) {
     return (x)
 }
 
-#' Take matrix to a power 
-#'
-#' @param x matrix
-#' @param r numeric (power)
-#' @return a matrix
-mkPowerALTERN<-function(x,r) {
-    n<-nrow(x)
-    tmp <- abs((x+diag(n))^r)-diag(n)
-    tmp[!is.finite(tmp)] <- 1e+100
-    return(tmp)
-}
 
 #' Take matrix to a power 
 #'

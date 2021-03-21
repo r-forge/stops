@@ -2,8 +2,7 @@
 % Please edit documentation in R/powerstress.R
 \name{mkBmat}
 \alias{mkBmat}
-\title{Auxfunction1
-only used internally}
+\title{Auxfunction1}
 \usage{
 mkBmat(x)
 }
@@ -14,6 +13,5 @@ mkBmat(x)
 a matrix
 }
 \description{
-Auxfunction1
 only used internally
 }
