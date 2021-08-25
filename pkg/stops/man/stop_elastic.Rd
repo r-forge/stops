@@ -34,6 +34,8 @@ stop_elastic(
 
 \item{init}{(optional) initial configuration}
 
+\item{itmax}{number of iterations}
+
 \item{...}{additional arguments to be passed to the fitting procedure}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}

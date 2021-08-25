@@ -50,14 +50,16 @@
 #' dissm<-as.matrix(kinshipdelta)
 #' #STOPS with strain
 #' resstrain<-stops(dissm,loss="strain",
-#' structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+#' structures=c("cclusteredness","cdependence"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
 #' resstrain
 #' summary(resstrain)
 #' plot(resstrain)
 #'
 #' #STOPS with stress
 #' resstress<-stops(dissm,loss="stress",
-#' structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+#' structures=c("cclusteredness","cdependence"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
 #' resstress
 #' summary(resstress)
 #' plot(resstress)
@@ -65,28 +67,33 @@
 #'
 #' #STOPS with powerstress
 #' respstress<-stops(dissm,,loss="powerstress",
-#' structures=c("cclusteredness","cdependence"),itmaxps=1000,strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
+#' structures=c("cclusteredness","cdependence"),
+#' strucpars=strucpars,weightmat=dissm,
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
 #' respstress
 #' summary(respstress)
 #' plot(respstress)
 #'
 #' #STOPS with bcstress
 #' resbcstress<-stops(dissm,loss="bcstress",
-#' structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ", lower=c(0,1,0),upper=c(10,10,10))
+#' structures=c("cclusteredness","cdependence"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=c(0,1,0),upper=c(10,10,10))
 #' resbcstress
 #' summary(resbcstress)
 #' plot(resbcstress)
 #'
 #' #STOPS with lmds
 #' reslmds<-stops(dissm,loss="lmds",
-#' structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(10,2))
+#' structures=c("cclusteredness","clinearity"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(10,2))
 #' reslmds
 #' summary(reslmds)
 #' plot(reslmds)
 #'
 #' #STOPS with Isomap (the epsilon version)
 #' resiso<-stops(dissm,loss="isomapeps",
-#' structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
+#' structures=c("cclusteredness","clinearity"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 #' resiso
 #' summary(resiso)
 #' plot(resiso)

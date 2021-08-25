@@ -135,14 +135,13 @@ ljoptim <- function(x,fun,...,red=ifelse(adaptive,0.99,0.95),lower,upper,acc=1e-
 #' x2 <- x[2]
 #' 100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 #' }
-#' #Of course not clever as the function is simple enough to evaluate to use other optim 
-#' res1<-tgpoptim(c(-1.2,1),fbana,lower=c(-5,-5),upper=c(5,5),acc=1e-16,itmax=100)
+#' res1<-tgpoptim(c(-1.2,1),fbana,lower=c(-5,-5),upper=c(5,5),acc=1e-16,itmax=20)
 #' res1
 #'
 #' fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-#' set.seed(210485)
 #' plot(fwild, -50, 50, n = 1000, main = "Bayesian GP Optimization minimizing 'wild function'")
-#' res2<-tgpoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,acc=1e-16,itmax=100,model="bgp")
+#' set.seed(210485)
+#' res2<-tgpoptim(50, fwild,lower=-50,upper=50,acc=1e-16,itmax=20,model="btgpllm")
 #' points(res2$par,res2$value,col="red",pch=19)
 #' res2
 #' }

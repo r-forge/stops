@@ -135,14 +135,16 @@ strucpars<-list(list(c(epsilon=10,minpts=2)),NULL)
 dissm<-as.matrix(kinshipdelta)
 #STOPS with strain
 resstrain<-stops(dissm,loss="strain",
-structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
 resstrain
 summary(resstrain)
 plot(resstrain)
 
 #STOPS with stress
 resstress<-stops(dissm,loss="stress",
-structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
 resstress
 summary(resstress)
 plot(resstress)
@@ -150,41 +152,47 @@ plot(resstress,"Shepard")
 
 #STOPS with powerstress
 respstress<-stops(dissm,,loss="powerstress",
-structures=c("cclusteredness","cdependence"),itmaxps=1000,strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
 respstress
 summary(respstress)
 plot(respstress)
 
 #STOPS with bcstress
 resbcstress<-stops(dissm,loss="bcstress",
-structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ", lower=c(0,1,0),upper=c(10,10,10))
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=c(0,1,0),upper=c(10,10,10))
 resbcstress
 summary(resbcstress)
 plot(resbcstress)
 
 #STOPS with lmds
 reslmds<-stops(dissm,loss="lmds",
-structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(10,2))
+structures=c("cclusteredness","clinearity"),
+strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(10,2))
 reslmds
 summary(reslmds)
 plot(reslmds)
 
 #STOPS with Isomap (the epsilon version)
 resiso<-stops(dissm,loss="isomapeps",
-structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
+structures=c("cclusteredness","clinearity"),
+strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 resiso
 summary(resiso)
 plot(resiso)
 }
 \donttest{
 data(BankingCrisesDistances)
-strucpar<-list(c(eps=10,minpts=2),NULL)
+strucpar<-list(c(eps=10,minpts=2),NULL) #parameters for indices
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cclusteredness","clinearity"),strucpars=strucpar,
 lower=0,upper=10)
 res1
 
-strucpar<-list(list(alpha=1,C=15,var.thr=1e-5,eps=NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
+list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,
 lower=0,upper=10)
