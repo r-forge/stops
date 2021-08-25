@@ -3,12 +3,12 @@
 \name{c_dependence}
 \alias{c_dependence}
 \title{c-dependence
-calculates c-dependence as the aggregated distance correlation}
+calculates c-dependence as the aggregated distance correlation of each pair if nonidentical columns}
 \usage{
 c_dependence(confs, aggr = max, index = 1)
 }
 \arguments{
-\item{confs}{a numeric matrix or data frame with two columns}
+\item{confs}{a numeric matrix or data frame}
 
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 
@@ -16,7 +16,7 @@ c_dependence(confs, aggr = max, index = 1)
 }
 \description{
 c-dependence
-calculates c-dependence as the aggregated distance correlation
+calculates c-dependence as the aggregated distance correlation of each pair if nonidentical columns
 }
 \examples{
 x<-1:10

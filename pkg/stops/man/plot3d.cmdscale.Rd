@@ -4,8 +4,19 @@
 \alias{plot3d.cmdscale}
 \title{3D plots: plot3d method for class cmdscale}
 \usage{
-\method{plot3d}{cmdscale}(x, plot.dim = c(1, 2, 3), xlab, ylab, zlab,
-  col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE, ...)
+\method{plot3d}{cmdscale}(
+  x,
+  plot.dim = c(1, 2, 3),
+  xlab,
+  ylab,
+  zlab,
+  col,
+  main,
+  bgpng = NULL,
+  ax.grid = TRUE,
+  sphere.rgl = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{object of class cmdscale}

@@ -134,6 +134,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -158,7 +159,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #'@import smacof
 #'@import cordillera
 #'@export
-stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,itmax=1000,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(is.null(init)) init <- "torgerson"  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -167,7 +168,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta, length.out=3)
   lambda <- theta[2]
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -183,62 +184,64 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   out
 }
 
-#' STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)
-#'
-#' Not functional
-#' 
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param transformation function to transform the proximities or distances; need to be parameterized by theta  
-#' @param theta the theta vector of transformations
-#' @param ndim number of dimensions of the target space
-#' @param weightmat (optional) a matrix of nonnegative weights
-#' @param init (optional) initial configuration
-#' @param structures which structuredness indices to be included in the loss
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param strucpars strucpars
-#' @param ... additional arguments to be passed to the fitting
-#' 
-#' @return A list with the components
-#'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
-#'         \item{stoploss:} the weighted loss value
-#'         \item{indices:} the values of the structuredness indices
-#'         \item{parameters:} the parameters used for fitting 
-#'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
-#' }
-#' 
-#'@keywords multivariate
-#'@import smacof
-#'@import cordillera 
-#'@export
-stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
-    if(is.null(init)) init <- "torgerson" 
-  theta <- as.numeric(theta)
-  if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  addargs <- list(...)
-  #TODO: Other transformations parametrized by theta; use splines
-  #Transformations must be so that first argument is the dissimilarity matrix and the second the theta parameters 
-  diso <- dis
-  dis <- do.call(transformation,list(diso,theta))
-  diso <- dis
-  dis <- do.call(transformation,list(diso,theta))
-  fit <- smacof::smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
-  fit$stress.1 <- fit$stress
-  fitdis <- as.matrix(fit$confdist)
-  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it ion the original; that is scale and unit free as Buja said
-  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
-  fit$pars <- theta
-  stopobj <- stoploss(fit,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r/2, stress.m=fit$stress.m/2, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,fit=fit) #target functions
-  #TODO include the objects of the indices returned as a list? indicesfull=stopobj 
-  out
-}
+## #' STOPS versions of flexsmacof models (models with a parametric f() transformation to be determined)
+## #'
+## #' Not functional
+## #' 
+## #' @param dis numeric matrix or dist object of a matrix of proximities
+## #' @param transformation function to transform the proximities or distances; need to be parameterized by theta  
+## #' @param theta the theta vector of transformations
+## #' @param ndim number of dimensions of the target space
+## #' @param weightmat (optional) a matrix of nonnegative weights
+## #' @param init (optional) initial configuration
+## #' @param structures which structuredness indices to be included in the loss
+## #' @param stressweight weight to be used for the fit measure; defaults to 1
+## #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
+## #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+## #' @param strucpars strucpars
+## #' @param itmax number of iterations 
+## #' @param ... additional arguments to be passed to the fitting function
+
+## #' 
+## #' @return A list with the components
+## #'    \itemize{
+## #'         \item{stress:} the stress
+## #'         \item{stress.m:} default normalized stress
+## #'         \item{stoploss:} the weighted loss value
+## #'         \item{indices:} the values of the structuredness indices
+## #'         \item{parameters:} the parameters used for fitting 
+## #'         \item{fit:} the returned object of the fitting procedure
+## #'         \item{indobj:} the index objects
+## #' }
+## #' 
+## #'@keywords multivariate
+## #'@import smacof
+## #'@import cordillera 
+## #'@export
+## stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,weightmat=NULL,init=NULL,itmax=1000,...,structures=c("clusteredness","linearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0) {
+##     if(is.null(init)) init <- "torgerson" 
+##   theta <- as.numeric(theta)
+##   if(inherits(dis,"dist")) dis <- as.matrix(dis)
+##   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
+##   addargs <- list(...)
+##   #TODO: Other transformations parametrized by theta; use splines
+##   #Transformations must be so that first argument is the dissimilarity matrix and the second the theta parameters 
+##   diso <- dis
+##   dis <- do.call(transformation,list(diso,theta))
+##   diso <- dis
+##   dis <- do.call(transformation,list(diso,theta))
+##   fit <- smacof::smacofSym(dis,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
+##   fit$stress.1 <- fit$stress
+##   fitdis <- as.matrix(fit$confdist)
+##   delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it ion the original; that is scale and unit free as Buja said
+##   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
+##   fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+##   fit$pars <- theta
+##   stopobj <- stoploss(fit,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars)
+##   out <- list(stress=fit$stress, stress.r=fit$stress.r/2, stress.m=fit$stress.m/2, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,fit=fit) #target functions
+##   #TODO include the objects of the indices returned as a list? indicesfull=stopobj 
+##   out
+## }
 
 #' STOPS versions of elastic scaling models (via smacofSym)
 #'
@@ -273,7 +276,7 @@ stop_flexsmacof <- function(dis,transformation=mkPower2, theta=c(1,1), ndim=2,we
 #'@import smacof 
 #'@keywords multivariate
 #'@export
-stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,itmax=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
                                         #TODO Unfolding
   if(is.null(init)) init <- "torgerson" 
   theta <- as.numeric(theta)
@@ -288,7 +291,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -314,6 +317,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -337,7 +341,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,...
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
-stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,itmax=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
                                         #TODO Unfolding
   if(is.null(init)) init <- "torgerson"
   theta <- as.numeric(theta)
@@ -348,7 +352,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta,length.out=3)
   lambda <- theta[2]
-  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
@@ -373,6 +377,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -399,7 +404,7 @@ stop_smacofSphere <- function(dis,theta=c(1,1),ndim=2,weightmat=NULL,init=NULL,.
 #'
 #' 
 #' @export
-stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmax=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
@@ -408,7 +413,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
   if(length(theta)==2L) lambda <- theta[2]
   if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
-  fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),...)
+  fit <- stops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmax,...)
   fit$lambda <- lambda
   fit$kappa <- 1
   fit$nu <- -1
@@ -440,6 +445,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -466,7 +472,7 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,...,
 #' 
 #'@keywords multivariate
 #'@export
-stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmax=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
     theta <- as.numeric(theta)
     if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -480,7 +486,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
   elscalw <- dis^(nu*lambda) #the weighting in 
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- nu
@@ -513,7 +519,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
-#' 
+#' @param itmax placeholder for compatibility in stops call; not used
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -530,7 +536,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,...
 #' @importFrom stats dist as.dist
 #' @keywords multivariate
 #' @export
-stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),itmax=NULL) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
@@ -569,7 +575,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
-#' 
+#' @param itmax placeholder for compatibility in stops call; not used
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -587,7 +593,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
 #' @importFrom vegan isomap isomapdist
 #' @keywords multivariate
 #' @export
-stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),itmax=NULL) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
@@ -627,7 +633,7 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param type How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
-#' 
+#' @param itmax placeholder for compatibility in stops call; not used
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -645,14 +651,14 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
 #' @importFrom vegan isomap isomapdist
 #' @keywords multivariate
 #' @export
-stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative"),itmax=NULL) {
     theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
   if(length(theta)==1L) lambda <- theta
   if(length(theta)==2L) lambda <- theta[1]
   if(length(theta)==3L) lambda <- theta[1]
-    disi <- vegan::isomapdist(dis,epsilon=lambda,path="shortest",fragmentedOK=TRUE)
+  disi <- vegan::isomapdist(dis,epsilon=lambda,path="shortest",fragmentedOK=TRUE)
   if(length(disi)==0) stop("The distance matrix is of length 0 for the current epsilon. Consider increasing the lower bound of the search region.")
   fit <- stops::cmdscale(disi,k=ndim,eig=TRUE) 
   fit$eps <- lambda
@@ -678,6 +684,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -700,7 +707,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
@@ -708,7 +715,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
   if(missing(type)) type <- "additive"
   if(length(theta)<3) theta <- rep(theta,length.out=3)
   kappa <- theta[1]
-  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- theta[1]
   fit$lambda <- 1
   fit$nu <- 1
@@ -727,6 +734,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @param init (optional) initial configuration
 #' @param ndim the number of dimensions of the target space
 #' @param stressweight weight to be used for the fit measure; defaults to 1
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -748,7 +756,7 @@ stop_rstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
@@ -757,7 +765,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
   if(length(theta)<3) theta <- rep(theta, length.out=3)
   lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
-  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- 2
   fit$lambda <- flambda
   fit$nu <- 1
@@ -775,6 +783,7 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
@@ -796,14 +805,14 @@ stop_sstress <- function(dis,theta=c(2,1,1),weightmat=NULL,init=NULL,ndim=2,...,
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta,length.out=3)
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- 1
@@ -820,6 +829,7 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which strcutures to look for
@@ -841,7 +851,7 @@ stop_powermds <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
@@ -852,7 +862,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
   sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
   combwght <- sammwght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
@@ -869,6 +879,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which strcutures to look for
@@ -890,7 +901,7 @@ stop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=NULL,init=NULL,ndim=2
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(type)) type <- "additive"
@@ -901,7 +912,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
   elawght <- dis^(theta[2])
   diag(elawght) <- 1
   combwght <- elawght*weightmat
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- nu
@@ -919,6 +930,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which strcutures to look for
@@ -939,7 +951,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
 #' @import cordillera
 #' @keywords multivariate
 #' @export
-stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,itmax=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
@@ -948,7 +960,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,...)
+  fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmax,...)
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
@@ -966,6 +978,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,
 #' @param weightmat (not used) 
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
@@ -985,7 +998,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,
 #' }
 #' @keywords multivariate
 #' @export
-stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
@@ -994,7 +1007,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,...
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
   #diag(wght) <- 1
-  fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],nu=theta[3],init=init,ndim=ndim,verbose=verbose+2,...)
+  fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],nu=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
   fit$mu <- theta[1]
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
@@ -1011,6 +1024,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,...
 #' @param weightmat (not used) 
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
+#' @param itmax number of iterations 
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
@@ -1030,7 +1044,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,...
 #' }
 #' @keywords multivariate
 #' @export
-stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(type)) type <- "additive"
@@ -1039,7 +1053,7 @@ stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,...,str
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
   #diag(wght) <- 1
-  fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,...)
+  fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
   fit$k <- theta[1]
   fit$tau <- theta[2]
   fit$pars <- c(k=fit$k,tau=fit$tau)
@@ -1078,10 +1092,11 @@ mkPower2<-function(x,theta) {
 #' @param verbose numeric value hat prints information on the fitting process; >2 is pretty verbose.
 #' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
 #' @param s number of particles if pso is used
-#' @param itmax maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150) and a lower number for Bayesian Optimization (around 20). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.
+#' @param itmax maximum number of iterations of the outer optimization (for theta); number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150) and a lower number for Bayesian Optimization (around 20). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.
+#' @param itmaxps maximum number of iterations of the inner optimization (to obtain the configuration)
 #' @param initpoints number of initial points to fit the surrogate model for bayesian optimization; default is 10
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
-#' @param ... additional arguments to be passed to the optimization procedure
+#' @param ... additional arguments to be passed to the outer optimization procedure 
 #
 #'@return A list with the components
 #'         \itemize{
@@ -1115,7 +1130,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower, upper, verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,model,...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp"), lower, upper, verbose=0, type=c("additive","multiplicative"),s=5,initpoints=10,itmax=50,itmaxps=10000, model,...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
@@ -1138,19 +1153,19 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(missing(optimmethod)) optimmethod <- "ALJ"  
       if(verbose>0) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-       opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,method="SANN",...)
+       opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,method="SANN",...)
         thetaopt <- opt$par
       }
        if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,control=control,...)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,lower=lower,upper=upper,control=control,...)
          thetaopt <- opt$par
          bestval <-  opt$value
          itel <- opt$counts["function"]
        }
       if(optimmethod=="ALJ")  {
-        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
+        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
        thetaopt <- opt$par
        bestval <-  opt$value
        itel <- opt$counts["function"] 
@@ -1168,13 +1183,13 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         X <- tgp::dopt.gp(initpoints-1,X=x,Xcand)$XX
         design <- rbind(x,X)
         #design <- data.frame(X) 
-        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss) #support points for fitting kriging model
+        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss) #support points for fitting kriging model
         if (verbose>1) cat("Kriging Model Fitting","\n")
         surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=model,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
         #EGO.nsteps has no verbose argument so I capture.output and return it if desired
         if (verbose>2) cat("EGO (DICE) Optimization","\n")
         logged <- capture.output({
-           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)
+           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)
        }) #bayesian optimization with gaussian process prior
        if(verbose>2) print(logged)
        thetaopt <- opt$par[which.min(opt$value),] #parameters where best value found (we do not use the last one as that may be worse)
@@ -1189,13 +1204,13 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
         if (verbose>1) cat("EGO (TGP) Optimization","\n")
-        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
+        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
        thetaopt <- opt$par #parameters where best value found (we do not use the last one as that may be worse)
        bestval <- opt$value #best stoploss value
        itel <- opt$counts["function"] 
        }
     #refit optimal model  
-    out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type))
+    out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))
     out$stoploss <- bestval
     out$optim <- opt
     out$stressweight <- stressweight

@@ -3,7 +3,9 @@
 \name{Pendigits500}
 \alias{Pendigits500}
 \title{Pen digits}
-\format{A data frame with 500 rows and 17 variables}
+\format{
+A data frame with 500 rows and 17 variables
+}
 \source{
 From A. Izenman (2010) Modern multivariate statistical techniques. Springer. \url{http://astro.temple.edu/~alan/pendigits.txt}
 }

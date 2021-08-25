@@ -5,9 +5,17 @@
 \title{c-clusteredness 
 calculates c-clusteredness as the OPTICS cordillera. The higher the more clustered.}
 \usage{
-c_clusteredness(confs, minpts = 2, q = 2, epsilon = 2 *
-  max(dist(confs)), distmeth = "euclidean", dmax = NULL, digits = 10,
-  scale = 4, ...)
+c_clusteredness(
+  confs,
+  minpts = 2,
+  q = 2,
+  epsilon = 2 * max(dist(confs)),
+  distmeth = "euclidean",
+  dmax = NULL,
+  digits = 10,
+  scale = 0,
+  ...
+)
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
@@ -20,13 +28,13 @@ c_clusteredness(confs, minpts = 2, q = 2, epsilon = 2 *
 
 \item{distmeth}{The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance.}
 
-\item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.}
+\item{dmax}{The winsorization value for the highest allowed reachability. If used for comparisons between different configurations this should be supplied. If no value is supplied, it is NULL (default); then dmax is taken from the data as the either epsilon or the largest reachability, whatever is smaller.}
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
+\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0.}
 
-\item{...}{Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}}
+\item{...}{Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}}
 }
 \description{
 c-clusteredness 

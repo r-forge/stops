@@ -4,10 +4,16 @@
 \alias{c_association}
 \title{c-association
 calculates the c-association based on the maximal information coefficient 
-We define c-association as the aggregated association between any two dimensions}
+We define c-association as the aggregated association between any two columns in confs}
 \usage{
-c_association(confs, aggr = max, alpha = 0.6, C = 15,
-  var.thr = 1e-05, zeta = NULL)
+c_association(
+  confs,
+  aggr = max,
+  alpha = 0.6,
+  C = 15,
+  var.thr = 1e-05,
+  zeta = NULL
+)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}
@@ -25,7 +31,7 @@ c_association(confs, aggr = max, alpha = 0.6, C = 15,
 \description{
 c-association
 calculates the c-association based on the maximal information coefficient 
-We define c-association as the aggregated association between any two dimensions
+We define c-association as the aggregated association between any two columns in confs
 }
 \examples{
 x<-seq(-3,3,length.out=200)

@@ -3,22 +3,36 @@
 \docType{package}
 \name{stops}
 \alias{stops}
-\alias{stops-package}
 \title{stops: structure optimized proximity scaling}
 \usage{
-stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
-  "powermds", "powerelastic", "powerstrain", "elastic", "sammon",
-  "sammon2", "smacofSphere", "powersammon", "rstress", "sstress", "isomap",
-  "isomapeps", "bcstress", "lmds"), theta = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"), ndim = 2,
-  weightmat = NULL, init = NULL, stressweight = 1, strucweight,
-  strucpars, optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
-  lower, upper, verbose = 0, type = c("additive", "multiplicative"),
-  s = 5, initpoints = 10, itmax = 50, model, ...)
+stops(
+  dis,
+  loss = c("strain", "stress", "smacofSym", "powerstress", "powermds", "powerelastic",
+    "powerstrain", "elastic", "sammon", "sammon2", "smacofSphere", "powersammon",
+    "rstress", "sstress", "isomap", "isomapeps", "bcstress", "lmds"),
+  theta = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  ndim = 2,
+  weightmat = NULL,
+  init = NULL,
+  stressweight = 1,
+  strucweight,
+  strucpars,
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
+  lower,
+  upper,
+  verbose = 0,
+  type = c("additive", "multiplicative"),
+  s = 5,
+  initpoints = 10,
+  itmax = 50,
+  itmaxps = 10000,
+  model,
+  ...
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -55,11 +69,13 @@ stops(dis, loss = c("strain", "stress", "smacofSym", "powerstress",
 
 \item{initpoints}{number of initial points to fit the surrogate model for bayesian optimization; default is 10}
 
-\item{itmax}{maximum number of iterations; number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150) and a lower number for Bayesian Optimization (around 20). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.}
+\item{itmax}{maximum number of iterations of the outer optimization (for theta); number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150) and a lower number for Bayesian Optimization (around 20). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.}
+
+\item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the configuration)}
 
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
-\item{...}{additional arguments to be passed to the optimization procedure}
+\item{...}{additional arguments to be passed to the outer optimization procedure}
 }
 \value{
 A list with the components
@@ -82,8 +98,9 @@ Models & Algorithms:
 \item lmds()... a workhorse for the local MDS of Chen & Buja (2008).
 }
 
+
 Structuredness Indices:
-Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2019).
+Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2019). 
 
 Optimization functions:
 \itemize{
@@ -98,7 +115,7 @@ Wrappers and convenience functions:
 }
 
 Methods: 
-For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.
+For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.   
 
 References:
 \itemize{
@@ -122,7 +139,6 @@ structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="AL
 resstrain
 summary(resstrain)
 plot(resstrain)
-plot(resstrain,"Shepard")
 
 #STOPS with stress
 resstress<-stops(dissm,loss="stress",
@@ -130,15 +146,14 @@ structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="AL
 resstress
 summary(resstress)
 plot(resstress)
-plot(res,"Shepard")
+plot(resstress,"Shepard")
 
 #STOPS with powerstress
 respstress<-stops(dissm,,loss="powerstress",
-structures=c("cclusteredness","cdependence"),strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
+structures=c("cclusteredness","cdependence"),itmaxps=1000,strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
 respstress
 summary(respstress)
 plot(respstress)
-plot(respstress,"Shepard")
 
 #STOPS with bcstress
 resbcstress<-stops(dissm,loss="bcstress",
@@ -146,7 +161,6 @@ structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="AL
 resbcstress
 summary(resbcstress)
 plot(resbcstress)
-plot(resbcstress,"Shepard")
 
 #STOPS with lmds
 reslmds<-stops(dissm,loss="lmds",
@@ -154,15 +168,13 @@ structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ
 reslmds
 summary(reslmds)
 plot(reslmds)
-plot(reslmds,"Shepard")
 
 #STOPS with Isomap (the epsilon version)
 resiso<-stops(dissm,loss="isomapeps",
-structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=47,upper=120)
+structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 resiso
 summary(resiso)
 plot(resiso)
-plot(resiso,"Shepard")
 }
 \donttest{
 data(BankingCrisesDistances)

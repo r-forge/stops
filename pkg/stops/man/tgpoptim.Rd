@@ -5,8 +5,18 @@
 \title{Bayesian Optimization by a (treed) Bayesian Gaussian Process Prior (with jumps to linear models) surrogate model
 Essentially a wrapper for the functionality in tgp that has the same slots as optim with defaults for STOPS models.}
 \usage{
-tgpoptim(x, fun, ..., initpoints = 10, lower, upper, acc = 1e-08,
-  itmax = 10, verbose = 0, model = "bgp")
+tgpoptim(
+  x,
+  fun,
+  ...,
+  initpoints = 10,
+  lower,
+  upper,
+  acc = 1e-08,
+  itmax = 10,
+  verbose = 0,
+  model = "bgp"
+)
 }
 \arguments{
 \item{x}{optional starting values}

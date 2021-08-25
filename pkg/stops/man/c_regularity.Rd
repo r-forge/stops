@@ -5,13 +5,21 @@
 \title{c-regularity 
 calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular.}
 \usage{
-c_regularity(confs, q = 2, epsilon = 2 * max(dist(confs)),
-  distmeth = "euclidean", dmax = NULL, digits = 10, scale = 4, ...)
+c_regularity(
+  confs,
+  q = 1,
+  epsilon = 2 * max(dist(confs)),
+  distmeth = "euclidean",
+  dmax = NULL,
+  digits = 10,
+  scale = 0,
+  ...
+)
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
 
-\item{q}{The norm used for the Cordillera. Defaults to 2.}
+\item{q}{The norm used for the Cordillera. Defaults to 1 (and should always be 1 imo).}
 
 \item{epsilon}{The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.}
 
@@ -21,9 +29,9 @@ c_regularity(confs, q = 2, epsilon = 2 * max(dist(confs)),
 
 \item{digits}{The precision to round the raw Cordillera and the norm factor. Defaults to 10.}
 
-\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4.}
+\item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0.}
 
-\item{...}{Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}}
+\item{...}{Additional arguments to be passed to \code{\link[cordillera::cordillera]{cordillera}}}
 }
 \description{
 c-regularity 

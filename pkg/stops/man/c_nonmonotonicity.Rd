@@ -4,11 +4,17 @@
 \alias{c_nonmonotonicity}
 \title{c-nonmonotonicity
 calculates the c-nonmonotonicity based on the maximum asymmetric score 
-We define c-nonmonotonicity as the aggregated nonmonotonicity between any two dimensions
+We define c-nonmonotonicity as the aggregated nonmonotonicity between any two columns in confs
 this is one of few c-structuredness indices not between 0 and 1}
 \usage{
-c_nonmonotonicity(confs, aggr = max, alpha = 1, C = 15,
-  var.thr = 1e-05, zeta = NULL)
+c_nonmonotonicity(
+  confs,
+  aggr = max,
+  alpha = 1,
+  C = 15,
+  var.thr = 1e-05,
+  zeta = NULL
+)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}
@@ -26,7 +32,7 @@ c_nonmonotonicity(confs, aggr = max, alpha = 1, C = 15,
 \description{
 c-nonmonotonicity
 calculates the c-nonmonotonicity based on the maximum asymmetric score 
-We define c-nonmonotonicity as the aggregated nonmonotonicity between any two dimensions
+We define c-nonmonotonicity as the aggregated nonmonotonicity between any two columns in confs
 this is one of few c-structuredness indices not between 0 and 1
 }
 \examples{

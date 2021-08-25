@@ -1,6 +1,6 @@
 #' c-inequality
-#' calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the distance matrix
-#' this is one of few c-structuredness indices not between 0 and 1, but 0 and infinity
+#' Calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the fitted distance matrix. This can help with avoiding degenerate solutions.   
+#' This is one of few c-structuredness indices not between 0 and 1, but 0 and infinity.
 #' @param confs a numeric matrix or data frame
 #'
 #' @importFrom stats dist sd
@@ -21,7 +21,7 @@ c_inequality <- function(confs)
 
 
 #'c-linearity
-#'calculates c-linearity as the aggregated multiple correlations
+#'calculates c-linearity as the aggregated multiple correlation of all columns of the configuration.
 #'
 #' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
@@ -54,9 +54,9 @@ c_linearity <- function(confs,aggr=max)
 
 
 #'c-dependence
-#'calculates c-dependence as the aggregated distance correlation 
+#'calculates c-dependence as the aggregated distance correlation of each pair if nonidentical columns
 #'
-#' @param confs a numeric matrix or data frame with two columns
+#' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @param index exponent on Euclidean distance, in (0,2]
 #'
@@ -96,9 +96,9 @@ c_dependence <- function(confs,aggr=max,index=1)
 
 
 #'c-manifoldness
-#'calculates c-manifoldness as the aggregated maximal correlation coefficient (i.e., Pearson correlation of the ACE transformedvariables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped. 
+#'calculates c-manifoldness as the aggregated maximal correlation coefficient (i.e., Pearson correlation of the ACE transformed variables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped. 
 #'
-#' @param confs a numeric matrix or data frame with two columns
+#' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' 
 #' @importFrom acepack ace
@@ -161,7 +161,7 @@ c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 
 #' c-association
 #' calculates the c-association based on the maximal information coefficient 
-#' We define c-association as the aggregated association between any two dimensions
+#' We define c-association as the aggregated association between any two columns in confs
 #' 
 #' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
@@ -190,7 +190,7 @@ c_association <- function(confs,aggr=max,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 
 #' c-nonmonotonicity
 #' calculates the c-nonmonotonicity based on the maximum asymmetric score 
-#' We define c-nonmonotonicity as the aggregated nonmonotonicity between any two dimensions
+#' We define c-nonmonotonicity as the aggregated nonmonotonicity between any two columns in confs
 #' this is one of few c-structuredness indices not between 0 and 1
 #' 
 #' @param confs a numeric matrix or data frame
@@ -220,9 +220,9 @@ c_nonmonotonicity <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL
 
 #' c-functionality
 #' calculates the c-functionality based on the maximum edge value 
-#' We define c-functionality as the aggregated functionality between any two dimensions
+#' We define c-functionality as the aggregated functionality between any two columns of confs
 #' 
-#' @param confs a numeric matrix or data frame with two columns
+#' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to mean
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
@@ -249,7 +249,7 @@ c_functionality <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 
 #' c-complexity
 #' Calculates the c-complexity based on the minimum cell number
-#' We define c-complexity as the aggregated minimum cell number between any two dimensions
+#' We define c-complexity as the aggregated minimum cell number between any two columns in confs 
 #' This is one of few c-structuredness indices not between 0 and 1, but can be between 0 and (theoretically) infinity
 #' 
 #' @param confs a numeric matrix or data frame
@@ -335,10 +335,10 @@ knn_dist <- function(dis,k)
 #' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan:optics]{optics}} where it is called minPts. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
 #' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
-#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
+#' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons between different configurations this should be supplied. If no value is supplied, it is NULL (default); then dmax is taken from the data as the either epsilon or the largest reachability, whatever is smaller.
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
-#' @param ... Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0. 
+#' @param ... Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}
 #'
 #'
 #' @importFrom cordillera cordillera
@@ -348,7 +348,7 @@ knn_dist <- function(dis,k)
 #' dis<-smacofSym(delts)$confdist
 #' c_clusteredness(dis,minpts=3)
 #' @export
-c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=4,...)
+c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
 {
     out <- cordillera::cordillera(confs,minpts=minpts,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=scale,...)$normed
     return(out)
@@ -359,20 +359,20 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular. 
 #' 
 #' @param confs a numeric matrix or a dist object
-#' @param q The norm used for the Cordillera. Defaults to 2. 
+#' @param q The norm used for the Cordillera. Defaults to 1 (and should always be 1 imo). 
 #' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
 #' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons this should be supplied. If no value is supplied, it is NULL (default), then dmax is taken from the data as minimum of epsilon or the largest reachability.
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
-#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 4. 
-#' @param ... Additional arguments to be passed to \code{\link[dbscan:optics]{optics}}
+#' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0. 
+#' @param ... Additional arguments to be passed to \code{\link[cordillera::cordillera]{cordillera}}
 #' 
 #' @examples
 #' hpts <- sp:::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
 #' plot(hpts[,1],hpts[,2],pch=19,asp=1)
 #' c_regularity(hpts)
 #' @export
-c_regularity<- function(confs,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=4,...)
+c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
 {
     out <- 1-cordillera::cordillera(confs,minpts=2,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=scale,...)$normed
     return(out)

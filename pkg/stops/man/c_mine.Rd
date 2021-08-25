@@ -4,8 +4,7 @@
 \alias{c_mine}
 \title{wrapper for getting the mine coefficients}
 \usage{
-c_mine(confs, master = NULL, alpha = 0.6, C = 15, var.thr = 1e-05,
-  zeta = NULL)
+c_mine(confs, master = NULL, alpha = 0.6, C = 15, var.thr = 1e-05, zeta = NULL)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame with two columns}
