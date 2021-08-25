@@ -252,6 +252,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
 #' @param init (optional) initial configuration
+#' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -1107,13 +1108,14 @@ mkPower2<-function(x,theta) {
 #' @examples
 #' \donttest{
 #' data(BankingCrisesDistances)
-#' strucpar<-list(c(eps=10,minpts=2),NULL)
+#' strucpar<-list(c(eps=10,minpts=2),NULL) #parameters for indices
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cclusteredness","clinearity"),strucpars=strucpar,
 #' lower=0,upper=10)
 #' res1
 #'
-#' strucpar<-list(list(alpha=1,C=15,var.thr=1e-5,eps=NULL),list(alpha=1,C=15,var.thr=1e-5,eps=NULL))
+#' strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
+#' list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,
 #' lower=0,upper=10)
