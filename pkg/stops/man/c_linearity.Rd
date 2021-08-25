@@ -3,7 +3,7 @@
 \name{c_linearity}
 \alias{c_linearity}
 \title{c-linearity
-calculates c-linearity as the aggregated multiple correlations}
+calculates c-linearity as the aggregated multiple correlation of all columns of the configuration.}
 \usage{
 c_linearity(confs, aggr = max)
 }
@@ -14,7 +14,7 @@ c_linearity(confs, aggr = max)
 }
 \description{
 c-linearity
-calculates c-linearity as the aggregated multiple correlations
+calculates c-linearity as the aggregated multiple correlation of all columns of the configuration.
 }
 \examples{
 x<-1:10

@@ -54,7 +54,6 @@
 #' resstrain
 #' summary(resstrain)
 #' plot(resstrain)
-#' plot(resstrain,"Shepard")
 #'
 #' #STOPS with stress
 #' resstress<-stops(dissm,loss="stress",
@@ -62,15 +61,14 @@
 #' resstress
 #' summary(resstress)
 #' plot(resstress)
-#' plot(res,"Shepard")
+#' plot(resstress,"Shepard")
 #'
 #' #STOPS with powerstress
 #' respstress<-stops(dissm,,loss="powerstress",
-#' structures=c("cclusteredness","cdependence"),strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
+#' structures=c("cclusteredness","cdependence"),itmaxps=1000,strucpars=strucpars,weightmat=dissm,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
 #' respstress
 #' summary(respstress)
 #' plot(respstress)
-#' plot(respstress,"Shepard")
 #'
 #' #STOPS with bcstress
 #' resbcstress<-stops(dissm,loss="bcstress",
@@ -78,7 +76,6 @@
 #' resbcstress
 #' summary(resbcstress)
 #' plot(resbcstress)
-#' plot(resbcstress,"Shepard")
 #'
 #' #STOPS with lmds
 #' reslmds<-stops(dissm,loss="lmds",
@@ -86,15 +83,13 @@
 #' reslmds
 #' summary(reslmds)
 #' plot(reslmds)
-#' plot(reslmds,"Shepard")
 #'
 #' #STOPS with Isomap (the epsilon version)
 #' resiso<-stops(dissm,loss="isomapeps",
-#' structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=47,upper=120)
+#' structures=c("cclusteredness","clinearity"),strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 #' resiso
 #' summary(resiso)
 #' plot(resiso)
-#' plot(resiso,"Shepard")
 #' }
 #' @docType package
 #' @name stops

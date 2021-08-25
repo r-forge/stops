@@ -4,14 +4,24 @@
 \alias{stop_smacofSym}
 \title{STOPS version of smacofSym models}
 \usage{
-stop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
-  init = NULL, ..., structures = c("cclusteredness", "clinearity",
-  "cdependence", "cmanifoldness", "cassociation", "cnonmonotonicity",
-  "cfunctionality", "ccomplexity", "cfaithfulness", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"), stressweight = 1,
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+stop_smacofSym(
+  dis,
+  theta = c(1, 1, 1),
+  ndim = 2,
+  weightmat = NULL,
+  init = NULL,
+  itmax = 1000,
+  ...,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "chierarchy", "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
+    "cstringiness", "cclumpiness", "cinequality"),
+  stressweight = 1,
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative")
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -23,6 +33,8 @@ stop_smacofSym(dis, theta = c(1, 1, 1), ndim = 2, weightmat = NULL,
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
 \item{init}{(optional) initial configuration}
+
+\item{itmax}{number of iterations}
 
 \item{...}{additional arguments to be passed to the fitting}
 

@@ -4,15 +4,24 @@
 \alias{stop_powerstress}
 \title{STOPS version of powerstress}
 \usage{
-stop_powerstress(dis, theta = c(1, 1, 1), weightmat = NULL,
-  init = NULL, ndim = 2, ..., stressweight = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+stop_powerstress(
+  dis,
+  theta = c(1, 1, 1),
+  weightmat = NULL,
+  init = NULL,
+  ndim = 2,
+  itmax = 1e+05,
+  ...,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative")
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -24,6 +33,8 @@ stop_powerstress(dis, theta = c(1, 1, 1), weightmat = NULL,
 \item{init}{(optional) initial configuration}
 
 \item{ndim}{number of dimensions of the target space}
+
+\item{itmax}{number of iterations}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

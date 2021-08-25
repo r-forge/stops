@@ -4,15 +4,23 @@
 \alias{stop_isomap1}
 \title{STOPS version of isomap to optimize over integer k.}
 \usage{
-stop_isomap1(dis, theta = 3, weightmat = NULL, ndim = 2,
-  init = NULL, stressweight = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness",
-  "cinequality"), strucweight = rep(1/length(structures),
-  length(structures)), strucpars, verbose = 0, type = c("additive",
-  "multiplicative"))
+stop_isomap1(
+  dis,
+  theta = 3,
+  weightmat = NULL,
+  ndim = 2,
+  init = NULL,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative"),
+  itmax = NULL
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -36,6 +44,8 @@ stop_isomap1(dis, theta = 3, weightmat = NULL, ndim = 2,
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{type}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
+
+\item{itmax}{placeholder for compatibility in stops call; not used}
 }
 \value{
 A list with the components

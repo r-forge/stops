@@ -4,8 +4,7 @@
 \alias{lmds}
 \title{An MDS version for local MDS (Chen & Buja 2006)}
 \usage{
-lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 5000,
-  verbose = 0)
+lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 5000, verbose = 0)
 }
 \arguments{
 \item{delta}{dissimilarity or distance matrix}

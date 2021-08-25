@@ -4,8 +4,7 @@
 \alias{plot3dstatic.cmdscale}
 \title{3D plots: plot3dstatic method for class cmdscale}
 \usage{
-\method{plot3dstatic}{cmdscale}(x, plot.dim = c(1, 2, 3), main, xlab,
-  ylab, zlab, col, ...)
+\method{plot3dstatic}{cmdscale}(x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col, ...)
 }
 \arguments{
 \item{x}{object of class cmdscale}

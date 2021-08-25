@@ -3,7 +3,9 @@
 \name{BankingCrisesDistances}
 \alias{BankingCrisesDistances}
 \title{Banking Crises Distances}
-\format{A 69 x 70 matrix.}
+\format{
+A 69 x 70 matrix.
+}
 \source{
 data(bankingCrises) in library(Ecdat)
 }

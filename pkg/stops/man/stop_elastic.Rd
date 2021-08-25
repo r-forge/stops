@@ -4,15 +4,24 @@
 \alias{stop_elastic}
 \title{STOPS versions of elastic scaling models (via smacofSym)}
 \usage{
-stop_elastic(dis, theta = c(1, 1, -2), ndim = 2, weightmat = NULL,
-  init = NULL, ..., stressweight = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+stop_elastic(
+  dis,
+  theta = c(1, 1, -2),
+  ndim = 2,
+  weightmat = NULL,
+  init = NULL,
+  itmax = 1000,
+  ...,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative")
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}

@@ -4,14 +4,18 @@
 \alias{stoploss}
 \title{Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
-stoploss(obj, stressweight = 1, structures = c("cclusteredness",
-  "clinearity", "cdependence", "cmanifoldness", "cassociation",
-  "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-  "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-  "cskinniness", "csparsity", "cstringiness", "cclumpiness",
-  "cinequality"), strucweight = rep(-1/length(structures),
-  length(structures)), strucpars, type = c("additive", "multiplicative"),
-  verbose = 0)
+stoploss(
+  obj,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(-1/length(structures), length(structures)),
+  strucpars,
+  type = c("additive", "multiplicative"),
+  verbose = 0
+)
 }
 \arguments{
 \item{obj}{object returned inside a stops function}

@@ -7,11 +7,11 @@
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
 #' @param nu the nu parameter.
-#' @param itmax number of optimizing iterations, defaults to 5000.
+#' @param itmax number of optimizing iterations, defaults to 2000.
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0. 
 #'
-#' @details For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible of min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization can not generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).    
+#' @details For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible if min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization cannot generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).    
 #' 
 #' 
 #' @author Lisha Chen & Thomas Rusch

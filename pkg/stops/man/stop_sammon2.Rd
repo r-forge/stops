@@ -4,15 +4,24 @@
 \alias{stop_sammon2}
 \title{STOPS versions of Sammon mapping models (via smacofSym)}
 \usage{
-stop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
-  init = NULL, ..., stressweight = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+stop_sammon2(
+  dis,
+  theta = c(1, 1, -1),
+  ndim = 2,
+  weightmat = NULL,
+  init = NULL,
+  itmax = 1000,
+  ...,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative")
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -24,6 +33,8 @@ stop_sammon2(dis, theta = c(1, 1, -1), ndim = 2, weightmat = NULL,
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
 \item{init}{(optional) initial configuration}
+
+\item{itmax}{number of iterations}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

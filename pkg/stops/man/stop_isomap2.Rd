@@ -4,15 +4,23 @@
 \alias{stop_isomap2}
 \title{STOPS version of isomap over real epsilon.}
 \usage{
-stop_isomap2(dis, theta = stats::quantile(dis, 0.1), weightmat = NULL,
-  ndim = 2, init = NULL, stressweight = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence",
-  "cmanifoldness", "cassociation", "cnonmonotonicity", "cfunctionality",
-  "ccomplexity", "cfaithfulness", "cregularity", "chierarchy",
-  "cconvexity", "cstriatedness", "coutlying", "cskinniness", "csparsity",
-  "cstringiness", "cclumpiness", "cinequality"),
-  strucweight = rep(1/length(structures), length(structures)), strucpars,
-  verbose = 0, type = c("additive", "multiplicative"))
+stop_isomap2(
+  dis,
+  theta = stats::quantile(dis, 0.1),
+  weightmat = NULL,
+  ndim = 2,
+  init = NULL,
+  stressweight = 1,
+  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
+    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
+    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
+    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  strucweight = rep(1/length(structures), length(structures)),
+  strucpars,
+  verbose = 0,
+  type = c("additive", "multiplicative"),
+  itmax = NULL
+)
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
@@ -36,6 +44,8 @@ stop_isomap2(dis, theta = stats::quantile(dis, 0.1), weightmat = NULL,
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{type}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
+
+\item{itmax}{placeholder for compatibility in stops call; not used}
 }
 \value{
 A list with the components

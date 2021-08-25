@@ -4,13 +4,19 @@
 \alias{c_functionality}
 \title{c-functionality
 calculates the c-functionality based on the maximum edge value 
-We define c-functionality as the aggregated functionality between any two dimensions}
+We define c-functionality as the aggregated functionality between any two columns of confs}
 \usage{
-c_functionality(confs, aggr = max, alpha = 1, C = 15,
-  var.thr = 1e-05, zeta = NULL)
+c_functionality(
+  confs,
+  aggr = max,
+  alpha = 1,
+  C = 15,
+  var.thr = 1e-05,
+  zeta = NULL
+)
 }
 \arguments{
-\item{confs}{a numeric matrix or data frame with two columns}
+\item{confs}{a numeric matrix or data frame}
 
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to mean}
 
@@ -25,7 +31,7 @@ c_functionality(confs, aggr = max, alpha = 1, C = 15,
 \description{
 c-functionality
 calculates the c-functionality based on the maximum edge value 
-We define c-functionality as the aggregated functionality between any two dimensions
+We define c-functionality as the aggregated functionality between any two columns of confs
 }
 \examples{
 x<-seq(-3,3,length.out=200)
