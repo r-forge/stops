@@ -11,9 +11,6 @@ A package for calculating the OPTICS Cordillera. The package contains various fu
 The stops package provides these main functions:
 \itemize{
 \item cordillera() ... OPTICS Cordillera using dbscan OPTICS implementation
-
-\item e_cordillera()... ... OPTICS Cordillera using ELKI's OPTICS implementation
-\item e_optics() ... An interface to ELKI's implementation of OPTICS
 }
 
 Methods: 
@@ -59,11 +56,4 @@ cres3d
 summary(cres3d)
 plot(cres3d)
 
-\donttest{
-#OPTICS in ELKI version
-ores<-e_optics(irisrep2d,minpts=10,epsilon=100)
-ores
-summary(ores)
-plot(ores)
-}
 }

@@ -5,9 +5,6 @@
 #' The stops package provides these main functions:
 #' \itemize{
 #' \item cordillera() ... OPTICS Cordillera using dbscan OPTICS implementation
-#' 
-#' \item e_cordillera()... ... OPTICS Cordillera using ELKI's OPTICS implementation
-#' \item e_optics() ... An interface to ELKI's implementation of OPTICS
 #' }
 #'
 #' Methods: 
@@ -55,13 +52,6 @@
 #' summary(cres3d)
 #' plot(cres3d)
 #'
-#' \donttest{
-#' #OPTICS in ELKI version
-#' ores<-e_optics(irisrep2d,minpts=10,epsilon=100)
-#' ores
-#' summary(ores)
-#' plot(ores)
-#' }
 #' @docType package
 #' @name cordillera-package
 NULL
