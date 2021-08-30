@@ -1255,7 +1255,7 @@ coef.stops <- function(object,...)
 #'S3 plot method for stops objects
 #' 
 #'@param x an object of class stops
-#'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot" (see details)
+#'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot", "bubbleplot" (see details)
 #'@param main the main title of the plot
 #'@param asp aspect ratio of x/y axis; defaults to NA; setting to 1 will lead to an accurate represenation of the fitted distances. 
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
@@ -1282,7 +1282,7 @@ plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
 #' 
 #' This methods produces a dynamic 3D configuration plot.
 #' @param x object of class stops
-#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl' 
+#' @param ... Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl' 
 #'
 #'
 #' 

@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{object of class stops}
 
-\item{...}{Further plot arguments to the method of the class of slot fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl'}
+\item{...}{Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl'}
 }
 \description{
 This methods produces a dynamic 3D configuration plot.

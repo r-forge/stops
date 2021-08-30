@@ -127,7 +127,7 @@ Authors: Thomas Rusch, Lisha Chen, Jan de Leeuw, Patrick Mair, Kurt Hornik
 Maintainer: Thomas Rusch
 }
 \examples{
-data(kinshipdelta)
+data(kinshipdelta,package="smacof")
 
 \donttest{
 

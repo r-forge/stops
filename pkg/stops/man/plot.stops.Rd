@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{an object of class stops}
 
-\item{plot.type}{String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot" (see details)}
+\item{plot.type}{String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot", "bubbleplot" (see details)}
 
 \item{main}{the main title of the plot}
 

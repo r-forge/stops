@@ -131,16 +131,17 @@ secularEq<-function(a,b) {
 #'@param asp  Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate
 #'@param loess should loess fit be added to Shepard plot 
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
-#' 
-#'Details:
+#'
+#'@details 
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
-#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve 
-#'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-#'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+#'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances with a linear regression line (without an intercept as in ratio MDS).
+#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
+#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (no intercept). Works for lmds or bcStress models too, but is somewhat nonsensical due to them being energy models.
+#'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit. Only implemented for models from the classical stress world, not for bcmds or lmds (throws an error).
+#'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.Only implemented for models from the classical stress world, bcmds or lmds (throws an error).
 #' }
+#'
 #'
 #' @importFrom graphics plot text identify legend
 #' @importFrom stats loess lm predict 
@@ -190,28 +191,29 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if (missing(xlim)) 
             xlim <- range(as.vector(x$delta))
         if (missing(ylim))
-            ylim <- range(as.vector(x$confdiss))
+            ylim <- range(as.vector(x$confdist))
         #delta=dhats
         #proximities=obsdiss
-        #distances=confdiss
-        graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        #graphics::plot(as.vector(x$delta), as.vector(x$confdiss), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
+        #distances=confdist
+        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
+        #graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
         #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
         #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
         if(loess) {
-                   pt <- predict(stats::loess(x$confdiss~-1+x$delta))
+                   pt <- predict(stats::loess(as.vector(x$confdist)~-1+as.vector(x$delta)))
                    graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.25)
         }
-        ptl <- predict(stats::lm(x$confdiss~-1+x$delta))
+        ptl <- predict(stats::lm(as.vector(x$confdist)~-1+as.vector(x$delta)))
         graphics::lines(x$delta[order(x$delta)],ptl[order(x$delta)],col=col[3],type="b",pch=20,cex=0.25)
-       # graphics::abline(stats::lm(x$confdiss~-1+x$delta),type="b") #no intercept for fitting
+       # graphics::abline(stats::lm(x$confdist~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
              kappa <- x$pars[1]
              deltao <- as.vector(x$deltaorig)
              deltat <- as.vector(x$delta)
-             dreal <- as.vector(x$confdiss)^(1/kappa)
+             dreal <- as.vector(x$confdist)^(1/kappa)
              if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
              if (missing(ylab)) ylab <- "Dissimilarities"
@@ -250,13 +252,14 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if (missing(xlim)) 
             xlim <- range(as.vector(x$obsdiss))
         if (missing(ylim)) 
-            ylim <- range(as.vector(x$confdiss))
-        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdiss), main = main, 
+            ylim <- range(as.vector(x$confdist))
+        graphics::plot(as.vector(x$obsdiss), as.vector(x$confdist), main = main, 
             type = "p", col = col, xlab = xlab, ylab = ylab, 
             xlim = xlim, ylim = ylim, ...)
-        abline(lm(x$confdiss~x$obsdiss))
+        abline(lm(as.vector(x$confdist)~as.vector(x$obsdiss)))
     }
     if (plot.type == "stressplot") {
+        if(any(class(x) %in% c("lmds","bcmds"))) stop("Not implemented for these models.")
         if(missing(col)) col <- "lightgray"
         if (missing(main)) 
             main <- paste("Stress Decomposition Chart")
@@ -282,6 +285,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         for (i in 1:length(spp.perc)) lines(c(i, i), c(spp.perc[i],0), col=col, lty = 2)
     }
     if (plot.type == "bubbleplot") {
+        if(any(class(x) %in% c("lmds","bcmds"))) stop("Not implemented for these models.")
         if(missing(col)) col <- 1
         if (missing(main)) 
             main <- paste("Bubble Plot")
@@ -368,6 +372,9 @@ print.summary.smacofP <- function(x,...)
 #' \item weightmat: weighting matrix 
 #'}
 #'
+#' @section Note:
+#' The functionality related to power stress and the smacofP class is also available in the cops package \code{\link{cops::cops-package}}. Expect masking when both are loaded.      
+#' 
 #' @importFrom stats dist as.dist
 #' 
 #' @seealso \code{\link{smacofSym}}

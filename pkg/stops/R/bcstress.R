@@ -202,7 +202,7 @@ while ( stepsize > 1E-5 && i < niter)
   result$stress.m <- s1n
   result$stress <- sqrt(s1n)
   result$type <- "Box-Cox Stress"
-  class(result) <- c("smacofP","smacofB","smacof")
+  class(result) <- c("bcmds","smacofP","smacofB","smacof")
   return(result)
 }
 
