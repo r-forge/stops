@@ -198,7 +198,7 @@ while ( stepsize > 1E-5 && i < niter)
   result$niter <- i
   result$stress <- sqrt(s1n)
   result$model<- "Local MDS"
-  class(result) <- c("smacofP","smacofB","smacof")
+  class(result) <- c("lmds","smacofP","smacofB","smacof")
   return(result)
 }
 

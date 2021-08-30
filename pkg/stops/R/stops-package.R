@@ -42,7 +42,7 @@
 #'
 #'
 #' @examples
-#' data(kinshipdelta)
+#' data(kinshipdelta,package="smacof")
 #'
 #'\donttest{
 #' 

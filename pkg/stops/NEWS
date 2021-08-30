@@ -1,3 +1,7 @@
+Version 0.0-46
+
+- Fixed bug for Shepard and resplot in plot.cmdscale and plot.smacofP where confdist was still named confdiss. Changed docs to accommmodate bcmds and lmds. Added class attributes bcmds and lmds to the respective objects (but are still mainly of class smacofP). Added note that equivalent functionality is also in the cops package.   
+
 Version 0.0-45
 
 - Added itmaxps argument to stops (for controlling the numer of iterations in the inner optimization to obtain the configuration). Added itmax arguments to all stop_XXX functions for that (was done by elipsis so far, but is now explicit and can be controlled). Changed defaults in c-clusteredness and c-regularity. Updated docs.
