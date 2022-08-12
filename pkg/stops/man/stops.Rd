@@ -26,11 +26,11 @@ stops(
   upper,
   verbose = 0,
   type = c("additive", "multiplicative"),
-  s = 5,
   initpoints = 10,
   itmax = 50,
   itmaxps = 10000,
   model,
+  control,
   ...
 )
 }
@@ -55,7 +55,7 @@ stops(
 
 \item{strucpars}{(possibly named with the structure). List of each structures parameters as vectors with named elements or a list of lists for the structuredness indices, so its form is either \code{list(c(parsStruc1=parstruc1),c(parsStruc2=parstruc2),...)} or \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStruc X are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one would set \code{list(c(eps=10,k=4),NULL,c(dis=obdiss,k=6))} or \code{list(list(eps=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
-\item{optimmethod}{What optimizer to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to ALJ version.}
+\item{optimmethod}{What optimizer to use (all support box contraints). Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to "tgp" version.}
 
 \item{lower}{The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
@@ -65,17 +65,17 @@ stops(
 
 \item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
 
-\item{s}{number of particles if pso is used}
+\item{initpoints}{number of initial points to fit the surrogate model for Bayesian optimization; default is 10.}
 
-\item{initpoints}{number of initial points to fit the surrogate model for bayesian optimization; default is 10}
-
-\item{itmax}{maximum number of iterations of the outer optimization (for theta); number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150) and a lower number for Bayesian Optimization (around 20). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate.}
+\item{itmax}{maximum number of iterations of the outer optimization (for theta); number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate. For pso it is the number of particles s times itmax.}
 
 \item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the configuration)}
 
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
-\item{...}{additional arguments to be passed to the outer optimization procedure}
+\item{control}{a control argument passed to the outer optimization procedure (see pomp::sannbox for SANN and pso::psoptim for pso).}
+
+\item{...}{additional arguments passed to the outer optimization procedures (not fully tested)}
 }
 \value{
 A list with the components

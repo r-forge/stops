@@ -1,3 +1,7 @@
+Version 0.0-47
+
+- Added pomp::sannbox as the SANN engine. Fixed bug that didn't allow to set itmax for pso. Removed the s argument for pso. Added a control argument to be used with pso and sannbox. Updated docs. 
+
 Version 0.0-46
 
 - Fixed bug for Shepard and resplot in plot.cmdscale and plot.smacofP where confdist was still named confdiss. Changed docs to accommmodate bcmds and lmds. Added class attributes bcmds and lmds to the respective objects (but are still mainly of class smacofP). Added note that equivalent functionality is also in the cops package.   
