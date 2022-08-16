@@ -45,13 +45,10 @@
 #' data(kinshipdelta,package="smacof")
 #'
 #'\donttest{
-#' 
-#' strucpars<-list(list(c(epsilon=10,minpts=2)),NULL)
+#' strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
 #' dissm<-as.matrix(kinshipdelta)
 #' #STOPS with strain
-#' resstrain<-stops(dissm,loss="strain",
-#' structures=c("cclusteredness","cdependence"),
-#' strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+#' resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
 #' resstrain
 #' summary(resstrain)
 #' plot(resstrain)
@@ -66,7 +63,7 @@
 #' plot(resstress,"Shepard")
 #'
 #' #STOPS with powerstress
-#' respstress<-stops(dissm,,loss="powerstress",
+#' respstress<-stops(dissm,loss="powerstress",
 #' structures=c("cclusteredness","cdependence"),
 #' strucpars=strucpars,weightmat=dissm,
 #' itmaxps=1000,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
@@ -101,3 +98,4 @@
 #' @docType package
 #' @name stops
 NULL
+

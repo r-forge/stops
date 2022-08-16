@@ -53,7 +53,7 @@ stops(
 
 \item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
-\item{strucpars}{(possibly named with the structure). List of each structures parameters as vectors with named elements or a list of lists for the structuredness indices, so its form is either \code{list(c(parsStruc1=parstruc1),c(parsStruc2=parstruc2),...)} or \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStruc X are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one would set \code{list(c(eps=10,k=4),NULL,c(dis=obdiss,k=6))} or \code{list(list(eps=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.}
+\item{strucpars}{(possibly named with the structure). List of each structure's parameters as vectors with named elements or a list of lists for the structuredness indices, so its form is either \code{list(c(parsStruc1=parstruc1),c(parsStruc2=parstruc2),...)} or \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStrucX are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one could set \code{list(c(epsilon=10,k=4),NULL,c(dis=obdiss,k=6))} or \code{list(list(epsilon=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.}
 
 \item{optimmethod}{What optimizer to use (all support box contraints). Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to "tgp" version.}
 
@@ -130,13 +130,10 @@ Maintainer: Thomas Rusch
 data(kinshipdelta,package="smacof")
 
 \donttest{
-
-strucpars<-list(list(c(epsilon=10,minpts=2)),NULL)
+strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
 dissm<-as.matrix(kinshipdelta)
 #STOPS with strain
-resstrain<-stops(dissm,loss="strain",
-structures=c("cclusteredness","cdependence"),
-strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
 resstrain
 summary(resstrain)
 plot(resstrain)
@@ -151,7 +148,7 @@ plot(resstress)
 plot(resstress,"Shepard")
 
 #STOPS with powerstress
-respstress<-stops(dissm,,loss="powerstress",
+respstress<-stops(dissm,loss="powerstress",
 structures=c("cclusteredness","cdependence"),
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
