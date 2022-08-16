@@ -35,4 +35,4 @@ LazyData: true
 URL: http://r-forge.r-project.org/projects/stops/
 VignetteBuilder: R.rsp
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1

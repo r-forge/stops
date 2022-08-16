@@ -373,7 +373,7 @@ print.summary.smacofP <- function(x,...)
 #'}
 #'
 #' @section Note:
-#' The functionality related to power stress and the smacofP class is also available in the cops package \code{\link{cops::cops-package}}. Expect masking when both are loaded.      
+#' The functionality related to power stress and the smacofP class is also available in the cops package. Expect masking when both are loaded.      
 #' 
 #' @importFrom stats dist as.dist
 #' 
