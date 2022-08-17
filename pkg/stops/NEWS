@@ -1,6 +1,6 @@
 Version 0.0-47
 
-- Added pomp::sannbox as the SANN engine. Fixed bug that didn't allow to set itmax for pso. Removed the s argument for pso. Added a control argument to be used with pso and sannbox. Updated docs. 
+- Added pomp::sannbox as the SANN engine. Fixed bug that didn't allow to set itmax for pso. Removed the s argument for pso. Added a control argument to be used with pso and sannbox. Fixed a bug in the stop_* models that use smacof as workshorse function and used the wrong stress.m. Updated docs. 
 
 Version 0.0-46
 
@@ -8,7 +8,7 @@ Version 0.0-46
 
 Version 0.0-45
 
-- Added itmaxps argument to stops (for controlling the numer of iterations in the inner optimization to obtain the configuration). Added itmax arguments to all stop_XXX functions for that (was done by elipsis so far, but is now explicit and can be controlled). Changed defaults in c-clusteredness and c-regularity. Updated docs.
+- Added itmaxps argument to stops (for controlling the numer of iterations in the inner optimization to obtain the configuration). Added itmax arguments to all stop_* functions for that (was done by elipsis so far, but is now explicit and can be controlled). Changed defaults in c-clusteredness and c-regularity. Updated docs.
 
 Version 0.0-44
 

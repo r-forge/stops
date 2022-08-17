@@ -45,15 +45,17 @@
 #' data(kinshipdelta,package="smacof")
 #'
 #'\donttest{
-#' strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
+#' strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL)) #1st possibility
 #' dissm<-as.matrix(kinshipdelta)
 #' #STOPS with strain
-#' resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
+#' resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),
+#' strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
 #' resstrain
 #' summary(resstrain)
 #' plot(resstrain)
 #'
 #' #STOPS with stress
+#' strucpars<-list(c(epsilon=10,minpts=2,scale=3),c(NULL)) #2nd possibility
 #' resstress<-stops(dissm,loss="stress",
 #' structures=c("cclusteredness","cdependence"),
 #' strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
@@ -90,7 +92,7 @@
 #' #STOPS with Isomap (the epsilon version)
 #' resiso<-stops(dissm,loss="isomapeps",
 #' structures=c("cclusteredness","clinearity"),
-#' strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
+#' strucpars=strucpars,optimmethod="ALJ",lower=70,upper=120)
 #' resiso
 #' summary(resiso)
 #' plot(resiso)

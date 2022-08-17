@@ -53,7 +53,7 @@ stops(
 
 \item{strucweight}{weight to be used for the cordillera; defaults to -1/length(structures)}
 
-\item{strucpars}{(possibly named with the structure). List of each structure's parameters as vectors with named elements or a list of lists for the structuredness indices, so its form is either \code{list(c(parsStruc1=parstruc1),c(parsStruc2=parstruc2),...)} or \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStrucX are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one could set \code{list(c(epsilon=10,k=4),NULL,c(dis=obdiss,k=6))} or \code{list(list(epsilon=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.}
+\item{strucpars}{(possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.}
 
 \item{optimmethod}{What optimizer to use (all support box contraints). Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to "tgp" version.}
 
@@ -130,15 +130,17 @@ Maintainer: Thomas Rusch
 data(kinshipdelta,package="smacof")
 
 \donttest{
-strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
+strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL)) #1st possibility
 dissm<-as.matrix(kinshipdelta)
 #STOPS with strain
-resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
+resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
 resstrain
 summary(resstrain)
 plot(resstrain)
 
 #STOPS with stress
+strucpars<-list(c(epsilon=10,minpts=2,scale=3),c(NULL)) #2nd possibility
 resstress<-stops(dissm,loss="stress",
 structures=c("cclusteredness","cdependence"),
 strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
@@ -175,14 +177,14 @@ plot(reslmds)
 #STOPS with Isomap (the epsilon version)
 resiso<-stops(dissm,loss="isomapeps",
 structures=c("cclusteredness","clinearity"),
-strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
+strucpars=strucpars,optimmethod="ALJ",lower=70,upper=120)
 resiso
 summary(resiso)
 plot(resiso)
 }
 \donttest{
 data(BankingCrisesDistances)
-strucpar<-list(c(eps=10,minpts=2),NULL) #parameters for indices
+strucpar<-list(c(epsilon=10,minpts=2),NULL) #parameters for indices
 res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 structures=c("cclusteredness","clinearity"),strucpars=strucpar,
 lower=0,upper=10)

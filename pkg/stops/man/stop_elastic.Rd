@@ -53,8 +53,8 @@ stop_elastic(
 \value{
 A list with the components
    \itemize{
-        \item{stress:} the stress
-        \item{stress.m:} default normalized stress
+        \item{stress:} the stress-1 (sqrt(stress.m))
+        \item{stress.m:} default normalized stress (used for STOPS)
         \item{stoploss:} the weighted loss value
         \item{indices:} the values of the structuredness indices
         \item{parameters:} the parameters used for fitting 
@@ -63,6 +63,6 @@ A list with the components
 }
 }
 \description{
-Allows for a weight matrix beause of smacof.
+Allows for a weight matrix because of smacof.
 }
 \keyword{multivariate}

@@ -1,11 +1,10 @@
 
 # Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoplose
 # write stops_foo where foo is the MDS model of interest
-# TODO: also do this with a pareto approach
-    
+# TODO: also do this with a pareto approach    
 #'  Calculate the weighted multiobjective loss function used in STOPS
 #'
-#' @param obj object returned inside a stops function 
+#' @param obj object returned inside a stop_* function. Uses the stress.m slot for getting the stress. 
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which c-structuredness indices to be included in the loss
 #' @param strucweight the weights of the structuredness indices; defaults to -1/#number of structures
@@ -19,7 +18,7 @@
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
     {
         if(missing(strucpars)) strucpars <- vector("list", length(structures))
-        stressi <- obj$stress.m
+        stressi <- obj$stress.m #we use stress.m everytime
         pars <- obj$pars
         confs <- obj$conf 
         if("cclusteredness"%in%structures)
@@ -146,8 +145,8 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
+#'         \item{stress:} the stress-1 (sqrt(stress.m))
+#'         \item{stress.m:} default normalized stress (used for STOPS)
 #'         \item{stoploss:} the weighted loss value
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
@@ -166,17 +165,19 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(missing(type)) type <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<3) theta <- rep(theta, length.out=3)
-  lambda <- theta[2]
+  if(length(theta)==1) lambda <- theta
+  if(length(theta)==2) lambda <- theta[2]
+  if(length(theta)==3) lambda <- theta[2]
+  #lambda <- theta[2]
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   fit$kappa <- 1
   fit$lambda <- lambda
   fit$nu <- 1
   fit$stress.1 <- fit$stress
   fitdis <- as.matrix(fit$confdist)
-  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
+  delts <- as.matrix(fit$dhat) 
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress.r/sum(weightmat*delts^2)
+  fit$stress.m <- fit$stress^2 #fit$stress.r/sum(weightmat*delts^2)
   fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
@@ -245,7 +246,7 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 
 #' STOPS versions of elastic scaling models (via smacofSym)
 #'
-#' Allows for a weight matrix beause of smacof.
+#' Allows for a weight matrix because of smacof.
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
@@ -264,8 +265,8 @@ stop_smacofSym <- function(dis, theta=c(1,1,1), ndim=2,weightmat=NULL,init=NULL,
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
+#'         \item{stress:} the stress-1 (sqrt(stress.m))
+#'         \item{stress.m:} default normalized stress (used for STOPS)
 #'         \item{stoploss:} the weighted loss value
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
@@ -301,7 +302,7 @@ stop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=NULL,init=NULL,itm
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$obsdiss <- fit$dhat
-  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$stress.m <- fit$stress^2 #fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
@@ -457,8 +458,8 @@ stop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itma
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
-#'         \item{stress.m:} default normalized stress
+#'         \item{stress:} the stress-1 (sqrt(stress.m))
+#'         \item{stress.m:} default normalized stress (used for STOPS)
 #'         \item{stoploss:} the weighted loss value
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
@@ -496,7 +497,7 @@ stop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itm
   delts <- as.matrix(fit$delta)
   fit$obsdiss <- fit$dhat
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
-  fit$stress.m <- fit$stress.r/sum(combwght*delts^2)
+  fit$stress.m <- fit$stress^2# fit$stress.r/sum(combwght*delts^2)
   fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
@@ -541,9 +542,9 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(type)) type <- "additive"
-  if(length(theta)==1L) lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
-  if(length(theta)==3L) lambda <- theta[2]
+  if(length(theta)==1) lambda <- theta
+  if(length(theta)==2) lambda <- theta[2]
+  if(length(theta)==3) lambda <- theta[2]
   fit <- stops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
   fit$lambda <- lambda
   fit$kappa <- 1
@@ -556,7 +557,7 @@ stop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,...
   fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$conf <- fit$points
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  list(stress=1-fit$GOF[1],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
+  list(stress=1-fit$GOF[1],stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
 }
 
 
@@ -1086,7 +1087,7 @@ mkPower2<-function(x,theta) {
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
-#' @param strucpars (possibly named with the structure). List of each structure's parameters as vectors with named elements or a list of lists for the structuredness indices, so its form is either \code{list(c(parsStruc1=parstruc1),c(parsStruc2=parstruc2),...)} or \code{list(list(parsStruc1),list(parsStruc2),...)} where parsStrucX are the named arguments for the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parsStrucX can have the same name. For example, one could set \code{list(c(epsilon=10,k=4),NULL,c(dis=obdiss,k=6))} or \code{list(list(epsilon=10,k=4),NULL,list(dis=obdiss,k=6))} for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL.    
+#' @param strucpars (possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.  
 #' @param optimmethod What optimizer to use (all support box contraints). Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to "tgp" version.
 #' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
 #' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
@@ -1108,7 +1109,7 @@ mkPower2<-function(x,theta) {
 #' @examples
 #' \donttest{
 #' data(BankingCrisesDistances)
-#' strucpar<-list(c(eps=10,minpts=2),NULL) #parameters for indices
+#' strucpar<-list(c(epsilon=10,minpts=2),NULL) #parameters for indices
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cclusteredness","clinearity"),strucpars=strucpar,
 #' lower=0,upper=10)

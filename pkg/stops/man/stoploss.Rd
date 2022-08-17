@@ -18,7 +18,7 @@ stoploss(
 )
 }
 \arguments{
-\item{obj}{object returned inside a stops function}
+\item{obj}{object returned inside a stop_* function. Uses the stress.m slot for getting the stress.}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
