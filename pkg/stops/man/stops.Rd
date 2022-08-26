@@ -21,7 +21,8 @@ stops(
   stressweight = 1,
   strucweight,
   strucpars,
-  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp"),
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp", "DIRECT", "stogo", "cobyla",
+    "crs2lm", "isres", "mlsl", "neldermead", "sbplx", "hjk", "cmaes"),
   lower,
   upper,
   verbose = 0,
@@ -55,33 +56,41 @@ stops(
 
 \item{strucpars}{(possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.}
 
-\item{optimmethod}{What optimizer to use (all support box contraints). Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"). Defaults to "tgp" version.}
+\item{optimmethod}{What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"), "DIRECT", Stochastic Global Optimization ("stogo"), COBYLA ("cobyla"), Controlled Random Search 2 with local mutation ("crs2lm"), Improved Stochastic Ranking Evolution Strategy ("isres"), Multi-Level Single-Linkage ("mlsl"), Nelder-Mead ("neldermead"), Subplex ("sbplx"), Hooke-Jeeves Pattern Search ("hjk"), CMA-ES ("cmaes"). Defaults to "ALJ" version. tgp, ALJ, Kriging and pso usually work well for low values of itmax.}
 
 \item{lower}{The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
 \item{upper}{The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
-\item{verbose}{numeric value hat prints information on the fitting process; >2 is pretty verbose.}
+\item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose.}
 
 \item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
 
 \item{initpoints}{number of initial points to fit the surrogate model for Bayesian optimization; default is 10.}
 
-\item{itmax}{maximum number of iterations of the outer optimization (for theta); number of steps of Bayesian optimization if Kriging or tgp is used; default is 50. We recommend a higher number for ALJ (around 150). Note that with tgp the actual number of evaluation of the MDS method is between itmax and 6*itmax as tgp it samples 1-6 candidates from the posterior and uses the best candidate. For pso it is the number of particles s times itmax.}
+\item{itmax}{maximum number of iterations of the outer optimization (for theta) or number of steps of Bayesian optimization; default is 50. We recommend a higher number for ALJ (around 150). Note that due to the inner workings of some solvers, this may or may not correspond to the actual number of function evaluations performed (or PS models fitted). E.g., with tgp the actual number of function evaluation of the PS method is between itmax and 6*itmax as tgp samples 1-6 candidates from the posterior and uses the best candidate. For pso it is the number of particles s times itmax. For cmaes it is usually a bit higher than itmax. This currently may get overruled by a control argument if it is used (and then set to either ewhat is supplie dby control or to the default of the method).}
 
-\item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the configuration)}
+\item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the PS configuration)}
 
 \item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
 
-\item{control}{a control argument passed to the outer optimization procedure (see pomp::sannbox for SANN and pso::psoptim for pso).}
+\item{control}{a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the efect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms DIRECT, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.}
 
-\item{...}{additional arguments passed to the outer optimization procedures (not fully tested)}
+\item{...}{additional arguments passed to the outer optimization procedures (not fully tested).}
 }
 \value{
 A list with the components
         \itemize{
-        \item stoploss: the weighted loss value
-        TBD
+        \item stoploss: the stoploss value
+        \item optim: the object returned from the optimization procedure
+        \item stressweight: the stressweight
+        \item strucweight: the vector of structure weights
+        \item call: the call
+        \item optimmethod: The solver selected
+        \item losstype: The PS badness-of-fit function
+        \item nobj: the number of objects in the configuration
+        \item type: The type of stoploss scalacrisation (additive or multiplicative)
+        \item fit: The fitted PS object (most importantly $fit$conf the configuration and) 
 }
 }
 \description{

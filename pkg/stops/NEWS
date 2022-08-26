@@ -1,3 +1,7 @@
+Version 0.0-48
+
+- Added new derivative-free solvers from nloptr and dfoptim and cmaes. Updated docs. 
+
 Version 0.0-47
 
 - Added pomp::sannbox as the SANN engine. Fixed bug that didn't allow to set itmax for pso. Removed the s argument for pso. Added a control argument to be used with pso and sannbox. Fixed a bug in the stop_* models that use smacof as workshorse function and used the wrong stress.m. Updated docs. 
