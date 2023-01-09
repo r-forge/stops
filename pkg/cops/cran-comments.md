@@ -3,7 +3,7 @@
 * local Linux Mint 19.2 install, R 4.0.3
 * win-builder (devel, release, oldrel)
 
-## R CMD check results
+## R CMD check results (via devtools::check())
 There were no ERRORs or WARNINGs or NOTEs. 
 
 ## Win-builder results
