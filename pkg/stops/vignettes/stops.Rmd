@@ -4,14 +4,14 @@ author: "Thomas Rusch"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{A tutorial on Structure Optimized Proximity Scaling (STOPS)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 In this document we introduce the functionality available in `stops` for fitting multidimensional scaling (MDS; Borg & Groenen 2005) or proximity scaling (PS) models either on their own or by utilizing the STOPS idea. We start with a short introduction to PS and the models that are available. We then explain fitting of these models with the `stops` package. Next, we introduce the reader to STOPS (Rusch, Mair & Hornik, 2020; Rusch, Mair & Hornik, 2023a), a method to select hyperparameters in flexible mutlidimensional scaling methods based on structures in the configuration. We show how to fit those. We also mention P-COPS as a special case and show the connection to COPS (Rusch, Mair & Hornik, 2021). For illustration throughout this document we use the `smacof::kinshipdelta` data set (Rosenberg & Kim, 1975) which lists percentages of how often 15 kinship terms were not grouped together by college students. 
 
-```{r,message=FALSE,warning=FALSE}
+```{r,chunk1,message=FALSE,warning=FALSE}
 library(stops)
 ```
 
@@ -179,7 +179,7 @@ res10
 
 * An `apstress` model (approximate power stress) 
 ```{r}
-res11<-apStressMin(dis,tau=0.5,ups=2,stressweight=1)
+res11<-apStressMin(dis,tau=0.5,ups=2)
 res11
 ```
 
@@ -424,9 +424,9 @@ When choosing a c-structuredness index, one needs to be clear what structure one
 
 We use `tgp` as optimization method and restrict the search space to be between $0$ and $5$.
 
-```{r,eval=FALSE}
+```{r,stopsbn}
 set.seed(666)
-resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1,1),strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),lower=c(0,0,0),upper=c(5,5,5),optimmethod="tgp",itmax=10)
+resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1,1),strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),lower=c(0,0,0),upper=c(5,5,5),optimmethod="tgp",itmaxps=1000,itmax=10)
 ```
 
 ```{r,echo=FALSE,eval=FALSE}
@@ -519,7 +519,7 @@ Since the inner optimization problem in STOPS models is hard and takes long, Rus
 
 We optimize a "Wild Function" with the non-adaptive LJ version (and numerical accuracies of at least `1e-16` for `accd` and `acc`).
  
-```{r}
+```{r,ljoptim}
 set.seed(210485)
 fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
