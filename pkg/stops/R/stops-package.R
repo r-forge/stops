@@ -1,6 +1,6 @@
 #' stops: structure optimized proximity scaling
 #' 
-#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
+#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, power stress, Isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive Luus-Jakola and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
 #'
 #' The stops package provides five categories of important functions:
 #'
@@ -25,7 +25,7 @@
 #' \item conf_adjust(): procrustes adjustment of configurations 
 #' \item cmdscale(), sammon(): wrappers that return S3 objects
 #' \item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stops_lmds(): stop versions of these MDS models.
-#' \item stoploss() ... a function to calculate stoploss (Rusch et al., 2019)
+#' \item stoploss() ... a function to calculate stoploss (Rusch et al., 2021)
 #'}
 #'
 #' Methods: 
@@ -33,7 +33,7 @@
 #'
 #' References:
 #' \itemize{
-#' \item Rusch, T., Mair, P. \& Hornik, K. (2019) Structure based hyperparameter selection for nonlinear dimension reduction: The Structure Optimized Proximity Scaling (STOPS) framework, Report 2019/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
+#' \item Rusch, T., Mair, P. & Hornik, K. (2021) STOPS: Structure Optimized Proximity Scaling, Report 2021/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
 #' }
 #' 
 #'Authors: Thomas Rusch, Lisha Chen, Jan de Leeuw, Patrick Mair, Kurt Hornik

@@ -1,11 +1,11 @@
 Package: stops
-Title: STructure Optimized Proximity Scaling
-Version: 0.0-49
-Date: 2023-01-09
+Title: Structure Optimized Proximity Scaling
+Version: 0.0-50
+Date: 2023-01-11
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Lisha",family="Chen", role = "aut"),  person(given="Patrick",family="Mair", role = "aut"), person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: Structure optimized proximity scaling (STOPS) refers to a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson (classical) scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, s-stress, r-stress, power MDS, power elastic scaling, power Sammon mapping, power stress (POST-MDS), boxcox stress, local mds and isomap. All of these models can also be fit individually with given hyperparameters or by optimizing over hyperparameter based on fit only (i.e., no structure considerations). The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices.
+Description: Structure optimized proximity scaling (STOPS) refers to a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson (classical) scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, s-stress, r-stress, power MDS, power elastic scaling, power Sammon mapping, power stress (POST-MDS), approximate power stress, Box-Cox MDS, local MDS and Isomap. All of these models can also be fit individually with given hyperparameters or by optimizing over hyperparameters based on fit only (i.e., no structure considerations). The package further contains functions for optimization, specifically the adaptive Luus-Jaakola algorithm and a wrapper for Bayesian optimization with treed Gaussian process with jumps to linear models, and functions for various c-structuredness indices.
 Depends:
     R (>= 3.5.0),
     smacof,
@@ -35,7 +35,7 @@ Suggests:
     R.rsp
 License: GPL-2 | GPL-3
 LazyData: true
-URL: http://r-forge.r-project.org/projects/stops/
+URL: https://r-forge.r-project.org/projects/stops/
 VignetteBuilder: R.rsp
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3

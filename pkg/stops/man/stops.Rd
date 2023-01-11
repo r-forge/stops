@@ -9,7 +9,8 @@ stops(
   dis,
   loss = c("strain", "stress", "smacofSym", "powerstress", "powermds", "powerelastic",
     "powerstrain", "elastic", "sammon", "sammon2", "smacofSphere", "powersammon",
-    "rstress", "sstress", "isomap", "isomapeps", "bcstress", "lmds"),
+    "rstress", "sstress", "isomap", "isomapeps", "bcstress", "lmds", "apstress",
+    "rpowerstress"),
   theta = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
     "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
@@ -38,9 +39,9 @@ stops(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{loss}{which loss function to be used for fitting, defaults to stress}
+\item{loss}{which loss function to be used for fitting, defaults to stress.}
 
-\item{theta}{parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
+\item{theta}{parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function for how excatly). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
 
 \item{structures}{what c-structuredness should be considered; if missing no structure is considered.}
 
@@ -94,7 +95,9 @@ A list with the components
 }
 }
 \description{
-A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. This includes the three variants of cluster optimized proximity scaling (COPS). The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, powerstress, isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive LJ and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
+A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, power stress, Isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive Luus-Jakola and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
+
+This allows to fit STOPS models as described in Rusch, Mair, Hornik (2023).
 }
 \details{
 The stops package provides five categories of important functions:
@@ -120,7 +123,7 @@ Wrappers and convenience functions:
 \item conf_adjust(): procrustes adjustment of configurations 
 \item cmdscale(), sammon(): wrappers that return S3 objects
 \item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stops_lmds(): stop versions of these MDS models.
-\item stoploss() ... a function to calculate stoploss (Rusch et al., 2019)
+\item stoploss() ... a function to calculate stoploss (Rusch et al., 2021)
 }
 
 Methods: 
@@ -128,12 +131,14 @@ For most of the objects returned by the high-level functions S3 classes and meth
 
 References:
 \itemize{
-\item Rusch, T., Mair, P. \& Hornik, K. (2019) Structure based hyperparameter selection for nonlinear dimension reduction: The Structure Optimized Proximity Scaling (STOPS) framework, Report 2019/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business. \emph{forthcoming} 
+\item Rusch, T., Mair, P. & Hornik, K. (2021) STOPS: Structure Optimized Proximity Scaling, Report 2021/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
 }
 
 Authors: Thomas Rusch, Lisha Chen, Jan de Leeuw, Patrick Mair, Kurt Hornik
 
 Maintainer: Thomas Rusch
+
+The combination of c-structurednes indices and stress uses the stress.m values, which are the explictly normalized stresses. Reported however is the stress-1 value which is sqrt(stress.m).
 }
 \examples{
 data(kinshipdelta,package="smacof")

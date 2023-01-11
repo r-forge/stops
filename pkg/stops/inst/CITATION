@@ -24,10 +24,9 @@ citEntry(entry = "Article",
     header="If stops() or c-structuredness indices are used, please cite:")
 
 citEntry(entry = "TechReport", 
-    author =personList(as.person("Jan de Leeuw")), title = "Minimizing rstress using nested majorization", address="Los Angels", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2014, 
-    url = "http://gifi.stat.ucla.edu/janspubs/2014/notes/deleeuw_U_14c.pdf", 
-    textVersion = paste("De Leeuw, Jan (2014)", 
-    "Minimizing r-stress using nested majorisation.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
+    author =personList(as.person("Jan de Leeuw"),as.person("Patrick Groenen"),as.person("Patrick Mair")), title = "Minimizing rstress using nested majorization", year = 2016, url = "https://rpubs.com/deleeuw/142619", institution="UCLA",
+    textVersion = paste("De Leeuw, Jan and Groenen, Patrick and Mair, Patrick (2016)", 
+    "Minimizing r-stress using nested majorization.","https://rpubs.com/deleeuw/142619"),
     header="If powerStressMin() is used, please cite:")
 
 citEntry(entry = "Article", 

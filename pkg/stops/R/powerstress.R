@@ -353,7 +353,7 @@ print.summary.smacofP <- function(x,...)
 #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
-#' \item obsdiss: Observed dissimilarities, normalized 
+#' \item obsdiss: Observed transformed dissimilarities, not normalized
 #' \item confdist: Configuration dissimilarities, NOT normalized 
 #' \item conf: Matrix of fitted configuration, NOT normalized
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
@@ -363,13 +363,12 @@ print.summary.smacofP <- function(x,...)
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item type: Type of MDS model
+#' \item weightmat: weighting matrix 
 #' }
 #' and some additional components
 #' \itemize{
 #' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
-#' \item stress.en: a manually calculated stress on the normalized, transformed dissimilarities and normalized transformed distances which is not correct
 #' \item deltaorig: observed, untransformed dissimilarities
-#' \item weightmat: weighting matrix 
 #'}
 #'
 #' @section Note:
@@ -491,7 +490,83 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmat*(doute-delta)^2)
      if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, kappa=kappa, lambda=lambda, nu=nu, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew,stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, kappa=kappa, lambda=lambda, nu=nu, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
+  }
+
+
+#' Approximate Power Stress SMACOF
+#'
+#' Minimize approximate power stress by minimization-majorization. 
+#' 
+#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
+#' @param tau the power of the transformation of the proximities; defaults to 1
+#' @param ups the power of the transformation for weightmat; defaults to 1 
+#' @param weightmat a matrix of finite weights
+#' @param init starting configuration
+#' @param ndim dimension of the configuration; defaults to 2
+#' @param eps numeric accuracy of the iteration
+#' @param itmax maximum number of iterations
+#' @param verbose should iteration output be printed; if TRUE then yes
+#'
+#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' \itemize{
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed transformed dissimilarities
+#' \item dhats: Observed transformed dissimilarities, normalized 
+#' \item confdist: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
+#' \item spp: Stress per point (based on stress.en) 
+#' \item ndim: Number of dimensions
+#' \item model: Name of smacof model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item type: Type of MDS model
+#' \item weightmat: weighting matrix 
+#' }
+#' and some additional components
+#' \itemize{
+#' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities. The square of stress-1 in stress. 
+#' \item deltaorig: observed, untransformed dissimilarities
+#'}
+#'
+#' 
+#' @importFrom stats dist as.dist
+#' 
+#' @seealso \code{\link{smacofSym}}
+#'
+#' @author Thomas Rusch
+#' 
+#' @examples
+#' dis<-smacof::kinshipdelta
+#' res<-apStressMin(as.matrix(dis),tau=2,ups=0.7)
+#' res
+#' summary(res)
+#' plot(res)
+#' 
+#' @export
+apStressMin <- function (delta, tau=1, ups=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, eps= 1e-06, itmax = 1000, verbose = FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(verbose>0) cat("Minimizing apStress with tau=",tau,"upsilon=",ups,"\n")
+    if(!all.equal(unique(as.vector(weightmat)),c(0,1))) stop("For approximate power stress, only binary weight matrices are allowed.")
+    if(is.null(init)) init <- "torgerson" 
+    deltaorig <- delta
+    combwght <- weightmat*(delta^ups)
+    delta <- delta^tau
+    fit <- smacof::smacofSym(delta,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose>=2),itmax=itmax,eps=eps) #optimize with smacof
+    fit$tau <- tau
+    fit$upsilon <- ups
+    fit$pars <- c(tau,ups)
+    fit$obsdiss <- delta
+    fit$delta <- deltaorig
+    fit$model <- "Approximate Power Stress SMACOF"
+    fit$type <- "Approx. Power Stress"
+    fit$stress.m <- fit$stress^2
+    fit$deltaorig <- as.dist(deltaorig)
+    fit$call <- match.call()
+    class(fit) <- c("smacofP","smacofB","smacof")
+    fit
   }
