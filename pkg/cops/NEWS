@@ -1,5 +1,8 @@
 #TODO:  Standardize the plots
 
+Version 1.2-1:
+  - Updated some documentation for restricted power stress.
+
 Version 1.2-0:
   - Removed rgl functions. Updated reference to the JCGS publication. Fixed a bug in plot.cmdscale and plot.smacofP for plot.type="Shepard" and plot.type="resplot".  
 

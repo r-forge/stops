@@ -713,10 +713,11 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 }
 
 
-#' COPS version of restricted powerstress
+#' PCOPS version of restricted powerstress,  which means that the same exponent will be used for distances and dissimilarities. If they are free to vary, it is powerstress.  
+#
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first two agruments are for kappa and lambda and must be equal (for the dissimilarities and observed proximities), the third nu (for the weights). If a scalar is given it is recycled, if a vetor of length is given, it gets expanded to c(theta[1],theta[1],theta[2]) .  Defaults to 1 1 1.
+#' @param theta the theta vector of powers; the first two agruments are for kappa and lambda and must be equal (for the fitted distances and observed proximities), the third nu (for the weights).  Internally the kappa and lambda are equated. If a scalar is given it is recycled (so all elements of theta are equal); if a vector of length 2 is given, it gets expanded to c(theta[1],theta[1],theta[2]). Defaults to 1 1 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -735,7 +736,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 #'
 #' @return A list with the components
 #' \itemize{
-#'         \item stress: the stress
+#'         \item stress: the stress1 value (sqrt(stress.m))
 #'         \item stress.m: default normalized stress
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
@@ -771,7 +772,7 @@ cop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
 }
 
 
-#' PCOPS versions of approximated power stress models. This uses an approximation and makes use of smacof.
+#' PCOPS version of approximated power stress model. This uses an approximation and makes use of smacof.
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this is either a scalar of the tau and upsilon transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the tau argument and the third the upsilon argument. Defaults to 1 1 1 
