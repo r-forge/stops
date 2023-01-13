@@ -2,11 +2,11 @@
 % Please edit documentation in R/stops.R
 \name{stop_sammon}
 \alias{stop_sammon}
-\title{STOPS version of sammon mapping}
+\title{STOPS version of Sammon mapping}
 \usage{
 stop_sammon(
   dis,
-  theta = c(1, 1, -1),
+  theta = 1,
   ndim = 2,
   init = NULL,
   weightmat = NULL,
@@ -26,13 +26,13 @@ stop_sammon(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1}
+\item{theta}{the theta vector of powers; this must be  a scalar of the lambda transformation for the observed proximities. Defaults to 1.}
 
 \item{ndim}{number of dimensions of the target space}
 
 \item{init}{(optional) initial configuration}
 
-\item{weightmat}{(optional) a matrix of nonnegative weights}
+\item{weightmat}{a matrix of nonnegative weights. Has no effect here.}
 
 \item{itmax}{number of iterations}
 
@@ -63,6 +63,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of sammon mapping
+Uses MASS::sammon. The free parameter is lambda for power transformations of the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -1.
 }
 \keyword{multivariate}

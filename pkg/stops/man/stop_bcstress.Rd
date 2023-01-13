@@ -26,7 +26,7 @@ stop_bcstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is mu (for the fitted distances), the second lambda (for the  proximities), the third nu (for the weightings). If a scalar is given it is recycled.  Defaults to 1 1 0.}
+\item{theta}{the theta vector of powers; the first is mu (for the fitted distances), the second lambda (for the  proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 0.}
 
 \item{weightmat}{(not used)}
 

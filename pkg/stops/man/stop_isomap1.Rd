@@ -25,7 +25,7 @@ stop_isomap1(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Can be a vector of up to three where only the first element is used. Defaults to 3.}
+\item{theta}{the number of shortest dissimilarities retained for a point (nearest neighbours), the isomap parameter. Must be a numeric scalar. Defaults to 3.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -60,6 +60,9 @@ A list with the components
 }
 }
 \description{
+Free parameter is k.
+}
+\details{
 Currently this version is a bit less flexible than the vegan one, as the only allowed parameter for isomap is the theta (k in isomap, no epsilon) and the shortest path is always estimated with argument "shortest". Also note that fragmentedOK is always set to TRUE which means that for theta that is too small only the largest conected group will be analyzed. If that's not wanted just set the theta higher.
 }
 \keyword{multivariate}

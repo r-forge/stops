@@ -2,7 +2,7 @@
 % Please edit documentation in R/stops.R
 \name{stop_powerelastic}
 \alias{stop_powerelastic}
-\title{STOPS version of elastic scaling with powers}
+\title{STOPS version of elastic scaling with powers for proximities and distances}
 \usage{
 stop_powerelastic(
   dis,
@@ -26,7 +26,7 @@ stop_powerelastic(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.}
+\item{theta}{the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -62,6 +62,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of elastic scaling with powers
+This is power stress with free kappa and lambda but rho is fixed to -2 and the weights are delta.
 }
 \keyword{multivariate}

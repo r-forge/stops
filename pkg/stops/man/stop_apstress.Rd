@@ -6,7 +6,7 @@
 \usage{
 stop_apstress(
   dis,
-  theta = c(1, 1, 1),
+  theta = c(1, 1),
   ndim = 2,
   weightmat = NULL,
   init = NULL,
@@ -26,7 +26,7 @@ stop_apstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of parameters to optimize over. It's best if it is a vector where the first is the kappa argument for the fitted distances (here always internally fixed to 1), the second the tau argument and the third the upsilon argument. It can also be a scalar of the tau and upsilon transformation for the observed proximities and gets recycled for both ups and tau (so they are equal). It can also be a vector of length 2 with the two values being the tau and ups parameters (that gets expanded to c(1,theta[1],theta[2]). Defaults to 1 1 1.}
+\item{theta}{the theta vector of parameters to optimize over. Must be of length two, with the first the tau argument and the second the upsilon argument. It can also be a scalar of the tau and upsilon transformation for the observed proximities and gets recycled for both ups and tau (so they are equal). Defaults to 1 1.}
 
 \item{ndim}{number of dimensions of the target space}
 

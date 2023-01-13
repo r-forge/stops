@@ -503,7 +503,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param tau the power of the transformation of the proximities; defaults to 1
 #' @param ups the power of the transformation for weightmat; defaults to 1 
-#' @param weightmat a matrix of finite weights
+#' @param weightmat a square, symmetric matrix of finite weights (same dimensions as delta) 
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param eps numeric accuracy of the iteration
@@ -551,7 +551,7 @@ apStressMin <- function (delta, tau=1, ups=1, weightmat=1-diag(nrow(delta)), ini
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing apStress with tau=",tau,"upsilon=",ups,"\n")
-    if(!all.equal(unique(as.vector(weightmat)),c(0,1))) stop("For approximate power stress, only binary weight matrices are allowed.")
+    if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximate power stress, only binary weight matrices are allowed.")
     if(is.null(init)) init <- "torgerson" 
     deltaorig <- delta
     combwght <- weightmat*(delta^ups)

@@ -51,10 +51,13 @@ echo $contents; } ?>
 
 <h3>Papers:</h3>
 <h4>Peer-reviewed Articles:</h4>
+(all open access)</br>
 <p>
-<a href="https://link.springer.com/article/10.1007/s11222-022-10197-w">Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling, Statistics and Computing, 33:28.</a></br> 
-<a href="https://www.tandfonline.com/doi/full/10.1080/10618600.2020.1869027">Rusch, T., Mair, P., & Hornik, K. (2021) Cluster Optimized Proximity Scaling, Journal of Computational and Graphical Statistics, 30:4, 1156-1167.</a></br> 
-<a href="https://www.tandfonline.com/doi/full/10.1080/10618600.2017.1349664">Rusch, T., Hornik, K. & Mair, P. (2018) Assessing and Quantifying Clusteredness: The OPTICS Cordillera, Journal of Computational and Graphical Statistics, 27:1, 220-233.</a> 
+<dl>
+<li>Rusch, T., Mair, P., & Hornik, K. (2023). <a href="https://link.springer.com/article/10.1007/s11222-022-10197-w">Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling</a>, Statistics and Computing, 33:28.</li>
+<li>Rusch, T., Mair, P., & Hornik, K. (2021) <a href="https://www.tandfonline.com/doi/full/10.1080/10618600.2020.1869027">Cluster Optimized Proximity Scaling</a>, Journal of Computational and Graphical Statistics, 30:4, 1156-1167.</li>
+<li>Rusch, T., Hornik, K. & Mair, P. (2018) <a href="https://www.tandfonline.com/doi/full/10.1080/10618600.2017.1349664">Assessing and Quantifying Clusteredness: The OPTICS Cordillera</a>, Journal of Computational and Graphical Statistics, 27:1, 220-233.</li>
+</dl>
 </p>
 
 <h4>Technical Reports:</h4>
@@ -127,10 +130,4 @@ The most recent build is available for Windows and Linux here: <a href="https://
 </body>
 </html>
 
-
-<!---
-<?php 
-readfile("stops.html");
-?>
----> 
 

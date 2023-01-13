@@ -2,7 +2,7 @@
 % Please edit documentation in R/stops.R
 \name{stop_rpowerstress}
 \alias{stop_rpowerstress}
-\title{STOPS version of restricted powerstress, which means that the same exponent will be used for distances and dissimilarities. If they are free to vary, it is powerstress.}
+\title{STOPS version of restricted powerstress}
 \usage{
 stop_rpowerstress(
   dis,
@@ -62,6 +62,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of restricted powerstress, which means that the same exponent will be used for distances and dissimilarities. If they are free to vary, it is powerstress.
+STOPS version of restricted powerstress
 }
 \keyword{multivariate}

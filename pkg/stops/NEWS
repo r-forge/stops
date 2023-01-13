@@ -1,3 +1,7 @@
+Version 0.0-51
+
+- Streamlined the theta parameters for each stop_xxx method and the high level stops. Now only takes the correct number of parameters and also returns them properly named in the summary function. 
+
 Version 0.0-50
 
 - Added approximate power stress as stand-alone function. Added restricted power stress and approximate power stress for STOPS. Streamlined every fitting functions stress calculation: $stress.m is now always explicitly normalized stress and gets used for the STOPS calculations. $stress is now always sqrt(stress.m) and is the stress-1 value; that one gets reported in the summaries. This wasn't consistent for all fitting functions that were not from Smacof or powerStressMin (i.e., different for stop_cmdscale, stops_isomap1, stops_isomap2) so this is a break to previous versions and also as it was calculated for the Statistics and Computing article. For reproducibility of that article, we'd need to use a version prior to 0.0-50. Updated vignette.   

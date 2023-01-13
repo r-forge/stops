@@ -529,7 +529,9 @@ conf_adjust(conf1,conf2)
 
 # A Full Blown Analysis
 
-We recreate parts of an example of Rusch, Mair and Hornik (2023) here. The data are 500 handwritten pen digits and we subject them to different flexible MDS methods and select hyperparameters with STOPS based on c-clusteredness and c-manifoldness. The data are available in the package.
+We recreate parts of an example of Rusch, Mair and Hornik (2023) here. The data are 500 handwritten pen digits and we subject them to different flexible MDS methods and select hyperparameters with STOPS based on c-clusteredness and c-manifoldness. We use Sammon mapping with power transformations for the proximities, Box-Cox MDS, lMDS (all three like in the article) and also approximate power stress (different from the article). The data are available in the package via `data(Pendigits500)`. 
+
+This is a tough data set for our implementations because it is quite large, so an individual MDS takes a while. When running STOPS we have to fit a large number of MDS, so this can take quite a long time and therefore we also time so that users can see what to expect.   
 
 ```{r,pendatasetup}
 # data setup
@@ -549,6 +551,7 @@ scale <- 3
 ```
 
 We start with an initial solution (a Sammon mapping) and see how the c-structuredness of that result is 
+
 ```{r,initsam}
 ## initial sammon mapping solution
 initsam <- sammon(dis)
@@ -591,9 +594,13 @@ timebc <- system.time(restgpbc <- stops(dis,theta=c(4.63,2.77,5.12),loss="bcstre
 #lMDS
 set.seed(669)
 timelmds <- system.time(restgplmds <- stops(dis,theta=c(14.5,3),loss="lmds",weightmat=dis,structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=0,lower=c(5,0),upper=c(50,3),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
+
+#approx p stress
+set.seed(670)
+timeaps <- system.time(restgpaps <- stops(dis,theta=c(1,1),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=c(1,1),upper=c(6,6),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
 ```
 ```{r,echo=FALSE,eval=FALSE}
-save(restgp,restgpbc,restgplmds,timesam,timebc,timelmds,file="../.devel/pendigresults.rda")
+save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/pendigresults.rda")
 ```
 ```{r,echo=FALSE}
 load("../.devel/pendigresults.rda")
@@ -610,8 +617,10 @@ levels(colsopt) <- hcl.colors(10,"Dark 3")
 samconf <- restgp$fit$conf
 lmdsconf <- restgplmds$fit$conf
 bcconf <- restgpbc$fit$conf
+apsconf<-restgpaps$fit$conf
 samconf <- Procrustes(lmdsconf,samconf)$Yhat
 bcconf <- Procrustes(lmdsconf,bcconf)$Yhat
+apsconf <- Procrustes(lmdsconf,apsconf)$Yhat
 ```
 
 And here are the plots.
@@ -626,9 +635,15 @@ box()
 plot(lmdsconf[,1],lmdsconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",asp=1,main="lMDS",axes=TRUE)
 points(lmdsconf[,1],lmdsconf[,2],col=as.character(colsopt),pch=as.character(pendss[,17]))
 box()
+
 #bc stress
 plot(bcconf[,1],bcconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",asp=1,axes=TRUE,main="BC-MDS")
 points(bcconf[,1],bcconf[,2],col=as.character(colsopt),pch=as.character(pendss[,17]))
+box()
+
+#ap stress
+plot(apsconf[,1],apsconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",asp=1,axes=TRUE,main="Approx. POST-MDS")
+points(apsconf[,1],apsconf[,2],col=as.character(colsopt),pch=as.character(pendss[,17]))
 box()
 ```
 

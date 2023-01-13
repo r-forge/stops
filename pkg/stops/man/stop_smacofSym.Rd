@@ -6,7 +6,7 @@
 \usage{
 stop_smacofSym(
   dis,
-  theta = c(1, 1, 1),
+  theta = 1,
   ndim = 2,
   weightmat = NULL,
   init = NULL,
@@ -26,7 +26,7 @@ stop_smacofSym(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector for transformations; either a scalar for the lambda (proximity) transformation or a vector of at most three elements where the second is used as the free lambda parameter (the first an third would correspond to kappa and nu respecively and are internally fixed to 1)}
+\item{theta}{the theta vector; must be a scalar for the lambda (proximity) transformation. Defaults to 1.}
 
 \item{ndim}{number of dimensions of the target space}
 
@@ -63,6 +63,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of smacofSym models
+The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights is 1.
 }
 \keyword{multivariate}

@@ -6,7 +6,7 @@
 \usage{
 stop_cmdscale(
   dis,
-  theta = c(1, 1, 1),
+  theta = 1,
   weightmat = NULL,
   ndim = 2,
   init = NULL,
@@ -26,7 +26,7 @@ stop_cmdscale(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda (free parameter) and the third the nu argument (internally fixed to 1). Defaults to 1 1 1}
+\item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights. Not used.}
 
@@ -53,8 +53,8 @@ stop_cmdscale(
 \value{
 A list with the components
    \itemize{
-        \item{stress:} Not really stress but 1-GOF where GOF is the first element returned from cmdscale (the sum of the first ndim absolute eigenvalues divided by the sum of all absolute eigenvalues)
-        \item{stress.m:} default normalized stress
+        \item{stress:} Sqrt of explicitly normalized stress. 
+        \item{stress.m:} explictly normalized stress
         \item{stoploss:} the weighted loss value
         \item{indices:} the values of the structuredness indices
         \item{parameters:} the parameters used for fitting 
@@ -63,6 +63,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of strain
+The free parameter is lambda for power transformations of the observed proximities.
 }
 \keyword{multivariate}

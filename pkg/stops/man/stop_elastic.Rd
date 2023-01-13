@@ -6,7 +6,7 @@
 \usage{
 stop_elastic(
   dis,
-  theta = c(1, 1, -2),
+  theta = 1,
   ndim = 2,
   weightmat = NULL,
   init = NULL,
@@ -26,7 +26,7 @@ stop_elastic(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument (the free parameter) and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2}
+\item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1.}
 
 \item{ndim}{number of dimensions of the target space}
 
@@ -63,6 +63,6 @@ A list with the components
 }
 }
 \description{
-Allows for a weight matrix because of smacof.
+The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -2. Allows for a weight matrix because of smacof.
 }
 \keyword{multivariate}

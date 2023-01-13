@@ -60,6 +60,9 @@ A list with the components
 }
 }
 \description{
+Free parameter is eps.
+}
+\details{
 Currently this version is a bit less flexible than the vegan one, as the only allowed parameter for isomap is the theta (epsilon in isomap) and the shortest path is always estimated with argument "shortest". Also note that fragmentedOK is always set to TRUE which means that for theta that is too small only the largest conected group will be analyzed. If that's not wanted just set the theta higher.
 }
 \keyword{multivariate}

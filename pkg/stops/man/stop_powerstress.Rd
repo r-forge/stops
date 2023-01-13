@@ -62,6 +62,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of powerstress
+Power stress with free kappa and lambda and rho.
 }
 \keyword{multivariate}

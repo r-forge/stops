@@ -23,7 +23,7 @@ apStressMin(
 
 \item{ups}{the power of the transformation for weightmat; defaults to 1}
 
-\item{weightmat}{a matrix of finite weights}
+\item{weightmat}{a square, symmetric matrix of finite weights (same dimensions as delta)}
 
 \item{init}{starting configuration}
 

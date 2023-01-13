@@ -6,7 +6,7 @@
 \usage{
 stop_powersammon(
   dis,
-  theta = c(1, 1, -1),
+  theta = c(1, 1),
   weightmat = NULL,
   init = NULL,
   ndim = 2,
@@ -26,7 +26,7 @@ stop_powersammon(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third (nu) is not free but fixed to -1. If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.}
+\item{theta}{the theta vector of powers; a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -62,6 +62,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of sammon with powers
+This is power stress with free kappa and lambda but rho is fixed to -1 and the weights are delta.
 }
 \keyword{multivariate}
