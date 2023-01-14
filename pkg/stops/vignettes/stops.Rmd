@@ -585,31 +585,25 @@ Now we have everything to run STOPS. We use Sammon mapping with powers for the d
 ```{r,eval=FALSE}
 #Sammon with power transformations of proximities
 set.seed(666)
-timesam <- system.time(restgp <- stops(dis,theta=5.6,loss="sammon",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=1,upper=6,optimmethod="tgp",model="btgpllm",itmax=10))
+timesam <- system.time(restgp <- stops(dis,theta=5.6,loss="sammon",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=1,upper=6,optimmethod="tgp",model="btgpllm",itmax=10))
 
 #Box Cox MDS
 set.seed(667)
-timebc <- system.time(restgpbc <- stops(dis,theta=c(4.63,2.77,5.12),loss="bcstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=c(0.1,0.1,0.1),upper=c(6,6,6),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
+timebc <- system.time(restgpbc <- stops(dis,theta=c(4.63,2.77,5.12),loss="bcstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=c(0.1,0.1,0.1),upper=c(6,6,6),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
 
 #lMDS
 set.seed(669)
-timelmds <- system.time(restgplmds <- stops(dis,theta=c(14.5,3),loss="lmds",weightmat=dis,structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=0,lower=c(5,0),upper=c(50,3),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
+timelmds <- system.time(restgplmds <- stops(dis,theta=c(14.5,3),loss="lmds",weightmat=dis,structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=c(5,0),upper=c(50,3),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
 
 #approx p stress
-#why error for tgp, kriging and  
-set.seed(2)
-restgpaps2 <- stops(dis,theta=c(0.53,2.85),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=c(0.5,0.5),upper=c(6,6),itmax=50,itmaxps=1e4)
 set.seed(670)
-timeaps <- system.time(restgpaps <- stops(dis,theta=restgpaps2$parameters,loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=c(0.5,0.5),upper=c(6,6),optimmethod="pso",itmax=100,itmaxps=1e4,init=restgpaps2$fit$conf))
-
-restgpaps2
-plot(restgpaps2,col=as.character(colsopt))
+timeaps <- system.time(restgpaps <- stops(dis,theta=c(0.53,2.85),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=c(0.1,0.1),upper=c(6,6),optimmethod="ALJ",itmax=20,itmaxps=1e4))
 ```
 ```{r,echo=FALSE,eval=FALSE}
-save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/pendigresults.rda")
+save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/dataobj/pendigresults.rda")
 ```
 ```{r,echo=FALSE}
-load("../.devel/pendigresults.rda")
+load("../.devel/dataobj/pendigresults.rda")
 ```
 
 We now plot the results. We color the digits differently and adjust all the configurations to the same plotting region via Procrustes transformation (as MDS results are invariant to translation, scaling and rotation).
@@ -632,6 +626,7 @@ apsconf <- Procrustes(lmdsconf,apsconf)$Yhat
 And here are the plots.
 
 ```{r,plotdigits,fig}
+par(mfrow=c(2,2))
 #Sammon
 plot(samconf[,1],samconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",asp=1,axes=TRUE,main="Sammon")
 points(samconf[,1],samconf[,2],col=as.character(colsopt),pch=as.character(pendss[,17]))
@@ -652,6 +647,24 @@ plot(apsconf[,1],apsconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",
 points(apsconf[,1],apsconf[,2],col=as.character(colsopt),pch=as.character(pendss[,17]))
 box()
 ```
+
+We can see that Sammon mapping with power transformation shows a clusteredness that is both high and sensible. The values is `r restgp$strucindices[1]` for Sammon. Box-Cox MDS also give s arelatively clustered result, but it seems it finds 3 clusters and that is less in line wht the ground truth. The value is `r restgpbc$strucindices[1]`.
+
+```{r}
+restgp
+restgpbc
+```
+
+Local MDS and approximate power stress give configurations that are less clustered, although the arrangement of points is still sensible even if they don't align in clusters.  
+```{r}
+restgpbc
+restgpaps
+```
+
+This brings us to c-manifoldness which is very high for Sammon, Box-Cox MDS and lMDS. Approximate power stress MDS (POST-MDS) shows c-manifoldness that is a bit less bit still relatively high (it is less mainly due ot being more noisy around the imagined manifold). The manifolds are alos easy to see: for Sammon it seems to be reminiscent of a spiral, for approximate power stress it is a circle, for Box-Cox MDS it is a circle as well (or three spherical clusters) and for lMDS a manifold is also apparent although I don't think it has a name.
+
+The interesting thing here is that the objects are arrnaged along the manifolds in a way that suggests a structure of how handwritten digits are related, e.g., that 0s and 8s are related and that they are closer to 5s than to 1s. There is also a way to get from one digit to others along the manifold, e.g, in approx. POST-MDS one would get from the 6s to over the 9s to the 3s. This may give a hypothesis about a relationship amongst them.
+
 
 ##References
 
