@@ -59,7 +59,7 @@ This formulation enables one to express a large number of PS methods many of whi
 * **Approximate power stress** (Rusch, Mair & Hornik, 2021): This approximates power stress by
 \begin{equation}
  \label{eq:apstress}
-\sigma_{PS}(X)+\sigma_{apstress}(X)=\sum_{i<j} \delta_{ij}^\upsilon \left(\delta_{ij}^\tau - d_{ij}(X)\right)^2
+\sigma_{PS}(X)=\sigma_{apstress}(X)=\sum_{i<j} \delta_{ij}^\upsilon \left(\delta_{ij}^\tau - d_{ij}(X)\right)^2
 \end{equation}
 where the relation to p-stress is so that $\upsilon=\rho + 2\lambda(1 -1/\kappa)$ and $\tau=\lambda/\kappa$. The approximation of p-stress by ap-stress works well in cases when for the $x_i,x_j$ for which $w_{ij}$ is large, the error $\delta_{ij}^\lambda - d_{ij}(X)^\kappa$ is small, so that $d_{ij}(X)^\kappa$ is approximated reasonably well by $\delta_{ij}^\lambda$ and, equivalently, $d_{ij}(X)^\kappa$ can be approximated well by $d_{ij}(X) \delta_{ij}^{(\lambda (\kappa-1)/\kappa)}$.
 * **Local MDS** (LMDS; Chen & Buja, 2009):  Let $N_k$ define the symmetric set of nearby pairs of points $(i,j)$ so that $(i,j)\in N_k$ iff $i$ is among the $k-$nearest neighbours of $j$ or the other way round. Then we have a stress model with 
@@ -226,7 +226,7 @@ res11
 
 We can visualize the obtained configurations with plot. For `smacofP` objects we have the following plots. 
 
-```{r,eval=FALSE,fig.show='hold',fig.width=8, fig.height = 8}
+```{r,eval=TRUE,fig.show='hold',fig.width=8, fig.height = 8}
 plot(res9)
 plot(res9,"transplot")
 plot(res9,"Shepard")
@@ -252,14 +252,14 @@ plot(resc)
 ```
 
 
-* A BC MDS with the `bcStressMin`
+* A BC MDS with `bcStressMin`
 
 ```{r}
 resbc<-bcStressMin(dis,mu=3,lambda=2,nu=2)
 resbc
 ```
 
-```{r,eval=FALSE,fig.show='hold',fig.width=8, fig.height = 8}
+```{r,eval=TRUE,fig.show='hold',fig.width=8, fig.height = 8}
 plot(resbc)
 ```
 
@@ -281,23 +281,26 @@ Let us assume we are interested in $L$ different structural qualities of $X$ and
 
 In a nutshell our proposal is to select optimal hyperparameters $\theta^\ast$ for the scaling procedure by assessing the c-structuredness of an optimal configuration $X^\ast$ found from a PS method for given $\theta$ usually in combination with its badness-of-fit value. We aim at finding a $\theta^\ast$ that, when used as transformation parameters in the PS method, will give a configuration that has high (or low) values of the c-structuredness indices. We view this as a multi-objective optimization problem, where we want to maximize/minimize different criteria (either badness-of-fit, or c-structuredness, or both) over $\theta$. C-structuredness may this way be induced at a possible expense of fit but we control the expense amount. 
 
-To formalize this we explicitly write the building blocks of the objective function used for hyperparameter tuning via STOPS as a function of $\theta$: Let us denote by $X^\ast(\theta)$ the optimal solution from minimizing a badness-of-fit $\sigma_{PS}(X \vert \theta)$ for a fixed $\theta$, so $X^\ast(\theta):= \arg\min_{X} \sigma_{PS}(X\vert \theta)$. Further we also have the $L$ different univariate indices with possible metaparameters $\bm\gamma$, $I_l(X^\ast(\theta)\vert \gamma)$ to be optimized for.
+To formalize this we explicitly write the building blocks of the objective function used for hyperparameter tuning via STOPS as a function of $\theta$: Let us denote by $X^\ast(\theta)$ the optimal solution from minimizing a badness-of-fit $\sigma_{PS}(X \vert \theta)$ for a fixed $\theta$, so $X^\ast(\theta):= \arg\min_{X} \sigma_{PS}(X\vert \theta)$. Further we also have the $L$ different univariate indices with possible metaparameters $\gamma$, $I_l(X^\ast(\theta)\vert \gamma)$ to be optimized for.
 
-Specific variants of STOPS can be instantiated by defining objective functions $\text{Stoploss}(\theta\vert v_0, \dots, v_L, \gamma)$, comprising either badness-of-fit or c-structuredness indices or both in a scalarized combination. Two variants of objective functions---called additive STOPS (aSTOPS) and multiplicative STOPS (mSTOPS) respectively---are of the following form:
-\begin{align}
- \label{eq:astops}
-\text{Stoploss}_{aSTOPS}(\theta\vert v_0, \dots, v_L, \gamma) = v_0 \cdot \sigma_{PS}(X^\ast(\theta)\vert\theta) + \sum^L_{l=1} v_l I_l(X^\ast(\theta)\vert \gamma)
-\end{align}
- and 
-\begin{align}
+Specific variants of STOPS can be instantiated by defining objective functions $\text{Stoploss}(\theta\vert v_0, \dots, v_L, \gamma)$, comprising either badness-of-fit or c-structuredness indices or both in a scalarized combination. Two variants of objective functions are of the following form:
+
+* Additive STOPS (aSTOPS) 
+\begin{equation}
+\label{eq:astops}
+\text{Stoploss}_{aSTOPS}(\theta\vert v_0, \dots, v_L, \gamma) = v_0 \cdot \sigma_{PS}(X^\ast(\theta)\vert\theta) + \sum^L_{l=1} v_l I_l(X^\ast(\theta)\vert\gamma)
+\end{equation}
+
+* Multiplicative STOPS (mSTOPS)
+\begin{equation}
 \label{eq:mstops}
-\text{Stoploss}_{mSTOPS}(\theta \vert v_0, \dots, v_L, \gamma) = \sigma_{PS}(X^\ast(\theta)\vert \theta)^{v_0} \cdot \prod^L_{l=1} I_l(X}^\ast(\theta)\vert\gamma)^{v_l} 
-\end{align}
+\text{Stoploss}_{mSTOPS}(\theta\vert v_0, \dots, v_L, \gamma) = \sigma_{PS}(X^\ast(\theta)\vert\theta)^{v_0} \cdot \prod^L_{l=1} I_l(X^\ast(\theta)\vert\gamma)^{v_l} 
+\end{equation}
+
 with $v_0 \in \mathbb{R}_{\geq 0}$ and $v_1,\dots,v_L \in \mathbb{R}$ being the scalarization weights that determine how the individual parts (MDS loss and c-structuredness indices) are aggregated. Note that in this formulation the aggregation is a sum/product, so the weights must be negative if a higher index stands for more structure and we want more of that structure. Alternatively, the `stressweight` can be negative and the `strucweight` positive. 
 
 Numerically, the badness-of-fit function value $\sigma_{PS}(X^\ast(\theta)\vert \theta)$ needs to be normalized to be scale-free and commensurable for comparability of different values of $\theta$. The objective function for aSTOPS is fully compensatory, whereas for mSTOPS it ensures that a normalized badness-of-fit of $0$ will always lead to the minimal $\text{Stoploss}(\theta\vert v_0, \dots, v_L, \gamma)$ for a positive value of $I_l(\cdot)$. For notational convenience, we will refer to the objective functions for STOPS variants by $\text{Stoploss}(\theta)$ from now on.
  
-
 The job is then to find 
 \begin{equation}  
  \arg\min_{\theta}\ \text{Stoploss}(\theta)
@@ -373,7 +376,6 @@ For the MDS loss (argument `loss` in functions `stops`), the functions currently
 * `lmds`: LMDS; Workhorse: `lmds`, Optimization over $\theta=(\tau, k)$.
 * `bcstress`: Box-Cox MDS; Workhorse: `bcStressMin`, Optimization over $\theta=(\mu,\lambda,\rho)$.
 
-
 #### Usage 
 
 The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissimilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the PS loss (see above for the types of structures and losses). The metaparameters for the structuredness indices should be given via the `strucpars` argument; it should be a list whose elements are again lists corresponding to each structuredness index and listing the parameters (if the default should be used the list element should be set to `NULL`). See the example below. The PS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. As starting value for the $\theta$ one can supply (`theta`). If not this will be a scalar $1$.
@@ -447,7 +449,7 @@ We use `tgp` as optimization method for `itmax=10` steps and restrict the search
 
 ```{r,stopsbn}
 set.seed(666)
-resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1,1),strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),lower=c(0,0,0),upper=c(5,5,5),optimmethod="tgp",itmaxps=1000,itmax=10)
+resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1),strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),lower=c(0,0),upper=c(5,5),optimmethod="tgp",itmaxps=1000,itmax=10)
 ```
 
 ```{r}
@@ -485,7 +487,7 @@ Then we get a projection with c-clusteredness of `r resa2$strucindices[1]`. This
 
 It is also possible to use the `stops` function for finding the hyperparameters that are optimal for minimizing the badness-of-fit for a given transformation class in the the non-augmented models specified in `loss`, by setting the `strucweight` (the weight of any c-structuredness) to 0. Then the function optimizes the MDS loss function only. We use `optimmethod="pso"` with 5 particles and 100 steps. 
 
-```{r,eval=FALSE}
+```{r,psoex,eval=FALSE}
 ressa<-stops(kinshipdelta,theta=1,structures=c("clinearity"),strucweight=0,loss="stress",verbose=0,upper=8,lower=0,optimmethod="pso",itmax=100)
 ```
 
@@ -501,33 +503,7 @@ with $v_1,v_2 \in \mathbb{R}$ controlling how much weight should be given to the
 
 The c-clusteredness index we use is the OPTICS cordillera which measures how clustered a configuration appears. It is based on the OPTICS algorithm that outputs an ordering together with a distance. The OPTICS cordillera is now simply an agregation of that information. Since we know what constitutes a maximally clustered result, we can derive an upper bound and normalize the index to lie between 0 and 1. If it is maximally clustered, the index gets a value of 1,and it gets 0 if all points are equidistant to their nearest neighbours (a matchstick embedding). See the vignette in the COPS package for more. 
 
-
-### The Adaptive Luus-Jaakola Algorithm
-Since the inner optimization problem in STOPS models is hard and takes long, Rusch, Mair and Hornik (2021) developed a metaheuristic for the outer optimization problem that typically needs less calls to the inner minimization than `SANN`, albeit without the guarantees of convergence to a global minimum for non-smooth functions. It is an adaptation of the Luus-Jaakola random search (Luus & Jaakola 1973). It can used with the function `ljoptim` which modeled its output after `optim`. It needs as arguments `x` a starting value, `fun` a function to optimize, a `lower` and `upper` box constraint for the search region. By using the argument `adaptive=TRUE` or `FALSE` one can switch between our adaptive version and the original LJ algorithm. Accuracy of the optimization can be controlled with the `maxit` (maximum number of iterations), `accd` (terminates after the length of the search space is below this number ) and `acc` arguments (terminates if difference of two subsequent function values are below this value).  
-
-We optimize a "Wild Function" with the non-adaptive LJ version (and numerical accuracies of at least `1e-16` for `accd` and `acc`).
- 
-```{r,ljoptim}
-set.seed(210485)
-fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
-res2
-```
-
-```{r,fig.show='hold',fig.width=8,fig.height=8}
-plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")
-points(res2$par,res2$value,col="red",pch=19)
-```    
-
-### Procrustes Adjustment
-We also provide a procrustes adjustment to make two configurations visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
-
-```{r,eval=FALSE}
-conf_adjust(conf1,conf2) 
-```
-
-
-# A Full Blown Analysis
+### A Full Blown Analysis
 
 We recreate parts of an example of Rusch, Mair and Hornik (2023) here. The data are 500 handwritten pen digits and we subject them to different flexible MDS methods and select hyperparameters with STOPS based on c-clusteredness and c-manifoldness. We use Sammon mapping with power transformations for the proximities, Box-Cox MDS, lMDS (all three like in the article) and also approximate power stress (different from the article). The data are available in the package via `data(Pendigits500)`. 
 
@@ -602,7 +578,7 @@ timeaps <- system.time(restgpaps <- stops(dis,theta=c(0.53,2.85),loss="apstress"
 ```{r,echo=FALSE,eval=FALSE}
 save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/dataobj/pendigresults.rda")
 ```
-```{r,echo=FALSE}
+```{r,loadobj,echo=FALSE}
 load("../.devel/dataobj/pendigresults.rda")
 ```
 
@@ -625,7 +601,7 @@ apsconf <- Procrustes(lmdsconf,apsconf)$Yhat
 
 And here are the plots.
 
-```{r,plotdigits,fig}
+```{r,plotdigits,fig.show='hold',fig.width=10,fig.height=10}
 par(mfrow=c(2,2))
 #Sammon
 plot(samconf[,1],samconf[,2],col=as.character(colsopt),type="n",xlab="",ylab="",asp=1,axes=TRUE,main="Sammon")
@@ -665,8 +641,34 @@ This brings us to c-manifoldness which is very high for Sammon, Box-Cox MDS and 
 
 The interesting thing here is that the objects are arrnaged along the manifolds in a way that suggests a structure of how handwritten digits are related, e.g., that 0s and 8s are related and that they are closer to 5s than to 1s. There is also a way to get from one digit to others along the manifold, e.g, in approx. POST-MDS one would get from the 6s to over the 9s to the 3s. This may give a hypothesis about a relationship amongst them.
 
+### Extras
+We also briefly describe some other functions in the package `stops`.
 
-##References
+#### The Adaptive Luus-Jaakola Algorithm
+Since the inner optimization problem in STOPS models is hard and takes long, Rusch, Mair and Hornik (2021) developed a metaheuristic for the outer optimization problem that typically needs less calls to the inner minimization than `SANN`, albeit without the guarantees of convergence to a global minimum for non-smooth functions. It is an adaptation of the Luus-Jaakola random search (Luus & Jaakola 1973). It can used with the function `ljoptim` which modeled its output after `optim`. It needs as arguments `x` a starting value, `fun` a function to optimize, a `lower` and `upper` box constraint for the search region. By using the argument `adaptive=TRUE` or `FALSE` one can switch between our adaptive version and the original LJ algorithm. Accuracy of the optimization can be controlled with the `maxit` (maximum number of iterations), `accd` (terminates after the length of the search space is below this number ) and `acc` arguments (terminates if difference of two subsequent function values are below this value).  
+
+We optimize a "Wild Function" with the non-adaptive LJ version (and numerical accuracies of at least `1e-16` for `accd` and `acc`).
+ 
+```{r,ljoptim}
+set.seed(210485)
+fwild <- function (x) 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
+res2<-ljoptim(50, fwild,lower=-50,upper=50,adaptive=FALSE,accd=1e-16,acc=1e-16)
+res2
+```
+
+```{r,fig.show='hold',fig.width=8,fig.height=8}
+plot(fwild, -50, 50, n = 1000, main = "ljoptim() minimising 'wild function'")
+points(res2$par,res2$value,col="red",pch=19)
+```    
+
+#### Procrustes Adjustment
+We also provide a procrustes adjustment to make two configurations visually comparable. The function is `conf_adjust` and takes two configurations `conf1` the reference configuration and `conf2` another configuration. It returns the adjusted versions
+
+```{r,eval=FALSE}
+conf_adjust(conf1,conf2) 
+```
+
+## References
 
 * Borg I, Groenen PJ (2005). Modern multidimensional scaling:  Theory and applications.  2nd edition. Springer, New York
 
