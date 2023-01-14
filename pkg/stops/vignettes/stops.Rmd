@@ -596,8 +596,14 @@ set.seed(669)
 timelmds <- system.time(restgplmds <- stops(dis,theta=c(14.5,3),loss="lmds",weightmat=dis,structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=0,lower=c(5,0),upper=c(50,3),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
 
 #approx p stress
+#why error for tgp, kriging and  
+set.seed(2)
+restgpaps2 <- stops(dis,theta=c(0.53,2.85),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=c(0.5,0.5),upper=c(6,6),itmax=50,itmaxps=1e4)
 set.seed(670)
-timeaps <- system.time(restgpaps <- stops(dis,theta=c(1,1),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=4,lower=c(1,1),upper=c(6,6),optimmethod="tgp",model="btgpllm",itmax=10,itmaxps=1e4))
+timeaps <- system.time(restgpaps <- stops(dis,theta=restgpaps2$parameters,loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,verbose=5,lower=c(0.5,0.5),upper=c(6,6),optimmethod="pso",itmax=100,itmaxps=1e4,init=restgpaps2$fit$conf))
+
+restgpaps2
+plot(restgpaps2,col=as.character(colsopt))
 ```
 ```{r,echo=FALSE,eval=FALSE}
 save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/pendigresults.rda")

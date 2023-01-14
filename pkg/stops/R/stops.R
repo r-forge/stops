@@ -170,10 +170,10 @@ stop_smacofSym <- function(dis, theta=1, ndim=2,weightmat=NULL,init=NULL,itmax=1
   #if(length(theta)==1) lambda <- theta
   #if(length(theta)==2) lambda <- theta[2]
   #if(length(theta)==3) lambda <- theta[2]
-  #lambda <- theta[2]
+  lambda <- theta
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmax,...) #optimize with smacof
   #fit$kappa <- 1
-  fit$lambda <- lambda
+  fit$lambda <- theta
   #fit$nu <- 1
   fit$stress.1 <- fit$stress
   fitdis <- as.matrix(fit$confdist)
@@ -1228,14 +1228,14 @@ mkPower2<-function(x,theta) {
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress. 
 #' @param theta parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function for how excatly). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.      
-#' @param structures what c-structuredness should be considered; if missing no structure is considered.
+#' @param structures character vector of which c-structuredness indices should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param strucweight weight to be used for the cordillera; defaults to -1/length(structures)
+#' @param strucweight vector of weights to be used for the c-structuredness indices (in the same order as in structures); defaults to -1/length(structures) for each index 
 #' @param strucpars (possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.  
-#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"), "DIRECT", Stochastic Global Optimization ("stogo"), COBYLA ("cobyla"), Controlled Random Search 2 with local mutation ("crs2lm"), Improved Stochastic Ranking Evolution Strategy ("isres"), Multi-Level Single-Linkage ("mlsl"), Nelder-Mead ("neldermead"), Subplex ("sbplx"), Hooke-Jeeves Pattern Search ("hjk"), CMA-ES ("cmaes"). Defaults to "ALJ" version. tgp, ALJ, Kriging and pso usually work well for low values of itmax. 
+#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"), "DIRECT", Stochastic Global Optimization ("stogo"), COBYLA ("cobyla"), Controlled Random Search 2 with local mutation ("crs2lm"), Improved Stochastic Ranking Evolution Strategy ("isres"), Multi-Level Single-Linkage ("mlsl"), Nelder-Mead ("neldermead"), Subplex ("sbplx"), Hooke-Jeeves Pattern Search ("hjk"), CMA-ES ("cmaes"). Defaults to "ALJ" version. tgp, ALJ, Kriging and pso usually work well for relatively low values of itmax. 
 #' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
 #' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose.
@@ -1485,6 +1485,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
     #refit optimal model  
     out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))
     out$stoploss <- bestval
+    out$theta <- out$parameters
     out$optim <- opt
     out$stressweight <- stressweight
     out$strucweight <- strucweight
