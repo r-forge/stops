@@ -80,7 +80,7 @@ where $\delta_{\infty} \rightarrow \infty$ is a large ``imputed'' dissimilarity 
 
 For all of the above models but local MDS one can use the function `powerStressMin` which uses majorization to find the solution (De Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). LMDS can be fitted with the `lmds` function. For approximate power stress there also is a convenience function `apStressMin`.
 
-[!!]: The implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
+Note that the implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
 
 ### Strain Models
 The second popular type of PS supported in `stops` is based on the loss function type \emph{strain}. Here the $\Delta^*$ are a transformation of the $\Delta$, $\Delta^*= f (\Delta)$ so that $f(\cdot)=-(h\circ l)(\cdot)$ where $l$ is any function and $h(\cdot)$ is a double centering operation, $h(\Delta)=\Delta-\Delta_{i.}-\Delta_{.j}+\Delta_{..}$ where $\Delta_{i.}, \Delta_{.j}, \Delta_{..}$ are matrices consisting of the row, column and grand marginal means respectively. These then get approximated by (functions of) the inner product matrices of $X$ 

@@ -1,20 +1,20 @@
 #' stops: structure optimized proximity scaling
 #' 
-#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, power stress, Isomap. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive Luus-Jakola and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
+#' A package for "structure optimized proximity scaling" (STOPS), a collection of methods that fit nonlinear distance transformations in multidimensional scaling (MDS) and trade-off the fit with structure considerations to find optimal parameters or optimal configurations. The package contains various functions, wrappers, methods and classes for fitting, plotting and displaying different MDS models in a STOPS framework like Torgerson scaling, SMACOF, Sammon mapping, elastic scaling, symmetric SMACOF, spherical SMACOF, sstress, rstress, powermds, power elastic scaling, power sammon mapping, power stress, Isomap, approximate power stress, restricted power stress. All of these models can also be fit as MDS variants (i.e., no structuredness). The package further contains functions for optimization (Adaptive Luus-Jaakola and for Bayesian optimization with treed Gaussian process with jump to linear models) and functions for various structuredness indices
 #'
 #' The stops package provides five categories of important functions:
 #'
 #' Models & Algorithms:
 #' \itemize{
-#' \item stops() ... which fits STOPS models as described in Rusch et al. (2019). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
-#' \item powerStressMin()... a workhorse for fitting s-stress, r-stress (De Leeuw, 2014), Sammon mapping with power transformations (powersammon) and elastic scaling with power transformation (powerelastic). They can most conveniently be accessed via the stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with stops_foo where foo is the method and setting stressweight=1 and strucweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
+#' \item stops() ... which fits STOPS models as described in Rusch et al. (2023). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
+#' \item powerStressMin()... a workhorse for fitting many stresses, including s-stress, r-stress (De Leeuw, 2014), Sammon mapping with power transformations (powersammon), elastic scaling with power transformation (powerelastic), power stress. They can most conveniently be accessed via the stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with stop_foo where foo is the method and setting stressweight=1 and strucweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
 #' \item bcStressMin()... a workhorse for fitting Box-Cox stress (Chen & Buja, 2013).
 #' \item lmds()... a workhorse for the local MDS of Chen & Buja (2008).
 #' }
 #'
 #' 
 #' Structuredness Indices:
-#' Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2019). 
+#' Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2023). 
 #' 
 #' Optimization functions:
 #' \itemize{
@@ -24,8 +24,8 @@
 #' \itemize{
 #' \item conf_adjust(): procrustes adjustment of configurations 
 #' \item cmdscale(), sammon(): wrappers that return S3 objects
-#' \item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stops_lmds(): stop versions of these MDS models.
-#' \item stoploss() ... a function to calculate stoploss (Rusch et al., 2021)
+#' \item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stop_lmds(), stop_apstress(),stops_rpowerstress(): stop versions of these MDS models.
+#' \item stoploss() ... a function to calculate stoploss (Rusch et al., 2023)
 #'}
 #'
 #' Methods: 
@@ -33,7 +33,7 @@
 #'
 #' References:
 #' \itemize{
-#' \item Rusch, T., Mair, P. & Hornik, K. (2021) STOPS: Structure Optimized Proximity Scaling, Report 2021/1, Discussion Paper Series, Center for Empirical Research Methods, WU Vienna University of Economics and Business.
+#' \item Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling. Statistics & Computing, 33, [28]. https://doi.org/10.1007/s11222-022-10197-w
 #' }
 #' 
 #'Authors: Thomas Rusch, Lisha Chen, Jan de Leeuw, Patrick Mair, Kurt Hornik
