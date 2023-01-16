@@ -240,7 +240,7 @@ plot.cordillera <- function(x,colbp="lightgrey",coll="black",liwd=1.5,legend=FAL
 #' plot(cres) #clearly two well separated clusters
 #' 
 #' ###############################################################################
-#' # Example from Rusch et al. (2017) with original data, PCA and Sammon mapping #
+#' # Example from Rusch et al. (2018) with original data, PCA and Sammon mapping #
 #' ###############################################################################
 #' 
 #' #data preparation

@@ -93,7 +93,7 @@ plot(cres4) #cluster structure only a bit intelligible
 plot(cres) #clearly two well separated clusters
 
 ###############################################################################
-# Example from Rusch et al. (2017) with original data, PCA and Sammon mapping #
+# Example from Rusch et al. (2018) with original data, PCA and Sammon mapping #
 ###############################################################################
 
 #data preparation

@@ -1,3 +1,11 @@
+Version 1.0-0
+
+- Incremented to 1.0-0. CRAN release.
+
+Version 0.10-0
+
+- Changed the documentation for CAClimateChangeIndicatorsCountyMedian. Updated CITATION. 
+
 Version 0.9-2
 
 - Removed the ELKI interface and versions based on ELKI. Versions with the interface are available in the r-forge repository (r332 or r329 are most recent).   
@@ -14,11 +22,9 @@ Version 0.8-1
 
 - Added ORCIDs.
 
-
 Version 0.8-0
 
 - CRAN Release.
-
 
 Version 0.7-2
 

@@ -245,7 +245,7 @@ text(x,col=cl,labels=row.names(x),asp=1)
 ```
 
 `minpts`
-: The most important parameter is probably `minpts` and is a parameter for OPTICS (see there for more). It gives the minimum number of points that must make a cluster. It must be at least 2. This will influence how the clusteredness is assessed, for example if we have many 2 point clusters that are well separated and set `minpts=2`, OC will be high, but if we set it higher, say `minpts=3`, clusteredness will assessed to be lower because the 2 point clusters are no longer seen as clusters.
+: The most important parameter is `minpts` and is a parameter for OPTICS (see there for more). It gives the minimum number of points that must make a cluster. It must be at least 2. This will influence how the clusteredness is assessed, for example if we have many 2 point clusters that are well separated and set `minpts=2`, OC will be high, but if we set it higher, say `minpts=3`, clusteredness will assessed to be lower because the 2 point clusters are no longer seen as clusters.
 : To illustrate for the above data, we have two three point clusters and one 4 point cluster. So if we say
 ```{r,fig.show='hold',fig.width=8, fig.height = 8}
 ores3<-cordillera(x,minpts=3,dmax=6,scale=FALSE)
@@ -294,18 +294,15 @@ ors$reachdist
 ores3<-optics(x3,minPts=22,eps=10)
 plot(ores3)
 ```
-
 : We have a relatively large reachability (around 3) for the last point in the ordering. But the distribution of reachabilities is highly right-skewed and $90\%$ of the reachabilities are smaller than 0.54, when we look at the quantiles of the reachability distribution.  
 ```{r}
 quantile(ores3$reachdist[is.finite(ores3$reachdist)],p=seq(0,1,by=0.1))
 ```
-
 : The OC is by itself not robust to such outliers, so with the winsorization it allows to exclude the effect of these outliers. The default `dmax` is third quantile + 1.5 times the interquartile range, so on in our case here   
 ```{r}
 quantile(ores3$reachdist[is.finite(ores3$reachdist)],0.75)+1.5*IQR(ores3$reachdist[is.finite(ores3$reachdist)])
 ```
-
-this would be 0.64. Let's compare the OC in these two cases
+: this would be 0.64. Let's compare the OC in these two cases
 ```{r}
 cres3e<-cordillera(x3,minpts=22,epsilon=10,dmax=2.9)
 cres3e
@@ -313,7 +310,6 @@ cres3e
 cres3f<-cordillera(x3,minpts=22,epsilon=10,dmax=0.64)
 cres3f
 ```
-
 : where we see that the raw OC is much larger in the first case due to the outlier. This is a bit mitigated in the normed OC, but we still think that the robust version gives a more useful normalized version too. How to set `dmax` is of course up to the user, but it shouldn't be too low either (e.g. set at the median because) this can result in too low a value (or even 0). The `rang` is the interval from any lower bound to any upper bound of the reachability and allows to fine tune the relative contribution for the OC if we want to measure the ups and downs not against zero, but against any other lower/upper bound for the reachabilities (e.g., the minimum and maximum reachability). We don't expect users to use this parameter, though, and it's default is `(0,dmax)`. If it is given however and the maximum doesn't agree with `dmax`, `dmax` is overridden, so use this with extreme caution.
 
 `q`
@@ -323,7 +319,7 @@ cres3f
 : Allows to calculate a distance matrix for the $X$ argument if it is not already a distance matrix. It supports all distances of `stats::dist`. Default is "euclidean". 
 
 `scale`
-: this allows to scale the $X$ argument before calculating the cordillera. `scale=FALSE` or `scale=0` takes $X$ as it is. If `scale=TRUE` or 1, standardisation is to mean=0 and sd=1 for each columns. If `scale=2`, no centering is applied and scaling of each column is done with the root mean square of each column. If `scale=3`, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If `scale=4`, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). Default is `scale=FALSE`. The scaling options are typically best used if we want to compare representations of the same data that can have diffferent scales and where we are only interested in relative distances between points, as in most dimensions reduction methods.  
+: this allows to scale the $X$ argument before calculating the cordillera. `scale=FALSE` or `scale=0` takes $X$ as it is. If `scale=TRUE` or 1, standardisation is to mean=0 and sd=1 for each columns (not recommended as it distorts the $X$). If `scale=2`, no centering is applied and scaling of each column is done with the root mean square of each column. If `scale=3`, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If `scale=4`, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). Default is `scale=FALSE`. The scaling options are typically best used if we want to compare representations of the same data that can have different scales and where we are only interested in relative distances between points, as in most dimensions reduction methods.  
 
 
 ## References
