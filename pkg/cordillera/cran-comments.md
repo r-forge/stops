@@ -6,15 +6,16 @@
 There were no ERRORs or WARNINGs or NOTEs. 
 
 ## Win-Builder
+There were no ERRORs or WARNINGs or NOTEs on R-release and R-devel.
 
-There was 1 NOTE:
+There was one NOTE on R-oldrel.
 
-      * Possibly mis-spelled words in DESCRIPTION:
-      	Hornik (8:273)
-  	Mair (8:281)
-  	Rusch (8:266)
+Possibly mis-spelled words in DESCRIPTION:
+  Hornik (10:273)
+  Mair (10:281)
+  Rusch (10:266)
 
-	These are own names of the paper authors and spelled correctly.
+  These are own names in a reference.  
 
 ## Downstream dependencies
 There are currently these downstream dependencies for this package:
