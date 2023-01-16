@@ -1,3 +1,8 @@
+Version 0.0-52
+
+- Removed data set CAClimateIndicatorsCountyMedian. Is still available in pakcage cordillera.
+
+
 Version 0.0-51
 
 - Streamlined the theta parameters for each stop_xxx method and the high level stops. Now only takes the correct number of parameters and also returns them properly named in the summary function. 
