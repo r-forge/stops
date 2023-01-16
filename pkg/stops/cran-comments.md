@@ -9,22 +9,20 @@ There were no ERRORs or WARNINGs or NOTEs.
 ## r-release, r-devel and r-oldrel
 There were no ERRORs or WARNINGs.
 
-There were the following NOTEs:
+There was the following NOTE:
 
 Possibly misspelled words in DESCRIPTION:
-  LJ (8:886)
-  MDS (8:167, 8:369, 8:540, 8:609)
+  Isomap (8:668)
+  Jaakola (8:933)
+  Luus (8:928)
+  MDS (8:167, 8:369, 8:540, 8:609, 8:649, 8:660)
   SMACOF (8:437, 8:488, 8:506)
-  STructure (2:8)
   Sammon (8:445, 8:574)
   Torgerson (8:406)
-  boxcox (8:615)
-  hyperparameter (8:750)
-  hyperparameters (8:712)
-  structuredness (8:1001)
+  hyperparameters (8:736, 8:774)
+  structuredness (8:1076)
 
-I believe these are false positives (mainly own names and technical terms).
-
+I believe these are false positives (mainly own names, abbreviations and technical terms).
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.

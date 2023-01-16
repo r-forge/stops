@@ -13,7 +13,7 @@ powerStressMin(
   init = NULL,
   ndim = 2,
   acc = 1e-10,
-  itmax = 1e+05,
+  itmax = 50000,
   verbose = FALSE
 )
 }
@@ -34,7 +34,7 @@ powerStressMin(
 
 \item{acc}{numeric accuracy of the iteration}
 
-\item{itmax}{maximum number of iterations}
+\item{itmax}{maximum number of iterations. Defaults to 50000.}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }
@@ -70,7 +70,7 @@ The functionality related to power stress and the smacofP class is also availabl
 
 \examples{
 dis<-smacof::kinshipdelta
-res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5)
+res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
 res
 summary(res)
 plot(res)

@@ -143,18 +143,19 @@ The combination of c-structurednes indices and stress uses the stress.m values, 
 \examples{
 data(kinshipdelta,package="smacof")
 
-\donttest{
-strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL)) #1st possibility
+strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
 dissm<-as.matrix(kinshipdelta)
+
 #STOPS with strain
 resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),
-strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,verbose=4)
+strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,itmax=10)
 resstrain
 summary(resstrain)
 plot(resstrain)
 
+\donttest{
 #STOPS with stress
-strucpars<-list(c(epsilon=10,minpts=2,scale=3),c(NULL)) #2nd possibility
+strucpars<-list(list(epsilon=10,minpts=2,scale=3),NULL) 
 resstress<-stops(dissm,loss="stress",
 structures=c("cclusteredness","cdependence"),
 strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
@@ -196,6 +197,14 @@ resiso
 summary(resiso)
 plot(resiso)
 }
+
+data(kinshipdelta,package="smacof")
+strucpar<-list(NULL,NULL) #parameters for indices
+res1<-stops(kinshipdelta,loss="stress",
+structures=c("cclumpiness","cassociation"),strucpars=strucpar,
+lower=0,upper=10,itmax=10)
+res1
+
 \donttest{
 data(BankingCrisesDistances)
 strucpar<-list(c(epsilon=10,minpts=2),NULL) #parameters for indices

@@ -1262,6 +1262,14 @@ mkPower2<-function(x,theta) {
 #' }
 #' 
 #' @examples
+#'
+#' data(kinshipdelta,package="smacof")
+#' strucpar<-list(NULL,NULL) #parameters for indices
+#' res1<-stops(kinshipdelta,loss="stress",
+#' structures=c("cclumpiness","cassociation"),strucpars=strucpar,
+#' lower=0,upper=10,itmax=10)
+#' res1
+#' 
 #' \donttest{
 #' data(BankingCrisesDistances)
 #' strucpar<-list(c(epsilon=10,minpts=2),NULL) #parameters for indices

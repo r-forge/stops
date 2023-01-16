@@ -1,7 +1,10 @@
+Version 1.0-0
+
+- Set to version 1.0-0. Submitted to CRAN. 
+
 Version 0.0-52
 
 - Removed data set CAClimateIndicatorsCountyMedian. Is still available in pakcage cordillera.
-
 
 Version 0.0-51
 
