@@ -40,7 +40,7 @@ stop_powersammon(
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
-\item{structures}{which strcutures to look for}
+\item{structures}{which structures to look for}
 
 \item{strucweight}{weight to be used for the structures; defaults to 0.5}
 

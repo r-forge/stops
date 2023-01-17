@@ -41,7 +41,7 @@ stops(
 
 \item{loss}{which loss function to be used for fitting, defaults to stress.}
 
-\item{theta}{parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function for how excatly). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
+\item{theta}{hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
 
 \item{structures}{character vector of which c-structuredness indices should be considered; if missing no structure is considered.}
 

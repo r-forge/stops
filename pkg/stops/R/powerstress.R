@@ -14,6 +14,7 @@ doubleCenter <- function(x) {
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
+#' @return a Torgerson scaling configuration
 #' @export
 torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
@@ -25,6 +26,7 @@ torgerson <- function(delta, p = 2) {
 #'
 #' @param x numeric matrix 
 #' @param w weight
+#' @return a normalization constant 
 #' @export
 enorm <- function (x, w=1) {
     return (sqrt (sum (w * (x ^ 2))))
@@ -33,6 +35,7 @@ enorm <- function (x, w=1) {
 #' Squared distances
 #'
 #' @param x numeric matrix
+#' @return squared distances
 #' @export
 sqdist <- function (x) {
     s <- tcrossprod (x)
@@ -43,7 +46,8 @@ sqdist <- function (x) {
 #' Squared distances
 #'
 #' @param x numeric matrix
-#' @param p p>0 the minkoswki distance 
+#' @param p p>0 the minkoswki distance
+#' @return squared distances 
 #' @export
 pdist <- function (x,p) {
     s <- tcrossprod (x)
@@ -78,7 +82,7 @@ mkBmat <- function (x) {
 #'
 #' @param x matrix
 #' @param r numeric (power)
-#'
+#' @return the matrix to a power
 #' @export
 mkPower<-function(x,r) {
     n<-nrow(x)
@@ -145,7 +149,9 @@ secularEq<-function(a,b) {
 #'
 #' @importFrom graphics plot text identify legend
 #' @importFrom stats loess lm predict 
-#' 
+#'
+#'
+#' @return a plot (see details)
 #' @export 
 plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
 {
@@ -313,6 +319,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
 
 
 #'@export
+#'@return an object of class summary.smacofP 
 summary.smacofP <- function(object,...)
     {
       spp.perc <- object$spp/sum(object$spp) * 100
@@ -324,6 +331,7 @@ summary.smacofP <- function(object,...)
     }
 
 #'@export
+#'@return No return value, just prints information   
 print.summary.smacofP <- function(x,...)
     {
     cat("\n")
@@ -350,7 +358,7 @@ print.summary.smacofP <- function(x,...)
 #' @param itmax maximum number of iterations. Defaults to 50000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
-#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return an obejct of class smacofP (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed transformed dissimilarities, not normalized
@@ -510,7 +518,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' @param itmax maximum number of iterations
 #' @param verbose should iteration output be printed; if TRUE then yes
 #'
-#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return an object of class smacofP (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed transformed dissimilarities

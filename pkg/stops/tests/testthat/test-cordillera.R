@@ -1,7 +1,9 @@
-content("OPTICS cordillera")
+library(testthat)
+context("OPTICS cordillera")
 
-              q <- 1
-              eps <- 2
+
+q <- 1
+eps <- 2
              
 test_that("cordillera works",{
           data(iris)
@@ -14,7 +16,7 @@ test_that("cordillera works",{
           expect_that(plot(res,withlabels=TRUE),gives_warning())
   }
 
- test_that("cordillera arguments work",{
+test_that("cordillera arguments work",{
           c1 <- cordillera(confs)
           c1
           c2 <- cordillera(confs,epsilon=eps)
@@ -37,7 +39,7 @@ q <- 1
 eps <- 2
 range <- c(0,0.9225246)
 test_that("cordillera calculates correctly",{
-              #from the paper
+#from the paper
 library(stops)
 #row 1
 x <- c(-0.375,-0.125,0.125,0.375,-0.375,-0.125,0.125,0.375)
@@ -173,17 +175,12 @@ resoptx <- cop_sammon(BankingCrisesDistances[,1:69]^opto$par[2],theta=1,init=ini
 resopto <- cop_sammon(BankingCrisesDistances[,1:69],theta=opto$par[2],cordweight=0.5,rang=c(0,opto$cordillera$cordillera$dmax),verbose=3)
 resopto <- MASS::sammon(BankingCrisesDistances[,1:69]^opto$par[2])
 reso1 <- MASS::sammon(BankingCrisesDistances[,1:69])
-
-
-opto$par[2]
 cropt <- cordillera(resopt$fit$points)
 cr1 <- cordillera(res1$fit$points)
 cr12 <- cordillera(res1$fit$points,rang=c(0,opto$cordillera$cordillera$dmax))
 cropt2 <- cordillera(resopt$fit$points,rang=c(0,opto$cordillera$cordillera$dmax))
-
 cropt <- cordillera(resopt$fit$points,rang=c(0,opto$cordillera$cordillera$dmax),plot=TRUE)
 cr1<- cordillera(res1$fit$points,rang=c(0,opto$cordillera$cordillera$dmax),plot=TRUE)
-
 plot(resopt$fit$points)
 plot(res1$fit$points)
 })

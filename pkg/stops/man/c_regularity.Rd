@@ -38,7 +38,7 @@ c-regularity
 calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular.
 }
 \examples{
-hpts <- sp:::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
+hpts <- sp::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
 plot(hpts[,1],hpts[,2],pch=19,asp=1)
 c_regularity(hpts)
 }

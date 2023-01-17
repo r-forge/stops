@@ -368,7 +368,7 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' @param ... Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}
 #' 
 #' @examples
-#' hpts <- sp:::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
+#' hpts <- sp::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
 #' plot(hpts[,1],hpts[,2],pch=19,asp=1)
 #' c_regularity(hpts)
 #' @export

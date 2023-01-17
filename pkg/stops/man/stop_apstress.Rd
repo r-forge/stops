@@ -2,7 +2,7 @@
 % Please edit documentation in R/stops.R
 \name{stop_apstress}
 \alias{stop_apstress}
-\title{STOPS version of approximated power stress models. This uses an approximation to power stress that can make use of smacof as workhorse.}
+\title{STOPS version of approximated power stress models.}
 \usage{
 stop_apstress(
   dis,
@@ -62,6 +62,6 @@ A list with the components
 }
 }
 \description{
-STOPS version of approximated power stress models. This uses an approximation to power stress that can make use of smacof as workhorse.
+This uses an approximation to power stress that can make use of smacof as workhorse. Free parameters are tau and upsilon.
 }
 \keyword{multivariate}

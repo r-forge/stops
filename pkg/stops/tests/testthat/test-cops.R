@@ -1,4 +1,5 @@
 library(stops)
+library(testthat)
 
 context("COPS tests")
 
@@ -46,7 +47,7 @@ test_that("cops loss argument work right",{
         expect_that(test13$fit,is_a("smacofP"))
     })
 
-test_that("cops ndim argument"{
+test_that("cops ndim argument",{
         #ndim      
         test12 <- cops(dis,loss="strain",ndim=3)
         expect_that(dim(test12$fit$points)[2],equals(3))
@@ -61,7 +62,7 @@ test_that("cops q minpts ndim arguments",{
         expect_that(dim(test13$fit$conf)[2]),equals(3))
 })
 
-test_that("cops epsilon parameter"{
+test_that("cops epsilon parameter",{
         #epsilon  
         test14 <- cops(dis,loss="strain",ndim=2,q=2,epsilon=2)
         expect_that(test13$OC$epsilon),equals(2))

@@ -153,7 +153,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'         \item{stopobj:} the stops object
 #' }
 #' 
 #'@keywords multivariate
@@ -857,7 +857,7 @@ stop_powermds <- function(dis,theta=c(1,1),weightmat=NULL,init=NULL,ndim=2,itmax
 #' @param itmax number of iterations
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param structures which strcutures to look for
+#' @param structures which structures to look for
 #' @param strucweight weight to be used for the structures; defaults to 0.5
 #' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
@@ -1148,8 +1148,10 @@ stop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2
   out 
 }
 
-#' STOPS version of approximated power stress models. This uses an approximation to power stress that can make use of smacof as workhorse.
+#' STOPS version of approximated power stress models.
 #'
+#' This uses an approximation to power stress that can make use of smacof as workhorse. Free parameters are tau and upsilon.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of parameters to optimize over. Must be of length two, with the first the tau argument and the second the upsilon argument. It can also be a scalar of the tau and upsilon transformation for the observed proximities and gets recycled for both ups and tau (so they are equal). Defaults to 1 1.  
 #' @param ndim number of dimensions of the target space
@@ -1227,7 +1229,7 @@ mkPower2<-function(x,theta) {
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress. 
-#' @param theta parameters for the transformation functions. If smaller than the number of parameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function for how excatly). If larger than the number of parameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.      
+#' @param theta hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.      
 #' @param structures character vector of which c-structuredness indices should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
