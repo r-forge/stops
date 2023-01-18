@@ -39,7 +39,7 @@ powerStressMin(
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }
 \value{
-a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+an object of class 'smacofP' (inheriting form 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed dissimilarities, not normalized
 \item obsdiss: Observed transformed dissimilarities, not normalized
@@ -52,12 +52,16 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 \item niter: Number of iterations
 \item nobj: Number of objects
 \item type: Type of MDS model
-\item weightmat: weighting matrix 
+\item weightmat: weighting matrix
+\item pars: hyperparameter vector theta
 }
 and some additional components
 \itemize{
-\item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+\item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
 \item deltaorig: observed, untransformed dissimilarities
+\item kappa: kappa parameter
+\item lambda: lambda parameter
+\item nu: nu parameter (aka rho)
 }
 }
 \description{
@@ -65,12 +69,13 @@ An implementation to minimize power stress by minimization-majorization. Usually
 }
 \section{Note}{
 
-The functionality related to power stress and the smacofP class is also available in the cops package. Expect masking when both are loaded.
+The functionality related to power stress and the 'smacofP' class is also available in the 'cops' package. Expect masking when both are loaded.
 }
 
 \examples{
 dis<-smacof::kinshipdelta
-res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
+res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,nu=2,
+                    weightmat=as.matrix(dis/2),itmax=1000)
 res
 summary(res)
 plot(res)

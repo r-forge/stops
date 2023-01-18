@@ -2,14 +2,17 @@
 % Please edit documentation in R/stops.R
 \name{plot3dstatic.stops}
 \alias{plot3dstatic.stops}
-\title{3D plots: plot3dstatic method for class stops}
+\title{S3 plot3dstatic method for class stops}
 \usage{
 \method{plot3dstatic}{stops}(x, ...)
 }
 \arguments{
 \item{x}{object of class stops}
 
-\item{...}{Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscale}} . Also see 'scatterplot3d' in package 'scatterplot3d'}
+\item{...}{Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscaleE}} . Also see 'scatterplot3d' in package 'scatterplot3d'.}
+}
+\value{
+no return value, just plots
 }
 \description{
 This methods produces a static 3D configuration plot.

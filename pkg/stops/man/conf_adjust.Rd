@@ -9,13 +9,16 @@ conf_adjust(conf1, conf2, verbose = FALSE, eps = 1e-12, itmax = 100)
 \arguments{
 \item{conf1}{reference configuration, a numeric matrix}
 
-\item{conf2}{another configuration, a numeric matrix}
+\item{conf2}{another configuration to be adjusted, a numeric matrix}
 
 \item{verbose}{should adjustment be output; default to FALSE}
 
 \item{eps}{numerical accuracy}
 
 \item{itmax}{maximum number of iterations}
+}
+\value{
+A list of configuration matrices. The 'ref.conf' is the reference configuration, the 'other.conf' is the Procrustes adjusted configuration and the 'comparison.conf' is the one that was adjusted.
 }
 \description{
 conf_adjust: a function to procrustes adjust two matrices

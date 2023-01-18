@@ -11,6 +11,9 @@ mkPower(x, r)
 
 \item{r}{numeric (power)}
 }
+\value{
+the matrix to a power
+}
 \description{
 MakePower Old
 }

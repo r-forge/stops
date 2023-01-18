@@ -29,6 +29,9 @@ c_nonmonotonicity(
 
 \item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
 }
+\value{
+a numeric value; nonmonotonicity (aggregated maximal asymmetric score MAS, see \code{\link[minerva]{mine}})
+}
 \description{
 c-nonmonotonicity
 calculates the c-nonmonotonicity based on the maximum asymmetric score 

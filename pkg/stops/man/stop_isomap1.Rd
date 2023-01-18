@@ -56,7 +56,7 @@ A list with the components
         \item{indices:} the values of the structuredness indices
         \item{parameters:} the parameters used for fitting 
         \item{fit:} the returned object of the fitting procedure
-        \item{indobj:} the index objects
+         \item{stopobj:} the stopobj object
 }
 }
 \description{

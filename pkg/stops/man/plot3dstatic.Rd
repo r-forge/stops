@@ -23,6 +23,9 @@ plot3dstatic(x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col, ...)
 
 \item{...}{other arguments}
 }
+\value{
+No return value, just plots.
+}
 \description{
 A static 3d plot S3 generic
 }

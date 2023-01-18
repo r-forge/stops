@@ -12,6 +12,9 @@ c_linearity(confs, aggr = max)
 
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
+\value{
+a numeric value; linearity (aggregated multiple correlation of all columns of the configuration)
+}
 \description{
 c-linearity
 calculates c-linearity as the aggregated multiple correlation of all columns of the configuration.

@@ -14,6 +14,9 @@ c_dependence(confs, aggr = max, index = 1)
 
 \item{index}{exponent on Euclidean distance, in (0,2]}
 }
+\value{
+a numeric value; dependence (aggregated distance correlation)
+}
 \description{
 c-dependence
 calculates c-dependence as the aggregated distance correlation of each pair if nonidentical columns

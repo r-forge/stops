@@ -11,8 +11,11 @@ c_clumpiness(conf, aggr = max)
 
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
+\value{
+a numeric value; clumpiness (see \code{\link{scagnostics}})
+}
 \description{
-Measures the c-outlying structure
+Measures the c-clumpiness structure
 }
 \examples{
 delts<-smacof::kinshipdelta

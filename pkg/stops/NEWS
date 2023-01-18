@@ -1,6 +1,6 @@
 Version 1.0-1
 
-- Tweaks to docs. 
+- Updated docs. Added return values to all exported functions, all params and tiles even for S3 methods. Added the test folder to .Rinstignore for the time being (tests are 8 years out of date). Changed class of cmdscale wrapper to cmdscaleE and of sammon wrapper to sammonE. Removed the options(locatorBell=FALSE) from plot.cmdscaleE.  
 
 Version 1.0-0
 

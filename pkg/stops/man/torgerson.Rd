@@ -11,6 +11,9 @@ torgerson(delta, p = 2)
 
 \item{p}{target space dimensions}
 }
+\value{
+a matrix (a Torgerson scaling configuration)
+}
 \description{
 Torgerson scaling
 }

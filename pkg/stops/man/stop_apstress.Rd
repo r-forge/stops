@@ -59,6 +59,7 @@ A list with the components
         \item struc: the structuredness indices
         \item parameters: the parameters used for fitting (kappa=1, tau, ups)
         \item fit: the returned object of the fitting procedure
+        \item{stopobj:} the stopobj object 
 }
 }
 \description{

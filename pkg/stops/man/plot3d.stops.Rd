@@ -2,14 +2,17 @@
 % Please edit documentation in R/stops.R
 \name{plot3d.stops}
 \alias{plot3d.stops}
-\title{3D plots: plot3d method for class stops}
+\title{S3 plot3d method for class stops}
 \usage{
 \method{plot3d}{stops}(x, ...)
 }
 \arguments{
 \item{x}{object of class stops}
 
-\item{...}{Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl'}
+\item{...}{Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscaleE}} . Also see 'rgl' in package 'rgl'}
+}
+\value{
+no return value, just plots
 }
 \description{
 This methods produces a dynamic 3D configuration plot.

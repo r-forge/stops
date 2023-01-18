@@ -28,6 +28,9 @@ c_association(
 
 \item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al). It provides robustness.}
 }
+\value{
+a numeric value; association (aggregated maximal information coefficient MIC, see \code{\link[minerva]{mine}})
+}
 \description{
 c-association
 calculates the c-association based on the maximal information coefficient 

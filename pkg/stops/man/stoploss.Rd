@@ -32,6 +32,9 @@ stoploss(
 
 \item{verbose}{verbose output}
 }
+\value{
+a list with calculated stoploss ($stoploss), structuredness indices ($strucinidices) and hyperparameters ($parameters and $theta)
+}
 \description{
 Calculate the weighted multiobjective loss function used in STOPS
 }

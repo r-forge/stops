@@ -14,7 +14,7 @@ doubleCenter <- function(x) {
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
-#' @return a Torgerson scaling configuration
+#' @return a matrix (a Torgerson scaling configuration)
 #' @export
 torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
@@ -26,7 +26,7 @@ torgerson <- function(delta, p = 2) {
 #'
 #' @param x numeric matrix 
 #' @param w weight
-#' @return a normalization constant 
+#' @return a numeric scalar; the sum(w*x^2) 
 #' @export
 enorm <- function (x, w=1) {
     return (sqrt (sum (w * (x ^ 2))))
@@ -35,7 +35,7 @@ enorm <- function (x, w=1) {
 #' Squared distances
 #'
 #' @param x numeric matrix
-#' @return squared distances
+#' @return a matrix of squared distances 
 #' @export
 sqdist <- function (x) {
     s <- tcrossprod (x)
@@ -43,19 +43,18 @@ sqdist <- function (x) {
     return (outer (v, v, "+") - 2 * s)
 }
 
-#' Squared distances
-#'
-#' @param x numeric matrix
-#' @param p p>0 the minkoswki distance
-#' @return squared distances 
-#' @export
-pdist <- function (x,p) {
-    s <- tcrossprod (x)
-    v <- diag (s)
-    return (outer (v, v, "+") - 2 * s)
-}
+# #' Squared distances
+# #'
+# #' @param x numeric matrix
+# #' @param p p>0 the minkoswki distance
+# #' @return a matrix of squared distances 
+# pdist <- function (x,p) {
+#    s <- tcrossprod (x)
+#    v <- diag (s)
+#    return (outer (v, v, "+") - 2 * s)
+#}
 
-#' Auxfunction1
+#' MkBmat function (internal)
 #'
 #' @param x matrix
 mkBmat <- function (x) {
@@ -114,7 +113,7 @@ secularEq<-function(a,b) {
     return(drop(eve%*%cve))
 }    
 
-#'S3 plot method for smacofP objects
+#' S3 plot method for smacofP objects
 #' 
 #'@param x an object of class smacofP 
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","transplot", "bubbleplot" (see details)
@@ -151,7 +150,7 @@ secularEq<-function(a,b) {
 #' @importFrom stats loess lm predict 
 #'
 #'
-#' @return a plot (see details)
+#' @return no return value; just plot for class 'smacofP' (see details)
 #' @export 
 plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
 {
@@ -318,6 +317,10 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
  }
 
 
+#' S3 summary method for smacofP
+#'
+#' @param object object of class smacofP
+#' @param ... additional arguments
 #'@export
 #'@return an object of class summary.smacofP 
 summary.smacofP <- function(object,...)
@@ -330,8 +333,12 @@ summary.smacofP <- function(object,...)
       res
     }
 
+#' S3 print method for summary.smacofP
+#'
+#'@param x object of class summary.smacofP
+#'@param ... additional arguments 
 #'@export
-#'@return No return value, just prints information   
+#'@return No return value, just prints a 'summary.smacofP'
 print.summary.smacofP <- function(x,...)
     {
     cat("\n")
@@ -358,7 +365,7 @@ print.summary.smacofP <- function(x,...)
 #' @param itmax maximum number of iterations. Defaults to 50000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
-#' @return an obejct of class smacofP (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return an object of class 'smacofP' (inheriting form 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed transformed dissimilarities, not normalized
@@ -371,16 +378,20 @@ print.summary.smacofP <- function(x,...)
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item type: Type of MDS model
-#' \item weightmat: weighting matrix 
+#' \item weightmat: weighting matrix
+#' \item pars: hyperparameter vector theta
 #' }
 #' and some additional components
 #' \itemize{
-#' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
 #' \item deltaorig: observed, untransformed dissimilarities
+#' \item kappa: kappa parameter
+#' \item lambda: lambda parameter
+#' \item nu: nu parameter (aka rho)
 #'}
 #'
 #' @section Note:
-#' The functionality related to power stress and the smacofP class is also available in the cops package. Expect masking when both are loaded.      
+#' The functionality related to power stress and the 'smacofP' class is also available in the 'cops' package. Expect masking when both are loaded.      
 #' 
 #' @importFrom stats dist as.dist
 #' 
@@ -390,7 +401,8 @@ print.summary.smacofP <- function(x,...)
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
+#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,nu=2,
+#'                     weightmat=as.matrix(dis/2),itmax=1000)
 #' res
 #' summary(res)
 #' plot(res)
@@ -498,7 +510,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
      weightmat <- stats::as.dist(weightmatm)
      stressen <- sum(weightmat*(doute-delta)^2)
      if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, kappa=kappa, lambda=lambda, nu=nu, pars=c(kappa,lambda,nu), niter = itel, spp=spp, ndim=p, model="Power Stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress", stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, kappa=kappa, lambda=lambda, nu=nu, pars=c(kappa=kappa,lambda=lambda,nu=nu), niter = itel, spp=spp, ndim=p, model="Power Stress MDS", call=match.call(), nobj = dim(xnew)[1], type = "Power Stress SMACOF", stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
@@ -518,7 +530,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' @param itmax maximum number of iterations
 #' @param verbose should iteration output be printed; if TRUE then yes
 #'
-#' @return an object of class smacofP (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return an object of class 'smacofP' (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed transformed dissimilarities
@@ -528,16 +540,19 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item spp: Stress per point (based on stress.en) 
 #' \item ndim: Number of dimensions
-#' \item model: Name of smacof model
+#' \item model: Name of MDS model
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item type: Type of MDS model
-#' \item weightmat: weighting matrix 
+#' \item weightmat: weighting matrix
+#' \item pars: hyperparameter vector theta
 #' }
 #' and some additional components
 #' \itemize{
 #' \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities. The square of stress-1 in stress. 
 #' \item deltaorig: observed, untransformed dissimilarities
+#' \item tau: tau parameter
+#' \item ups: upsilon parameter 
 #'}
 #'
 #' 
@@ -567,7 +582,7 @@ apStressMin <- function (delta, tau=1, ups=1, weightmat=1-diag(nrow(delta)), ini
     fit <- smacof::smacofSym(delta,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose>=2),itmax=itmax,eps=eps) #optimize with smacof
     fit$tau <- tau
     fit$upsilon <- ups
-    fit$pars <- c(tau,ups)
+    fit$pars <- c(tau=tau,ups=ups)
     fit$obsdiss <- delta
     fit$delta <- deltaorig
     fit$model <- "Approximate Power Stress SMACOF"

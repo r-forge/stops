@@ -13,6 +13,9 @@
 #' @param verbose verbose output
 #'
 #' @import cordillera
+#'
+#'
+#' @return a list with calculated stoploss ($stoploss), structuredness indices ($strucinidices) and hyperparameters ($parameters and $theta) 
 #' 
 #' @export
 stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),strucweight=rep(-1/length(structures),length(structures)),strucpars,type=c("additive","multiplicative"),verbose=0)
@@ -122,7 +125,7 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         if (type =="multiplicative") ic <- exp(stressweight*log(stressi) + sum(strucweight*log(struc))) #is this what we want? stress/structure or do we want stress - prod(structure)
         if(verbose>0) cat("stoploss =",ic,"mdsloss =",stressi,"structuredness =",struc,"parameters =",pars,"\n")
         #return the full combi of stress and indices or only the aggregated scalars; for aSTOPS and mSTOPS we want the latter but for a Pareto approach we want the first; get rid of the sums in ic if the first is wanted  
-        out <- list(stoploss=ic,strucindices=struc,parameters=pars)
+        out <- list(stoploss=ic,strucindices=struc,parameters=pars,theta=pars)
         out
     }
 
@@ -273,7 +276,7 @@ stop_smacofSym <- function(dis, theta=1, ndim=2,weightmat=NULL,init=NULL,itmax=1
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'         \item{stopobj:} the stopobj objects
 #' }
 #'
 #'@importFrom stats dist as.dist
@@ -340,7 +343,7 @@ stop_elastic <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmax=1000,
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #'@import smacof 
@@ -403,7 +406,7 @@ stop_smacofSphere <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmax=
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #' @importFrom stats dist as.dist
@@ -470,7 +473,7 @@ stop_sammon <- function(dis,theta=1,ndim=2,init=NULL,weightmat=NULL,itmax=1000,.
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #'
@@ -539,7 +542,7 @@ stop_sammon2 <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmax=1000,
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #' @import cordillera
@@ -598,7 +601,7 @@ stop_cmdscale <- function(dis,theta=1,weightmat=NULL,ndim=2,init=NULL,...,stress
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #' @import cordillera
@@ -659,7 +662,7 @@ stop_isomap1 <- function(dis,theta=3,weightmat=NULL,ndim=2,init=NULL,stressweigh
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #' @import cordillera
@@ -720,7 +723,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),weightmat=NULL,ndim=
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #'
 #' @import cordillera
@@ -772,7 +775,7 @@ stop_rstress <- function(dis,theta=1,weightmat=NULL,init=NULL,ndim=2,itmax=10000
 #'         \item{indices:} the values of the structuredness indices
 #'         \item{parameters:} the parameters used for fitting 
 #'         \item{fit:} the returned object of the fitting procedure
-#'         \item{indobj:} the index objects
+#'          \item{stopobj:} the stopobj object
 #' }
 #' @import cordillera
 #' @keywords multivariate
@@ -823,6 +826,7 @@ stop_sstress <- function(dis,theta=1,weightmat=NULL,init=NULL,ndim=2,itmax=10000
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #' 
 #' @import cordillera
@@ -871,6 +875,7 @@ stop_powermds <- function(dis,theta=c(1,1),weightmat=NULL,init=NULL,ndim=2,itmax
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #'
 #' @import cordillera
@@ -923,6 +928,7 @@ stop_powersammon <- function(dis,theta=c(1,1),weightmat=NULL,init=NULL,ndim=2,it
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #' 
 #' @import cordillera
@@ -976,6 +982,7 @@ stop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=NULL,init=NULL,ndim=
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda, nu)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #' @keywords multivariate
 #' @export
@@ -1023,6 +1030,7 @@ stop_powerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
+#'          \item{stopobj:} the stopobj object 
 #' }
 #' @keywords multivariate
 #' @export
@@ -1035,7 +1043,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,itm
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
   #diag(wght) <- 1
-  fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],nu=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
+  fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],rho=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
   fit$mu <- theta[1]
   fit$lambda <- theta[2]
   fit$rho <- theta[3]
@@ -1069,6 +1077,7 @@ stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,itm
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #' @keywords multivariate
 #' @export
@@ -1118,6 +1127,7 @@ stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,itmax=5
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa=lambda, nu)
 #'         \item fit: the returned object of the fitting procedure
+#'          \item{stopobj:} the stopobj object 
 #' }
 #' @keywords multivariate
 stop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2,itmax=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
@@ -1174,6 +1184,7 @@ stop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=NULL,init=NULL,ndim=2
 #'         \item struc: the structuredness indices
 #'         \item parameters: the parameters used for fitting (kappa=1, tau, ups)
 #'         \item fit: the returned object of the fitting procedure
+#'         \item{stopobj:} the stopobj object 
 #' }
 #'
 #'@importFrom stats dist as.dist
@@ -1260,7 +1271,7 @@ mkPower2<-function(x,theta) {
 #'         \item losstype: The PS badness-of-fit function
 #'         \item nobj: the number of objects in the configuration
 #'         \item type: The type of stoploss scalacrisation (additive or multiplicative)
-#'         \item fit: The fitted PS object (most importantly $fit$conf the configuration and) 
+#'         \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration) 
 #' }
 #' 
 #' @examples
@@ -1509,7 +1520,12 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
     out
   }
 
+#' S3 print method for stops objects
+#'
+#'@param x stops object
+#'@param ... additional arguments
 #'@export
+#'@return no return value, just prints
 print.stops <- function(x,...)
     {
     cat("\nCall: ")
@@ -1526,8 +1542,13 @@ print.stops <- function(x,...)
     cat("\n")
     }
 
+#' S3 coef method for stops objects
+#'
+#'@param object object of class stops 
+#'@param ... addditional arguments 
 #'@export
 #'@importFrom stats coef
+#'@return a vector of hyperparmeters theta 
 coef.stops <- function(object,...)
     {
     return(c(object$par))
@@ -1551,6 +1572,8 @@ coef.stops <- function(object,...)
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'}
 #'
+#'@return no return value, just plots
+#' 
 #'@importFrom graphics plot 
 #'@export 
 plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
@@ -1559,43 +1582,55 @@ plot.stops <- function(x,plot.type=c("confplot"), main, asp=NA,...)
       plot(x$fit,plot.type=plot.type,main=main,asp=asp,...)
  }
 
-#' 3D plots: plot3d method for class stops
+#' S3 plot3d method for class stops
 #'
 #' 
 #' This methods produces a dynamic 3D configuration plot.
 #' @param x object of class stops
-#' @param ... Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscale}} . Also see 'rgl' in package 'rgl' 
+#' @param ... Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscaleE}} . Also see 'rgl' in package 'rgl' 
 #'
-#'
+#' @return no return value, just plots
 #' 
-#'@export
-#'@import rgl
+#' @export
+#' @import rgl
 plot3d.stops <- function(x,...)
     {
         plot3d(x$fit,...)
     }
 
-#' 3D plots: plot3dstatic method for class stops
+#' S3 plot3dstatic method for class stops
 #' 
 #' This methods produces a static 3D configuration plot.
 #' @param x object of class stops
-#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscale}} . Also see 'scatterplot3d' in package 'scatterplot3d'
+#' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscaleE}} . Also see 'scatterplot3d' in package 'scatterplot3d'.
 #'
-#'@export
+#' @return no return value, just plots
+#' 
+#' @export
 plot3dstatic.stops <- function(x,...)
     {
         plot3dstatic(x$fit,...)
     }
 
+#' S3 residuals method for stops
+#'@param object object of class stops
+#'@param ... addditional arguments
 #'@importFrom stats residuals
 #'@export
+#'@return a vector of residuals (observed minus fitted distances) 
 residuals.stops <- function(object,...)
     {
     stats::residuals(object$fit,...)
     }
 
 
+#' S3 summary method for stops
+#'
+#'@param object object of class stops
+#'@param ... addditional arguments
+#' 
 #'@export
+#'@return object of class 'summary.stops'
 summary.stops <- function(object,...)
     {
       sppmat <- NULL
@@ -1610,7 +1645,12 @@ summary.stops <- function(object,...)
       res
     }
 
+#' S3 print method for summary.stops
+#' 
+#'@param x object of class summary.stops
+#'@param ... additional arguments
 #'@export
+#'@return no return value, just prints 
 print.summary.stops <- function(x,...)
     {
     cat("\n")

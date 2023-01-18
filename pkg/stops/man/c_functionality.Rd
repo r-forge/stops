@@ -26,7 +26,10 @@ c_functionality(
 
 \item{var.thr}{minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.}
 
-\item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.}
+\item{zeta}{integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al.). It provides robustness.}
+}
+\value{
+a numeric value; functionality (aggregated maximaum edge value MEV, see \code{\link[minerva]{mine}})
 }
 \description{
 c-functionality

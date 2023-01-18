@@ -12,6 +12,9 @@ c_manifoldness(confs, aggr = max)
 
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
+\value{
+a numeric value; manifoldness (aggregated maximal correlation, correlation of ACE tranformed x and y, see \code{\link[acepack]{ace}})
+}
 \description{
 c-manifoldness
 calculates c-manifoldness as the aggregated maximal correlation coefficient (i.e., Pearson correlation of the ACE transformed variables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped.

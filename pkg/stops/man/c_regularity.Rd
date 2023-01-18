@@ -33,12 +33,16 @@ c_regularity(
 
 \item{...}{Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}}
 }
+\value{
+a numeric value; regularity
+}
 \description{
 c-regularity 
 calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular.
 }
 \examples{
-hpts <- sp::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
-plot(hpts[,1],hpts[,2],pch=19,asp=1)
+hpts<-expand.grid(seq(-5,5),seq(-5,5))
 c_regularity(hpts)
+hpts2<-cbind(jitter(hpts[,1]),jitter(hpts[,2]))
+c_regularity(hpts2)
 }

@@ -16,6 +16,9 @@ c_faithfulness(confs, obsdiss, k = 3, ...)
 
 \item{...}{additional arguments passed to dist()}
 }
+\value{
+a numeric value; faithfulness
+}
 \description{
 c-faithfulness 
 calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods

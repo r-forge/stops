@@ -36,7 +36,7 @@ apStressMin(
 \item{verbose}{should iteration output be printed; if TRUE then yes}
 }
 \value{
-a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+an object of class 'smacofP' (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed dissimilarities, not normalized
 \item obsdiss: Observed transformed dissimilarities
@@ -46,16 +46,19 @@ a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a
 \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 \item spp: Stress per point (based on stress.en) 
 \item ndim: Number of dimensions
-\item model: Name of smacof model
+\item model: Name of MDS model
 \item niter: Number of iterations
 \item nobj: Number of objects
 \item type: Type of MDS model
-\item weightmat: weighting matrix 
+\item weightmat: weighting matrix
+\item pars: hyperparameter vector theta
 }
 and some additional components
 \itemize{
 \item stress.m: default stress for the COPS and STOP defaults to the explicitly normalized stress on the normalized, transformed dissimilarities. The square of stress-1 in stress. 
 \item deltaorig: observed, untransformed dissimilarities
+\item tau: tau parameter
+\item ups: upsilon parameter 
 }
 }
 \description{

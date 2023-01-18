@@ -1,4 +1,4 @@
-#' An MDS version for local MDS (Chen & Buja 2006)
+#' An function for local MDS (Chen & Buja 2006)
 #'
 #' @importFrom stats median
 #' @importFrom stats rnorm
@@ -14,7 +14,30 @@
 #' @author Lisha Chen & Thomas Rusch
 #'
 #' @details Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the absolute repulsion for the found configuration dominates the local stress substantially less than the repulsion term does for the solution of D(X)=Delta, so that the local stress difference between the found solution and perfect solution is nullified. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value. 
-#' 
+#'
+#'
+#' @return an object of class 'lmds' (also inherits from 'smacofP'). See \code{\link{powerStressMin}}. It is a list with the components as in power stress
+#' \itemize{
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed transformed dissimilarities, not normalized
+#' \item confdist: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
+#' \item ndim: Number of dimensions
+#' \item model: Name of MDS model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item pars: hyperparameter vector theta 
+#' }
+#' and some additional components
+#' \itemize{
+#' \item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item deltaorig: observed, untransformed dissimilarities
+#' \item tau: tau parameter
+#' \item k: k parameter
+#' }
+#'
+#'
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
@@ -186,7 +209,7 @@ while ( stepsize > 1E-5 && i < niter)
   #result$D1mu <- D1mu  #should not be the same across tau
   result$k <- k
   result$tau <- tau
-  result$pars <- c(k,tau)
+  result$pars  <- result$theta <- c(k=k,tau=tau)
   result$stress.r <- s1
   #result$stress.e <- s1e  #for debug
   #result$normop <- normop  #for debug
@@ -198,6 +221,7 @@ while ( stepsize > 1E-5 && i < niter)
   result$niter <- i
   result$stress <- sqrt(s1n)
   result$model<- "Local MDS"
+  result$type <- "Local MDS Stress"
   class(result) <- c("lmds","smacofP","smacofB","smacof")
   return(result)
 }

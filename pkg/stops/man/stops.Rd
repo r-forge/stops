@@ -91,7 +91,7 @@ A list with the components
         \item losstype: The PS badness-of-fit function
         \item nobj: the number of objects in the configuration
         \item type: The type of stoploss scalacrisation (additive or multiplicative)
-        \item fit: The fitted PS object (most importantly $fit$conf the configuration and) 
+        \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration) 
 }
 }
 \description{

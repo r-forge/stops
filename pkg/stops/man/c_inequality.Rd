@@ -11,6 +11,9 @@ c_inequality(confs)
 \arguments{
 \item{confs}{a numeric matrix or data frame}
 }
+\value{
+a numeric value; inequality (Pearsons coefficient of variation of the fitted distance matrix)
+}
 \description{
 c-inequality
 Calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the fitted distance matrix. This can help with avoiding degenerate solutions.   

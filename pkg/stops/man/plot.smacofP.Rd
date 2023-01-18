@@ -65,6 +65,9 @@
 
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.}
 }
+\value{
+no return value; just plot for class 'smacofP' (see details)
+}
 \description{
 S3 plot method for smacofP objects
 }

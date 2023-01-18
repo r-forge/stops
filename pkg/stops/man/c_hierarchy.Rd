@@ -14,6 +14,9 @@ c_hierarchy(confs, p = 2, agglmethod = "complete")
 
 \item{agglmethod}{the method used for creating the clustering, see \code{\link{hclust}}.}
 }
+\value{
+a numeric value; hierarchy (see \code{\link[clue]{cl_validity}})
+}
 \description{
 c-hierarchy
 captures how well a partition/ultrametric (obtained by hclust) explains the configuration distances. Uses variance explained for euclidean distances and deviance explained for everything else.

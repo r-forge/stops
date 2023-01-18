@@ -9,6 +9,9 @@ procruster(x)
 \arguments{
 \item{x}{mumeric matrix}
 }
+\value{
+A double or complex matrix.
+}
 \description{
 procruster: a procrustes function
 }

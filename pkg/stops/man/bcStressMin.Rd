@@ -11,7 +11,7 @@ bcStressMin(
   ndim = 2,
   mu = 1,
   lambda = 1,
-  nu = 0,
+  rho = 0,
   itmax = 2000,
   addD0 = 1e-04
 )
@@ -29,11 +29,34 @@ bcStressMin(
 
 \item{lambda}{lambda parameter. Must be larger than 0.}
 
-\item{nu}{the nu parameter.}
+\item{rho}{the rho parameter.}
 
 \item{itmax}{number of optimizing iterations, defaults to 2000.}
 
 \item{addD0}{a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.}
+}
+\value{
+an object of class 'bcmds' (also inherits from 'smacofP'). It is a list with the components
+\itemize{
+\item delta: Observed dissimilarities, not normalized
+\item obsdiss: Observed transformed dissimilarities, not normalized
+\item confdist: Configuration dissimilarities, NOT normalized 
+\item conf: Matrix of fitted configuration, NOT normalized
+\item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
+\item ndim: Number of dimensions
+\item model: Name of MDS model
+\item niter: Number of iterations
+\item nobj: Number of objects
+\item pars: hyperparameter vector theta 
+}
+and some additional components
+\itemize{
+\item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
+\item deltaorig: observed, untransformed dissimilarities
+\item mu: mu parameter (for attraction)
+\item lambda: lambda parameter (for repulsion)
+\item rho: rho parameter (for weights) 
+}
 }
 \description{
 An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
@@ -43,7 +66,7 @@ For numerical reasons with certain parameter combinations, the normalized stress
 }
 \examples{
 dis<-smacof::kinshipdelta
-res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
+res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,rho=0)
 res
 summary(res)
 plot(res)

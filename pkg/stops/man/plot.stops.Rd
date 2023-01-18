@@ -26,6 +26,9 @@ Details:
 \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 }}
 }
+\value{
+no return value, just plots
+}
 \description{
 S3 plot method for stops objects
 }

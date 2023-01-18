@@ -6,26 +6,49 @@
 #' @param ndim the dimension of the configuration
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
-#' @param nu the nu parameter.
+#' @param rho the rho parameter.
 #' @param itmax number of optimizing iterations, defaults to 2000.
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0. 
 #'
 #' @details For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible if min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization cannot generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).    
-#' 
+#'
+#'
+#' @return an object of class 'bcmds' (also inherits from 'smacofP'). It is a list with the components
+#' \itemize{
+#' \item delta: Observed dissimilarities, not normalized
+#' \item obsdiss: Observed transformed dissimilarities, not normalized
+#' \item confdist: Configuration dissimilarities, NOT normalized 
+#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
+#' \item ndim: Number of dimensions
+#' \item model: Name of MDS model
+#' \item niter: Number of iterations
+#' \item nobj: Number of objects
+#' \item pars: hyperparameter vector theta 
+#' }
+#' and some additional components
+#' \itemize{
+#' \item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
+#' \item deltaorig: observed, untransformed dissimilarities
+#' \item mu: mu parameter (for attraction)
+#' \item lambda: lambda parameter (for repulsion)
+#' \item rho: rho parameter (for weights) 
+#' }
 #' 
 #' @author Lisha Chen & Thomas Rusch
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,nu=0)
+#' res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,rho=0)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
 #' @export
-bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,nu=0,itmax=2000,addD0=1e-4)
+bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itmax=2000,addD0=1e-4)
 {
+  nu <- rho  
   Do <- delta 
   d <- ndim
   X1 <- init
@@ -190,14 +213,14 @@ while ( stepsize > 1E-5 && i < niter)
   result$obsdiss <- stats::as.dist(Do)
   result$mu <- mu
   result$lambda <- lambda
-  result$nu <- nu
-  result$pars <- c(mu,lambda,nu)
+  result$rho <- nu
+  result$pars <- c(mu=mu,lambda=lambda,rho=nu)
   result$model<- "Box-Cox Stress MDS"
   result$call <- match.call()
   result$ndim <- ndim
   result$nobj <- n
   result$niter <- i
-  result$theta <- c(mu,lambda,nu)
+  result$theta <- c(mu=mu,lambda=lambda,rho=nu)
   result$stress.r <- s1
   result$stress.m <- s1n
   result$stress <- sqrt(s1n)

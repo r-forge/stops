@@ -11,6 +11,9 @@ enorm(x, w = 1)
 
 \item{w}{weight}
 }
+\value{
+a numeric scalar; the sum(w*x^2)
+}
 \description{
 Explicit Norm
 }

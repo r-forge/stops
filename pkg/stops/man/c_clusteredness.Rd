@@ -34,7 +34,10 @@ c_clusteredness(
 
 \item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0.}
 
-\item{...}{Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}}
+\item{...}{Additional arguments to be passed to \code{cordillera::cordillera}}
+}
+\value{
+a numeric value; clusteredness (see \code{\link[cordillera]{cordillera}})
 }
 \description{
 c-clusteredness 

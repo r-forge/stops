@@ -4,6 +4,8 @@
 #' @param confs a numeric matrix or data frame
 #'
 #' @importFrom stats dist sd
+#'
+#' @return a numeric value; inequality (Pearsons coefficient of variation of the fitted distance matrix)
 #' 
 #' @examples
 #' x<-1:10
@@ -27,6 +29,8 @@ c_inequality <- function(confs)
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' 
 #' @importFrom stats lm summary.lm
+#'
+#' @return a numeric value; linearity (aggregated multiple correlation of all columns of the configuration)
 #' 
 #' @examples
 #' x<-1:10
@@ -35,6 +39,7 @@ c_inequality <- function(confs)
 #' confs<-cbind(z,y,x)
 #' c_linearity(confs)
 #' @export
+
 c_linearity <- function(confs,aggr=max)
     {
         confs <- scale(confs)
@@ -61,6 +66,7 @@ c_linearity <- function(confs,aggr=max)
 #' @param index exponent on Euclidean distance, in (0,2]
 #'
 #'
+#' @return a numeric value; dependence (aggregated distance correlation)
 #' @importFrom energy dcor
 #' 
 #' @examples
@@ -100,6 +106,8 @@ c_dependence <- function(confs,aggr=max,index=1)
 #'
 #' @param confs a numeric matrix or data frame
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
+#'
+#' @return a numeric value; manifoldness (aggregated maximal correlation, correlation of ACE tranformed x and y, see \code{\link[acepack]{ace}}) 
 #' 
 #' @importFrom acepack ace
 #' @importFrom stats cor
@@ -150,6 +158,7 @@ c_manifoldness <- function(confs,aggr=max)
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
 #' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM; they call it epsilon in the paper). It provides robustness.
+#'
 #' 
 #' @importFrom minerva mine
 c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
@@ -171,6 +180,8 @@ c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al). It provides robustness.
 #' 
 #' @importFrom minerva mine
+#'
+#' @return a numeric value; association (aggregated maximal information coefficient MIC, see \code{\link[minerva]{mine}})
 #' 
 #' @examples
 #' x<-seq(-3,3,length.out=200)
@@ -201,6 +212,8 @@ c_association <- function(confs,aggr=max,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
 #' 
 #' @importFrom minerva mine
+#'
+#' @return a numeric value; nonmonotonicity (aggregated maximal asymmetric score MAS, see \code{\link[minerva]{mine}})
 #' 
 #' @examples
 #' x<-seq(-3,3,length.out=200)
@@ -227,9 +240,12 @@ c_nonmonotonicity <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al.). It provides robustness.
 #' 
 #' @importFrom minerva mine
+#'
+#'
+#' @return a numeric value; functionality (aggregated maximaum edge value MEV, see \code{\link[minerva]{mine}})
 #' 
 #' @examples
 #' x<-seq(-3,3,length.out=200)
@@ -257,9 +273,11 @@ c_functionality <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' @param alpha an optional number of cells allowed in the X-by-Y search-grid. Default value is 1
 #' @param C an optional number determining the starting point of the X-by-Y search-grid. When trying to partition the x-axis into X columns, the algorithm will start with at most C X clumps. Default value is 15. 
 #' @param var.thr minimum value allowed for the variance of the input variables, since mine can not be computed in case of variance close to 0. Default value is 1e-5.
-#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al. SOM). It provides robustness.
+#' @param zeta integer in [0,1] (?).  If NULL (default) it is set to 1-MIC. It can be set to zero for noiseless functions, but the default choice is the most appropriate parametrization for general cases (as stated in Reshef et al.). It provides robustness.
 #' 
 #' @importFrom minerva mine
+#'
+#' @return a numeric value; complexity (aggregated minimum cell number MCN, see \code{\link[minerva]{mine}})
 #' 
 #' @examples
 #' x<-seq(-3,3,length.out=200)
@@ -285,6 +303,7 @@ c_complexity <- function(confs,aggr=min,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' @param k the number of nearest neighbours to be looked at
 #' @param ... additional arguments passed to dist()  
 #'
+#' @return a numeric value; faithfulness 
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -338,9 +357,10 @@ knn_dist <- function(dis,k)
 #' @param dmax The winsorization value for the highest allowed reachability. If used for comparisons between different configurations this should be supplied. If no value is supplied, it is NULL (default); then dmax is taken from the data as the either epsilon or the largest reachability, whatever is smaller.
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
 #' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0. 
-#' @param ... Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}
-#'
-#'
+#' @param ... Additional arguments to be passed to \code{cordillera::cordillera}
+#' 
+#' @return a numeric value; clusteredness (see \code{\link[cordillera]{cordillera}})
+#' 
 #' @importFrom cordillera cordillera
 #' 
 #' @examples
@@ -366,11 +386,14 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' @param digits The precision to round the raw Cordillera and the norm factor. Defaults to 10.
 #' @param scale Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to 0. 
 #' @param ... Additional arguments to be passed to \code{\link[cordillera:cordillera]{cordillera}}
+#'
+#' @return a numeric value; regularity
 #' 
 #' @examples
-#' hpts <- sp::genHexGrid(dx=0.9, ll=c(-2, -2), ur=c(2, 2))
-#' plot(hpts[,1],hpts[,2],pch=19,asp=1)
+#' hpts<-expand.grid(seq(-5,5),seq(-5,5))
 #' c_regularity(hpts)
+#' hpts2<-cbind(jitter(hpts[,1]),jitter(hpts[,2]))
+#' c_regularity(hpts2)
 #' @export
 c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
 {
@@ -387,6 +410,8 @@ c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean
 #'
 #' @importFrom clue cl_validity
 #' @importFrom stats hclust
+#'
+#' @return a numeric value; hierarchy (see \code{\link[clue]{cl_validity}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -411,6 +436,9 @@ c_hierarchy <- function(confs,p=2,agglmethod="complete")
 #' @param conf A numeric matrix.
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @importFrom scagnostics scagnostics
+#'
+#'
+#' @return a numeric value; outlying (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -428,9 +456,11 @@ c_outlying<- function(conf,aggr=max){
 #' 
 #' Measures the c-convexity structure 
 #' 
-#' @param conf A numeric matrix.
+#' @param conf A numeric matrix. 
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' @importFrom scagnostics scagnostics
+#'
+#' @return a numeric value; convexity (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -453,6 +483,8 @@ c_convexity<- function(conf,aggr=max){
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
 #' 
 #' @importFrom scagnostics scagnostics
+#'
+#' @return a numeric value; skinniness (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -473,7 +505,9 @@ c_skinniness<- function(conf,aggr=max){
 #' 
 #' @param conf A numeric matrix.
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max.
-#' 
+#'
+#' @return a numeric value; stringiness (see \code{\link{scagnostics}})
+#'  
 #' @importFrom scagnostics scagnostics
 #' 
 #' @examples
@@ -496,6 +530,8 @@ c_stringiness<- function(conf,aggr=max){
 #' @param conf A numeric matrix.
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
+#'
+#' @return a numeric value; sparsity (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -512,11 +548,14 @@ c_sparsity<- function(conf,aggr=max){
 
 #' c-clumpiness
 #' 
-#' Measures the c-outlying structure 
+#' Measures the c-clumpiness structure 
 #' 
 #' @param conf A numeric matrix.
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
+#'
+#'
+#' @return a numeric value; clumpiness (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta
@@ -539,6 +578,8 @@ c_clumpiness<- function(conf,aggr=max){
 #' @param conf A numeric matrix.
 #' @param aggr the aggregation function for configurations of more than two dimensions. Defaults to max. 
 #' @importFrom scagnostics scagnostics
+#'
+#' @return a numeric value; striatedness (see \code{\link{scagnostics}})
 #' 
 #' @examples
 #' delts<-smacof::kinshipdelta

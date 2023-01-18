@@ -1,11 +1,14 @@
 #'Wrapper to \code{cmdscale} for S3 class
 #'
+#'
+#' @details overloads base::cmdscale and adds class attributes for which there are methods. The functionality is duplicated in the cops package.   
+#' 
 #' @param d a distance structure such as that returned by 'dist' or a full symmetric matrix containing the dissimilarities
 #' @param k the maximum dimension of the space which the data are to be represented in
 #' @param eig indicates whether eigenvalues should be returned.
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'
+#' @return An object of class 'cmdscaleE' and inheriting from \code{\link{cmdscale}}. This function just adds an extra slot to the list with the call, adds column labels to the $points. 
 #'
 #' @importFrom stats cmdscale as.dist dist
 #' 
@@ -24,18 +27,21 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      out$confdist <- confdist
      #out$stress <- stress
      #out$stress.m <- stress.m
-     class(out) <- "cmdscale"
+     class(out) <- c("cmdscaleE","cmdscale")
      out
  }
 
-#'Wrapper to \code{sammon} for S3 class
+#' Wrapper to \code{sammon} for S3 class
 #'
+#'
+#' @details overloads MASS::sammon and adds class attributes for which there are methods. The functionality is duplicated in the cops package.
+#' 
 #' @param d a distance structure such as that returned by 'dist' or a full symmetric matrix.  Data are assumed to be dissimilarities or relative distances, but must be positive except for self-distance.  This can contain missing values.
 #' @param y An initial configuration. If NULL, 'cmdscale' is used to provide the classical solution.  (If there are missing values in 'd', an initial configuration must be provided.)  This must not have duplicates.
 #' @param k The dimension of the configuration
 #' @param ... Additional parameters passed to \code{sammon}, see \code{\link{sammon}}  
 #'
-#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
+#' @return An object of class 'sammonE' that inherits from \code{\link{sammon}}. This function only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammonE', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
 #'
 #' @importFrom MASS sammon
 #' @importFrom stats as.dist dist 
@@ -51,11 +57,15 @@ sammon <- function(d,y=NULL,k=2,...)
      out$obsdiss <- as.dist(d/enorm(d))
      out$confdist <- dist(out$points)
      out$stress.m <- sqrt(out$stress)
-     class(out) <- c("sammon","cmdscale")
+     class(out) <- c("sammonE","sammon","cmdscale")
      out
  }
 
+#' S3 print method for sammon objects
+#'@param x cmdscale object
+#'@param ... additional arguments
 #'@export
+#'@return No return value, just prints.
 print.sammon <- function(x,...)
     {
     cat("\nCall: ")
@@ -67,7 +77,12 @@ print.sammon <- function(x,...)
     cat("\n")
     }
 
+#' S3 print method for cmdscale
+#'@param x cmdscale object
+#'@param ... additional arguments
+#' 
 #'@export
+#'@return No return value, just prints.
 print.cmdscale <- function(x,...)
     {
     cat("\nCall: ")
@@ -78,7 +93,13 @@ print.cmdscale <- function(x,...)
     cat("GOF:", x$GOF, "\n")
     cat("\n")
     }
+
+#' S3 summary method for cmdscale
+#' @param object object of class cmdscale
+#' @param ... additional arguments
+#' 
 #'@export
+#'@return No return value, just prints.
 summary.cmdscale <- function(object,...)
     {
     cat("\n")
@@ -87,7 +108,13 @@ summary.cmdscale <- function(object,...)
     cat("\n\n")
     }
 
+#' S3 summary method for sammon
+#'
+#' @param object object of class sammon
+#' @param ... additional arguments
+#' 
 #'@export
+#'@return No return value, just prints.
 summary.sammon <- function(object,...)
     {
     cat("\n")
@@ -96,11 +123,32 @@ summary.sammon <- function(object,...)
     cat("\n\n")
     }
 
-
+#' S3 plot method for cmdscaleE
+#'
+#' @param x cmdscaleE object
+#' @param plot.type type of plot
+#' @param plot.dim dimensions used for plotting 
+#' @param col color
+#' @param label.conf list of label options 
+#' @param identify boolean flag for interactively identify points
+#' @param type type of plot
+#' @param pch plotting character
+#' @param asp aspect ratio (defaults to 1)
+#' @param main main title
+#' @param xlab label of x axis
+#' @param ylab label of y axis
+#' @param xlim limits of x axis
+#' @param ylim limits of y axis
+#' @param legpos position of legend
+#' @param ... additional arguments passed to plot
+#'
+#' @details This function duplicates the plot method for smacof so it can be used with cmdscaleE objects. See \code{\link[smacof]{plot.smacof}} for the arguments. 
+#' 
 #'@importFrom graphics plot abline lines text identify legend points
 #'@importFrom stats predict loess lm
 #'@export
-plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
+#'@return No return value, just plots a 'cmdscaleE' object.
+plot.cmdscaleE <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
     {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -188,14 +236,14 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
         replicate(10,text(runif(1,-10,10),runif(1,-10,10),"NOT SUPPORTED. USE SMACOF!",cex=runif(1,max=3)))
     }
    # invisible() #not sure why I need this here but without this it returns a list of NULLS
-}
+    }
 
-#' 3D plots: plot3d method for class cmdscale
+#' S3 plot3d method for class cmdscaleE
 #'
 #' This methods produces a dynamic 3D configuration plot.
 #'
 #' 
-#' @param x object of class cmdscale
+#' @param x object of class cmdscaleE
 #' @param plot.dim vector of length 3 with dimensions to be plotted
 #' @param xlab label of x axis
 #' @param ylab label of y axis
@@ -209,7 +257,8 @@ plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col,
 #'
 #' @import rgl 
 #' @export
-plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
+#' @return No return value, just plots a 'cmdscale' object. 
+plot3d.cmdscaleE <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, main, bgpng = NULL, ax.grid = TRUE, sphere.rgl = FALSE,...) 
 {
     ndim <- dim(x$points)[2]
     if (ndim < 3) 
@@ -270,13 +319,14 @@ plot3d.cmdscale <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, ma
 #' @param ... other arguments
 #' 
 #' @export
+#' @return No return value, just plots.
 plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ...) UseMethod("plot3dstatic")
 
-#' 3D plots: plot3dstatic method for class cmdscale
+#' 3D plots: plot3dstatic method for class cmdscaleE
 #'
 #' 
 #' This methods produces a static 3D configuration plot.
-#' @param x object of class cmdscale
+#' @param x object of class cmdscaleE
 #' @param plot.dim vector of length 3 with dimensions to be plotted
 #' @param main plot title
 #' @param xlab label of x axis
@@ -287,10 +337,10 @@ plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ..
 #'
 #'@export
 #'@import scatterplot3d
-plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
+#'@return No return value, just plots a 'cmdscaleE' object.  
+plot3dstatic.cmdscaleE <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
 {
     ndim <- dim(x$points)[2]
-    options(locatorBell = FALSE)
     if (ndim < 3) 
         stop("No 3D plots can be drawn for ndim < 3 !")
     if (length(plot.dim) != 3) 
@@ -318,11 +368,13 @@ plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, z
     pr <- scatterplot3d::scatterplot3d(x1, y1, z1, type = "n", main = main1, xlab = xlab, ylab = ylab, zlab = zlab, ...)
     text(pr$xyz.convert(x1, y1, z1), labels = rownames(x$points), col = col1)
 }
+
 #'procruster: a procrustes function 
 #'
 #'@param x mumeric matrix
 #'
 #'@export
+#'@return A double or complex matrix.
 procruster <- function (x) 
 {
     sx <- svd(x)
@@ -332,12 +384,13 @@ procruster <- function (x)
 #'conf_adjust: a function to procrustes adjust two matrices
 #'
 #'@param conf1 reference configuration, a numeric matrix
-#'@param conf2 another configuration, a numeric matrix 
+#'@param conf2 another configuration to be adjusted, a numeric matrix 
 #'@param verbose should adjustment be output; default to FALSE
 #'@param eps numerical accuracy
 #'@param itmax maximum number of iterations
 #' 
 #'@export
+#'@return A list of configuration matrices. The 'ref.conf' is the reference configuration, the 'other.conf' is the Procrustes adjusted configuration and the 'comparison.conf' is the one that was adjusted.   
 conf_adjust<- function(conf1,conf2,verbose = FALSE,eps = 1e-12, itmax = 100)
  {
 x0 <- conf1
