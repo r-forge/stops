@@ -11,18 +11,27 @@ There were no ERRORs or WARNINGs.
 
 There was the following NOTE:
 
-Possibly misspelled words in DESCRIPTION:
-  Isomap (8:668)
-  Jaakola (8:933)
-  Luus (8:928)
-  MDS (8:167, 8:369, 8:540, 8:609, 8:649, 8:660)
-  SMACOF (8:437, 8:488, 8:506)
-  Sammon (8:445, 8:574)
-  Torgerson (8:406)
-  hyperparameters (8:736, 8:774)
-  structuredness (8:1076)
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Thomas Rusch <thomas.rusch@wu.ac.at>'
 
-I believe these are false positives (mainly own names, abbreviations and technical terms).
+New submission
+
+Possibly misspelled words in DESCRIPTION:
+  Hornik (8:270)
+  Isomap (8:781)
+  Jaakola (8:1046)
+  Luus (8:1041)
+  MDS (8:111, 8:435, 8:649, 8:712, 8:722, 8:762, 8:773)
+  Mair (8:263)
+  Rusch (8:256)
+  SMACOF (8:545, 8:597, 8:615)
+  Sammon (8:554, 8:683)
+  Torgerson (8:472)
+  hyperparameters (8:849, 8:887)
+  majorizing (8:514)
+  structuredness (8:1189)
+
+I believe these are false positives as they are own names, abbreviations (with full names given) and technical terms.
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
@@ -74,7 +83,7 @@ Done.
 >
 > Please make sure that your tests run smoothly.
 
-The test were included in error; removed from the package via .Rbuildignore.
+The tests were included in the build in error; removed from the package via .Rbuildignore.
 
 > Please make sure that you do not change the user's options, par or working directory. If you really have to do so within functions, please ensure with an *immediate* call of on.exit() that the settings are reset when the function is exited.
 > e.g.:

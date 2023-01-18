@@ -30,7 +30,6 @@ Imports:
     nloptr
 Enhances: stats
 Suggests:
-    sp,
     R.rsp
 License: GPL-2 | GPL-3
 LazyData: true
