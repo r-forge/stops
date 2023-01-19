@@ -1,11 +1,9 @@
 #' PCOPS versions of smacofSym models
 #'
+#' The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights is 1. 
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda
-#' transformation for the observed proximities, or a vector where the first is the
-#' kappa argument for the fitted distances (here internally fixed to 1) and the
-#' second the lambda argument and the third the nu argument (here internally fixed to 1).
-#' Defaults to 1 1 1 
+#' @param theta the theta vector; must be a scalar for the lambda (proximity) transformation. Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -38,20 +36,21 @@
 #'@import smacof
 #' 
 #'@keywords multivariate
-cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
-  #TODO Unfolding  
+cop_smacofSym <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+                                        #TODO Unfolding
+  if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+ # if(length(theta)==3L) lambda <- theta[2]
  # addargs <- list(...)
  # addargs
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  fit$kappa <- 1
+  #fit$kappa <- 1
   fit$lambda <- lambda
-  fit$nu <- 1
+  #fit$nu <- 1
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -60,7 +59,7 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itm
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)  
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
@@ -69,8 +68,10 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itm
 
 #' PCOPS versions of elastic scaling models (via smacofSym)
 #'
+#' The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -2. Allows for a weight matrix because of smacof.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -2). Defaults to 1 1 -2
+#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
@@ -104,24 +105,25 @@ cop_smacofSym <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itm
 #'@import cordillera 
 #' 
 #'@keywords multivariate
-cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
-  #TODO Unfolding  
+cop_elastic <- function(dis,theta=1,ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+                                        #TODO Unfolding
+  if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  #if(length(theta)==3L) lambda <- theta[2]
   nu <- -2
-  addargs <- list(...)
-  addargs
+  #addargs <- list(...)
+  #addargs
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  fit$kappa <- 1
+  #fit$kappa <- 1
   fit$lambda <- lambda
-  fit$nu <- nu
+  #fit$nu <- nu
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -129,7 +131,7 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
@@ -139,8 +141,10 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=
 
 #' PCOPS versions of smacofSphere models
 #'
+#' The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights is 1. 
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument. Defaults to 1 1 1
+#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -172,20 +176,21 @@ cop_elastic <- function(dis,theta=c(1,1,-2),ndim=2,weightmat=1,init=NULL,itmaxi=
 #'@import cordillera 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
-cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
-  #TODO Unfolding  
+cop_smacofSphere <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+                                        #TODO Unfolding
+  if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
-  addargs <- list(...)
-  addargs
+ # if(length(theta)==2L) lambda <- theta[2]
+  #addargs <- list(...)
+  #addargs
   fit <- smacof::smacofSphere(dis^lambda,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  fit$kappa <- 1
+  #fit$kappa <- 1
   fit$lambda <- lambda
-  nu <- 
+  #nu <- 
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -193,7 +198,7 @@ cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,
   delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda) #c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
@@ -201,10 +206,12 @@ cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,
 }
 
 
-#' PCOPS version of sammon mapping
+#' PCOPS version of Sammon mapping
+#'
+#' Uses MASS::sammon. The free parameter is lambda for power transformations of the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -1. 
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument and the third the nu argument (here internally fixed to -1). Defaults to 1 1 -1 
+#' @param theta the theta vector of powers; this must be  a scalar of the lambda transformation for the observed proximities. Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -237,33 +244,35 @@ cop_smacofSphere <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,
 #' @keywords multivariate
 #'
 #' 
-cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype="default") {
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+cop_sammon <- function(dis,theta=1,ndim=2,init=NULL,weightmat=NULL,itmaxi=100,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype="default") {
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(length(theta)==1L) lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
-  if(length(theta)==3L) lambda <- theta[2]
-  nu <- -1
+  lambda <- theta
+  #if(length(theta)==2L) lambda <- theta[2]
+  #if(length(theta)==3L) lambda <- theta[2]
+  #nu <- -1
  # if(is.null(init)) init <- cops::cmdscale(dis^lambda,k=ndim)$points
   fit <- cops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
   fit$lambda <- lambda
-  fit$kappa <- 1
-  fit$nu <- -1
+  #fit$kappa <- 1
+  #fit$nu <- -1
   dis <- stats::as.dist(dis)
   fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum(((dis^lambda-fitdis)^2)/dis)
   fit$stress.n <- fit$stress.r/sum(dis)
   fit$stress.m <- fit$stress^2#TODO: Passt das?
   fit$conf <- fit$points
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,copsobj=copobj) #target functions
 }
 
-#' COPS versions of Sammon mapping models (via smacofSym)
+#' Another COPS versions of Sammon mapping models (via smacofSym)
+#'
+#' Uses Smacof, so it can deal with a weight matrix too.  The free parameter is lambda for power transformations of the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -1. 
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the lambda argument, the thrid the nu argiument (fixed to -1). Defaults to 1 1 -1. 
+#' @param theta theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the sammon weights)
@@ -296,22 +305,23 @@ cop_sammon <- function(dis,theta=c(1,1,-1),ndim=2,init=NULL,weightmat=NULL,itmax
 #' @import smacof
 #' @import cordillera
 #'@keywords multivariate
-cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+cop_sammon2 <- function(dis,theta=1,ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+    if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  #if(length(theta)==3L) lambda <- theta[2]
   nu <- -1
-  addargs <- list(...)
+  #addargs <- list(...)
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- weightmat*elscalw #combine the user weights and the elastic scaling weights
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  fit$kappa <- 1
+  #fit$kappa <- 1
   fit$lambda <- lambda
-  fit$nu <- nu
+  #fit$nu <- nu
   fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
@@ -319,7 +329,7 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itma
   delts <- as.matrix(fit$delta) 
   fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
@@ -330,8 +340,10 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itma
 
 #' PCOPS version of strain
 #'
+#' The free parameter is lambda for power transformations of the observed proximities.
+#'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second and third the lambda and the nu argument (the latter is fixed to 1). Defaults to 1 1 1
+#' @param theta  the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. No effect here.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -363,14 +375,14 @@ cop_sammon2 <- function(dis,theta=c(1,1,-1),ndim=2,weightmat=NULL,init=NULL,itma
 #' @import cordillera
 #' @keywords multivariate
 cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype="default") {
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) lambda <- theta
-  if(length(theta)==2L) lambda <- theta[2]
-  if(length(theta)==3L) lambda <- theta[2]
+  #if(length(theta)==2L) lambda <- theta[2]
+  #if(length(theta)==3L) lambda <- theta[2]
   fit <- cops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
   fit$lambda <- lambda
-  fit$kappa <- 1
-  fit$nu <- 1
+ # fit$kappa <- 1
+ # fit$nu <- 1
   dis <- stats::as.dist(dis)
   fitdis <- stats::dist(fit$points)
   fit$stress.r <- sum((dis^lambda-fitdis)^2)
@@ -378,15 +390,17 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itma
   fit$stress <- sqrt(fit$stress.n)
   fit$stress.m <- fit$stress.n
   fit$conf <- fit$points
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$GOF,stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
 }
 
 #' PCOPS version of rstress
 #'
+#' Free parameter is kappa for the fitted distances.
+#'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1 
+#' @param theta the theta vector of powers; this must be a scalar of the kappa transformation for the fitted distances proximities. Defaults to 1. Note the kappa here differs from Jan's version where the parameter was called r and the relationship is r=kappa/2 or kappa=2r. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -417,9 +431,9 @@ cop_cmdscale <- function(dis,theta=c(1,1,1),weightmat=NULL,ndim=2,init=NULL,itma
 #' @import cordillera
 cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   kappa <- theta
-  if(length(theta)==3L) kappa <- theta[1] 
+  #if(length(theta)==3L) kappa <- theta[1] 
   fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
@@ -427,10 +441,10 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
-  fit$kappa <- theta[1]
-  fit$lambda <- 1
-  fit$nu <- 1
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$kappa <- kappa
+  #fit$lambda <- 1
+  #fit$nu <- 1
+  fit$parameters <- fit$theta <- c(kappa=fit$kappa)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
  # fit$deltaorig <- fit$delta^(1/fit$lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
@@ -440,8 +454,10 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 
 #' PCOPS version of sstress
 #'
+#'Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 2) and the second the lambda argument and the third the nu argument (internally fixed to 1). Defaults to 2 1 1
+#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)). 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -472,9 +488,9 @@ cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @import cordillera
 cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"  
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
-  if(length(theta)==3L) lambda <- theta[2]
+  #if(length(theta)==3L) lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
@@ -483,10 +499,10 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
   if(stresstype=="normstress") fit$stress.m <- fit$stress.n
   if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
-  fit$kappa <- 2
+  #fit$kappa <- 2
   fit$lambda <- lambda
-  fit$nu <- 1
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  #fit$nu <- 1
+  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
   out
@@ -495,8 +511,10 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 
 #' PCOPS version of powermds
 #'
+#' This is power stress with free kappa and lambda but nu is fixed to 1, so no weight transformation.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), nu is fixed to 1. If a scalar is given it is recycled.  Defaults to 1 1 1.
+#' @param theta the theta vector of powers; a vector of length 2 where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -527,8 +545,8 @@ cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL
 #' @import cordillera
 cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,2)
+  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)<2) theta <- rep(theta,length.out=2)
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   if(stresstype=="default") fit$stress.m <- fit$stress.m
   if(stresstype=="stress1") fit$stress.m <- fit$stress.1
@@ -538,8 +556,8 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
-  fit$nu <- 1
-   fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  #fit$nu <- 1
+   fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 
@@ -547,8 +565,10 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 
 #' PCOPS version of sammon with powers
 #'
+#' This is power stress with free kappa and lambda but nu is fixed to -1 and the weights are delta.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (fixed to -1). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1 -1.
+#' @param theta the theta vector of powers; a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1..
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -577,9 +597,9 @@ cop_powermds <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NUL
 #' }
 #' @import cordillera
 #' @keywords multivariate
-cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powersammon <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
   nu <- -1
   sammwght <-dis^(theta[2])
@@ -594,8 +614,8 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
-  fit$nu <- nu
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  #fit$nu <- nu
+  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda)# c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 
@@ -603,8 +623,10 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 
 #' PCOPS version of elastic scaling with powers
 #'
+# This is power stress with free kappa and lambda but nu is fixed to -2 and the weights are delta.
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.
+#' @param theta the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -633,9 +655,9 @@ cop_powersammon <- function(dis,theta=c(1,1,-1),weightmat=1-diag(nrow(dis)),init
 #' }
 #' @import cordillera
 #' @keywords multivariate
-cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
+cop_powerelastic <- function(dis,theta=c(1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) theta <- rep(theta,2)
   nu <- -2
   elawght <- dis^(theta[2])
@@ -650,14 +672,16 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
   if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
-  fit$nu <- nu
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  #fit$nu <- nu
+  fit$parameters <- fit$theta <-  c(kappa=fit$kappa,lambda=fit$lambda) # c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 
 }
 
 #' COPS version of powerstress
+#'
+#' Power stress with free kappa and lambda and rho (the theta argument).
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.
@@ -692,7 +716,7 @@ cop_powerelastic <- function(dis,theta=c(1,1,-2),weightmat=1-diag(nrow(dis)),ini
 cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
   if(missing(stresstype)) stresstype <- "default"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,3)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
   wght <- weightmat
   diag(wght) <- 1
   fit <- powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
@@ -713,11 +737,13 @@ cop_powerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=
 }
 
 
-#' PCOPS version of restricted powerstress,  which means that the same exponent will be used for distances and dissimilarities. If they are free to vary, it is powerstress.  
+#' PCOPS version of restricted powerstress.  
 #
 #'
+#' This is a power stress where kappa and lambda are free to vary but restricted to be equal, so the same exponent will be used for distances and dissimilarities. nu (for the weights) is also free.  
+#' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first two agruments are for kappa and lambda and must be equal (for the fitted distances and observed proximities), the third nu (for the weights).  Internally the kappa and lambda are equated. If a scalar is given it is recycled (so all elements of theta are equal); if a vector of length 2 is given, it gets expanded to c(theta[1],theta[1],theta[2]). Defaults to 1 1 1.
+#' @param theta the theta vector of powers; the first two arguments are for kappa and lambda and should be equal (for the fitted distances and observed proximities), the third nu (for the weights). Internally the kappa and lambda are equated. If a scalar is given it is recycled (so all elements of theta are equal); if a vector of length 2 is given, it gets expanded to c(theta[1],theta[1],theta[2]). Defaults to 1 1 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -772,10 +798,12 @@ cop_rpowerstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init
 }
 
 
-#' PCOPS version of approximated power stress model. This uses an approximation and makes use of smacof.
+#' PCOPS version of approximated power stress model.
+#'
+#' This uses an approximation to power stress that can make use of smacof as workhorse. Free parameters are tau and upsilon.
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this is either a scalar of the tau and upsilon transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second the tau argument and the third the upsilon argument. Defaults to 1 1 1 
+#' @param theta the theta vector of parameters to optimize over. Must be of length two, with the first the tau argument and the second the upsilon argument. It can also be a scalar of the tau and upsilon transformation for the observed proximities and gets recycled for both ups and tau (so they are equal). Defaults to 1 1.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
 #' @param weightmat (optional) a binary matrix of nonnegative weights
@@ -812,20 +840,19 @@ cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itma
   #TODO Unfolding  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  if(!all.equal(unique(as.vector(weightmat)),c(0,1))) stop("For approximated power stress, only binary weight matrices are allowed.")  
+  if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")   
   #kappa first argument, lambda=second
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,3)
-  if(length(theta)==2L) theta <- c(1,theta) 
+  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)==1L) theta <- rep(theta,2)
 # tau <- theta
   #if(length(theta)==3L)  {
-        tau <- theta[2]
-        ups <- theta[3]
+        tau <- theta[1]
+        ups <- theta[2]
    #     }
  # addargs <- list(...)                                        # addargs
   combwght <- weightmat*(dis^ups)
   fit <- smacof::smacofSym(dis^tau,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  fit$kappa <- 1
+  #fit$kappa <- 1
   fit$tau <- tau
   fit$upsilon <- ups
   fit$stress.1 <- fit$stress
@@ -836,7 +863,7 @@ cop_apstress <- function(dis,theta=c(1,1,1),ndim=2,weightmat=NULL,init=NULL,itma
  # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
   fit$stress.r <- sum(combwght*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(combwght*delts^2)
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,tau=fit$tau,upsilon=fit$upsilon)
+  fit$parameters <- fit$theta <- c(tau=fit$tau,upsilon=fit$upsilon)#c(kappa=fit$kappa,tau=fit$tau,upsilon=fit$upsilon)
   fit$deltaorig <- fit$delta^(1/fit$tau)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress^2, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
@@ -897,12 +924,13 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
 #' \itemize{
-#' \item Power transformations of observed proximities only: Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's S-Stress \code{sstress} (workhorse is powerstressMin)
-#' \item Power transformations of fitted distances only: De Leeuw's r-stress \code{rstress} (workhorse is powerstressMin)
-#' \item Power transformations of fitted distances and observed proximities: Powermds (\code{powermds}), Sammon mapping/elastic scaling with powers (\code{powersammon}, \code{powerelastic} ), powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for delta and d (\code{rpowerstress}); workhorse is powerstressMin)
-#' \item Approximation to power stress: Approximated power stress (\code{apstress}; workhorse is smacof)
+#' \item Power transformations of observed proximities only (theta must be scalar): Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's s-Stress \code{sstress} (workhorse is powerstressMin)
+#' \item Power transformations of fitted distances only (theta must be scalar): De Leeuw's r-stress \code{rstress} (workhorse is powerstressMin)
+#' \item Power transformations of fitted distances and observed proximities (theta must be scalar or of length 2): Power MDS (\code{powermds}), Sammon mapping/elastic scaling with powers (\code{powersammon}, \code{powerelastic})
+#' \item Power transfomations of fitted distances, observed proximities and weights (theta must be of length 3 at most): powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse is powerstressMin)
+#' \item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
 #' }
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists). If a scalar is given as argument, it will take the role designated by the loss argument (typially recycled). Defaults to 1 1 1
+#' @param theta the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled. Defaults to 1.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.
@@ -912,9 +940,9 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}.     
-#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We amde good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS. 
-#' @param lower The lower contraints of the search region
-#' @param upper The upper contraints of the search region 
+#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS. 
+#' @param lower A vector of the lower box contraints of the search region. Its length must match the length of theta.
+#' @param upper A vector of the upper box contraints of the search region. Its length must match the length of theta. 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose. Note that for models with some parameters fixed, the iteration progress of the optimizer shows different values also for the fixed parameters because due to the modular setup we always optimize over a three parameter vector. These values are inconsequential however as internally they will be fixed. 
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1 (typically not a good idea), "sd" scales the configuration by the maximum standard devation of any column (default), "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
@@ -956,20 +984,22 @@ copstress <- function(obj,stressweight=1,cordweight=5,q=1,minpts=2,epsilon=10,ra
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=c(1,1,0.5),upper=c(5,5,2),verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",acc=1e-7,itmaxo=200,itmaxi=10000,...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),weightmat=NULL,ndim=2,init=NULL,theta=1,stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,stresstype="default",acc=1e-7,itmaxo=200,itmaxi=10000,...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
       if(missing(loss)) loss <- "strain"
-      if(is.null(init)) init <- cops::torgerson(dis^theta[2]/enorm(dis^theta[2],weightmat),p=ndim) #like in powerstressMin
+      #if(length(theta)==1L) expo <- theta
+      #if(length(theta)>2) expo <- theta[2]
+      #if(is.null(init)) init <- cops::torgerson(dis^expo/enorm(dis^expo,weightmat),p=ndim) #like in powerstressMin
       .confin <- init #initialize a configuration
       psfunc <- switch(loss,"strain"=cop_cmdscale,"powerstrain"=cop_cmdscale,"elastic"=cop_elastic,"sstress"=cop_sstress,"stress"=cop_smacofSym,"smacofSym"= cop_smacofSym,"smacofSphere"=cop_smacofSphere,"rstress"=cop_rstress,"powermds"=cop_powermds,"powerstress"=cop_powerstress,"sammon"=cop_sammon,"sammon2"=cop_sammon2,"powersammon"=cop_powersammon,"powerelastic"=cop_powerelastic,"apstress"=cop_apstress,"rpowerstress"=cop_rpowerstress) #choose the stress to minimize
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(missing(rang)) 
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
+           initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
            init0 <- initsol$fit$conf
            #if(scale=="std") init0 <- scale(init0)
            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
@@ -987,7 +1017,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       {
           if(!exists("initsol")) {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
+                 initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))
           }
             init0 <- initsol$fit$conf
             init0 <- scale_adjust(init0,.confin,scale=scale)
@@ -1774,7 +1804,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'
 #'#COPS-C with equal weight to stress and cordillera 
 #'res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,
-#'           minpts=2,itmax=1000) #use higher itmax in real
+#'           minpts=2,itmax=500) #use higher itmax in real
 #'res1
 #'summary(res1)
 #'plot(res1)

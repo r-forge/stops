@@ -28,7 +28,7 @@ cop_rstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the kappa transformation for the fitted distances proximities, or a vector where the first is the kappa argument for the fitted distances and the second the lambda argument, the third the nu argument (here internally fixed to 1). Defaults to 1 1 1}
+\item{theta}{the theta vector of powers; this must be a scalar of the kappa transformation for the fitted distances proximities. Defaults to 1. Note the kappa here differs from Jan's version where the parameter was called r and the relationship is r=kappa/2 or kappa=2r.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -73,6 +73,6 @@ A list with the components
 }
 }
 \description{
-PCOPS version of rstress
+Free parameter is kappa for the fitted distances.
 }
 \keyword{multivariate}

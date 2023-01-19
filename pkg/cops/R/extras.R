@@ -1,13 +1,17 @@
-#'Wrapper to \code{cmdscale} for S3 class
+#' Wrapper to \code{cmdscale} for S3 class
 #'
+#' @details overloads base::cmdscale and adds class attributes for which there are methods. The functionality is duplicated in the stops package.    
+#'  
 #' @param d a distance structure such as that returned by 'dist' or a full symmetric matrix containing the dissimilarities
 #' @param k the maximum dimension of the space which the data are to be represented in
 #' @param eig indicates whether eigenvalues should be returned.
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'.
+#' @return Object of class "cmdscaleE' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscaleE' and 'cmdscale'.
 #'
 #' @importFrom stats cmdscale as.dist dist
+#'
+
 #' 
 #' @export
 #' @examples
@@ -20,18 +24,20 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
      out$call <- match.call()
      out$delta <- as.dist(d) #FIX
      out$confdist <- dist(out$points)
-     class(out) <- "cmdscale"
+     class(out) <- c("cmdscaleE","cmdscale")
      out
  }
 
 #'Wrapper to \code{sammon} for S3 class
 #'
+#' @details overloads MASS::sammon and adds class attributes for which there are methods. The functionality is duplicated in the stops package.    
+#' 
 #' @param d a distance structure such as that returned by 'dist' or a full symmetric matrix.  Data are assumed to be dissimilarities or relative distances, but must be positive except for self-distance.  This can contain missing values.
 #' @param y An initial configuration. If NULL, 'cmdscale' is used to provide the classical solution.  (If there are missing values in 'd', an initial configuration must be provided.)  This must not have duplicates.
 #' @param k The dimension of the configuration
 #' @param ... Additional parameters passed to \code{sammon}, see \code{\link{sammon}}  
 #'
-#' @return See \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammon', 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
+#' @return Object of class sammonE' inheriting from \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammonE', 'sammon' and 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
 #'
 #' @importFrom MASS sammon
 #' @importFrom stats as.dist dist 
@@ -50,7 +56,7 @@ sammon <- function(d,y=NULL,k=2,...)
      out$obsdiss <- as.dist(d/enorm(d))
      out$confdist <- dist(out$points)
      out$stress.m <- sqrt(out$stress)
-     class(out) <- c("sammon","cmdscale")
+     class(out) <- c("sammonE","sammon","cmdscale")
      out
  }
 
@@ -222,7 +228,7 @@ plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ..
 #'
 #'@export
 #'@import scatterplot3d
-plot3dstatic.cmdscale <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
+plot3dstatic.cmdscaleE <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
 {
     ndim <- dim(x$points)[2]
     if (ndim < 3) 

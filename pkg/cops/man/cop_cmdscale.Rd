@@ -27,7 +27,7 @@ cop_cmdscale(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this is either a scalar of the lambda transformation for the observed proximities, or a vector where the first is the kappa argument for the fitted distances (here internally fixed to 1) and the second and third the lambda and the nu argument (the latter is fixed to 1). Defaults to 1 1 1}
+\item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -72,6 +72,6 @@ A list with the components
 }
 }
 \description{
-PCOPS version of strain
+The free parameter is lambda for power transformations of the observed proximities.
 }
 \keyword{multivariate}

@@ -16,10 +16,13 @@ cmdscale(d, k = 2, eig = TRUE, ...)
 \item{...}{additional parameters passed to cmdscale. See \code{\link{cmdscale}}}
 }
 \value{
-See \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscale'.
+Object of class "cmdscaleE' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscaleE' and 'cmdscale'.
 }
 \description{
 Wrapper to \code{cmdscale} for S3 class
+}
+\details{
+overloads base::cmdscale and adds class attributes for which there are methods. The functionality is duplicated in the stops package.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

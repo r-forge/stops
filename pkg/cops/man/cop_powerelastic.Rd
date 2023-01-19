@@ -6,7 +6,7 @@
 \usage{
 cop_powerelastic(
   dis,
-  theta = c(1, 1, -2),
+  theta = c(1, 1),
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -28,7 +28,7 @@ cop_powerelastic(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities) and nu as the third (fixed to -2). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1 -2.}
+\item{theta}{the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

@@ -73,6 +73,6 @@ A list with the components
 }
 }
 \description{
-COPS version of powerstress
+Power stress with free kappa and lambda and rho (the theta argument).
 }
 \keyword{multivariate}
