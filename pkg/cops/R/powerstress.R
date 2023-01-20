@@ -60,7 +60,6 @@ pdist <- function (x,p) {
 #' 
 #' only used internally
 #' @param x matrix
-#' @return a matrix 
 mkBmat <- function (x) {
     d <- rowSums (x)
     x <- -x
@@ -87,7 +86,6 @@ mkPower<-function(x,r) {
 #' @param b matrix
 #'
 #' @importFrom stats uniroot
-#' @return a matrix
 secularEq<-function(a,b) {
     n<-dim(a)[1]
     eig<-eigen(a)
@@ -127,7 +125,7 @@ secularEq<-function(a,b) {
 #'@param loess should loess fit be added to Shepard plot 
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #' 
-#'Details:
+#'@details
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
@@ -139,6 +137,8 @@ secularEq<-function(a,b) {
 #'
 #' @importFrom graphics plot text identify legend
 #' @importFrom stats loess lm predict 
+#'
+#' @return no return value; just plot for class 'smacofP' (see details)
 #' 
 #' @export
 #' @examples
