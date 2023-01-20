@@ -148,7 +148,7 @@ summary.sammon <- function(object,...)
 #'@importFrom stats predict loess lm
 #'@export
 #'@return No return value, just plots a 'cmdscaleE' object.
-plot.cmdscaleE <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
+plot.cmdscale <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legpos,...)
     {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -292,14 +292,14 @@ plot3d.cmdscaleE <- function (x, plot.dim = c(1, 2, 3), xlab, ylab, zlab, col, m
     if (missing(col)) 
         col1 <- "blue"
     else col1 <- col
-    open3d()
-    bg3d(sphere = sphere.rgl, texture = texture1, back = "filled", 
+    rgl::open3d()
+    rgl::bg3d(sphere = sphere.rgl, texture = texture1, back = "filled", 
         color = "white")
-    text3d(x1, y1, z1, texts = rownames(x$points), col = col1, 
+    rgl::text3d(x1, y1, z1, texts = rownames(x$points), col = col1, 
         alpha = 1, ...)
-    axes3d(c("x", "y", "z"), labels = TRUE, color = "black", 
+    rgl::axes3d(c("x", "y", "z"), labels = TRUE, color = "black", 
         alpha = 1)
-    title3d(xlab = xlab, ylab = ylab, zlab = zlab, main = main1, 
+    rgl::title3d(xlab = xlab, ylab = ylab, zlab = zlab, main = main1, 
         color = "black", alpha = 1)
 }
 

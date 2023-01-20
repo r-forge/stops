@@ -1,7 +1,7 @@
 Package: stops
 Title: Structure Optimized Proximity Scaling
-Version: 1.0-1
-Date: 2023-01-18
+Version: 1.0-2
+Date: 2023-01-19
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Lisha",family="Chen", role = "aut"),  person(given="Patrick",family="Mair", role = "aut"), person(given="Kurt",family="Hornik", role = "ctb"))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
@@ -9,7 +9,6 @@ Description: A collection of methods that fit nonlinear distance transformations
 Depends:
     R (>= 3.5.0),
     smacof,
-    rgl
 Imports:
     cordillera,
     MASS,
@@ -27,7 +26,8 @@ Imports:
     clue,
     cmaes,
     dfoptim,
-    nloptr
+    nloptr,
+    rgl
 Enhances: stats
 Suggests:
     R.rsp

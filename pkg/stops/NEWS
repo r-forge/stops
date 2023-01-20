@@ -1,6 +1,10 @@
+Version 1.0-2
+
+- Removed rgl from Depends to Imports. Removed sp from Suggests. Changed plot.cmdscaleE back to plot.cmdscale (as it should be a general interest method and to match cops).    
+
 Version 1.0-1
 
-- Updated docs. Added return values to all exported functions, all params and tiles even for S3 methods. Added the test folder to .Rinstignore for the time being (tests are 8 years out of date). Changed class of cmdscale wrapper to cmdscaleE and of sammon wrapper to sammonE. Removed the options(locatorBell=FALSE) from plot.cmdscaleE.  
+- Updated docs. Added return values to all exported functions, all params and tiles even for S3 methods. Added the test folder to .Rinstignore for the time being (tests are 8 years out of date). Removed testthat from suggests. Added class of cmdscale wrapper to cmdscaleE and of sammon wrapper to sammonE to distinguish general interest methods (cmdscale/sammon class) and specific interest methods (cmdscaleE/sammonE). Removed the options(locatorBell=FALSE) from plot.cmdscaleE. CRAN release.  
 
 Version 1.0-0
 
