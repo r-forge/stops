@@ -10,24 +10,24 @@ Depends:
     R (>= 3.5.0),
     smacof,
 Imports:
-    cordillera,
-    MASS,
-    pso,
-    scatterplot3d,
     acepack,
-    minerva,
-    energy,
-    DiceOptim,
-    DiceKriging,
-    tgp,
-    pomp,
-    vegan,
-    scagnostics,
     clue,
     cmaes,
+    cordillera,
     dfoptim,
+    DiceOptim,
+    DiceKriging,
+    energy,
+    MASS,
+    minerva,
     nloptr,
-    rgl
+    pomp,
+    pso,
+    rgl,
+    scagnostics,
+    scatterplot3d,
+    tgp,
+    vegan
 Enhances: stats
 Suggests:
     R.rsp

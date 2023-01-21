@@ -11,20 +11,20 @@ doubleCenter <- function(x) {
         return((x-outer(xr,xc,"+"))+s)
     }
 
-#' Torgerson scaling
-#'
-#' @param delta symmetric, numeric matrix of distances
-#' @param p target space dimensions
-#' @return a n x p matrix (the configuration)
-#' @export
-#' @examples
-#' dis<-as.matrix(smacof::kinshipdelta)
-#' res<-torgerson(dis)
-torgerson <- function(delta, p = 2) {
-    z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
-    v <- pmax(z$values,0)
-    return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
-}
+# #' Torgerson scaling
+# #'
+# #' @param delta symmetric, numeric matrix of distances
+# #' @param p target space dimensions
+# #' @return a n x p matrix (the configuration)
+# #' @export
+# #' @examples
+# #' dis<-as.matrix(smacof::kinshipdelta)
+# #' res<-torgerson(dis)
+# torgerson <- function(delta, p = 2) {
+#     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
+#     v <- pmax(z$values,0)
+#     return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
+# }
 
 #' Explicit Normalization
 #' Normalizes distances
@@ -414,7 +414,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
     xold <- init
-    if(is.null(init)) xold <- stops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- smacof::torgerson (delta, p = p)
     xold <- xold / enorm (xold)
     n <- nrow (xold)
     nn <- diag (n)
