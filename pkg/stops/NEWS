@@ -1,3 +1,7 @@
+Version 1.0-3
+
+- Added functionality in lmds and bcStressMin to also take a dist obejct or a data frame (not just matrix). Touchups to code and doc of plot.smacofP to match the one in cops.  
+
 Version 1.0-2
 
 - Removed rgl from Depends to Imports. Removed sp from Suggests. Changed plot.cmdscaleE back to plot.cmdscale (as it should be a general interest method and to match cops).    

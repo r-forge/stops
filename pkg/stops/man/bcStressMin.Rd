@@ -2,7 +2,7 @@
 % Please edit documentation in R/bcstress.R
 \name{bcStressMin}
 \alias{bcStressMin}
-\title{An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)}
+\title{An MDS version for minimizing Box Cox Stress (Chen & Buja 2013)}
 \usage{
 bcStressMin(
   delta,
@@ -17,7 +17,7 @@ bcStressMin(
 )
 }
 \arguments{
-\item{delta}{dissimilarity or distance matrix}
+\item{delta}{dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object}
 
 \item{init}{initial configuration. If NULL a classical scaling solution is used.}
 
@@ -59,14 +59,14 @@ and some additional components
 }
 }
 \description{
-An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
+An MDS version for minimizing Box Cox Stress (Chen & Buja 2013)
 }
 \details{
 For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible if min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization cannot generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).
 }
 \examples{
 dis<-smacof::kinshipdelta
-res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,rho=0)
+res<-bcStressMin(dis,mu=2,lambda=1.5,rho=0)
 res
 summary(res)
 plot(res)

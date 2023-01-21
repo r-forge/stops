@@ -1,6 +1,7 @@
-#' double centering of a matrix
+#' Double centering of a matrix
 #'
 #' @param x numeric matrix
+#' @return the double centered matrix
 doubleCenter <- function(x) {
         n <- dim(x)[1]
         m <- dim(x)[2]
@@ -14,20 +15,22 @@ doubleCenter <- function(x) {
 #'
 #' @param delta symmetric, numeric matrix of distances
 #' @param p target space dimensions
-#' @return a n x p matrix (a Torgerson scaling configuration)
+#' @return a n x p matrix (the configuration)
 #' @export
+#' @examples
+#' dis<-as.matrix(smacof::kinshipdelta)
+#' res<-torgerson(dis)
 torgerson <- function(delta, p = 2) {
     z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
     v <- pmax(z$values,0)
     return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
 }
 
-#' Explicit Norm
-#'
+#' Explicit Normalization
+#' Normalizes distances
 #' @param x numeric matrix 
 #' @param w weight
-#' @return a numeric scalar; the sum(w*x^2) 
-#' @export
+#' @return a constant 
 enorm <- function (x, w=1) {
     return (sqrt (sum (w * (x ^ 2))))
 }
@@ -35,27 +38,27 @@ enorm <- function (x, w=1) {
 #' Squared distances
 #'
 #' @param x numeric matrix
-#' @return a matrix of squared distances 
-#' @export
+#' @return squared distance matrix
 sqdist <- function (x) {
     s <- tcrossprod (x)
     v <- diag (s)
     return (outer (v, v, "+") - 2 * s)
 }
 
-# #' Squared distances
-# #'
-# #' @param x numeric matrix
-# #' @param p p>0 the minkoswki distance
-# #' @return a matrix of squared distances 
-# pdist <- function (x,p) {
-#    s <- tcrossprod (x)
-#    v <- diag (s)
-#    return (outer (v, v, "+") - 2 * s)
-#}
-
-#' MkBmat function (internal)
+#' Squared p-distances
 #'
+#' @param x numeric matrix
+#' @param p p>0 the Minkoswki distance
+#' @return squared Minkowski distance matrix
+pdist <- function (x,p) {
+    s <- tcrossprod (x)
+    v <- diag (s)
+    return (outer (v, v, "+") - 2 * s)
+}
+
+#' Auxfunction1
+#' 
+#' only used internally
 #' @param x matrix
 mkBmat <- function (x) {
     d <- rowSums (x)
@@ -64,25 +67,12 @@ mkBmat <- function (x) {
     return (x)
 }
 
-## #' MakePower
-## #'
-## #' @param x matrix
-## #' @param r numeric (power)
-## #'
-## #' @export
-## mkPowerALTERN<-function(x,r) {
-##     n<-nrow(x)
-##     tmp <- abs((x+diag(n))^r)-diag(n)
-##     tmp[!is.finite(tmp)] <- 1e+100
-##     return(tmp)
-## }
 
-#' MakePower Old
+#' Take matrix to a power 
 #'
 #' @param x matrix
 #' @param r numeric (power)
-#' @return the matrix to a power
-#' @export
+#' @return a matrix
 mkPower<-function(x,r) {
     n<-nrow(x)
     tmp <- abs((x+diag(n))^r)-diag(n)
@@ -138,9 +128,9 @@ secularEq<-function(a,b) {
 #'@details 
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
-#'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances with a linear regression line. (without an intercept as in ratio MDS).
-#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
-#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (no intercept). Works for lmds or bcStress models too, but is somewhat nonsensical due to them being energy models.
+#'  \item Residual plot (plot.type = "resplot"): Plots the normalized transformed dissimilarities against the fitted distances with a linear regression line (with intercept). 
+#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as a loess curve and a least squares line. 
+#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve ((corresponding to the power transformations and with no intercept). Works for lmds or bcStress models too, but is somewhat nonsensical due to them being energy models.
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit. Only implemented for models from the classical stress world, not for bcmds or lmds (throws an error).
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit. Only implemented for models from the classical stress world, bcmds or lmds throws an error.
 #' }
@@ -183,6 +173,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         }
     }
     if (plot.type == "Shepard") {
+        delts <- as.vector(x$delta)
+        confd <- as.vector(x$confdist)
         if(missing(col)) col <- c("grey60","grey50","black")
         if (missing(main)) 
             main <- paste("Linearized Shepard Diagram")
@@ -200,17 +192,16 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         #delta=dhats
         #proximities=obsdiss
         #distances=confdist
-        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
+        graphics::plot(delts, confd, main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
         #graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
         #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
         #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
         if(loess) {
-                   pt <- predict(stats::loess(as.vector(x$confdist)~-1+as.vector(x$delta)))
-                   graphics::lines(x$delta[order(x$delta)],pt[order(x$delta)],col=col[2],type="b",pch=20,cex=0.25)
+                   pt <- predict(stats::loess(confd~-1+delts))
+                   graphics::lines(delts[order(delts)],pt[order(delts)],col=col[2],type="b",pch=20,cex=0.25)
         }
-        ptl <- predict(stats::lm(as.vector(x$confdist)~-1+as.vector(x$delta)))
-        graphics::lines(x$delta[order(x$delta)],ptl[order(x$delta)],col=col[3],type="b",pch=20,cex=0.25)
+        ptl <- predict(stats::lm(confd~-1+delts))
+        graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[3],type="b",pch=20,cex=0.25)
        # graphics::abline(stats::lm(x$confdist~-1+x$delta),type="b") #no intercept for fitting
     }
     if (plot.type == "transplot") {

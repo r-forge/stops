@@ -1,9 +1,9 @@
-#' An function for local MDS (Chen & Buja 2006)
+#' A function for local MDS (Chen & Buja 2006)
 #'
 #' @importFrom stats median
 #' @importFrom stats rnorm
 #' 
-#' @param delta dissimilarity or distance matrix
+#' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
 #' @param k the k neighbourhood parameter
@@ -41,7 +41,7 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<- lmds(as.matrix(dis),k=2,tau=0.1)
+#' res<- lmds(dis,k=2,tau=0.1)
 #' res
 #' summary(res)
 #' plot(res)
@@ -50,6 +50,9 @@
 lmds <- function(delta,init=NULL,ndim=3,k=2,tau=1,
                    itmax=5000,verbose=0)
 {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(verbose>0) cat("Minimizing lmds with tau=",tau,"k=",k,"\n")
     Do <- delta
     X1 <- init
     lambda <- 1

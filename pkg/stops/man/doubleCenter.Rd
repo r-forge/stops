@@ -2,13 +2,16 @@
 % Please edit documentation in R/powerstress.R
 \name{doubleCenter}
 \alias{doubleCenter}
-\title{double centering}
+\title{Double centering of a matrix}
 \usage{
 doubleCenter(x)
 }
 \arguments{
 \item{x}{numeric matrix}
 }
+\value{
+the double centered matrix
+}
 \description{
-double centering
+Double centering of a matrix
 }

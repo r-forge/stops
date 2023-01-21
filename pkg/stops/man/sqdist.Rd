@@ -10,7 +10,7 @@ sqdist(x)
 \item{x}{numeric matrix}
 }
 \value{
-a matrix of squared distances
+squared distance matrix
 }
 \description{
 Squared distances

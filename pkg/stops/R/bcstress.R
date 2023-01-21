@@ -1,7 +1,7 @@
-#' An MDS version for minimizing BoxCox Stress (Chen & Buja 2013)
+#' An MDS version for minimizing Box Cox Stress (Chen & Buja 2013)
 #'
 #' 
-#' @param delta dissimilarity or distance matrix
+#' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object 
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
@@ -40,7 +40,7 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-bcStressMin(as.matrix(dis),mu=2,lambda=1.5,rho=0)
+#' res<-bcStressMin(dis,mu=2,lambda=1.5,rho=0)
 #' res
 #' summary(res)
 #' plot(res)
@@ -48,6 +48,9 @@
 #' @export
 bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itmax=2000,addD0=1e-4)
 {
+  if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+  if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+  if(verbose>0) cat("Minimizing bcStress with mu=",mu,"lambda=",lambda,"rho=",rho,"\n")  
   nu <- rho  
   Do <- delta 
   d <- ndim

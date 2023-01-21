@@ -2,12 +2,12 @@
 % Please edit documentation in R/lmds.R
 \name{lmds}
 \alias{lmds}
-\title{An function for local MDS (Chen & Buja 2006)}
+\title{A function for local MDS (Chen & Buja 2006)}
 \usage{
 lmds(delta, init = NULL, ndim = 3, k = 2, tau = 1, itmax = 5000, verbose = 0)
 }
 \arguments{
-\item{delta}{dissimilarity or distance matrix}
+\item{delta}{dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object}
 
 \item{init}{initial configuration. If NULL a classical scaling solution is used.}
 
@@ -44,14 +44,14 @@ and some additional components
 }
 }
 \description{
-An function for local MDS (Chen & Buja 2006)
+A function for local MDS (Chen & Buja 2006)
 }
 \details{
 Note that k and tau are not independent. It is possible for normalized stress to become negative if the tau and k combination is so that the absolute repulsion for the found configuration dominates the local stress substantially less than the repulsion term does for the solution of D(X)=Delta, so that the local stress difference between the found solution and perfect solution is nullified. This can typically be avoided if tau is between 0 and 1. If not, set k and or tau to a smaller value.
 }
 \examples{
 dis<-smacof::kinshipdelta
-res<- lmds(as.matrix(dis),k=2,tau=0.1)
+res<- lmds(dis,k=2,tau=0.1)
 res
 summary(res)
 plot(res)

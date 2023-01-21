@@ -74,10 +74,10 @@ S3 plot method for smacofP objects
 \details{
 \itemize{
 \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
- \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances with a linear regression line (without an intercept as in ratio MDS).
- \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
- \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (no intercept). Works for lmds or bcStress models too, but is somewhat nonsensical due to them being energy models.
+ \item Residual plot (plot.type = "resplot"): Plots the normalized transformed dissimilarities against the fitted distances with a linear regression line (with intercept). 
+ \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as a loess curve and a least squares line. 
+ \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve ((corresponding to the power transformations and with no intercept). Works for lmds or bcStress models too, but is somewhat nonsensical due to them being energy models.
  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit. Only implemented for models from the classical stress world, not for bcmds or lmds (throws an error).
- \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.Only implemented for models from the classical stress world, bcmds or lmds (throws an error).
+ \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit. Only implemented for models from the classical stress world, bcmds or lmds throws an error.
 }
 }
