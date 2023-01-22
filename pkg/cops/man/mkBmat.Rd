@@ -9,9 +9,6 @@ mkBmat(x)
 \arguments{
 \item{x}{matrix}
 }
-\value{
-a matrix
-}
 \description{
 only used internally
 }

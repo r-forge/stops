@@ -1,3 +1,6 @@
+Version 1.3-2:
+  - Removed torgerson function and use smacof::torgerson throughout.
+
 Version 1.3-1:
   - Added test to .Rbuildignore for the time being (test are 8 years out of date). Removed testthat from Suggests. Removed stats from Enhances. Changed docs. Added class of cmdscale wrapper to cmdscaleE and of sammon wrapper to sammonE and also cmdscale and sammon (to distinguish methods that are of general interest (cmdscale/sammon) or only within stops (cmdscaleE/sammonE). Tweaked Description. CRAN release.
 

@@ -63,20 +63,23 @@
 
 \item{loess}{should loess fit be added to Shepard plot}
 
-\item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
-
-Details:
-\itemize{
-\item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
- \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
- \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
- \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve 
- \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
- \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-}}
+\item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.}
+}
+\value{
+no return value; just plot for class 'smacofP' (see details)
 }
 \description{
 S3 plot method for smacofP objects
+}
+\details{
+\itemize{
+\item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
+ \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
+ \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
+ \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (corresponding to the power transformations and with no intercept).
+ \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
+ \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+}
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

@@ -1430,7 +1430,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
            #initsol <- cops::powerstressFast(delta,kappa=kappa,lambda=lambda,nu=nu,weightmat=weightmat,ndim=ndim)
-           initsol <- torgerson(delta,p=ndim)
+           initsol <- smacof::torgerson(delta,p=ndim)
            #init0 <- initsol$conf
            init0 <- initsol
            init0 <- init0/enorm(init0)

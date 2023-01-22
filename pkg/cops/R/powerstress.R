@@ -11,20 +11,20 @@ doubleCenter <- function(x) {
         return((x-outer(xr,xc,"+"))+s)
     }
 
-#' Torgerson scaling
-#'
-#' @param delta symmetric, numeric matrix of distances
-#' @param p target space dimensions
-#' @return a n x p matrix (the configuration)
-#' @export
-#' @examples
-#' dis<-as.matrix(smacof::kinshipdelta)
-#' res<-torgerson(dis)
-torgerson <- function(delta, p = 2) {
-    z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
-    v <- pmax(z$values,0)
-    return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
-}
+# #' Torgerson scaling
+# #'
+# #' @param delta symmetric, numeric matrix of distances
+# #' @param p target space dimensions
+# #' @return a n x p matrix (the configuration)
+# #' @export
+# #' @examples
+# #' dis<-as.matrix(smacof::kinshipdelta)
+# #' res<-torgerson(dis)
+#torgerson <- function(delta, p = 2) {
+#    z <- eigen(-doubleCenter((as.matrix (delta) ^ 2)/2))
+#    v <- pmax(z$values,0)
+#    return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
+#}
 
 #' Explicit Normalization
 #' Normalizes distances
@@ -129,8 +129,8 @@ secularEq<-function(a,b) {
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line.
-#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve 
+#'  \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
+#'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (corresponding to the power transformations and with no intercept).
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #' }
@@ -244,7 +244,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             }
          }
 if (plot.type == "resplot") {
-        obsd <- as.vector(x$obsd)
+        obsd <- as.vector(x$obsdiss)
         confd <- as.vector(x$confdist)
         if(missing(col)) col <- "darkgrey" 
         if (missing(main)) 
@@ -405,7 +405,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
     deltaold <- delta
     delta <- delta / enorm (delta, weightmat) #sum=1
     xold <- init
-    if(is.null(init)) xold <- cops::torgerson (delta, p = ndim)
+    if(is.null(init)) xold <- smacof::torgerson (delta, p = ndim)
     xold <- xold/enorm(xold) 
     stressf <- function(x,delta,r,ndim,weightmat)
            {
@@ -519,7 +519,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
     delta <- delta / enorm (delta, weightmat)
     itel <- 1
     xold <- init
-    if(is.null(init)) xold <- cops::torgerson (delta, p = p)
+    if(is.null(init)) xold <- smacof::torgerson (delta, p = p)
     xold <- xold / enorm (xold)
     n <- nrow (xold)
     nn <- diag (n)
