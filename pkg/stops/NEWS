@@ -1,3 +1,7 @@
+Version 1.0-4
+
+- Changed default in powerStressMin to 1e-6.
+
 Version 1.0-3
 
 - Added functionality in lmds and bcStressMin to also take a dist obejct or a data frame (not just matrix). Touchups to code and doc of plot.smacofP to match the one in cops. Removed torgerson function and substituted with use smacof::torgerson. 

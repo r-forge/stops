@@ -343,7 +343,7 @@ print.summary.smacofP <- function(x,...)
 
 #' Power Stress SMACOF
 #'
-#' An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast.
+#' An implementation to minimize power stress by minimization-majorization. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
@@ -352,7 +352,7 @@ print.summary.smacofP <- function(x,...)
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
-#' @param acc numeric accuracy of the iteration
+#' @param acc numeric accuracy of the iteration. Defaults to 1e-6.
 #' @param itmax maximum number of iterations. Defaults to 50000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
@@ -399,7 +399,7 @@ print.summary.smacofP <- function(x,...)
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-10, itmax = 50000, verbose = FALSE) {
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 50000, verbose = FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")

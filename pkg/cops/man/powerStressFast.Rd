@@ -12,7 +12,7 @@ powerStressFast(
   weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
-  acc = 1e-12,
+  acc = 1e-10,
   itmax = 50000,
   verbose = FALSE
 )

@@ -12,7 +12,7 @@ powerStressMin(
   weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
-  acc = 1e-10,
+  acc = 1e-06,
   itmax = 50000,
   verbose = FALSE
 )
@@ -32,7 +32,7 @@ powerStressMin(
 
 \item{ndim}{dimension of the configuration; defaults to 2}
 
-\item{acc}{numeric accuracy of the iteration}
+\item{acc}{numeric accuracy of the iteration. Defaults to 1e-6.}
 
 \item{itmax}{maximum number of iterations. Defaults to 50000.}
 
@@ -65,7 +65,7 @@ and some additional components
 }
 }
 \description{
-An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast.
+An implementation to minimize power stress by minimization-majorization.
 }
 \section{Note}{
 
