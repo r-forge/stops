@@ -1,5 +1,20 @@
-citHeader("To cite the cordillera package in publications use:")
+bibentry("Manual",other=unlist(citation(auto=meta),recursive=FALSE))
 
-citEntry(entry = "Article", author = personList(as.person("Thomas Rusch"), as.person("Kurt Hornik"),  as.person("Patrick Mair")), title = "Assessing and quantifying clusteredness: The {OPTICS} {C}ordillera", journal="Journal of Computational and Graphical Statistics", number="1", volume="27",pages="220-233", year = "2018", doi="10.1080/10618600.2017.1349664", textVersion = "Rusch, Thomas and Hornik, Kurt and Mair, Patrick (2018). Assessing and quantifying clusteredness: The OPTICS Cordillera. Journal of Computational and Graphical Statistics. 27 (1), 2230-233.")
+#citation(auto=meta) 
+#year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+#vers <- paste("R package version", meta$Version)
+#
+apl <- c(person("Thomas", "Rusch",email="thomas.rusch@wu.ac.at",comment=c(ORCID="0000-0002-7773-2096")),
+         person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511")),
+         person("Kurt", "Hornik",email = "Kurt.Hornik@R-project.org",comment = c(ORCID = "0000-0003-4198-9911")))
+
+#bibentry(entry="Manual",        
+#         title = "cordillera: Calculation of the OPTICS Cordillera",
+#         author = apl,
+#         year = year,
+#         note = vers,
+#         )
+
+bibentry("Article", author = apl, title = "Assessing and quantifying clusteredness: The {OPTICS} {C}ordillera", journal="Journal of Computational and Graphical Statistics", number="1", volume="27",pages="220-233", year = "2018", doi="10.1080/10618600.2017.1349664")
 
 

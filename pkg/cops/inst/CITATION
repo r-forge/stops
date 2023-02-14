@@ -1,30 +1,26 @@
-citHeader("To cite the dops package in publications use:")
+bibentry("Manual",other=unlist(citation(auto=meta),recursive=FALSE))
 
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
-vers <- paste("R package version", meta$Version)
+#citation(auto=meta) 
 
-citEntry(entry="Manual",
-         title = "cops: Cluster Optimized Proximity Scaling",
-         author = personList(as.person("Thomas Rusch"),
-                             as.person("Jan de Leeuw"),
-                             as.person("Patrick Mair")),
-         year = year,
-         note = vers,
-         textVersion =
-         paste("Rusch, Thomas and De Leeuw, Jan and Mair, Patrick (", year,"). cops: Cluster Optimized Proximity Scaling. ", vers, ".", sep=""))
+#year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+#vers <- paste("R package version", meta$Version)
+
+#apl <- personList(c(person("Thomas", "Rusch",email="thomas.rusch@wu.ac.at",comment=c(ORCID="0000-0002-7773-2096")), person("Jan", "de Leeuw"), person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511")))) #author list
+
+#bibentry(entry="Manual",
+#         title = "cops: Cluster Optimized Proximity Scaling",
+#         author = apl,
+#         year = year,
+#         note = vers,
+#         )
 
 
-citEntry(entry = "article", 
-    author = personList(as.person("Thomas Rusch"), 
-        as.person("Patrick Mair"),as.person("Kurt Hornik")), title = "Cluster Optimized Proximity Scaling", journal="Journal of Computational and Graphical Statistics", year = 2021, number="0", issue="0", pages="1-12", doi="10.1080/10618600.2020.1869027",  
-    textVersion = paste("Rusch, Thomas and Mair, Patrick and Hornik, Kurt (2021)", 
-    "Cluster optimized proximity scaling.","Journal of Computational and Graphical Statistics, 0 (0), 1-12.","https://doi.org/10.1080/10618600.2020.1869027"),
-    header="If cops() is used, please cite:")
+bibentry("article", 
+         author = c(person("Thomas", "Rusch",email="thomas.rusch@wu.ac.at",comment=c(ORCID="0000-0002-7773-2096")), person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511")),person("Kurt", "Hornik",email = "Kurt.Hornik@R-project.org",comment = c(ORCID = "0000-0003-4198-9911"))),
+         title = "Cluster Optimized Proximity Scaling", journal="Journal of Computational and Graphical Statistics", year = 2021, number="30", issue="4", pages="1156-1167", doi="10.1080/10618600.2020.1869027")
 
-citEntry(entry = "TechReport", 
-    author =personList(as.person("Jan de Leeuw"),as.person("Patrick Groenen"),as.person("Patrick Mair")), title = "Minimizing rstress using majorization", address="Los Angeles", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2016, 
-    url = "https://rpubs.com/deleeuw/142619", 
-    textVersion = paste("De Leeuw, Jan and Groenen, Patrick and Mair, Patrick (2016)", 
-    "Minimizing r-stress using Majorization.","UCLA Statistics Preprint Series.","UCLA, Los Angeles."),
+bibentry("TechReport", 
+         author =c(person("Jan","de Leeuw"),person("Patrick", "Groenen"),person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511"))),
+         title = "Minimizing rstress using majorization", address="Los Angeles", institution="UCLA", series="UCLA Statistics Preprint Series", year = 2016, url = "https://rpubs.com/deleeuw/142619",
     header="If powerStressMin() is used, please cite:")
 

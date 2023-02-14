@@ -492,6 +492,9 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
 #' \item weightmat: weighting matrix 
 #'}
 #'
+#' @section Note:
+#' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.   
+#'
 #' @importFrom stats dist as.dist
 #' 
 #' @seealso \code{\link{smacofSym}}

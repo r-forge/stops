@@ -1,3 +1,7 @@
+Version 1.0-5
+
+- Changed CITATION.
+
 Version 1.0-4
 
 - Changed default in powerStressMin to 1e-6.

@@ -64,6 +64,11 @@ and some additional components
 \description{
 An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
 }
+\section{Note}{
+
+The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
+}
+
 \examples{
 dis<-smacof::kinshipdelta
 res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
