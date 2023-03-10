@@ -222,7 +222,7 @@ The main contribution of the `cops` package is not in solely fitting the _powers
 
 For this an MDS loss function is augmented to include a penalty. This combination of an MDS loss with a clusteredness penalty is what we call "cluster optimized stress" (copstress) and the resulting MDS is coined "Cluster Optimized Proximity Scaling" (or COPS). This is a multi-objective optimization problem as we want to simultaneously minimize badness-of-fit *and* maximize clusteredness. The computational problem is solved by combining the two, but interpretation should happen individually with the badness-of-fit and clusteredness values respectively. 
 
-We allow two ways of how copstress can be used: In one variant (COPS-C) one looks for an optimal configuration $X^*$ directly, given the transformation parameters. This yields a configuation that has a more clustered appearance than the standard MDS with the same tranformation parameters. In the other (P-COPS) we automatically select optimal transformation parameters and then solve the respective transformed MDS so that the clusteredness appearance of the configuation is improved. 
+We allow two ways of how copstress can be used: In one variant (COPS-C) one looks for an optimal configuration $X^*$ directly, given the transformation parameters. This yields a configuation that has a more clustered appearance than the standard MDS with the same transformation parameters. In the other (P-COPS) we automatically select optimal transformation parameters and then solve the respective transformed MDS so that the clusteredness appearance of the configuation is improved. 
 
 ### COPS-C: Finding a configuration with COPS
 

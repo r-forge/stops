@@ -13,7 +13,7 @@ powerStressMin(
   init = NULL,
   ndim = 2,
   acc = 1e-06,
-  itmax = 50000,
+  itmax = 10000,
   verbose = FALSE
 )
 }
@@ -34,7 +34,7 @@ powerStressMin(
 
 \item{acc}{numeric accuracy of the iteration. Default is 1e-6.}
 
-\item{itmax}{maximum number of iterations. Default is 50000.}
+\item{itmax}{maximum number of iterations. Default is 10000.}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }

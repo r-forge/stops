@@ -12,8 +12,8 @@ powerStressFast(
   weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
-  acc = 1e-10,
-  itmax = 50000,
+  acc = 1e-06,
+  itmax = 10000,
   verbose = FALSE
 )
 }
@@ -32,9 +32,9 @@ powerStressFast(
 
 \item{ndim}{dimension of the configuration; defaults to 2}
 
-\item{acc}{The smallest value of the trust region radius that is allowed. If not defined, then 1e-10 will be used.}
+\item{acc}{The smallest value of the trust region radius that is allowed. If not defined, then 1e-6 will be used.}
 
-\item{itmax}{maximum number of iterations. Default is 50000.}
+\item{itmax}{maximum number of iterations. Default is 10000.}
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 }
