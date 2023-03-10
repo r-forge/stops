@@ -28,7 +28,7 @@ copstressMin(
   verbose = 0,
   scale = c("sd", "rmsq", "std", "proc", "none"),
   normed = TRUE,
-  accuracy = 1e-06,
+  accuracy = 1e-07,
   itmax = 10000,
   stresstype = c("stress-1", "stress"),
   ...
@@ -77,7 +77,7 @@ copstressMin(
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{accuracy}{numerical accuracy, defaults to 1e-6}
+\item{accuracy}{numerical accuracy, defaults to 1e-7}
 
 \item{itmax}{maximum number of iterations. Defaults to 10000. If itmax is (too) small, some optimizers will print warnings. For example, for optimizers using NEWUOA, an iteration number of 10*length(par)^2 is recommended. The number of parameters to optimize over for the COPS problem is number of objects * target space dimensions and can grow large very quickly, so being able to live with these warnings is probably a good idea.}
 

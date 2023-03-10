@@ -1309,7 +1309,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "std" (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".   
-#' @param accuracy numerical accuracy, defaults to 1e-6
+#' @param accuracy numerical accuracy, defaults to 1e-7
 #' @param itmax maximum number of iterations. Defaults to 10000. If itmax is (too) small, some optimizers will print warnings. For example, for optimizers using NEWUOA, an iteration number of 10*length(par)^2 is recommended. The number of parameters to optimize over for the COPS problem is number of objects * target space dimensions and can grow large very quickly, so being able to live with these warnings is probably a good idea.   
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
 #' @param ... additional arguments to be passed to the optimization procedure
@@ -1371,7 +1371,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-6, itmax = 10000, stresstype=c("stress-1","stress"),...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=10,dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","std","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 10000, stresstype=c("stress-1","stress"),...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
