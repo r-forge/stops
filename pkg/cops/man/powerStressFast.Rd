@@ -2,7 +2,7 @@
 % Please edit documentation in R/powerstress.R
 \name{powerStressFast}
 \alias{powerStressFast}
-\title{Power stress minimization by NEWUOA}
+\title{Power stress minimization by NEWUOA (nloptr)}
 \usage{
 powerStressFast(
   delta,

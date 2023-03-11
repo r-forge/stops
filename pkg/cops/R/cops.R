@@ -1305,12 +1305,12 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param dmax The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either a numeric value that matches max(rang) or NULL; if NULL it is found as 1.5 times (for kappa >1) or 1 times (for kappa <=1) the maximum reachbility value of the power torgerson model with the same lambda. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.   
 #' @param rang range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}     
-#' @param optimmethod What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS' . Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.   
+#' @param optimmethod What optimizer to use? Choose one string of 'Newuoa' (from package nloptr), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.   
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "std" (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".   
 #' @param accuracy numerical accuracy, defaults to 1e-7
-#' @param itmax maximum number of iterations. Defaults to 10000. If itmax is (too) small, some optimizers will print warnings. For example, for optimizers using NEWUOA, an iteration number of 10*length(par)^2 is recommended. The number of parameters to optimize over for the COPS problem is number of objects * target space dimensions and can grow large very quickly, so being able to live with these warnings is probably a good idea.   
+#' @param itmax maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the foirst one, the second algorithm is run for at least 0.1*itmax.
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.   
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
@@ -1343,6 +1343,12 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #'         \item optimmethod: The solver used 
 #'         \item type: the type of MDS fitted
 #' }
+#'
+#'
+#'
+#'@details
+#' Some optimizers (including the default hjk-NEWUOA) will print a warning if itmax is (too) small or if there was no convergence. 
+#'
 #' 
 #'@examples
 #'dis<-as.matrix(smacof::kinshipdelta)
@@ -1357,7 +1363,6 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @import cordillera
 #' @importFrom utils tail
 #' @importFrom stats dist as.dist optim sd
-#' @importFrom minqa newuoa
 #' @importFrom dfoptim hjk
 #' @importFrom NlcOptim solnl
 #' @importFrom Rsolnp solnp
@@ -1366,7 +1371,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' @importFrom cmaes cma_es
 #' @importFrom rgenoud genoud
 #' @importFrom GenSA GenSA
-#' @importFrom nloptr direct
+#' @importFrom nloptr direct newuoa
 #' 
 #' 
 #' @keywords clustering multivariate
@@ -1489,14 +1494,14 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              stressi <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              if(stresstype=="stress-1") stressi <- sqrt(stressi)
              if(scale=="none") x <- x 
-             if(scale=="std") x <- scale(x) #standardizes config before cordillera
+             if(scale=="std") x <- base::scale(x) #standardizes config before cordillera
              if(scale=="sd") #scales config to sd=1 for most spread dimension before cordillera
              {
                 x <- x/max(apply(x,2,stats::sd))
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
-                 testso <- scale(x,center=FALSE)
+                 testso <- base::scale(x,center=FALSE)
                  x <- x/max(attr(testso,"scaled:scale"))
              }
              if(scale=="proc") #scales config by procrusting to init
@@ -1515,16 +1520,15 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            }
      if(verbose>1) cat("Starting Minimization with",optimmethod,":\n")
     if(optimmethod=="Newuoa") {
-         optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
+         optimized <- nloptr::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- optimized$feval
-         ovalue <-optimized$fval
+         itel <- optimized$iter
+         ovalue <-optimized$value
      }
        if(optimmethod=="direct") {
           xold <- as.vector(xold)
           optimized <- nloptr::direct(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
- #        optimized <- nloptr::direct(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,#n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),#lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),
- #                                    nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
+ #        optimized <- nloptr::direct(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,#n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),#lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)), nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
          xnew <- matrix(optimized$par,ncol=ndim)
          itel <- optimized$iter
          ovalue <-optimized$value
@@ -1533,11 +1537,16 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          xold <- as.vector(xold)
          optimized1 <- nloptr::direct(function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),lower=rep(5*min(xold),length(xold)),upper=rep(5*max(xold),length(xold)),nl.info=isTRUE(verbose>1),control=list(maxeval=itmax,xtol_rel=accuracy),...)
          xnew <- optimized1$par
-         itel <- optimized1$iter
-         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         itel1 <- optimized1$iter
+         itmaxreduced <- itmax-itel1
+         if(itel1>itmax) itmaxreduced <- 0.1*itmax
+         #optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         #itel <- itel+optimized$feval
+         #ovalue <-optimized$fval
+         optimized <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),nl.info=isTRUE(verbose>2),control=list(maxeval=itmaxreduced,xtol_rel=accuracy),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- itel+optimized$feval
-         ovalue <-optimized$fval
+         itel <- itel+optimized$iter
+         ovalue <-optimized$value
          }
          if(optimmethod=="direct-BFGS") {
          xold <- as.vector(xold)
@@ -1572,19 +1581,29 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          xold <- as.vector(xold)
          optimized1 <- cmaes::cma_es(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
          xnew <- matrix(optimized1$par,ncol=ndim)
-         itel <- optimized1$counts[1]
-         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         itel1 <- optimized1$counts[1]
+         #optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         #xnew <- matrix(optimized$par,ncol=ndim)
+         #itel <- itel+optimized$feval
+         #ovalue <-optimized$fval
+         itmaxreduced <- itmax-itel1
+         if(itel1>itmax) itmaxreduced <- 0.1*itmax
+         #optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
+         #itel <- itel+optimized$feval
+         #ovalue <-optimized$fval
+         optimized <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),nl.info=isTRUE(verbose>2),control=list(maxeval=itmaxreduced,xtol_rel=accuracy),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- itel+optimized$feval
-         ovalue <-optimized$fval
+         itel <- itel1+optimized$iter
+         ovalue <-optimized$value
      }
      if(optimmethod=="Newuoa-cmaes") {
-         optimized1 <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
+          #optimized1 <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
+         optimized1 <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),nl.info=isTRUE(verbose>2),control=list(maxeval=itmax,xtol_rel=accuracy),...)
          xnew <- optimized1$par
-         itel <- optimized1$feval
-         optimized <- cmaes::cma_es(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxit=itmax),...)
+         itel1 <- optimized1$feval
+         optimized <- cmaes::cma_es(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),control=list(maxit=itmax-itel1),...)
          xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- optimized$counts[1]+itel
+         itel <- optimized$counts[1]+itel1
          ovalue <-optimized$value
      }
      if(optimmethod=="NelderMead") {
@@ -1612,13 +1631,29 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          ovalue <-optimized$value 
      }
     if(optimmethod=="hjk-Newuoa") { #twostep1
+         #cat("Before HJK Iterations:", itmax,"\n")
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax),...)
          xnew <- optimized1$par
-         itel <- optimized1$feval
-         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
-         xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- itel+optimized$feval
-         ovalue <-optimized$fval
+         itel1 <- optimized1$feval
+         #cat("OpVal after HJK:",optimized1$value,"\n")
+         #cat("After HJK Iterations:", itel1,"\n")
+         itmaxreduced <- itmax-itel1
+         if(itel1>itmax) itmaxreduced <- 0.1*itmax
+         #cat("Before Newuoa Iterations:", itmaxreduced,"\n")
+         #optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),control=list(maxfun=itmaxreduced,rhoend=accuracy,iprint=verbose-2),...)
+         #xnew <- matrix(optimized$par,ncol=ndim)
+         #itel <- itel1+optimized$feval
+         #ovalue <-optimized$fval
+         optimized <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),nl.info=isTRUE(verbose>2),control=list(maxeval=itmaxreduced,xtol_rel=accuracy),...)
+         ##BUG: Was init= before in all Newuoa (no argument). Changed in 1.3-6
+         xnew <- matrix(optimized$par,ncol=ndim) #
+         ##test function for return value fr <- function(x) { sum((x - matrix(c(8,5,3,4,6,7),ncol=2))^2) } if returned is matrix(c(8,5,3,4,6,7),ncol=2) it is cool
+         #cat("Newuoa Iterations:", optimized$iter,"\n")
+         #cat("Newuoa Iterations:", optimized$feval,"\n")
+         itel <- itel1+optimized$iter
+         #cat("After Newuoa Iterations:", itel,"\n")
+         ovalue <-optimized$value
+         #cat("OpVal after all:",ovalue,"\n")
      }
     if(optimmethod=="hjk-BFGS") { #twostep2
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
@@ -1640,12 +1675,14 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      }
      if(optimmethod=="BFGS-Newuoa") { #twostep5
          optimized1 <- optim(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),method="BFGS",control=list(maxfeval=itmax,trace=0),...)
-         itel <- optimized1$counts[[1]]
+         itel1 <- optimized1$counts[[1]]
          xnew <- optimized1$par
-         optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax-itel,rhoend=accuracy,iprint=verbose-2),...)
-         xnew <- matrix(optimized$par,ncol=ndim)
-         itel <- itel+optimized$feval
-         ovalue <-optimized$fval
+         itmaxreduced <- itmax-itel1
+         if(itel1>itmax) itmaxreduced <- 0.1*itmax
+         optimized <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=xnew),nl.info=isTRUE(verbose>2),control=list(maxeval=itmaxreduced,xtol_rel=accuracy),...)
+         xnew <- matrix(optimized$par,ncol=ndim) #
+         itel <- itel1+optimized$iter
+         ovalue <-optimized$value
      }
         if(optimmethod=="hjk-solnl") {#twostep3
          optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfeval=itmax,trace=0),...)
@@ -1803,8 +1840,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'dis<-as.matrix(smacof::kinshipdelta)
 #'
 #'#COPS-C with equal weight to stress and cordillera 
-#'res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,
-#'           minpts=2,itmax=500) #use higher itmax in real
+#'res1<-cops(dis,variant="COPS-C",stressweight=0.75,cordweight=0.25,
+#'           minpts=2,itmax=1000) #use higher itmax in real
 #'res1
 #'summary(res1)
 #'plot(res1)
@@ -1833,9 +1870,6 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 #'plot(res5)
 #'}
 #'
-#' @import cordillera
-#' @importFrom stats dist as.dist optim
-#' @importFrom minqa newuoa
 #' 
 #' 
 #'@keywords clustering multivariate

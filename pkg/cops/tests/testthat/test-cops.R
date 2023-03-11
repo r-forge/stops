@@ -445,3 +445,44 @@ test_that("cops transplot equals powerstress transplot",{
 #' m2t #r~=0.08
 #' m4t #r~=1.39
 #'}
+
+
+delta <- kinshipdelta
+disobj <- smacof::transPrep(as.dist(delta), trans = "none", spline.intKnots = 2, spline.degree = 2)
+r <-0.5
+n <- dim(delta)[1]
+ndim <- 2
+weightmat <- 1-diag(nrow(delta))
+stressweight <- 1
+cordweight <- 0
+q <- 1
+minpts <- 2
+epsilon <- 1.2
+rang <- c(0,5)
+scalo <- "std"
+normed <- TRUE
+init <- NULL
+kappa <- 1
+lambda <- 1
+nu <- 1
+xold  <- init <- cops::powerStressFast(delta,kappa=kappa,lambda=lambda,nu=nu,ndim=ndim)$conf
+stresstype <- "stress-1"
+optimized1 <- dfoptim::hjk(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scalo=scalo,normed=normed,init=init),control=list(maxfeval=itmax)) #,...)
+
+
+library(nloptr)
+?newuoa
+
+ fr <- function(x) {   ## Rosenbrock Banana function
+         100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
+ }
+
+itel <- 5
+itelmax <- 10
+iteli <- itelmax-itel
+
+(S <- newuoa(c(1, 2), fr,control=list(maxeval=itelmax-itel)))
+
+
+res1<-copstressMin(dis,stressweight=0.95,cordweight=0.05,itmax=10000) #use higher itmax about 10000
+res1

@@ -69,7 +69,7 @@ copstressMin(
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}}
 
-\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS' . Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
+\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (from package nloptr), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
@@ -79,7 +79,7 @@ copstressMin(
 
 \item{accuracy}{numerical accuracy, defaults to 1e-7}
 
-\item{itmax}{maximum number of iterations. Defaults to 10000. If itmax is (too) small, some optimizers will print warnings. For example, for optimizers using NEWUOA, an iteration number of 10*length(par)^2 is recommended. The number of parameters to optimize over for the COPS problem is number of objects * target space dimensions and can grow large very quickly, so being able to live with these warnings is probably a good idea.}
+\item{itmax}{maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the foirst one, the second algorithm is run for at least 0.1*itmax.}
 
 \item{stresstype}{which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.}
 
@@ -118,6 +118,9 @@ A list with the components
 }
 \description{
 Minimizing Copstress to obtain a clustered MDS configuration with given hyperparameters theta.
+}
+\details{
+Some optimizers (including the default hjk-NEWUOA) will print a warning if itmax is (too) small or if there was no convergence.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

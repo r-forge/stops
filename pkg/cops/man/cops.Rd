@@ -94,8 +94,8 @@ plot(res,"Shepard")
 dis<-as.matrix(smacof::kinshipdelta)
 
 #COPS-C with equal weight to stress and cordillera 
-res1<-cops(dis,variant="COPS-C",stressweight=0.5,cordweight=0.5,
-          minpts=2,itmax=500) #use higher itmax in real
+res1<-cops(dis,variant="COPS-C",stressweight=0.75,cordweight=0.25,
+          minpts=2,itmax=1000) #use higher itmax in real
 res1
 summary(res1)
 plot(res1)
@@ -123,6 +123,8 @@ res5
 summary(res5)
 plot(res5)
 }
+
+
 
 }
 \keyword{clustering}

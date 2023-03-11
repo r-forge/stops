@@ -339,7 +339,7 @@ print.summary.smacofP <- function(x,...)
     cat("\n")
     }
 
-#' Power stress minimization by NEWUOA
+#' Power stress minimization by NEWUOA (nloptr)
 #'
 #' An implementation to minimize power stress by a derivative-free trust region optimization algorithm (NEWUOA). Much faster than majorizing as used in powerStressMin but perhaps less accurate. 
 #' 
@@ -378,7 +378,7 @@ print.summary.smacofP <- function(x,...)
 #'}
 #'
 #' @importFrom stats dist as.dist
-#' @importFrom minqa newuoa
+#' @importFrom nloptr newuoa
 #' 
 #' @seealso \code{\link{smacofSym}}
 #' 
@@ -420,7 +420,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
              snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              snew
            }
-     optimized <- minqa::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),control=list(maxfun=itmax,rhoend=acc,iprint=verbose))
+     optimized <- nloptr::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),nl.info=isTRUE(verbose>2),control=list(maxeval=itmax,xtol_rel=acc))
      #optimized <- optim(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxit=itmax))
       xnew <- matrix(optimized$par,ncol=ndim)
       xnew <- xnew/enorm(xnew)
