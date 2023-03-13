@@ -378,7 +378,7 @@ print.summary.smacofP <- function(x,...)
 #'}
 #'
 #' @importFrom stats dist as.dist
-#' @importFrom nloptr newuoa
+#' @importFrom minqa newuoa
 #' 
 #' @seealso \code{\link{smacofSym}}
 #' 
@@ -420,8 +420,7 @@ powerStressFast <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nr
              snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
              snew
            }
-     optimized <- nloptr::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),nl.info=isTRUE(verbose>2),control=list(maxeval=itmax,xtol_rel=acc))
-     #optimized <- optim(xold,function(par) stressf(par,delta=delta,p=p,weightmat=weightmat),control=list(maxit=itmax))
+     suppressWarnings(optimized <- minqa::newuoa(xold,function(par) stressf(par,delta=delta,r=r,ndim=ndim,weightmat=weightmat),control=list(maxfun=itmax,rhoend=acc,iprint=verbose-2)))
       xnew <- matrix(optimized$par,ncol=ndim)
       xnew <- xnew/enorm(xnew)
              #adapted from powerStressMin 

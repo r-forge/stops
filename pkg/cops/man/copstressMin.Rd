@@ -69,17 +69,17 @@ copstressMin(
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link{cordillera}}}
 
-\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (from package nloptr), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually hjk, BFGS, newuoa, subplex and solnl work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
+\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually everything with hjk, BFGS, Newuoa, subplex and solnl in it work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
 \item{scale}{Allows to scale the configuration for the OC (the scaled configuration is also returned as $conf). One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "std" (standardize all columns !NOTE: This does not preserve the relative distances of the optimal config), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".}
 
-\item{normed}{should the cordillera be normed; defaults to TRUE}
+\item{normed}{should the cordillera be normed; defaults to TRUE.}
 
-\item{accuracy}{numerical accuracy, defaults to 1e-7}
+\item{accuracy}{numerical accuracy, defaults to 1e-7.}
 
-\item{itmax}{maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the foirst one, the second algorithm is run for at least 0.1*itmax.}
+\item{itmax}{maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the first solver, the second algorithm is run for at least 0.1*itmax (so overall itmax may be exceeded by a factor of 1.1).}
 
 \item{stresstype}{which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2. Using stress-1 puts more weight on MDS fit.}
 
@@ -120,14 +120,19 @@ A list with the components
 Minimizing Copstress to obtain a clustered MDS configuration with given hyperparameters theta.
 }
 \details{
-Some optimizers (including the default hjk-NEWUOA) will print a warning if itmax is (too) small or if there was no convergence.
+Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.
+
+For some solvers there also sometimes may be an error startiing \code{smacof::transform()} which comes from the algorithm placing two object at exactly the same place so their fitted distance is 0. This is good from a OPTICS Cordillera point of view (as it is more clustered) which is why some solvers lie to pick that up, but can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects (so include them as a combined row in the distance matrix).
+
+We might eventually switch to newuoa in nloptr.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
 
+set.seed(1)
 #Copstress with equal weight to stress and cordillera 
 res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
-                  itmax=1000) #use higher itmax about 10000 
+                  itmax=500) #use higher itmax about 10000 
 res1
 summary(res1)
 plot(res1)  #super clustered
