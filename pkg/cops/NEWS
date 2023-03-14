@@ -1,3 +1,6 @@
+Version 1.4-1:
+  - Added a function for calculating the phi distance. 
+
 Version 1.4-0:
   - Two-step algorithms now always use at least 0.1*itmax number of iterations for the second step even if itmax was exceeded by the first step, so itmax effectively is 1.1*itmax if there's no convergence prior. Fixed a bug when the number of iterations in the first step of a two-step algorithm exceeded itmax and a negative itmax was passed to the second algorithm. Now suppressing the useless warning from minqa:newuoa about maxfun < 10*length(par)^2 not recommended. Added (currently ineffective) code for using nloptr as engine for newuoa (instead of minqa) but not sure yet if we should switch (in test there was no clear advantage in terms of speed, accuracy and number of iterations). Fixed documentation and added details on the common error when two points are put on top of each other. Depend R version on 3.5.0 or higher due to matchphi data set. 
 
