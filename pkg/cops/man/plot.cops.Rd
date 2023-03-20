@@ -34,6 +34,6 @@ S3 plot method for cops objects
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
 set.seed(1)
-resl<-copsc(dis,itmax=500)
+resl<-copstressMin(dis,itmax=500)
 plot(resl)
 }

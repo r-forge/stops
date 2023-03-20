@@ -7,12 +7,12 @@
 #' @return a symmetric n times n matrix of pairwise phi distance (between rows of X) with 0 in the main diagonal. Is an object of class distance and matrix. 
 #' 
 #' @importFrom analogue distance
-#' 
+#' @export
 phidistance <- function(X)
 {
       summ<- apply(X,1,sum)
       NN <- outer(summ,summ,"+")
-      disttemp <- analogue::distance(X,method="SQchi.square")
+      disttemp <- analogue::distance(X,method="SQeuclidean")
       out <- disttemp/NN
       out <- sqrt(out)
       attr(out,"method") <- 'phi'

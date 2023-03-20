@@ -2,6 +2,8 @@
 % Please edit documentation in R/cops.R
 \name{copstressMin}
 \alias{copstressMin}
+\alias{copsc}
+\alias{copStressMin}
 \title{Fitting a COPS-C Model (COPS Variant 1).}
 \usage{
 copstressMin(
@@ -19,7 +21,67 @@ copstressMin(
   cordweight = 0.025,
   q = 1,
   minpts = ndim + 1,
-  epsilon = 10,
+  epsilon = max(10, max(delta)),
+  dmax = NULL,
+  rang,
+  optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl", "solnp",
+    "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS", "BFGS-hjk", "Newuoa-hjk", "cmaes",
+    "direct", "direct-Newuoa", "direct-BFGS", "genoud", "gensa"),
+  verbose = 0,
+  scale = c("sd", "rmsq", "std", "proc", "none"),
+  normed = TRUE,
+  accuracy = 1e-07,
+  itmax = 10000,
+  stresstype = c("stress-1", "stress"),
+  ...
+)
+
+copsc(
+  delta,
+  kappa = 1,
+  lambda = 1,
+  nu = 1,
+  theta = c(kappa, lambda, nu),
+  type = c("ratio", "interval", "ordinal"),
+  ties = "primary",
+  weightmat = 1 - diag(nrow(delta)),
+  ndim = 2,
+  init = NULL,
+  stressweight = 0.975,
+  cordweight = 0.025,
+  q = 1,
+  minpts = ndim + 1,
+  epsilon = max(10, max(delta)),
+  dmax = NULL,
+  rang,
+  optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl", "solnp",
+    "subplex", "snomadr", "hjk-Newuoa", "hjk-BFGS", "BFGS-hjk", "Newuoa-hjk", "cmaes",
+    "direct", "direct-Newuoa", "direct-BFGS", "genoud", "gensa"),
+  verbose = 0,
+  scale = c("sd", "rmsq", "std", "proc", "none"),
+  normed = TRUE,
+  accuracy = 1e-07,
+  itmax = 10000,
+  stresstype = c("stress-1", "stress"),
+  ...
+)
+
+copStressMin(
+  delta,
+  kappa = 1,
+  lambda = 1,
+  nu = 1,
+  theta = c(kappa, lambda, nu),
+  type = c("ratio", "interval", "ordinal"),
+  ties = "primary",
+  weightmat = 1 - diag(nrow(delta)),
+  ndim = 2,
+  init = NULL,
+  stressweight = 0.975,
+  cordweight = 0.025,
+  q = 1,
+  minpts = ndim + 1,
+  epsilon = max(10, max(delta)),
   dmax = NULL,
   rang,
   optimmethod = c("NelderMead", "Newuoa", "BFGS", "SANN", "hjk", "solnl", "solnp",
@@ -61,9 +123,9 @@ copstressMin(
 
 \item{q}{the norm of the cordillera; defaults to 1}
 
-\item{minpts}{the minimum points to make up a cluster in OPTICS; defaults to ndim+1}
+\item{minpts}{the minimum points to make up a cluster in OPTICS, see [dbscan::optics()] where it is called \code{minPts}; defaults to ndim+1.}
 
-\item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
+\item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked, see [dbscan::optics()]; defaults to 10. Note this means we do not expect any noise objects per default. This number will rarely be exceeded if we standardize the configuration as is the default in cops. However if no standardization is applied or there is a procrustes adjustment to a configuration with variance of 10 or more on any of the axes, it can have the effect of being too small. In that case just set a much higher epsilon.}
 
 \item{dmax}{The winsorization limit of reachability distances in the OPTICS Cordillera. If supplied, it should be either a numeric value that matches max(rang) or NULL; if NULL it is found as 1.5 times (for kappa >1) or 1 times (for kappa <=1) the maximum reachbility value of the power torgerson model with the same lambda. If dmax and rang are supplied and dmax is not max(rang), a warning is given and rang takes precedence.}
 
@@ -122,7 +184,7 @@ Minimizing Copstress to obtain a clustered MDS configuration with given hyperpar
 \details{
 Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.
 
-For some solvers there also sometimes may be an error startiing \code{smacof::transform()} which comes from the algorithm placing two object at exactly the same place so their fitted distance is 0. This is good from a OPTICS Cordillera point of view (as it is more clustered) which is why some solvers lie to pick that up, but can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects (so include them as a combined row in the distance matrix).
+For some solvers there also sometimes may be an error starting [smacof::transform()] which comes from the algorithm placing two object at exactly the same place so their fitted distance is 0. This is good from a OPTICS Cordillera point of view (as it is more clustered) which is why some solvers lie to pick that up, but can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects (so include them as a combined row in the distance matrix).
 
 We might eventually switch to newuoa in nloptr.
 }
@@ -136,6 +198,10 @@ res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
 res1
 summary(res1)
 plot(res1)  #super clustered
+
+#Alias name 
+res1<-copsc(dis,stressweight=0.5,
+                  cordweight=0.5,itmax=500) 
 
 }
 \keyword{clustering}
