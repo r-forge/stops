@@ -1,3 +1,6 @@
+Version 1.5-0:
+  - Added a dedicated r-stress function that supports interval and ordinal optimal scaling. Power stress is now only recommended for metric scaling. 
+
 Version 1.4-3:
   - Added distance function for "Blended Chi-Square Distance" after Lindsay (1994). Exported the distance functions.
 

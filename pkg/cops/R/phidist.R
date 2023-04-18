@@ -10,9 +10,10 @@
 #' @export
 phidistance <- function(X)
 {
+      if(any(X <0)) stop("Phi-Square Distance can only be calculated for non-negative values in X.")
       summ<- apply(X,1,sum)
       NN <- outer(summ,summ,"+")
-      disttemp <- analogue::distance(X,method="SQeuclidean")
+      disttemp <- analogue::distance(X,method="SQchi.square")
       out <- disttemp/NN
       out <- sqrt(out)
       attr(out,"method") <- 'phi'

@@ -1416,7 +1416,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
-    plot <- FALSE
+    #plot <- FALSE
 
     n <- dim(delta)[1]
     labos <- rownames(delta)
@@ -1765,7 +1765,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
         copsf2 <- function(x,params)
         {
         copsf(x,delta=params[[1]],disobj=params[[2]],r=params[[3]],n=params[[4]],ndim=params[[5]],weightmat=params[[6]],stressweight=params[[7]],cordweight=params[[8]],q=params[[9]],minpts=params[[10]],epsilon=params[[11]],rang=params[[12]],scale=params[[13]],normed=params[[14]],init=params[[15]])
-        }       
+        }      
        params <- list(delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init)
         optimized <- crs::snomadr(copsf2,params=params,,n=dim(xold)[1],x0=xold,print.output=isTRUE(verbose-2>0),...)
          xnew <- optimized$solution
