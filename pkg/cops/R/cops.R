@@ -1287,15 +1287,19 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 
 #' Fitting a COPS-C Model (COPS Variant 1).
 #'
-#' Minimizing Copstress to obtain a clustered MDS configuration with given hyperparameters theta.
+#' Minimizing Copstress to obtain a clustered ratio, interval or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments.
+#'
+#' This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
+#'
+#' If one wants to fit these models without the cops penalty, we recommend to use powerStressMin (for ratio MDS with any power transformation for weights, dissimilarities and distances) or rStressMin (for interval and ordinal MDS with power transformations for distances and weights) as these use majorization.  
 #'
 #' @rdname copstressMin
 #' 
 #' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
-#' @param lambda power transformation for proximities
+#' @param lambda power transformation for proximities (only used if type="ratio")
 #' @param nu power transformation for weights
-#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist), the third is nu (for the weights if it exists) . If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lmabda, nu parameters if they are given and do not match
+#' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist and type="ratio"), the third is nu (for the weights if it exists). If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lambda, nu parameters if they are given and do not match.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals
@@ -1360,17 +1364,23 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
 #' dis<-as.matrix(smacof::kinshipdelta)
 #'
 #' set.seed(1)
-#' #Copstress with equal weight to stress and cordillera 
+#' ## Copstress with equal weight to stress and cordillera 
 #' res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
 #'                   itmax=500) #use higher itmax about 10000 
 #' res1
 #' summary(res1)
 #' plot(res1)  #super clustered
 #'
-#' #Alias name 
+#' ##Alias name 
 #' res1<-copsc(dis,stressweight=0.5,
 #'                   cordweight=0.5,itmax=500) 
 #'
+#'
+#' ## Elastic scaling ordinal s-stress with cops penalty
+#' res1<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
+#'             stressweight=0.5, cordweight=0.5,itmax=500)
+#' 
+#' 
 #' @import cordillera
 #' @importFrom utils tail
 #' @importFrom stats dist as.dist optim sd
@@ -1412,7 +1422,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
   #} else if(trans=="spline"){
   #  trans <- "mspline"
    }
-    if(type=="interval" | type =="ordinal") theta <- c(1,1,1) #We dont allow powers in interval and nonmetric MDS as of yet
+    if(type=="interval" | type =="ordinal") theta <- c(kappa,1,nu) #We dont allow powers for dissimlarities in interval and nonmetric MDS
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
