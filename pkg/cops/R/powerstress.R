@@ -616,10 +616,10 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 
 #' R stress SMACOF
 #'
-#' An implementation to minimize r-stress by minimization-majorization with ratio, interval and ordinal optimal sclaing. Uses a repeat loop.
+#' An implementation to minimize r-stress by majorization with ratio, interval and ordinal optimal sclaling. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
-#' @param r power of the transformation of the fitted distances (corresponds to kappa/2 in powerStress); defaults to 0.5 for standard stress
+#' @param r power of the transformation of the fitted distances (corresponds to kappa/2 in power stress); defaults to 0.5 for standard stress
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights
@@ -629,7 +629,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #'
-#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities, not normalized
 #' \item obsdiss: Observed dissimilarities (dhats), optimally scaled and normalized 
@@ -652,7 +652,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
 #'}
 #'
 #' @section Note:
-#' The functionality related to power stress, r stress and the smacofP class is also available in the stops package (\code{\link[stops]{rStressMin}}). Expect masking when both are loaded.   
+#' The functionality related to power stress, r stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.   
 #'
 #' @importFrom stats dist as.dist
 #' 
@@ -802,7 +802,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     weightmat <- stats::as.dist(weightmatm)
     stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** stress (both normalized):",snew, "; stress 1 (both normalized - default reported):",sqrt(snew),"; manual stress (only for debug):",stressen, "\n")  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(r), pars=c(r), theta=c(r), niter = itel, spp=spp, ndim=p, model="r stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "r stress", stress=sqrt(snew), stress.m=snew, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(r), pars=c(r), theta=c(r), niter = itel, spp=spp, ndim=p, model="r-stress SMACOF", call=match.call(), nobj = dim(xnew)[1], type = "r-stress", stress=sqrt(snew), stress.m=snew, stress.en=stressen, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
