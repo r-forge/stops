@@ -286,3 +286,33 @@ plot(resp$confdiss,resp$obsdiss)
 
 plot(unclass(resp$confdiss),unclass(resp$obsdiss),ylim=c(0,max(resp$confdiss,resp$obsidss)),xlim=c(0,max(resp$confdiss,resp$obsidss)))
 })
+
+##testing rstress new version
+library(devtools)
+load_all()
+dis <- kinshipdelta
+resnew <- rStressMin(dis,type="ordinal")
+resold <- rStressMinOld(dis,type="ordinal")
+##Ratio works great with or without r. Maybe not show untransformed points as there is not transformation here
+## check out the smacof Shepard and resplots
+## change the transplot
+resnew
+resold
+
+plot(Procrustes(resnew$conf,resold$conf))
+plot(resnew)
+
+
+summary(resnew)
+summary(resold)
+
+plot.smacofP(resnew,plot.type="transplot")
+plotOLD.smacofP(resold,plot.type="transplot")
+plot(resnew,plot.type="Shepard")
+plotOLD.smacofP(resold,plot.type="Shepard")
+smacof:::plot.smacof(resnew,plot.type="Shepard")
+
+plot(resnew,plot.type="resplot")
+plot(resnew,plot.type="stressplot")
+plot(resnew,plot.type="bubbleplot")
+plotOLD.smacofP(resold,plot.type="bubbleplot")
