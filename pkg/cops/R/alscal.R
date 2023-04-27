@@ -182,7 +182,7 @@ alscal <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(del
     weightmat <- stats::as.dist(weightmatm)
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("***Stress:",snew, "; Stress 1 (default reported):",sqrt(snew))  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(r), pars=c(r), theta=c(r), niter = itel, spp=spp, ndim=p, model="ALSCAL SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(kappa=kappa,lambda=lambda), pars=c(kappa=kappa,lambda=lambda), theta=c(kappa=kappa,lambda=lambda), niter = itel, spp=spp, ndim=p, model="ALSCAL SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }

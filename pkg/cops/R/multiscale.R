@@ -187,7 +187,7 @@ multiscale <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow
     weightmat <- stats::as.dist(weightmatm)
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("***Stress:",snew, "; Stress 1 (both normalized - default reported):",sqrt(snew),"\n")  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(r), pars=c(r), theta=c(r), niter = itel, spp=spp, ndim=p, model="Multiscale SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(kappa=kappa,lambda=1), pars=c(kappa=kappa,lambda=1), theta=c(kappa=kappa,lambda=1), niter = itel, spp=spp, ndim=p, model="Multiscale SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat,weightmat=weightmat, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }

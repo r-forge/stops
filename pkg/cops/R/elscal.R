@@ -1,10 +1,9 @@
 #' Elastic Scaling  SMACOF
 #'
-#' An implementation to minimize elastic scaling stress by majorization with ratio, interval and ordinal optimal scaling. Uses a repeat loop.
+#' An implementation to minimize elastic scaling stress by majorization with ratio and interval optimal scaling. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
-#' @param type what type of MDS to fit. Currently one of "ratio", "interval" and "ordinal". Default is "ratio".
-#' @param ties how to handle ties in type="ordinal". Can be "primary" (default), "secondary" and "tertiary".
+#' @param type what type of MDS to fit. Currently one of "ratio" and "interval". Default is "ratio".
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
@@ -39,13 +38,13 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-elscal(as.matrix(dis),type="ordinal",itmax=1000)
+#' res<-elscal(as.matrix(dis),itmax=1000)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
 #' @export
-elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE) {
+elscal <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     r <- 0.5
@@ -56,28 +55,28 @@ elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", 
     if (trans=="ratio"){
     trans <- "none"
     }
-    else if (trans=="ordinal" & ties=="primary"){
-    trans <- "ordinalp"
-    typo <- "ordinal (primary)"
-   } else if(trans=="ordinal" & ties=="secondary"){
-    trans <- "ordinals"
-    typo <- "ordinal (secondary)"
-  } else if(trans=="ordinal" & ties=="tertiary"){
-    trans <- "ordinalt"
-    typo <- "ordinal (tertiary)"
+   # else if (trans=="ordinal" & ties=="primary"){
+   # trans <- "ordinalp"
+   # typo <- "ordinal (primary)"
+   #} else if(trans=="ordinal" & ties=="secondary"){
+   # trans <- "ordinals"
+   # typo <- "ordinal (secondary)"
+  #} else if(trans=="ordinal" & ties=="tertiary"){
+  #  trans <- "ordinalt"
+  #  typo <- "ordinal (tertiary)"
   #} else if(trans=="spline"){
   #  trans <- "mspline"
-  }
-    if(verbose>0) cat(paste("Minimizing",type,"sammon stress","\n"))    
+  #}
+    if(verbose>0) cat(paste("Minimizing",type,"elastic scaling stress","\n"))    
     p <- ndim
     labos <- rownames(delta) #labels
-    weightmatorig <- weightmat #back up weightmat
-    
-    deltaorig <- delta
-    #weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1
+    weightmatorig <- weightmat #back up weightmat 
+    deltaorig <- delta #backyp delta
     weightmato <- weightmat
     deltaold <- delta
+    ##Check out Sammonmap for explanations on the weighting
+    weightmat <- weightmato/mkPower(delta,2) #elastic weighting #1
+    weightmat[!is.finite(weightmat)] <- 1
     delta <- delta / enorm (delta, weightmat)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
@@ -92,15 +91,12 @@ elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", 
     dold <- sqdist (xold)
    ##first optimal scaling
     eold <- as.dist(sqrt(dold))
-    weightmat <- weightmato/(delta^2) #elastic weighting
+    weightmat <- weightmato/mkPower(delta,2) #elastic weighting #2
     weightmat[!is.finite(weightmat)] <- 1
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = 0.5) #calculate dhats
     dhatt <- dhat$res 
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-    #FIXME: labels
     delta <- as.matrix(dhatd)
-    #weightmat <- weightmato/(delta^2) #elastic weighting with dhat and we always use weightmato/delta^2
-    #weightmat[!is.finite(weightmat)] <- 1
     rold <- sum (weightmat * delta * mkPower (dold, r))
     nold <- sum (weightmat * mkPower (dold, 2 * r))
     aold <- rold / nold
@@ -128,7 +124,7 @@ elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", 
       dhat <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
       dhatt <- dhat$res #FIXME: I need the structure here to reconstruct the delta; alternatively turn all into vectors - check how they do it in smacof
       dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-      delta <- as.matrix(dhatd) #In cops this is <<- because we need to change it outside of copsf() but here we don't need that 
+      delta <- as.matrix(dhatd) 
       rnew <- sum (weightmat * delta * mkPower (dnew, r))
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
@@ -165,8 +161,6 @@ elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", 
       dold <- dnew
       sold <- snew
       aold <- anew
-     # weightmat <- weightmato/(delta^2) #elastic weighting as the delta changes, but not the weightmato
-      #weightmat[!is.finite(weightmat)] <- 1
     }
     xnew <- xnew/enorm(xnew) #TODO: Check in smacof whether I need this 
     ## relabeling as they were removed in the optimal scaling
@@ -188,7 +182,7 @@ elscal <- function (delta, type=c("ratio","interval","ordinal"),ties="primary", 
     weightmat <- stats::as.dist(weightmatm)
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("***Stress:",snew, "; Stress 1 (default reported):",sqrt(snew))  
-    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(r), pars=c(r), theta=c(r), niter = itel, spp=spp, ndim=p, model="Elastic Scaling SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat, weightmat=weightmatorig, alpha = anew, sigma = snew)
+    out <- list(delta=deltaold, obsdiss=delta, confdist=dout, conf = xnew, parameters=c(kappa=1,lambda=1,nu=-2), pars=c(kappa=1,lambda=1,nu=-2), theta=c(kappa=1,lambda=1,nu=-2), niter = itel, spp=spp, ndim=p, model="Elastic Scaling SMACOF", call=match.call(), nobj = dim(xnew)[1], type = type, stress=sqrt(snew), stress.m=snew, deltaorig=as.dist(deltaorig),resmat=resmat, weightmat=weightmatorig, alpha = anew, sigma = snew)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
