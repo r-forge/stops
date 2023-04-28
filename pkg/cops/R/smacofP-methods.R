@@ -1,4 +1,4 @@
-#'S3 plot method for smacofP objects
+#'Old S3 plot method for smacofP objects
 #' 
 #'@param x an object of class smacofP 
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "resplot", "Shepard", "stressplot","transplot", "bubbleplot" (see details)
@@ -46,7 +46,7 @@
 #' plot(res,"transplot")
 #' plot(res,"stressplot")
 #' plot(res,"bubbleplot")
-plotOLD.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
+plotOLD <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
 {
     x1 <- plot.dim[1]
     y1 <- plot.dim[2]
@@ -420,7 +420,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         #distances= dhats, optimally scaled transformed Delta and normalized f(T(Delta))
         graphics::plot(delts[notmiss], confd[notmiss], main = main, type = "p", pch=pch, cex = cex, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
         notmiss.iord <- notmiss[x$iord]
-                                        #points((delts[x$iord])[notmiss.iord], (as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex)
+        #points((delts[x$iord])[notmiss.iord], (as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex)
         delts1 <- delts[notmiss]
         confd1 <- confd[notmiss]
         if(loess) {
@@ -438,6 +438,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1))
         graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
         }
+    ##Looks good: one thing I need to check is whether the pt, ptl correlate with the dhats.
+    # peerhaps we can't use the dhat[iord] idea because normq is different in the calls, check that out too.     
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
@@ -468,76 +470,85 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
                 if(missing(legpos)) legpos <- "topleft" 
                 graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
             }
-         }
-if (plot.type == "resplot") {
-        obsd <- as.vector(x$dhat)
-        confd <- as.vector(x$confdist)
-        if(missing(col)) col <- "darkgrey" 
-        if (missing(main)) 
-            main <- paste("Residual plot")
-        else main <- main
-        if (missing(xlab)) 
-            xlab <- "Normalized Dissimilarities"
-        else xlab <- xlab
-        if (missing(ylab)) 
-            ylab <- "Configuration Distances"
-        else ylab <- ylab
-        if (missing(xlim)) 
-            xlim <- range(obsd)
-        if (missing(ylim)) 
-            ylim <- range(confd)
-        graphics::plot(obsd, confd, main = main, 
-            type = "p", col = col, xlab = xlab, ylab = ylab, 
-            xlim = xlim, ylim = ylim, ...)
-        abline(lm(confd~obsd))
     }
-    if (plot.type == "stressplot") {
+ #--------------- Residual plot --------------------
+    
+if (plot.type == "resplot") {
+        dhats <- as.vector(x$dhat)
+        confd <- as.vector(x$confdist)
+        
+        if(missing(col)) col <- col <- c("grey40","grey70","black")
+        if (missing(main)) main <- paste("Residual Plot") else main <- main
+        if (missing(xlab)) xlab <- "Normalized Transformed Dissimilarities (d-hats)" else xlab <- xlab
+        if (missing(ylab)) ylab <- "Transformed Configuration Distances" else ylab <- ylab
+
+        if (missing(xlim)) xlim <- range(c(0,dhats))
+        if (missing(ylim)) ylim <- range(c(0,confd))
+        graphics::plot(dhats, confd, main = main, 
+            type = "p", col = col[1], xlab = xlab, ylab = ylab, 
+            xlim = xlim, ylim = ylim, ...)
+        abline(lm(confd~-1+dhats),col=col[3])
+        if(loess) {
+        ptl <- predict(stats::loess(confd~dhats))
+        graphics::lines(dhats[order(dhats)],ptl[order(dhats)],col=col[2],type="b",pch=pch,cex=cex)
+        }
+        abline(0,1,col="red")
+}
+#----------------------- Stress decomposition -----------------
+        if (plot.type == "stressplot") {
         if(missing(col)) col <- "lightgray"
-        if (missing(main)) 
-            main <- paste("Stress Decomposition Chart")
-        else main <- main
-        if (missing(xlab)) 
-            xlab <- "Objects"
-        else xlab <- xlab
-        if (missing(ylab)) 
-            ylab <- "Stress Proportion (%)"
-        else ylab <- ylab
+        if (missing(main)) main <- paste("Stress Decomposition Chart") else main <- main
+        if (missing(xlab)) xlab <- "Objects" else xlab <- xlab
+        if (missing(ylab)) ylab <- "Stress Proportion (%)" else ylab <- ylab
+
         spp.perc <- sort((x$spp/sum(x$spp) * 100), decreasing = TRUE)
         xaxlab <- names(spp.perc)
-        if (missing(xlim)) 
-            xlim1 <- c(1, length(spp.perc))
-        else xlim1 <- xlim
-        if (missing(ylim)) 
-            ylim1 <- range(spp.perc)
-        else ylim1 <- ylim
+
+        if (missing(xlim)) xlim1 <- c(1, length(spp.perc)) else xlim1 <- xlim
+        if (missing(ylim)) ylim1 <- range(spp.perc) else ylim1 <- ylim
+
+        op <- par(mar = c(3, 4, 4, 2))
         plot(1:length(spp.perc), spp.perc, xaxt = "n", type = "p", 
-            xlab = xlab, ylab = ylab, main = main, xlim = xlim1, 
+            xlab = " ", ylab = ylab, main = main, xlim = xlim1, 
             ylim = ylim1, ...)
+        mtext(xlab, side=1, padj=2)
         text(1:length(spp.perc), spp.perc, labels = xaxlab, pos = 3, cex = 0.8)
         for (i in 1:length(spp.perc)) lines(c(i, i), c(spp.perc[i],0), col=col, lty = 2)
-    }
+        par(op)
+        }
+
+    
+  #------------------------------ bubble plot -------------------------
     if (plot.type == "bubbleplot") {
         if(missing(col)) col <- 1
-        if (missing(main)) 
-            main <- paste("Bubble Plot")
-        else main <- main
-        if (missing(xlab)) 
-            xlab <- paste("Configurations D", x1, sep = "")
-        else xlab <- xlab
-        if (missing(ylab)) 
-            ylab <- paste("Configurations D", y1, sep = "")
-        else ylab <- ylab
-        if (missing(xlim)) 
-            xlim <- range(x$conf[, x1]) * 1.1
-        if (missing(ylim)) 
-            ylim <- range(x$conf[, y1]) * 1.1
+        if (missing(main)) main <- paste("Bubble Plot") else main <- main
+        if (missing(xlab)) xlab <- paste("Dimension", x1, sep = " ") else xlab <- xlab
+        if (missing(ylab)) ylab <- paste("Dimension", y1, sep = " ") else ylab <- ylab
+
+        if (missing(xlim)) xlim <- range(x$conf[, x1]) * 1.1
+        if (missing(ylim)) ylim <- range(x$conf[, y1]) * 1.1
+
         spp.perc <- x$spp/sum(x$spp) * 100
-        bubsize <- (max(spp.perc) - spp.perc + 1)/length(spp.perc) * bubscale
+        bubsize <- spp.perc/length(spp.perc) * (bubscale+3)
+
         plot(x$conf, cex = bubsize, main = main, xlab = xlab, 
-            ylab = ylab, xlim = xlim, ylim = ylim, ...)
+            ylab = ylab, xlim = xlim, ylim = ylim, asp=asp, ...)
         xylabels <- x$conf
         ysigns <- sign(x$conf[, y1])
         xylabels[, 2] <- (abs(x$conf[, y1]) - (x$conf[, y1] * (bubsize/50))) * ysigns
-        text(xylabels, rownames(x$conf), pos = 1, cex = 0.7)
+        text(xylabels, rownames(x$conf), pos = pos, cex = 0.7)
     }
+
+  #------------------------------ histogram plot -------------------------
+  if (plot.type == "histogram")
+  {
+    if (missing(main)) main <- paste("Weighted Histogram") else main <- main
+    if (missing(xlab)) xlab <- paste("Dissimilarity") else xlab <- xlab
+    if (missing(ylab)) ylab <- paste("Frequency") else ylab <- ylab
+
+    wghts <- x$weightmat
+    if(!is.null(x$tweightmat)) wghts <- x$tweightmat 
+    weights::wtd.hist(x$delta, weight = wghts, main = main, xlab = xlab, ylab = ylab, col = col.hist, ...) 
+  }
+    
  }
