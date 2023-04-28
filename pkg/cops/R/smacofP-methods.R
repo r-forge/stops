@@ -212,6 +212,50 @@ if (plot.type == "resplot") {
 }
 
 
+
+#'@export
+summary.smacofP <- function(object,...)
+    {
+      spp.perc <- object$spp/sum(object$spp) * 100
+      sppmat <- cbind(sort(object$spp), sort(spp.perc))
+      colnames(sppmat) <- c("SPP", "SPP(%)") 
+      res <- list(conf=object$conf,sppmat=sppmat)
+      class(res) <- "summary.smacofP"
+      res
+    }
+
+#'@export
+print.summary.smacofP <- function(x,...)
+    {
+    cat("\n")
+    cat("Configurations:\n")
+    print(round(x$conf, 4))
+    cat("\n\n")
+    cat("Stress per point (in %):\n")
+    print(round(x$sppmat[,2], 2))
+    cat("\n")
+    }
+
+#'@export
+print.smacofP <- function(x,..)
+{
+    cat("\nCall:\n")
+    print(x$call)
+    cat("\n")
+    cat("Model:", x$type, x$model, "with parameter vector=",x$parameters,"\n")
+    cat("Number of objects:", x$nobj, "\n")
+    cat("Stress-1 value:", round(x$stress, 3), "\n")
+    cat("Number of iterations:", x$niter, "\n")
+    cat("\n")
+}
+
+#'@export
+coef.smacofP <- function(object,...)
+{
+    object$parameters
+}
+
+
 #'S3 plot method for smacofP objects
 #' 
 #'@param x an object of class smacofP 
@@ -245,6 +289,7 @@ if (plot.type == "resplot") {
 #' }
 #'
 #' @importFrom graphics plot text identify legend
+#' @importFrom plotrix thigmophobe.labels
 #' @importFrom stats loess lm predict 
 #'
 #' @return no return value; just plot for class 'smacofP' (see details)
@@ -260,67 +305,139 @@ if (plot.type == "resplot") {
 #' plot(res,"transplot")
 #' plot(res,"stressplot")
 #' plot(res,"bubbleplot")
-plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 5, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), identify = FALSE, type = "p", pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, legend = TRUE , legpos, loess=TRUE, ...)
+plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscale = 1, col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), hull.conf = list(hull = FALSE, col = 1, lwd = 1, ind = NULL), shepard.x=NULL, identify = FALSE, type = "p", cex=0.5, pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, col.hist=NULL, legend = TRUE, legpos, loess=TRUE, shepard.lin=TRUE, ...)
 {
-    x1 <- plot.dim[1]
-    y1 <- plot.dim[2]
-    if (type == "n") 
-        label.conf$pos <- NULL
+     ## --- check type args:
+    plot.type <- match.arg(plot.type, c("confplot", "Shepard", "resplot","bubbleplot", "stressplot", "histogram"), several.ok = FALSE)
+
+  ## --- check label lists
+  if (is.null(label.conf$label)) label.conf$label <- TRUE
+  if (is.null(label.conf$pos)) label.conf$pos <- 3
+  if (is.null(label.conf$col)) label.conf$col <- 1
+  if (is.null(label.conf$cex)) label.conf$cex <- 0.8
+  if (identify) label.conf$label <- FALSE
+  
+  ## --- check hull list
+  if (is.null(hull.conf$hull)) hull.conf$hull <- FALSE
+  if (is.null(hull.conf$col)) hull.conf$col <- 1
+  if (is.null(hull.conf$lwd)) hull.conf$lwd <- 1
+  if (is.null(hull.conf$ind)) hull.conf$ind <- NULL
+  if (hull.conf$hull && is.null(hull.conf$ind)) stop("Index vector for hulls needs to be specified!")
+
+  ##------ Configuration plot 
+  x1 <- plot.dim[1]
+  y1 <- plot.dim[2]
+
+  #if (type == "n") label.conf$pos <- NULL
     if (plot.type == "confplot") {
-        if(missing(col)) col <- 1
-        if (missing(main)) 
-            main <- paste("Configuration Plot")
-        else main <- main
-        if (missing(xlab)) 
-            xlab <- paste("Configurations D", x1, sep = "")
-        else xlab <- xlab
-        if (missing(ylab)) 
-            ylab <- paste("Configurations D", y1, sep = "")
-        else ylab <- ylab
-        if (missing(xlim)) xlim <- range(x$conf[, x1])
-        if (missing(ylim)) ylim <- range(x$conf[, y1]) 
+        if (missing(col))  col <- 1
+        if (missing(main)) main <- paste("Configuration Plot") else main <- main
+        if (missing(xlab)) xlab <- paste("Dimension", x1, sep = " ") else xlab <- xlab
+        if (missing(ylab)) ylab <- paste("Dimension", y1, sep = " ") else ylab <- ylab
+        
+        if (missing(xlim)) xlim <- range(x$conf[, x1])*1.1
+        if (missing(ylim)) ylim <- range(x$conf[, y1])*1.1
+
         graphics::plot(x$conf[, x1], x$conf[, y1], main = main, type = type, 
             xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
-            pch = pch, asp = asp, col = col, ...)
-        if (label.conf[[1]]) 
+            pch = pch, asp = asp, col = col, cex=cex, ...)
+
+        if (label.conf$label){
+            if(label.conf$pos==5){
+                plotrix::thigmophobe.labels(x$conf[,x1], x$conf[,y1], labels = rownames(x$conf), 
+                           cex = label.conf$cex, text.pos = NULL, 
+                           col = label.conf$col)
+                } else {
             graphics::text(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
-                cex = label.conf$cex, pos = label.conf$pos, col = label.conf$col)
+                           cex = label.conf$cex, pos = label.conf$pos, col = label.conf$col)
+                }
+        }
+        
         if (identify) {
             graphics::identify(x$conf[, x1], x$conf[, y1], labels = rownames(x$conf), 
                 cex = label.conf$cex, pos = label.conf$cex, col = label.conf$col)
         }
-    }
+
+      if (hull.conf$hull) {
+      ind <- hull.conf$ind
+      n <- dim(x$conf)[1]
+      M <- as.data.frame(x$conf)
+      XX <- cbind(M, ind) 
+      X.sort <- XX[order(ind), ]
+      xx <- yy <- NULL
+      k <- 0
+      for (i in 1:n) { 
+        v <- X.sort$ind[i+1]
+        if (i==n) v="$"
+        if (X.sort$ind[i] == v ) { 
+          k<-k+1 
+        } else { 
+          von <- i-k 
+          xx <- X.sort[von:i, 1] 
+          yy <- X.sort[von:i, 2]
+          hpts <- chull(x = xx, y = yy)
+          hpts <- c(hpts, hpts[1])
+          lines(xx[hpts], yy[hpts], col = hull.conf$col, lwd = hull.conf$lwd) 
+          k<-0 
+        } 
+       } 
+     }
+   }
+  
+  #---------------- Shepard diagram ------------------   
     if (plot.type == "Shepard") {
-        delts <- as.vector(x$dhat)
-        confd <- as.vector(x$confdist)
-        if(missing(col)) col <- c("grey60","grey50","black")
-        if (missing(main)) 
-            main <- paste("Linearized Shepard Diagram")
-        else main <- main
-        if (missing(xlab)) 
-            xlab <- "Transformed Dissimilarities"
-        else xlab <- xlab
-        if (missing(ylab)) 
-            ylab <- "Transformed Configuration Distances"
-        else ylab <- ylab
-        if (missing(xlim)) 
-            xlim <- range(delts)
-        if (missing(ylim))
-            ylim <- range(confd)
-        #delta=dhats
-        #proximities=obsdiss
-        #distances=confdist
-        graphics::plot(delts, confd, main = main, type = "p", pch=20, cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
-        #graphics::plot(as.vector(x$delta), as.vector(x$confdist), main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim)
-        #graphics::points(as.vector(x$delta), ),col=col[2],pch=19)
-        #graphics::plot(as.vector(x$delta), as.vector(x$obsdiss),col=col[2],pch=20)
+
+        if (missing(main)) {
+            main <- paste("Shepard Diagram")
+            if(shepard.lin) main <- paste("Linearized",main)
+            } else main <- main
+        if (missing(xlab)) {
+            if (is.null(shepard.x)) xlab <- "Dissimilarities" else xlab <- "Proximities"
+              if(shepard.lin) xlab <- paste("Transformed",xlab)
+         } else xlab <- xlab
+
+        if (missing(ylab)) ylab <- "Transformed Configuration Distances" else ylab <- ylab
+
+        notmiss <- as.vector(x$weightmat > 0)
+        if (is.null(shepard.x)) {
+           delts <- as.vector(x$delta) #with shepard.lin=FALSE we use the original delta
+           if(shepard.lin) delts <- as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
+          } else {
+           delts <- as.vector(as.dist(shepard.x))
+          }
+         confd <- as.vector(x$confdist) #Confdist are already transformed  
+         #delts=xcoor in smacof 
+         if (missing(xlim)) xlim <- range(delts[notmiss],na.rm=TRUE)
+         if (missing(ylim)){
+             ylim <- range(confd[notmiss])
+             ylim[1] <- 0
+         }
+
+        if(missing(col)) col <- c("grey70","grey40","black")
+       
+        #delta=observed delta Delta
+        #tdelta=transformed delta normalized T(Delta) 
+        #distances= dhats, optimally scaled transformed Delta and normalized f(T(Delta))
+        graphics::plot(delts[notmiss], confd[notmiss], main = main, type = "p", pch=pch, cex = cex, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        notmiss.iord <- notmiss[x$iord]
+                                        #points((delts[x$iord])[notmiss.iord], (as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex)
+        delts1 <- delts[notmiss]
+        confd1 <- confd[notmiss]
         if(loess) {
-                   pt <- predict(stats::loess(confd~-1+delts))
-                   graphics::lines(delts[order(delts)],pt[order(delts)],col=col[2],type="b",pch=20,cex=0.25)
+            if(x$type=="ratio") ptl <- predict(stats::loess(confd~-1+delts))
+            if(x$type=="interval") ptl <- predict(stats::loess(confd1~delts1))
+            if(x$type=="ordinal") ptl <- predict(stats::loess(confd1~delts1))
+            graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[2],type="b",pch=pch,cex=cex)
         }
-        ptl <- predict(stats::lm(confd~-1+delts))
-        graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[3],type="b",pch=20,cex=0.25)
-       # graphics::abline(stats::lm(x$confdist~-1+x$delta),type="b") #no intercept for fitting
+        if(x$type=="ordinal")  {
+            ir <- stats::isoreg(x=delts1,y=confd1) 
+            #ptl <- ir$yf[ir$ord]
+            graphics::lines(ir,col=col[3],pch=pch,cex=cex/2,do.points=TRUE)
+        } else { 
+        if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1))
+        if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1))
+        graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
+        }
     }
     if (plot.type == "transplot") {
              if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
@@ -424,39 +541,3 @@ if (plot.type == "resplot") {
         text(xylabels, rownames(x$conf), pos = 1, cex = 0.7)
     }
  }
-
-
-#'@export
-summary.smacofP <- function(object,...)
-    {
-      spp.perc <- object$spp/sum(object$spp) * 100
-      sppmat <- cbind(sort(object$spp), sort(spp.perc))
-      colnames(sppmat) <- c("SPP", "SPP(%)") 
-      res <- list(conf=object$conf,sppmat=sppmat)
-      class(res) <- "summary.smacofP"
-      res
-    }
-
-#'@export
-print.summary.smacofP <- function(x,...)
-    {
-    cat("\n")
-    cat("Configurations:\n")
-    print(round(x$conf, 4))
-    cat("\n\n")
-    cat("Stress per point:\n")
-    print(round(x$sppmat, 4))
-    cat("\n")
-    }
-
-print.smacofP <- function(x,..)
-{
-    cat("\nCall:\n")
-    print(x$call)
-    cat("\n")
-    cat("Model:", x$type, x$model, "with parameter vector=",x$parameters,"\n")
-    cat("Number of objects:", x$nobj, "\n")
-    cat("Stress-1 value:", round(x$stress, 3), "\n")
-    cat("Number of iterations:", x$niter, "\n")
-    cat("\n")
-}

@@ -216,7 +216,7 @@ rStressMinOld <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), t
 #' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
-#' \item tdelta: Observed explicitly transformed dissimilarities, not normalized
+#' \item tdelta: Observed explicitly transformed dissimilarities, normalized
 #' \item dhat: Explicitly transformed dissimilarities (dhats), optimally scaled and normalized 
 #' \item confdist: Configuration dissimilarities
 #' \item conf: Matrix of fitted configuration
@@ -283,11 +283,12 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     #weightmato <- weightmat
     #weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 1
-    deltaold <- delta
+    delta <- delta / enorm (delta, weightmat)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
-    #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
-    delta <- delta / enorm (delta, weightmat)
+                                        #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
+    #delta <- delta / enorm (delta, weightmat)
+    deltaold <- delta
     itel <- 1
     ##Starting Configs
     xold  <- init
@@ -329,9 +330,9 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
       dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
       dhatt <- dhat2$res 
-      #dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-      #delta <- as.matrix(dhatd)
-      delta <- as.matrix(dhatt) #In cops this is <<- because we need to change it outside of copsf() but here we don't need that 
+      dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
+      delta <- as.matrix(dhatd)
+      #delta <- as.matrix(dhatt) #In cops this is <<- because we need to change it outside of copsf() but here we don't need that 
       rnew <- sum (weightmat * delta * mkPower (dnew, r))
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
@@ -376,9 +377,9 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
     doutm <- mkPower(sqdist(xnew),r)
     deltam <- delta
-    delta <- structure(delta, Size = n, call = quote(as.dist.default(m=b)),
-                       class = "dist", Diag = FALSE, Upper = FALSE)
-    #delta <- stats::as.dist(delta)
+    #delta <- structure(delta, Size = n, call = quote(as.dist.default(m=b)),
+    #                   class = "dist", Diag = FALSE, Upper = FALSE)
+    delta <- stats::as.dist(delta)
     deltaorig <- stats::as.dist(deltaorig)
     deltaold <- stats::as.dist(deltaold)
     #doute <- doutm/enorm(doutm) #this is an issue here!
@@ -400,7 +401,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     }
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")
-    #delta is input delta, deltat is input delta with explicit transformation and normalized, obsdiss is dhats 
+    #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
     out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(r=r), pars=c(r=r), theta=c(r=r))
     class(out) <- c("smacofP","smacofB","smacof")
     out
