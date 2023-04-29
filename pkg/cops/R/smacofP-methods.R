@@ -425,7 +425,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
          #delts=xcoor in smacof 
          if (missing(xlim)) xlim <- range(delts[notmiss],na.rm=TRUE)
          if (missing(ylim)){
-             ylim <- range(confd[notmiss])
+             #ylim <- range(confd[notmiss])
+             ylim <- range(confd)
              ylim[1] <- 0
          }
 

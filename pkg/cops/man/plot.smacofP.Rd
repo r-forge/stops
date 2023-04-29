@@ -44,9 +44,15 @@
 
 \item{label.conf}{List with arguments for plotting the labels of the configurations in a configuration plot (logical value whether to plot labels or not, label position, label color)}
 
+\item{hull.conf}{Option to add convex hulls to a configuration plot. Hull index needs to be provided.}
+
+\item{shepard.x}{Shepard plot only: original data (e.g. correlation matrix) can be provided for plotting on x-axis}
+
 \item{identify}{If 'TRUE', the 'identify()' function is called internally that allows to add configuration labels by mouse click}
 
 \item{type}{What type of plot should be drawn (see also 'plot')}
+
+\item{cex}{Symbol size.}
 
 \item{pch}{Plot symbol}
 
@@ -62,11 +68,16 @@
 
 \item{ylim}{scale of y axis}
 
+\item{col.hist}{Color of the borders of the histogram.}
+
 \item{legend}{Flag whether legends should be drawn for plots that have legends}
 
 \item{legpos}{Position of legend in plots with legends}
 
-\item{loess}{should loess fit be added to Shepard plot}
+\item{loess}{should loess fit be added to Shepard plot
+#'@param loess should loess fit be added to Shepard or residual plot}
+
+\item{shepard.lin}{Shepard plot only: if TRE the Shepard plot is linearized so d^kappa~delta^lambda. If FALSE d~delta^lambda}
 
 \item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.}
 }
@@ -80,20 +91,21 @@ S3 plot method for smacofP objects
 \itemize{
 \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
- \item Linearized Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a least squares line. The fitted lines do not have an intercept.
+ \item (Linearized) Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a regression (line, linear without intercept for ratio, linear for interval and isotonic for ordinal) 
  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (corresponding to the power transformations and with no intercept).
  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
+\item histogram (‘plot.type = "histogram"’: gives a weighted histogram of the dissimilarities. For optional arguments, see ‘wtd.hist’.
 }
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
 res<-powerStressMin(dis)
 plot(res)
-plot(res,"reachplot")
 plot(res,"Shepard")
 plot(res,"resplot")
 plot(res,"transplot")
 plot(res,"stressplot")
 plot(res,"bubbleplot")
+plot(res,"histogram")
 }
