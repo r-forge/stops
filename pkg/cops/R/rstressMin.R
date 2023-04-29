@@ -227,8 +227,9 @@
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item type: Type of MDS model
-#' \item weightmat: weighting matrix 
+#' \item weightmat: weighting matrix as supplied
 #' \item stress.m: Default stress (stress-1^2)
+#' \item tweightmat: transformed weighting matrix (here NULL)
 #'}
 #'
 #' @section Note:
@@ -401,7 +402,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")
     #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(r=r), pars=c(r=r), theta=c(r=r))
+    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(r=r), pars=c(r=r), theta=c(r=r),tweightmat=NULL)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }

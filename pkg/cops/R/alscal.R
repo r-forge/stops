@@ -217,6 +217,7 @@
 #' \item type: Type of MDS model
 #' \item weightmat: weighting matrix as supplied 
 #' \item stress.m: Default stress (stress-1^2)
+#' \item tweightmat: transformed weighting matrix (here NULL)
 #' }
 #'
 #' @importFrom stats dist as.dist
@@ -369,7 +370,7 @@ alscal <- function (delta, type="ratio", weightmat=1-diag(nrow(delta)), init=NUL
        xnew <- xnew %*% xnew_svd$v
     }
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew))  
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="ALSCAL SMACOF", niter = itel,nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,lambda=lambda), pars=c(kappa=kappa,lambda=lambda), theta=c(kappa=kappa,lambda=lambda))
+    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="ALSCAL SMACOF", niter = itel,nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,lambda=lambda), pars=c(kappa=kappa,lambda=lambda), theta=c(kappa=kappa,lambda=lambda),tweightmat=NULL)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
