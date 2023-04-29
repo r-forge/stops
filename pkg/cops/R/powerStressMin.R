@@ -1,34 +1,4 @@
-#' Calculating stress per point
-#'
-#' @param dhat a dist object or symmetric matrix of dissimilarities
-#' @param confdist a dist object or symmetric matrix of fitted distances
-#' @param weightmat dist objetc or symmetric matrix of weights 
-#' 
-#' @return a list 
-spp <- function (dhat, confdist, weightmat) 
-{
-    resmat <- as.matrix(weightmat) * as.matrix(dhat - confdist)^2
-    diag(resmat) <- NA
-    spp <- colMeans(resmat, na.rm = TRUE)
-    spp <- spp/sum(spp) * 100
-    names(spp) <- colnames(resmat) <- rownames(resmat) <- attr(dhat, 
-        "Labels")
-    return(list(spp = spp, resmat = resmat))
-}
 
-
-#' Double centering of a matrix
-#'
-#' @param x numeric matrix
-#' @return the double centered matrix
-doubleCenter <- function(x) {
-        n <- dim(x)[1]
-        m <- dim(x)[2]
-        s <- sum(x)/(n*m)
-        xr <- rowSums(x)/m
-        xc <- colSums(x)/n
-        return((x-outer(xr,xc,"+"))+s)
-    }
 
 # #' Torgerson scaling
 # #'
@@ -45,91 +15,16 @@ doubleCenter <- function(x) {
 #    return(z$vectors[,1:p]%*%diag(sqrt(v[1:p])))
 #}
 
-#' Explicit Normalization
-#' Normalizes distances
-#' @param x numeric matrix 
-#' @param w weight
-#' @return a constant 
-enorm <- function (x, w=1) {
-    return (sqrt (sum (w * (x ^ 2))))
-}
-
-#' Squared distances
-#'
-#' @param x numeric matrix
-#' @return squared distance matrix
-sqdist <- function (x) {
-    s <- tcrossprod (x)
-    v <- diag (s)
-    return (outer (v, v, "+") - 2 * s)
-}
-
-#' Squared p-distances
-#'
-#' @param x numeric matrix
-#' @param p p>0 the Minkoswki distance
-#' @return squared Minkowski distance matrix
-pdist <- function (x,p) {
-    s <- tcrossprod (x)
-    v <- diag (s)
-    return (outer (v, v, "+") - 2 * s)
-}
-
-#' Auxfunction1
-#' 
-#' only used internally
-#' @param x matrix
-mkBmat <- function (x) {
-    d <- rowSums (x)
-    x <- -x
-    diag (x) <- d
-    return (x)
-}
-
-
-#' Take matrix to a power 
-#'
-#' @param x matrix
-#' @param r numeric (power)
-#' @return a matrix
-mkPower<-function(x,r) {
-    n<-nrow(x)
-    tmp <- abs((x+diag(n))^r)-diag(n)
-    return(tmp)
-}
-
-
-#' Secular Equation 
-#'
-#' @param a matrix
-#' @param b matrix
-#'
-#' @importFrom stats uniroot
-secularEq<-function(a,b) {
-    n<-dim(a)[1]
-    eig<-eigen(a)
-    eva<-eig$values
-    eve<-eig$vectors
-    beta<-drop(crossprod(eve, b))
-    f<-function(mu) {
-        return(sum((beta/(eva+mu))^2)-1)
-    }
-    lmn<-eva [n]
-    uup<-sqrt(sum(b^2))-lmn
-    ulw<-abs(beta [n])-lmn
-    rot<-stats::uniroot(f,lower= ulw,upper= uup)$root
-    cve<-beta/(eva+rot)
-    return(drop(eve%*%cve))
-}    
 
 #' Power Stress SMACOF
 #'
-#' An implementation to minimize power stress by minimization-majorization. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
+#' An implementation to minimize power stress by majorization with ratio or interval optimal scaling. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
 #' @param lambda the power of the transformation of the proximities; defaults to 1
-#' @param nu the power of the transformation for weightmat; defaults to 1 
+#' @param nu the power of the transformation for weightmat; defaults to 1
+#' @param type what type of MDS to fit. One of "ratio" or "interval". Default is "ratio".
 #' @param weightmat a matrix of finite weights
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
@@ -141,10 +36,10 @@ secularEq<-function(a,b) {
 #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
-#' \item tdelta: Observed explicitly transformed dissimilarities, not normalized
+#' \item tdelta: Observed explicitly transformed dissimilarities, normalized
 #' \item dhat: Explicitly transformed dissimilarities (dhats), optimally scaled and normalized 
-#' \item confdist: Configuration dissimilarities, NOT normalized 
-#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item confdist: Configuration dissimilarities
+#' \item conf: Matrix of fitted configuration
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item spp: Stress per point 
 #' \item ndim: Number of dimensions
@@ -172,13 +67,16 @@ secularEq<-function(a,b) {
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    type <- "ratio"
-    trans <- "none"
+    type <- match.arg(type, c("ratio", "interval",several.ok = FALSE)) 
+    trans <- type
     typo <- type
-    if(verbose>0) cat("Minimizing powerStress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if (trans=="ratio"){
+    trans <- "none"
+    }
+    if(verbose>0) cat("Minimizing",type,"power-stress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
 
     n <- nrow (delta)
     r <- kappa/2
@@ -208,7 +106,6 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, weightmat=1-diag(nro
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = 0.5)
     dhatt <- dhat$res 
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-    #FIXME: labels
     delta <- as.matrix(dhatd)
     rold <- sum (weightmat * delta * mkPower (dold, r))
     nold <- sum (weightmat * mkPower (dold, 2 * r))
