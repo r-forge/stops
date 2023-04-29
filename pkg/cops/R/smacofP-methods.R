@@ -237,7 +237,7 @@ print.summary.smacofP <- function(x,...)
     }
 
 #'@export
-print.smacofP <- function(x,..)
+print.smacofP <- function(x,...)
 {
     cat("\nCall:\n")
     print(x$call)
