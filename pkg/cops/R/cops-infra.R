@@ -91,7 +91,7 @@ plot.cops <- function(x,plot.type=c("confplot"), main, asp=1,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {
-        if(missing(main)) main <- paste("Reachability plot")
+        if(missing(main)) main <- paste("Reachability Plot")
         else main <- main
         plot(x$OC,main=main,...)
      } else if(inherits(x$fit,"smacofB") && !inherits(x$fit,"smacofP") && plot.type=="transplot"){

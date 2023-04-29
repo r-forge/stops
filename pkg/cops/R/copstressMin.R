@@ -749,10 +749,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
        {
         if(is.null(dmax))
         {
-          if(!exists("init"))
+          if(is.null(init))
            { 
            if(verbose>1) cat ("Fitting configuration for finding rang argument. \n")    
-           init0 <- smacof::torgerson(delta,p=ndim)
+           initsol <- smacof::torgerson(delta,p=ndim)  
+           init0 <- initsol
            } else init0 <- init
 
            init0 <- init0/enorm(init0)
@@ -769,7 +770,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }
              if(scale=="proc") #scales config by procrusting to init
              {
-                 if(!exists("init")) init <- initsol
+                 if(is.null(init)) init <- initsol
                  procr <- smacof::Procrustes(init,init0)
                  init0 <- procr$Yhat
              }

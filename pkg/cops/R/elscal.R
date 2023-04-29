@@ -318,8 +318,8 @@ elscal <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(del
       dnew <- sqdist (xnew)
       ##optimal scaling
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
-      dhat <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
-      dhatt <- dhat$res #FIXME: I need the structure here to reconstruct the delta; alternatively turn all into vectors - check how they do it in smacof
+      dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
+      dhatt <- dhat2$res #FIXME: I need the structure here to reconstruct the delta; alternatively turn all into vectors - check how they do it in smacof
       dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
       delta <- as.matrix(dhatd) 
       rnew <- sum (weightmat * delta * mkPower (dnew, r))
