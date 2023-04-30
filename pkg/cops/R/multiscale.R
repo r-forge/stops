@@ -244,6 +244,8 @@
 multiscale <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, kappa=0.1, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
+    if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
@@ -278,7 +280,7 @@ multiscale <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow
     if(any(delta)<0) stop("Nonnegative delta after log transformation. Input different dissimilarities.\n")
     #weightmato <- weightmat
     #weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1
+    weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
@@ -393,7 +395,7 @@ multiscale <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow
     }
      #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")  
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="Multiscale SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,TDelta="log"), pars=c(kappa=kappa,TDelta=call("log")), theta=c(kappa=kappa,TDelta=call("log")))
+    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="Multiscale SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,TDelta="log"), pars=c(kappa=kappa,TDelta="log"), theta=c(kappa=kappa,TDelta="log"),tweightmat=NULL)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }

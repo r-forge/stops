@@ -46,6 +46,8 @@
 sammonmap <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE,principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
+    if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     r <- 0.5
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
@@ -85,7 +87,7 @@ sammonmap <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(
     ## Skipping the second weighting gives a bit more variation in the configs between interval and ratio, but we're not gonna do that 
     delta <- delta / enorm (delta, weightmat) #Normalize with Sammon weighted
     weightmat <- weightmato/delta #Sammon weighting #1
-    weightmat[!is.finite(weightmat)] <- 1
+    weightmat[!is.finite(weightmat)] <- 0
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object
     #TO check: First enorm and then transprep or other way round? Makes no difference.
     deltaold <- delta
@@ -104,14 +106,14 @@ sammonmap <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(
     eold <- as.dist(sqrt(dold))
     ##Samon weighting again with normalized delta as w/delta * (delta-d(X)) 
     #weightmat <- weightmato/delta # Sammon weighting #2
-    #weightmat[!is.finite(weightmat)] <- 1
+    #weightmat[!is.finite(weightmat)] <- 0
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = 0.5) #calculate dhats. There is the sammon mapping already included via the w, I think
     dhatt <- dhat$res 
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
     delta <- as.matrix(dhatd)
     ##Sammon weighting #3: Can't work because the majorization isn't working anymore if we weight with optimally scaled delta 
     #weightmat <- weightmato/delta #sammon weighting with dhat and we always use weightmato/delta
-    #weightmat[!is.finite(weightmat)] <- 1
+    #weightmat[!is.finite(weightmat)] <- 0
     rold <- sum (weightmat * delta * mkPower (dold, r))
     nold <- sum (weightmat * mkPower (dold, 2 * r))
     aold <- rold / nold
@@ -179,7 +181,7 @@ sammonmap <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(
       ##Sammon mapping #4 with dynamic updating 
       ##we can't do this with interval (only two iterations then) and for ratio it makes no difference whether we have that or not so we skip this
       #weightmat <- weightmato/delta #as the delta changes, but not the weightmato
-      #weightmat[!is.finite(weightmat)] <- 1
+      #weightmat[!is.finite(weightmat)] <- 0
     }
     xnew <- xnew/enorm(xnew) #TODO: Check in smacof whether I need this 
     ## relabeling as they were removed in the optimal scaling
@@ -195,7 +197,7 @@ sammonmap <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(
     #doute <- stats::as.dist(doute)
     dout <- stats::as.dist(doutm)
     weightmatm <-weightmat
-    weightmatorig <-weightmato 
+    weightmatorig <-stats::as.dist(weightmatorig) 
     #resmat <- weightmatm*as.matrix((deltam - doutm)^2)
     #spp <- colMeans(resmat) 
     weightmat <- stats::as.dist(weightmatm)

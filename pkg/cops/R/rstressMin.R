@@ -249,7 +249,9 @@
 #' @export
 rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
-    if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
+    if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
+    if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     #r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
@@ -280,9 +282,8 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     labos <- rownames(delta) #labels
     deltaorig <- delta
     #delta <- delta^lambda
-    #weightmato <- weightmat
     #weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1
+    weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation

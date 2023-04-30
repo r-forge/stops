@@ -290,7 +290,7 @@ coef.smacofP <- function(object,...)
 #'@param shepard.x Shepard plot only: original data (e.g. correlation matrix) can be provided for plotting on x-axis
 #'@param cex Symbol size.
 #'@param col.hist Color of the borders of the histogram.
-#'@param shepard.lin Shepard plot only: if TRE the Shepard plot is linearized so d^kappa~delta^lambda. If FALSE d~delta^lambda  
+#'@param shepard.lin Shepard plot only: if TRUE the Shepard plot is linearized so d^kappa~delta^lambda. If FALSE d~delta^lambda  
 #'@param ... Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.
 #'
 #'
@@ -300,11 +300,11 @@ coef.smacofP <- function(object,...)
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configurations.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dissimilarities against the fitted distances.
-#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a regression (line, linear without intercept for ratio, linear for interval and isotonic for ordinal) 
+#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Diagram with the transformed observed dissimilarities against the transformed fitted distance as well as loess curve and a regression line (linear without intercept for ratio, linear for interval and isotonic for ordinal) 
 #'  \item Transformation Plot (plot.type = "transplot"): Diagram with the observed dissimilarities (lighter) and the transformed observed dissimilarities (darker) against the fitted distances together with the nonlinear regression curve (corresponding to the power transformations and with no intercept).
-#'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding smacof function to percentages (sum is 100). The higher the contribution, the worse the fit.
-#'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
-#' \item histogram (‘plot.type = "histogram"’: gives a weighted histogram of the dissimilarities. For optional arguments, see ‘wtd.hist’.
+#'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding function to percentages (sum is 100). The higher the contribution, the worse the fit.
+#'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the worse the fit.
+#' \item histogram (‘plot.type = "histogram"’: gives a weighted histogram of the dissimilarities (weighted with tweightmat if exists else with weightmat). For optional arguments, see ‘wtd.hist’.
 #' }
 #'
 #' @importFrom graphics plot text identify legend mtext par
@@ -414,7 +414,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
 
         if (missing(ylab)) ylab <- "Transformed Configuration Distances" else ylab <- ylab
 
-        notmiss <- as.vector(x$weightmat > 0)
+        
+        notmiss <- as.vector(as.dist(x$weightmat) > 0)
         if (is.null(shepard.x)) {
            delts <- as.vector(x$delta) #with shepard.lin=FALSE we use the original delta
            if(shepard.lin) delts <- as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
@@ -425,8 +426,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
          #delts=xcoor in smacof 
          if (missing(xlim)) xlim <- range(delts[notmiss],na.rm=TRUE)
          if (missing(ylim)){
-             #ylim <- range(confd[notmiss])
-             ylim <- range(confd)
+             ylim <- range(confd[notmiss])
+             #ylim <- range(confd)
              ylim[1] <- 0
          }
 
@@ -509,7 +510,7 @@ if (plot.type == "resplot") {
         ptl <- predict(stats::loess(confd~dhats))
         graphics::lines(dhats[order(dhats)],ptl[order(dhats)],col=col[2],type="b",pch=pch,cex=cex)
         }
-        abline(0,1,col="red")
+#        abline(0,1,col="red")
 }
 #----------------------- Stress decomposition -----------------
         if (plot.type == "stressplot") {

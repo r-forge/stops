@@ -686,7 +686,8 @@
 #' @importFrom GenSA GenSA
 #' @importFrom nloptr direct
 #' @importFrom minqa newuoa
-#' 
+#' @importFrom smacof transPrep transform
+#'
 #' 
 #' @keywords clustering multivariate
 #' @export
@@ -694,6 +695,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
+    if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
     type <- match.arg(type, c("ratio", "interval", "ordinal",several.ok = FALSE)) 
@@ -737,7 +740,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     delta <- delta^lambda
     weightmato <- weightmat
     weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1 #new
+    weightmat[!is.finite(weightmat)] <- 0 #new
     deltaold <- delta
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
@@ -1124,6 +1127,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      #spp <- colMeans(resmat)
      #weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmat)
+     weightmato <- stats::as.dist(weightmato)
      spoint <- spp(delta, dout, weightmat)
      resmat<-spoint$resmat
      rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])

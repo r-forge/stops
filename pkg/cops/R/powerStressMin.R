@@ -70,6 +70,8 @@
 powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
+    if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
+    if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     type <- match.arg(type, c("ratio", "interval",several.ok = FALSE)) 
     trans <- type
     typo <- type
@@ -89,7 +91,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weigh
     delta <- delta^lambda
     weightmato <- weightmat
     weightmat <- weightmat^nu
-    weightmat[!is.finite(weightmat)] <- 1
+    weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)
     deltaold <- delta
@@ -189,6 +191,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weigh
      dout <- stats::as.dist(doutm)
      weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmatm)
+     weightmato <- stats::as.dist(weightmato)
      #resmat <- weightmatm*as.matrix((deltam - doutm)^2) #old spp now we sum up to 100
      #spp <- colMeans(resmat)
      spoint <- spp(delta, dout, weightmat)
