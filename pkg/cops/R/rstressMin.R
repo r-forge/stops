@@ -276,6 +276,9 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
   }
     if(verbose>0) cat(paste("Minimizing",type,"rStress with r=",r,"\n"))
     n <- nrow (delta)
+    normi <- 0.5
+    ##normi <- n #if normi=n we can use the iord structure in plot.smacofP
+    ## but the problem is we don't get the correct stress then anymore.
     p <- ndim
     if (p > (n - 1)) stop("Maximum number of dimensions is n-1!")
     if(is.null(rownames(delta))) rownames(delta) <- 1:n 
@@ -300,7 +303,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     dold <- sqdist (xold)
    ##first optimal scaling
     eold <- as.dist(sqrt(dold))
-    dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = 0.5)
+    dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = normi)
     dhatt <- dhat$res #I need the structure here to reconstruct the delta; alternatively turn all into vectors? - checked how they do it in smacof
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
     #FIXME: labels
@@ -329,7 +332,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
       dnew <- sqdist (xnew)
       ##optimal scaling
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
-      dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
+      dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = normi)  ## dhat update
       dhatt <- dhat2$res 
       dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
       delta <- as.matrix(dhatd)
