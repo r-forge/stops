@@ -360,19 +360,19 @@ dis<-as.matrix(smacof::kinshipdelta)
 set.seed(1)
 ## Copstress with equal weight to stress and cordillera 
 res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
-                  itmax=500) #use higher itmax about 10000 
+                  itmax=100) #use higher itmax about 10000 
 res1
 summary(res1)
 plot(res1)  #super clustered
 
 ##Alias name 
 res1<-copsc(dis,stressweight=0.5,
-                  cordweight=0.5,itmax=500) 
+                  cordweight=0.5,itmax=100) 
 
 
 ## Elastic scaling ordinal s-stress with cops penalty
 res1<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
-            stressweight=0.5, cordweight=0.5,itmax=500)
+            stressweight=0.5, cordweight=0.5,itmax=100)
 
 
 }

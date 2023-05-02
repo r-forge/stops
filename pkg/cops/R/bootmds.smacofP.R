@@ -4,7 +4,7 @@
 #'
 #' @param object  Object of class smacofP if used as method or another object inheriting from smacofB (needs to be called directly as bootmds.smacofP then).
 #' @param data Initial data (before dissimilarity computation).
-#' @param method.dat: Dissimilarity computation used as MDS input. This must be one of "pearson", "spearman", "kendall", "euclidean", "maximum", "manhattan", "canberra", "binary".
+#' @param method.dat Dissimilarity computation used as MDS input. This must be one of "pearson", "spearman", "kendall", "euclidean", "maximum", "manhattan", "canberra", "binary".
 #' @param nrep Number of bootstrap replications.
 #' @param alpha Alpha level for condfidence ellipsoids.
 #' @param verbose If ‘TRUE’, bootstrap index is printed out.

@@ -6,7 +6,6 @@
 #' @param eps Convergence criterion
 #' @param itmax Maximum number of iterations 
 #' @param verbose If ‘TRUE’, intermediate stress is printed out.
-#' @param  ...  Additional arguments needed for dissimilarity computation as specified in \code{\link[smacof]{sim2diss}}.
 #'
 #' @details  In order to examine the stability solution of an MDS, a Jackknife on the configurations can be performed (see de Leeuw & Meulman, 1986) and plotted. The plot shows the jackknife configurations which are connected to their centroid. In addition, the original configuration (transformed through Procrustes) is plotted. The Jackknife function itself returns also a stability measure (as ratio of between and total variance), a measure for cross validity, and the dispersion around the original smacof solution.
 #'
