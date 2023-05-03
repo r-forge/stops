@@ -41,7 +41,7 @@
 #' data(kinshipdelta)
 #' fitkin <- rStressMin(kinshipdelta, ndim = 2, r=0.5,itmax=100) #use higher itmax
 #' set.seed(222)
-#' res.perm <- permtest(fitkin,nrep=10) #use higher nrep in reality
+#' res.perm <- permtest(fitkin,nrep=5) #use higher nrep in reality
 #' res.perm
 #' plot(res.perm)
 #' 
@@ -51,7 +51,7 @@
 #' fitgop1 <- alscal(diss1,type="interval")
 #' fitgop1
 #' set.seed(123)
-#' permtest(fitgop1, GOPdtm[,1:10], nrep = 10, method.dat = "binary")
+#' permtest(fitgop1, GOPdtm[,1:10], nrep = 5, method.dat = "binary")
 #' 
 permtest.smacofP <- function(object, data, method.dat = "pearson", nrep = 100, verbose = FALSE, ...)
 {
