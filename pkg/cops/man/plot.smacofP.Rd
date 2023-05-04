@@ -74,8 +74,7 @@
 
 \item{legpos}{Position of legend in plots with legends}
 
-\item{loess}{should loess fit be added to Shepard plot
-#'@param loess should loess fit be added to Shepard or residual plot}
+\item{loess}{if TRUE a loess fit (by Tukey's rescending M-Estimator) of configuration distances explained by delta  is added to the Shepard plot}
 
 \item{shepard.lin}{Shepard plot only: if TRUE the Shepard plot is linearized so d^kappa~delta^lambda. If FALSE d~delta^lambda}
 
@@ -91,7 +90,7 @@ S3 plot method for smacofP objects
 \itemize{
 \item  Configuration plot (plot.type = "confplot"): Plots the MDS configuration.
  \item Residual plot (plot.type = "resplot"): Plots the dhats f(T(delta)) against the transformed fitted distances T(d(X)).
- \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta.    
+ \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta. Note that the regression line corresponds to the optimal scaling results (dhat) only up to a linear transformation. 
  \item Transformation Plot (plot.type = "transplot"): Diagram with normalized observed dissimilarities (delta, light grey) and the normalized explicitly transformed dissimilarities (T(Delta), darker) against the untransformed fitted distances (d(X)) together with a nonlinear regression curve corresponding to the explicit transformation (fitted power transformation). This is most useful for ratio models with power transformations as the transformations can be read of directly. For other MDS models and stresses, it still gives a quick way to assess how the explicit transformations worked.  
  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding function to percentages (sum is 100). The higher the contribution, the worse the fit.
  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the worse the fit.

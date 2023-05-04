@@ -1,5 +1,5 @@
 Version 1.7-2:
-  - Changed the Shepard plot to use isoreg from stats to draw the regression lines. These are not equivalent to the dhats but the latter didn't work for power transfomation of the fitted configuration distances.    
+  - Changed the Shepard plot to now work with power exponents in the dhat regression line added to the plot. The latter are the same one as obtained by the MDS fit only linearly transformed to be on the same scale as the configuration distances.  
 
 Version 1.7-1:
   - Added bootmds, biplotmds, icExploreGen, multistart, permtest, jackmds function that work with smacofP and copsc objects.   

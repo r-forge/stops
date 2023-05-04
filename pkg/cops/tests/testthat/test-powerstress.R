@@ -321,13 +321,25 @@ plotOLD.smacofP(resold,plot.type="bubbleplot")
 resnew1 <- rStressMin(dis,type="ordinal",r=1)
 resnew0.5 <- rStressMin(dis,type="ordinal",r=0.5)
 resnew1.5 <- rStressMin(dis,type="ordinal",r=1.5)
-resnew0.4 <- rStressMin(dis,type="ordinal",r=0.4)
+resnew0.3 <- rStressMin(dis,type="ordinal",r=0.3)
+
+resnew1 <- rStressMin(dis,type="interval",r=1)
+resnew0.5 <- rStressMin(dis,type="interval",r=0.5)
+resnew1.5 <- rStressMin(dis,type="interval",r=1.5)
+resnew0.3 <- rStressMin(dis,type="interval",r=0.3)
+
+resnew1 <- rStressMin(dis,type="ratio",r=1)
+resnew0.5 <- rStressMin(dis,type="ratio",r=0.5)
+resnew1.5 <- rStressMin(dis,type="ratio",r=1.5)
+resnew0.3 <- rStressMin(dis,type="ratio",r=0.3)
+
 par(mfrow=c(2,2))
-plot(resnew0.4,plot.type="Shepard")
+plot(resnew0.3,plot.type="Shepard")
 plot(resnew0.5,plot.type="Shepard")
 plot(resnew1,plot.type="Shepard")
 plot(resnew1.5,plot.type="Shepard")
 
+plot(resnew,plot.type="Shepard")
 
 
 mean(resnew0.4$confdist/resnew0.5$confdist)
@@ -335,3 +347,7 @@ mean(resnew0.4$confdist/resnew0.5$confdist)
 mean(resnew1$confdist/resnew0.5$confdist)
 
 mean(resnew1.5$confdist/resnew0.5$confdist)
+
+mean(resnew1.5$confdist/resnew0.5$confdist)
+
+resnew$dhat/resnew$confdist

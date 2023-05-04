@@ -243,8 +243,7 @@
 #'@param legpos Position of legend in plots with legends 
 #'@param pch  Plot symbol
 #'@param asp  Aspect ratio; defaults to 1 so distances between x and y are represented accurately; can lead to slighlty weird looking plots if the variance on one axis is much smaller than on the other axis; use NA if the standard type of R plot is wanted where the ylim and xlim arguments define the aspect ratio - but then the distances seen are no longer accurate
-#'@param loess should loess fit be added to Shepard plot
-#' #'@param loess should loess fit be added to Shepard or residual plot
+#'@param loess if TRUE a loess fit (by Tukey's rescending M-Estimator) of configuration distances explained by delta  is added to the Shepard plot
 #'@param hull.conf Option to add convex hulls to a configuration plot. Hull index needs to be provided.
 #'@param shepard.x Shepard plot only: original data (e.g. correlation matrix) can be provided for plotting on x-axis
 #'@param cex Symbol size.
@@ -259,7 +258,7 @@
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configuration.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dhats f(T(delta)) against the transformed fitted distances T(d(X)).
-#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta. Note that the regression line doesn't correspond 100% to the optimal scaling in the MDS itself because we use a different function to obtain the regression line (the reason is that one we use in the MDS gives dhats on a different scales if T(D(X))!=D(X) and we haven't figured out the scaling yet).
+#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta. Note that the regression line corresponds to the optimal scaling results (dhat) only up to a linear transformation. 
 #'  \item Transformation Plot (plot.type = "transplot"): Diagram with normalized observed dissimilarities (delta, light grey) and the normalized explicitly transformed dissimilarities (T(Delta), darker) against the untransformed fitted distances (d(X)) together with a nonlinear regression curve corresponding to the explicit transformation (fitted power transformation). This is most useful for ratio models with power transformations as the transformations can be read of directly. For other MDS models and stresses, it still gives a quick way to assess how the explicit transformations worked.  
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the worse the fit.
@@ -434,32 +433,42 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         
         #TODO: For r=0.5 and kappa=1 this works but not for all the others
         #points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
-        #TODO: With the attempt to do it via smacof's optimal scaling here but doesn't work and I wonder why.
-        #points((delts[iord])[notmiss.iord], (as.vector(dhats[iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+                                        #TODO: With the attempt to do it via smacof's optimal scaling here but doesn't work and I wonder why.
+                                        #TRIED: tried to change the sqrt(2*nobj) which works for r=0.5/kappa=1 to a function of the r/lkappa (expo). Didn't work. I think part of the issue is that we also do enorm - so can we figure out a scaling factor from the scale of the confdist?
+       #TRIED: used a linear model to get a scaling factor and an intercept. Looks good! The dhat are on a scale that is just transformed with enorm() and that is just a linear function
+        delts1 <- delts[notmiss]
+        confd1 <- confd[notmiss]
+        wm1 <- wm[notmiss]
+        dhats1 <- as.vector(x$dhat)[notmiss]
+        scallm <- coef(lm(confd1~dhats1,weights=wm))
+        #scallmf <- c(0,scallm)
+        points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
         ##NOTE: I can't make smacofs transform work with normq=n in our fitting functions, so I scale up the dhat that are obtained from smacof::transform to the scale of the confdist that is returned.
         ## Since we we use normq=0.5 in fitting functions we thus need to scale the dhats up with sqrt(2*n)
         ## because in transform they do a=delta * sqrt(normq/sum(weights*delta^2)) and we want normq=n 
         ## so if we mutliply a*sqrt(2*n) it is as if we set normq=n.
         ## Still doesn't work because the r or kappa transformation isn't properly reflected and the x$dhats are only correct with k=1, r=0.5. It looks like there is some sort of scaling factor I'd have to apply but I don't know which one
-        delts1 <- delts[notmiss]
-        confd1 <- confd[notmiss]
-        wm1 <- wm[notmiss]
+        #delts1 <- delts[notmiss]
+        #confd1 <- confd[notmiss]
+        #wm1 <- wm[notmiss]
         if(loess) {
-            if(x$type=="ratio") ptl <- predict(stats::loess(confd~-1+delts,weights=wm))
-            if(x$type=="interval") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
-            if(x$type=="ordinal") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
+            ##no need to distinguish as in loess there is no constant 
+            #if(x$type=="ratio") ptl <- predict(stats::loess(confd~-1+delts,weights=wm))
+            #if(x$type=="interval") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
+            #if(x$type=="ordinal") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
+            ptl <- predict(stats::loess(confd1~delts1,weights=wm),family="symmetric")
             graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[2],type="b",pch=pch,cex=cex)
         }
-        if(x$type=="ordinal")  {
+        #if(x$type=="ordinal")  {
         ## NOTE: we now do manual isotonic regression here as with our implementation the dhats from smacof are on a different scale. This is not 100% correct as we don't take the weightmat into account but for diagnostics its cool. 
-           ir <- stats::isoreg(x=delts1,y=confd1) 
+        #   ir <- stats::isoreg(x=delts1,y=confd1) 
            #ptl <- ir$yf[ir$ord] 
-           graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
-        } else { 
-        if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
-        if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
-        graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
-        }
+        #   graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
+        #} else { 
+        #if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
+        #if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
+        #graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
+        #}
     ##Looks good: one thing I need to check is whether the pt, ptl correlate with the dhats.
     # Looks like we can't use the dhat[iord] idea because normq is different in the calls, check that out too and alos because the scale of the confdist changes due to the power and the enorm. TODO: is there a relationhsip to figure out     
     }
