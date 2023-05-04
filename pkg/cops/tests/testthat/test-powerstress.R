@@ -290,8 +290,8 @@ plot(unclass(resp$confdiss),unclass(resp$obsdiss),ylim=c(0,max(resp$confdiss,res
 ##testing rstress new version
 library(devtools)
 load_all()
-dis <- kinshipdelta
-resnew <- rStressMin(dis,type="ordinal")
+dis <- smacof::kinshipdelta
+resnew <- rStressMin(dis,type="ordinal",r=1)
 resold <- rStressMinOld(dis,type="ordinal")
 ##Ratio works great with or without r. Maybe not show untransformed points as there is not transformation here
 ## check out the smacof Shepard and resplots
@@ -316,3 +316,22 @@ plot(resnew,plot.type="resplot")
 plot(resnew,plot.type="stressplot")
 plot(resnew,plot.type="bubbleplot")
 plotOLD.smacofP(resold,plot.type="bubbleplot")
+
+
+resnew1 <- rStressMin(dis,type="ordinal",r=1)
+resnew0.5 <- rStressMin(dis,type="ordinal",r=0.5)
+resnew1.5 <- rStressMin(dis,type="ordinal",r=1.5)
+resnew0.4 <- rStressMin(dis,type="ordinal",r=0.4)
+par(mfrow=c(2,2))
+plot(resnew0.4,plot.type="Shepard")
+plot(resnew0.5,plot.type="Shepard")
+plot(resnew1,plot.type="Shepard")
+plot(resnew1.5,plot.type="Shepard")
+
+
+
+mean(resnew0.4$confdist/resnew0.5$confdist)
+
+mean(resnew1$confdist/resnew0.5$confdist)
+
+mean(resnew1.5$confdist/resnew0.5$confdist)

@@ -1,3 +1,6 @@
+Version 1.7-2:
+  - Changed the Shepard plot to use isoreg from stats to draw the regression lines. These are not equivalent to the dhats but the latter didn't work for power transfomation of the fitted configuration distances.    
+
 Version 1.7-1:
   - Added bootmds, biplotmds, icExploreGen, multistart, permtest, jackmds function that work with smacofP and copsc objects.   
 
@@ -5,7 +8,7 @@ Version 1.7-0:
   - Completely redid the object class smacofP returned from the functions so that they match smacof objects (incl. all symmetric matrices are dist objects). New methods for generics of smacofP. updated functions to also allow for principal argument. Programmed some sanity checks. Weightmat can now also be a dist object. NA or +-inf in weightmat will be treated as 0. 
 
 Version 1.6-1:
-  - Changed Sammon mapping and elastic scaling functions optimal scaling to interval and ratio only. updated multiscale, alscal rstressMin and powerStressMin. Moved many functions in their own files. 
+  - Changed Sammon mapping and elastic scaling functions optimal scaling to interval and ratio only. updated multiscale, alscal, rstressMin and powerStressMin. Moved many functions in their own files. 
 
 Version 1.6-0:
   - Added Sammon mapping and elastic scaling functions that allows optimal scaling.  

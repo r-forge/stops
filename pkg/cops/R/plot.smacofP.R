@@ -259,7 +259,7 @@
 #' \itemize{
 #' \item  Configuration plot (plot.type = "confplot"): Plots the MDS configuration.
 #'  \item Residual plot (plot.type = "resplot"): Plots the dhats f(T(delta)) against the transformed fitted distances T(d(X)).
-#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta.    
+#'  \item (Linearized) Shepard diagram (plot.type = "Shepard"): Is shep.lin=TRUE a diagram with the transformed observed normalized dissimilarities (T(delta) on x)  against the transformed fitted distance (T(d(X) on y) as well as a loess curve and a regression line corresponding to type (linear without intercept for ratio, linear for interval and isotonic for ordinal). If shep.lin=FALSE it uses the untransformed delta. Note that the regression line doesn't correspond 100% to the optimal scaling in the MDS itself because we use a different function to obtain the regression line (the reason is that one we use in the MDS gives dhats on a different scales if T(D(X))!=D(X) and we haven't figured out the scaling yet).
 #'  \item Transformation Plot (plot.type = "transplot"): Diagram with normalized observed dissimilarities (delta, light grey) and the normalized explicitly transformed dissimilarities (T(Delta), darker) against the untransformed fitted distances (d(X)) together with a nonlinear regression curve corresponding to the explicit transformation (fitted power transformation). This is most useful for ratio models with power transformations as the transformations can be read of directly. For other MDS models and stresses, it still gives a quick way to assess how the explicit transformations worked.  
 #'  \item Stress decomposition plot (plot.type = "stressplot"): Plots the stress contribution in of each observation. Note that it rescales the stress-per-point (SPP) from the corresponding function to percentages (sum is 100). The higher the contribution, the worse the fit.
 #'  \item Bubble plot (plot.type = "bubbleplot"): Combines the configuration plot with the point stress contribution. The larger the bubbles, the worse the fit.
@@ -373,7 +373,39 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
 
         if (missing(ylab)) ylab <- "Transformed Configuration Distances" else ylab <- ylab
 
-        
+        wm <- x$tweightmat
+        if(is.null(wm)) wm <- x$weightmat 
+        #additional optimal scaling to make the dhat usable
+        #TODO: Eventually figure out how we can use the dhat$iord for r!=1 as they are the correct functions.  
+        #type <- x$type
+        #trans <- type
+        #typo <- type
+        #ties <- "primary"
+        #if (trans=="ratio"){
+        #trans <- "none"
+        #}
+        #else if (trans=="ordinal" & ties=="primary"){
+        #trans <- "ordinalp"
+        #typo <- "ordinal (primary)"
+        #} else if(trans=="ordinal" & ties=="secondary"){
+        #trans <- "ordinals"
+        #typo <- "ordinal (secondary)"
+        #} else if(trans=="ordinal" & ties=="tertiary"){
+        #trans <- "ordinalt"
+        #typo <- "ordinal (tertiary)"
+        #}
+        #disobj <- smacof::transPrep(as.dist(x$delta), trans = trans, spline.intKnots = 2, spline.degree = 2)
+        #if(shepard.lin) disobj <- smacof::transPrep(as.dist(x$tdelta), trans = trans, spline.intKnots = 2, spline.degree = 2)
+        #e <- as.dist(x$confdist)
+        #wm <- x$tweightmat
+        #if(is.null(wm)) wm <- x$weightmat
+        #n <- x$nobj
+        #dhat2 <- smacof::transform(e, disobj, w = as.dist(wm), normq = n )  ## dhat update
+        #iord <- dhat2$iord.prim
+        #dhatt <- dhat2$res
+        #dhats <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
+       #FIXME: labels
+       # dhats <- as.matrix(dhatd)
         notmiss <- as.vector(as.dist(x$weightmat) > 0)
         if (is.null(shepard.x)) {
            delts <- as.vector(x$delta) #with shepard.lin=FALSE we use the original delta
@@ -381,7 +413,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
           } else {
            delts <- as.vector(as.dist(shepard.x))
           }
-         confd <- as.vector(x$confdist) #Confdist are already transformed  
+        confd <- as.vector(x$confdist) #Confdist are already transformed
+        wm <- as.vector(wm)
          #delts=xcoor in smacof 
          if (missing(xlim)) xlim <- range(delts[notmiss],na.rm=TRUE)
          if (missing(ylim)){
@@ -391,37 +424,44 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
          }
 
         if(missing(col)) col <- c("grey70","grey40","black")
-       
+         
         #delta=observed delta Delta
         #tdelta=transformed delta normalized T(Delta) 
         #distances= dhats, optimally scaled transformed Delta and normalized f(T(Delta))
         graphics::plot(delts[notmiss], confd[notmiss], main = main, type = "p", pch=pch, cex = cex, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
+        #notmiss.iord <- notmiss[x$iord]
         notmiss.iord <- notmiss[x$iord]
-        points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+        
+        #TODO: For r=0.5 and kappa=1 this works but not for all the others
+        #points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+        #TODO: With the attempt to do it via smacof's optimal scaling here but doesn't work and I wonder why.
+        #points((delts[iord])[notmiss.iord], (as.vector(dhats[iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
         ##NOTE: I can't make smacofs transform work with normq=n in our fitting functions, so I scale up the dhat that are obtained from smacof::transform to the scale of the confdist that is returned.
         ## Since we we use normq=0.5 in fitting functions we thus need to scale the dhats up with sqrt(2*n)
         ## because in transform they do a=delta * sqrt(normq/sum(weights*delta^2)) and we want normq=n 
-        ## so if we mutliply a*sqrt(2*n) it is as if we set normq=n. 
+        ## so if we mutliply a*sqrt(2*n) it is as if we set normq=n.
+        ## Still doesn't work because the r or kappa transformation isn't properly reflected and the x$dhats are only correct with k=1, r=0.5. It looks like there is some sort of scaling factor I'd have to apply but I don't know which one
         delts1 <- delts[notmiss]
         confd1 <- confd[notmiss]
+        wm1 <- wm[notmiss]
         if(loess) {
-            if(x$type=="ratio") ptl <- predict(stats::loess(confd~-1+delts))
-            if(x$type=="interval") ptl <- predict(stats::loess(confd1~delts1))
-            if(x$type=="ordinal") ptl <- predict(stats::loess(confd1~delts1))
+            if(x$type=="ratio") ptl <- predict(stats::loess(confd~-1+delts,weights=wm))
+            if(x$type=="interval") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
+            if(x$type=="ordinal") ptl <- predict(stats::loess(confd1~delts1,weights=wm))
             graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[2],type="b",pch=pch,cex=cex)
         }
-        #if(x$type=="ordinal")  {
-            ##we do manual isotonic regression here as with our implementation the dhats from smacof are on a different scale.  
-         #   ir <- stats::isoreg(x=delts1,y=confd1) 
-         #   #ptl <- ir$yf[ir$ord] 
-         #   graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
-        #} else { 
-        #if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1))
-        #if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1))
-        #graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
-        #}
+        if(x$type=="ordinal")  {
+        ## NOTE: we now do manual isotonic regression here as with our implementation the dhats from smacof are on a different scale. This is not 100% correct as we don't take the weightmat into account but for diagnostics its cool. 
+           ir <- stats::isoreg(x=delts1,y=confd1) 
+           #ptl <- ir$yf[ir$ord] 
+           graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
+        } else { 
+        if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
+        if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
+        graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
+        }
     ##Looks good: one thing I need to check is whether the pt, ptl correlate with the dhats.
-    # perhaps we can't use the dhat[iord] idea because normq is different in the calls, check that out too.     
+    # Looks like we can't use the dhat[iord] idea because normq is different in the calls, check that out too and alos because the scale of the confdist changes due to the power and the enorm. TODO: is there a relationhsip to figure out     
     }
     if (plot.type == "transplot") {
         if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
@@ -435,7 +475,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
               disttrans <- 1
              }
              deltao <- as.vector(x$delta/enorm(x$delta)) #normalize the delta
-             deltat <- as.vector(x$tdelta) #are already normalized; TODO: should we use the dhat here? so just epxlicit or both?
+             deltat <- as.vector(x$tdelta/enorm(x$tdelta)) #are already normalized in smacofP but not in copsc. TODO: should we use the dhat here? so just explicit or both?
              dreal <- as.vector(x$confdist)^(1/disttrans) #change the confdist back to the eudclidean distance; we could also do dist(x$conf) but first is quicker 
              if (missing(main)) main <- paste("Transformation Plot")
              else main <- main
