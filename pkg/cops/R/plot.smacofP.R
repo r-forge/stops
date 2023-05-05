@@ -408,7 +408,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         notmiss <- as.vector(as.dist(x$weightmat) > 0)
         if (is.null(shepard.x)) {
            delts <- as.vector(x$delta) #with shepard.lin=FALSE we use the original delta
-           if(shepard.lin) delts <- as.vector(x$tdelta) #tdelta) #as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
+           if(shepard.lin) delts <- as.vector(x$tdelta) #dhat) #tdelta) #tdelta) #as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
           } else {
            delts <- as.vector(as.dist(shepard.x))
           }
@@ -468,14 +468,16 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             ## If found that re-scaling of the dhats gets better if we do this power regression
             ## I'm not 100% sure why but I think it is because the isotonic regression is invariant to parametric transformations of the dhats which are out x argument in isoreg: so we need to manually include the power transformation somwhow. It may not be 100% correct because of enorm() but it looks better than ever. But in the the metric MDS the power transformation is taken into account by the tdelta.  
             scallm <- coef(lm(confd1~I(dhats1^expo),weights=wm))
+            #scallm2 <- coef(lm(confd1^(1/expo)~dhats1,weights=wm)) #alternative where only the predictor gets transformed; looks a bit less but is a bit less accurate in trials. test more  
             #ir1 <- stats::isoreg(x=dhats1,y=confd1)
             #dhatscal+(ir1$yf[x$iord]-dhatsscal)    
         }
         #scallm <- coef(lm(confd1~-1+dhats1,weights=wm))
         #scallm <- c(0,scallm)
         #cat(scallm,"\n")
-        #points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*(as.vector(x$dhat[x$iord])^expo)[notmiss.iord], type = "b", pch = pch, cex = 2,col="green")#cex,col=col[3]) #"green")#
-        points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*((dhats1[x$iord])^expo)[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])#cex,col=col[3]) #"green")#
+        points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*(as.vector(x$dhat[x$iord])^expo)[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+        #Alternative: points((delts[x$iord])[notmiss.iord], (scallm2[1]+(scallm2[2]*(dhats1[x$iord])[notmiss.iord]))^expo, type = "b", pch = pch, cex = cex,col="red")
+         #points((delts[x$iord])[notmiss.iord], (scallm1[1]+scallm1[2]*(dhats1[x$iord])[notmiss.iord])^expo, type = "b", pch = pch, cex = 2,col="green")#
         ##NOTE: I can't make smacofs transform work with normq=n in our fitting functions, so I scale up the dhat that are obtained from smacof::transform to the scale of the confdist that is returned.
         ## Since we we use normq=0.5 in fitting functions we thus need to scale the dhats up with sqrt(2*n)
         ## because in transform they do a=delta * sqrt(normq/sum(weights*delta^2)) and we want normq=n 
@@ -495,14 +497,14 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         #NOTE: This code would do the transformations manually based on f(confd~delts). That needs to coincide up to a scaling factor with the object$dhat, so I included this for checking that it works (mainly because the manual isoreg  and the isoreg in smacof do not give the same results and the former can't take weights), so I'd like to stick with the object$dhat as fitted in the MDS. For ratio and interval it would make no difference anyway.   
         #if(x$type=="ordinal")  {
         ## NOTE: we now do manual isotonic regression here as with our implementation the dhats from smacof are on a different scale. This is not 100% correct as we don't take the weightmat into account but for diagnostics its cool. 
-        ##   ir <- stats::isoreg(x=delts1,y=confd1) 
-        ##   #ptl <- ir$yf[ir$ord] 
-        ##  graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
-        ##} else { 
-        ##if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
-        ##if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
-        ##graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
-        ##}
+        #   ir <- stats::isoreg(x=delts1,y=confd1) 
+        #   #ptl <- ir$yf[ir$ord] 
+        #  graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
+        #} else { 
+        #if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
+        #if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
+        #graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
+        #}
     # Looks like we can't just use the dhat[iord] idea because normq is different in the calls, check that out too and alos because the scale of the confdist changes due to the power and the enorm. SOLVED: is there a relationhsip to figure out? Yes, linear no intercept for ratio, linear with intercept for interval, linear with pwoer function for ordinal       
     }
     if (plot.type == "transplot") {

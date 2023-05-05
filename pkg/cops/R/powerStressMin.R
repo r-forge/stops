@@ -194,7 +194,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weigh
      weightmato <- stats::as.dist(weightmato)
      #resmat <- weightmatm*as.matrix((deltam - doutm)^2) #old spp now we sum up to 100
      #spp <- colMeans(resmat)
-     spoint <- spp(delta, dout, weightmat)
+     spoint <- smacof::spp(delta, dout, weightmat)
      resmat<-spoint$resmat
      rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
      spp <- spoint$spp
