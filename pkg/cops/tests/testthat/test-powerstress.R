@@ -322,6 +322,8 @@ resnew1 <- rStressMin(dis,type="ordinal",r=1)
 resnew0.5 <- rStressMin(dis,type="ordinal",r=0.5)
 resnew1.5 <- rStressMin(dis,type="ordinal",r=1.5)
 resnew0.3 <- rStressMin(dis,type="ordinal",r=0.3)
+resnew4 <- rStressMin(dis,type="ordinal",r=4)
+
 
 resnew1 <- rStressMin(dis,type="interval",r=1)
 resnew0.5 <- rStressMin(dis,type="interval",r=0.5)
@@ -333,11 +335,14 @@ resnew0.5 <- rStressMin(dis,type="ratio",r=0.5)
 resnew1.5 <- rStressMin(dis,type="ratio",r=1.5)
 resnew0.3 <- rStressMin(dis,type="ratio",r=0.3)
 
+dev.new()
 par(mfrow=c(2,2))
 plot(resnew0.3,plot.type="Shepard")
 plot(resnew0.5,plot.type="Shepard")
 plot(resnew1,plot.type="Shepard")
 plot(resnew1.5,plot.type="Shepard")
+
+plot(resnew4,plot.type="Shepard")
 
 plot(resnew,plot.type="Shepard")
 

@@ -408,7 +408,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         notmiss <- as.vector(as.dist(x$weightmat) > 0)
         if (is.null(shepard.x)) {
            delts <- as.vector(x$delta) #with shepard.lin=FALSE we use the original delta
-           if(shepard.lin) delts <- as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
+           if(shepard.lin) delts <- as.vector(x$tdelta) #tdelta) #as.vector(x$tdelta) #with shepard.lin=FALSE we use the Shepard diagram on the level of the T(Delta) as we approx T(Delta) by the confdists 
           } else {
            delts <- as.vector(as.dist(shepard.x))
           }
@@ -430,19 +430,52 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         graphics::plot(delts[notmiss], confd[notmiss], main = main, type = "p", pch=pch, cex = cex, xlab = xlab, ylab = ylab, col = col[1], xlim = xlim, ylim = ylim, ...)
         #notmiss.iord <- notmiss[x$iord]
         notmiss.iord <- notmiss[x$iord]
-        
-        #TODO: For r=0.5 and kappa=1 this works but not for all the others
-        #points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
-                                        #TODO: With the attempt to do it via smacof's optimal scaling here but doesn't work and I wonder why.
-                                        #TRIED: tried to change the sqrt(2*nobj) which works for r=0.5/kappa=1 to a function of the r/lkappa (expo). Didn't work. I think part of the issue is that we also do enorm - so can we figure out a scaling factor from the scale of the confdist?
-       #TRIED: used a linear model to get a scaling factor and an intercept. Looks good! The dhat are on a scale that is just transformed with enorm() and that is just a linear function
         delts1 <- delts[notmiss]
         confd1 <- confd[notmiss]
         wm1 <- wm[notmiss]
         dhats1 <- as.vector(x$dhat)[notmiss]
-        scallm <- coef(lm(confd1~dhats1,weights=wm))
-        #scallmf <- c(0,scallm)
-        points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+        expo <- 1
+        disttrans.ind <- names(x$parameters)%in%c("kappa","r") #TODO: make sure only the distance parameter is here, so kappa or r or whatever it is with the stops functions, enhance this with any new parameter names is it exists. ALso, if it is kappa or mu we take it at face vlaue and if it is r we need to double it as kappa=2*r.
+        #TODO: Be careful not to name different parameter the same way as some of the distance transformation parameters
+        disttrans <- x$parameters[disttrans.ind]
+        #points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
+        #TRIED: tried to change the sqrt(2*nobj) which works for r=0.5/kappa=1. I think part of the issue is that we also do enorm - so can we figure out a scaling factor from the scale of the confdist?
+       #  SOLVED: used a linear model to get a scaling factor and an intercept. Looks good! The dhat are on a scale that is just transformed with enorm() and and we get the scaling factors with a linear function
+        if(x$type=="ratio")
+        {
+            ## I checked with plot vs. confd~dhat: In case "ratio" this must go through 0 so we do not fit an intercept
+        scallm <- coef(lm(confd1~-1+dhats1,weights=wm))
+        scallm <- c(0,scallm)
+        #dhatsscal <- as.vector(x$dhat[x$iord])
+        #dhatsscal <- scallm[1]+scallm[2]*dhatsscal   
+        }
+        if(x$type=="interval")
+        {
+            ## In case of interval it needs not go through 0, so we fit intercept.
+            scallm <- coef(lm(confd1~dhats1,weights=wm)) #with intercept is better for interval and ratio; and ordinal and kappa <=1. A bit less good at higher kappa, but overall better to have the intercept.
+                                        #cat(scallm,"\n")
+           #dhatsscal <- as.vector(x$dhat[x$iord])
+           #dhatsscal <- scallm[1]+scallm[2]*dhatsscal
+        }
+        if(x$type=="ordinal")
+        {
+            #TODO: change here if we have objects with otehr parameters. First one must always be the configuration distance transformation (usually kappa, r, or mu) 
+            expo <- switch(names(disttrans),
+                       r=2*disttrans,
+                       kappa=disttrans
+                       )                   
+            ## In case of ordinal I also use lm with intercept to get the scaling factor, but we also need to take the power transformation into account, so I create expo and do the lm thus.  
+            ## If found that re-scaling of the dhats gets better if we do this power regression
+            ## I'm not 100% sure why but I think it is because the isotonic regression is invariant to parametric transformations of the dhats which are out x argument in isoreg: so we need to manually include the power transformation somwhow. It may not be 100% correct because of enorm() but it looks better than ever. But in the the metric MDS the power transformation is taken into account by the tdelta.  
+            scallm <- coef(lm(confd1~I(dhats1^expo),weights=wm))
+            #ir1 <- stats::isoreg(x=dhats1,y=confd1)
+            #dhatscal+(ir1$yf[x$iord]-dhatsscal)    
+        }
+        #scallm <- coef(lm(confd1~-1+dhats1,weights=wm))
+        #scallm <- c(0,scallm)
+        #cat(scallm,"\n")
+        #points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*(as.vector(x$dhat[x$iord])^expo)[notmiss.iord], type = "b", pch = pch, cex = 2,col="green")#cex,col=col[3]) #"green")#
+        points((delts[x$iord])[notmiss.iord], scallm[1]+scallm[2]*((dhats1[x$iord])^expo)[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])#cex,col=col[3]) #"green")#
         ##NOTE: I can't make smacofs transform work with normq=n in our fitting functions, so I scale up the dhat that are obtained from smacof::transform to the scale of the confdist that is returned.
         ## Since we we use normq=0.5 in fitting functions we thus need to scale the dhats up with sqrt(2*n)
         ## because in transform they do a=delta * sqrt(normq/sum(weights*delta^2)) and we want normq=n 
@@ -459,18 +492,18 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             ptl <- predict(stats::loess(confd1~delts1,weights=wm),family="symmetric")
             graphics::lines(delts[order(delts)],ptl[order(delts)],col=col[2],type="b",pch=pch,cex=cex)
         }
+        #NOTE: This code would do the transformations manually based on f(confd~delts). That needs to coincide up to a scaling factor with the object$dhat, so I included this for checking that it works (mainly because the manual isoreg  and the isoreg in smacof do not give the same results and the former can't take weights), so I'd like to stick with the object$dhat as fitted in the MDS. For ratio and interval it would make no difference anyway.   
         #if(x$type=="ordinal")  {
         ## NOTE: we now do manual isotonic regression here as with our implementation the dhats from smacof are on a different scale. This is not 100% correct as we don't take the weightmat into account but for diagnostics its cool. 
-        #   ir <- stats::isoreg(x=delts1,y=confd1) 
-           #ptl <- ir$yf[ir$ord] 
-        #   graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
-        #} else { 
-        #if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
-        #if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
-        #graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
-        #}
-    ##Looks good: one thing I need to check is whether the pt, ptl correlate with the dhats.
-    # Looks like we can't use the dhat[iord] idea because normq is different in the calls, check that out too and alos because the scale of the confdist changes due to the power and the enorm. TODO: is there a relationhsip to figure out     
+        ##   ir <- stats::isoreg(x=delts1,y=confd1) 
+        ##   #ptl <- ir$yf[ir$ord] 
+        ##  graphics::lines(ir,col=col[3],pch=pch,cex=cex,do.points=TRUE)
+        ##} else { 
+        ##if(x$type=="ratio") pt <- predict(stats::lm(confd1~-1+delts1,weights=wm))
+        ##if(x$type=="interval") pt <- predict(stats::lm(confd1~delts1,weights=wm))
+        ##graphics::lines(delts[order(delts)],pt[order(delts)],col=col[3],type="b",pch=pch,cex=cex,lwd=1)
+        ##}
+    # Looks like we can't just use the dhat[iord] idea because normq is different in the calls, check that out too and alos because the scale of the confdist changes due to the power and the enorm. SOLVED: is there a relationhsip to figure out? Yes, linear no intercept for ratio, linear with intercept for interval, linear with pwoer function for ordinal       
     }
     if (plot.type == "transplot") {
         if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
