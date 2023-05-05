@@ -4,7 +4,7 @@
 #' @param confdist a dist object or symmetric matrix of fitted distances
 #' @param weightmat dist objetc or symmetric matrix of weights 
 #' 
-#' @return a list 
+#' @return a list
 spp <- function (dhat, confdist, weightmat) 
 {
     resmat <- as.matrix(weightmat) * as.matrix(dhat - confdist)^2
