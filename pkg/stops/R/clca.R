@@ -39,17 +39,17 @@
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.    
 #'
 #' @importFrom stats dist as.dist
-#' 
+#' @importFrom smacof transform transPrep spp
 #' @seealso \code{\link{smacofSym}}
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-clca(as.matrix(dis),kappa=1,tau=0.3,itmax=1000)
+#' res<-clca(as.matrix(dis),type="interval",kappa=2,tau=0.4,itmax=1000)
 #' res
 #' summary(res)
 #' plot(res)
 #'
-#' ##which d_{ij}(X) exceeded tau (i.e., have been set to 0)?
+#' ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
 #' res$tweighmat
 #' 
 #' @export
@@ -137,6 +137,8 @@ clca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal"),
       xnew <- my %*% xold
       xnew <- xnew / enorm (xnew)
       dnew <- sqdist (xnew)
+      weightmat <- weightmato #new
+      weightmat[!is.finite(weightmat)] <- 0
       weightmat[sqrt(dnew)>tau] <- 0
       ##optimal scaling
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
@@ -218,3 +220,4 @@ clca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal"),
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
+
