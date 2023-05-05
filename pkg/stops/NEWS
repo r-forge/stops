@@ -1,6 +1,6 @@
 Version 1.0-6
 
-- Added curvilinear component analysis.
+- Added curvilinear component analysis. Updated bcmds to give back a smacofP object and updated doc.
 
 Version 1.0-5
 

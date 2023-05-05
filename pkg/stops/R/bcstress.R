@@ -1,31 +1,39 @@
-#' An MDS version for minimizing Box Cox Stress (Chen & Buja 2013)
+#' Box-Cox MDS
+#'
+#' This function minimizes the Box-Cox Stress of Chen & Buja (2013) via gradient descent. This is a ratio metric scaling method. The transformations are not straightforward to interpret but mu is associated with fitted distances in the configuration and lambda with the dissimilarities. Concretely for fitted distances (attraction part) it is BC_{mu+lambda}(d(X)) and for the repulsion part it is delta^lambdaBC_{mu}(d(X)) with BC being the one-parameter Box Cox transformation.
 #'
 #' 
 #' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object 
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
 #' @param ndim the dimension of the configuration
-#' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but the model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
+#' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but I find the MDS model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
-#' @param rho the rho parameter.
+#' @param rho the rho parameter, power for the weights (the easiest).
 #' @param itmax number of optimizing iterations, defaults to 2000.
 #' @param verbose prints progress if > 3.
-#' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0. 
+#' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.
+#' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
 #'
 #' @details For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible if min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization cannot generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).    
 #'
 #'
 #' @return an object of class 'bcmds' (also inherits from 'smacofP'). It is a list with the components
 #' \itemize{
-#' \item delta: Observed dissimilarities, not normalized
-#' \item obsdiss: Observed transformed dissimilarities, not normalized
-#' \item confdist: Configuration dissimilarities, NOT normalized 
-#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item delta: Observed, untransformed dissimilarities
+#' \item tdelta: Observed explicitly transformed dissimilarities, normalized
+#' \item dhat: Explicitly transformed dissimilarities (dhats)
+#' \item confdist: Configuration dissimilarities
+#' \item conf: Matrix of fitted configuration
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item ndim: Number of dimensions
 #' \item model: Name of MDS model
+#' \item type: Must be "ratio" here. 
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
-#' \item pars: hyperparameter vector theta 
+#' \item pars: hyperparameter vector theta
+#' \item weightmat: 1-diagonal matrix (for compatibility with smacof classes)
+#' \item tweightmat: delta^rho
+#' \item parameters, pars, theta: The parameters supplied
 #' }
 #' and some additional components
 #' \itemize{
@@ -35,6 +43,9 @@
 #' \item lambda: lambda parameter (for repulsion)
 #' \item rho: rho parameter (for weights) 
 #' }
+#'
+#' @importFrom smacof spp
+#' @importFrom stats as.dist dist
 #' 
 #' @author Lisha Chen & Thomas Rusch
 #' 
@@ -52,9 +63,10 @@ bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itm
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
   if(verbose>0) cat("Minimizing bcStress with mu=",mu,"lambda=",lambda,"rho=",rho,"\n")  
   nu <- rho  
-  Do <- delta 
+  Dorig <- Do <- delta 
   d <- ndim
   X1 <- init
+  xstart <- init
   niter <- itmax
   if(lambda<=0) stop("The lambda parameter must be strictly positive.")
   lambdaorig <- lambda
@@ -70,6 +82,7 @@ bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itm
     {
       cmd <- cmds(Do)  
       X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+enorm(Do)/n/n*0.01*matrix(stats::rnorm(n*d),nrow=n,ncol=d)
+      xstart <- X1
     }
   D1 <- as.matrix(dist(X1))
   
@@ -201,7 +214,7 @@ while ( stepsize > 1E-5 && i < niter)
       #Domulam <- Do^(mu+1/lambda) 
       #diag(Domulam) <- 0
       #Domu <- Do^mu #new
-                                        #diag(Domu) <- 0 #new
+      #diag(Domu) <- 0 #new
       normo <- sum(Dpnu*(Dopmulam-1))/(mu+1/lambda)-sum((Dopmu-1)*Dpnulam)/mu
       norm0 <- sum(Dpnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dpnulam)/mu      
       #norm0 <- sum(Dnu*(D0mulam-1))/(mu+1/lambda)-sum((D0mu-1)*Dnulam)/mu
@@ -210,24 +223,42 @@ while ( stepsize > 1E-5 && i < niter)
       # s1n <- 1-s1/normo #normalized stress
   }
   result <- list()
+  result$delta <- stats::as.dist(Dorig)
+  result$dhat <- stats::as.dist(Do)  #TODO: Check again
+  if (principal) {
+        X1_svd <- svd(X1)
+        X1 <- X1 %*% X1_svd$v
+  }
+  result$iord <- order(as.vector(Do)) ##TODO: Check again
+  result$confdist <- stats::as.dist(D1) #TODO: Check again
   result$conf <- X1 #new
-  result$confdist <- stats::as.dist(D1)
-  result$delta <- stats::as.dist(Do)
-  result$obsdiss <- stats::as.dist(Do)
+  result$stress <- sqrt(s1n)
+  weightmat <- stats::as.dist(Dnu)
+  spoint <- smacof::spp(result$delta, result$confdist, weightmat)
+  resmat<-spoint$resmat
+  rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
+  spp <- spoint$spp
+  result$spp <- spp
+  result$ndim <- ndim
+  result$weightmat <- weightmat
+  result$resmat <- resmat
+  result$rss <- rss
+  result$init <- xstart
+  result$model<- "Box-Cox MDS"
+  result$niter <- i
+  result$nobj <- n
+  result$type <- "ratio"
+  result$call <- match.call()
+  result$stress.m <- s1n
+  result$stress.r <- s1
+  result$tdelta <- stats::as.dist(Do)
+  result$parameters <- c(mu=mu,lambda=lambda,rho=nu)
+  result$pars <- c(mu=mu,lambda=lambda,rho=nu)
+  result$theta <- c(mu=mu,lambda=lambda,rho=nu)
+  result$tweightmat <- weightmat
   result$mu <- mu
   result$lambda <- lambda
   result$rho <- nu
-  result$pars <- c(mu=mu,lambda=lambda,rho=nu)
-  result$model<- "Box-Cox Stress MDS"
-  result$call <- match.call()
-  result$ndim <- ndim
-  result$nobj <- n
-  result$niter <- i
-  result$theta <- c(mu=mu,lambda=lambda,rho=nu)
-  result$stress.r <- s1
-  result$stress.m <- s1n
-  result$stress <- sqrt(s1n)
-  result$type <- "Box-Cox Stress"
   class(result) <- c("bcmds","smacofP","smacofB","smacof")
   return(result)
 }
