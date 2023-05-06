@@ -435,9 +435,9 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         wm1 <- wm[notmiss]
         dhats1 <- as.vector(x$dhat)[notmiss]
         expo <- 1
-        disttrans.ind <- names(x$parameters)%in%c("kappa","r") #TODO: make sure only the distance parameter is here, so kappa or r or whatever it is with the stops functions, enhance this with any new parameter names is it exists. ALso, if it is kappa or mu we take it at face vlaue and if it is r we need to double it as kappa=2*r.
+        disttrans.ind <- names(x$pars)%in%c("kappa","r") #TODO: make sure only the distance parameter is here, so kappa or r or whatever it is with the stops functions, enhance this with any new parameter names is it exists. ALso, if it is kappa or mu we take it at face vlaue and if it is r we need to double it as kappa=2*r.
         #TODO: Be careful not to name different parameter the same way as some of the distance transformation parameters
-        disttrans <- x$parameters[disttrans.ind]
+        disttrans <- x$pars[disttrans.ind]
         #points((delts[x$iord])[notmiss.iord], sqrt(2*x$nobj)*(as.vector(x$dhat[x$iord]))[notmiss.iord], type = "b", pch = pch, cex = cex,col=col[3])
         #TRIED: tried to change the sqrt(2*nobj) which works for r=0.5/kappa=1. I think part of the issue is that we also do enorm - so can we figure out a scaling factor from the scale of the confdist?
        #  SOLVED: used a linear model to get a scaling factor and an intercept. Looks good! The dhat are on a scale that is just transformed with enorm() and and we get the scaling factors with a linear function
@@ -510,8 +510,8 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
     if (plot.type == "transplot") {
         if(missing(col)) col <- c("grey40","grey70","grey30")#,"grey50")
         
-        disttrans.ind <- names(x$parameters)%in%c("kappa","r") #TODO: make sure only the distance parameter is here, so kappa or r or whatever it is with the stops functions, enhance this with any new parameter names is it exists. ALso, if it is kappa or mu we take oit ast face vlaue and if it is r we need to double it as kappa=2*r 
-        disttrans <- x$parameters[disttrans.ind]
+        disttrans.ind <- names(x$pars)%in%c("kappa","r") #TODO: make sure only the distance parameter is here, so kappa or r or whatever it is with the stops functions, enhance this with any new parameter names is it exists. ALso, if it is kappa or mu we take oit ast face vlaue and if it is r we need to double it as kappa=2*r 
+        disttrans <- x$pars[disttrans.ind]
         if(names(disttrans)%in%("r")) disttrans <- 2*disttrans 
         if(sum(disttrans.ind)==0)
              {
