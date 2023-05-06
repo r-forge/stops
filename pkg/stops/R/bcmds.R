@@ -31,14 +31,13 @@
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item pars: hyperparameter vector theta
-#' \item weightmat: 1-diagonal matrix (for compatibility with smacof classes)
-#' \item tweightmat: delta^rho
+#' \item weightmat:  delta^rho
 #' \item parameters, pars, theta: The parameters supplied
+#' \item call the call
 #' }
 #' and some additional components
 #' \itemize{
 #' \item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
-#' \item deltaorig: observed, untransformed dissimilarities
 #' \item mu: mu parameter (for attraction)
 #' \item lambda: lambda parameter (for repulsion)
 #' \item rho: rho parameter (for weights) 
@@ -57,7 +56,7 @@
 #' plot(res)
 #' 
 #' @export
-bcStressMin <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itmax=2000,addD0=1e-4)
+bcmds <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itmax=2000,addD0=1e-4)
 {
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -255,7 +254,7 @@ while ( stepsize > 1E-5 && i < niter)
   result$parameters <- c(mu=mu,lambda=lambda,rho=nu)
   result$pars <- c(mu=mu,lambda=lambda,rho=nu)
   result$theta <- c(mu=mu,lambda=lambda,rho=nu)
-  result$tweightmat <- weightmat
+  #result$tweightmat <- weightmat
   result$mu <- mu
   result$lambda <- lambda
   result$rho <- nu
@@ -263,8 +262,6 @@ while ( stepsize > 1E-5 && i < niter)
   return(result)
 }
 
-#' normalization function
-#norm <- function(x) sqrt(sum(x^2))
 
 #' Classical Scaling
 #' @param Do dissimilarity matrix
@@ -276,6 +273,16 @@ cmds <- function(Do)
     pc <- eigen(B)
     return(pc)
   }
+
+
+#' @rdname bcmds
+bcStressMin <- bcmds
+
+#' @rdname bcmds
+bcstressMin <- bcmds
+
+#' @rdname bcmds
+boxcoxmds <- bcmds
 
 
 

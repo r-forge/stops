@@ -1,7 +1,6 @@
-#' A function for local MDS (Chen & Buja 2006)
+#' Local MDS 
 #'
-#' @importFrom stats median
-#' @importFrom stats rnorm
+#' This function minimizes the Local MDS Stress of Chen & Buja (2006) via gradient descent. This is a ratio metric scaling method. 
 #' 
 #' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object
 #' @param init initial configuration. If NULL a classical scaling solution is used. 
@@ -9,7 +8,8 @@
 #' @param k the k neighbourhood parameter
 #' @param tau the penalty parameter (suggested to be in [0,1]) 
 #' @param itmax number of optimizing iterations, defaults to 5000.
-#' @param verbose prints progress if > 4. 
+#' @param verbose prints info if > 0 and progress if > 1.
+#' @param principal if TRUE If ‘TRUE’, principal axis transformation is applied to the final configuration
 #'
 #' @author Lisha Chen & Thomas Rusch
 #'
@@ -18,26 +18,32 @@
 #'
 #' @return an object of class 'lmds' (also inherits from 'smacofP'). See \code{\link{powerStressMin}}. It is a list with the components as in power stress
 #' \itemize{
-#' \item delta: Observed dissimilarities, not normalized
-#' \item obsdiss: Observed transformed dissimilarities, not normalized
-#' \item confdist: Configuration dissimilarities, NOT normalized 
-#' \item conf: Matrix of fitted configuration, NOT normalized
+#' \item delta: Observed, untransformed dissimilarities
+#' \item tdelta: Observed explicitly transformed dissimilarities, normalized
+#' \item dhat: Explicitly transformed dissimilarities (dhats)
+#' \item confdist: Configuration dissimilarities
+#' \item conf: Matrix of fitted configuration
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item ndim: Number of dimensions
 #' \item model: Name of MDS model
+#' \item type: Is "ratio" here. 
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
-#' \item pars: hyperparameter vector theta 
+#' \item pars: explicit transformations hyperparameter vector theta
+#' \item weightmat: 1-diagonal matrix (for compatibility with smacof classes)
+#' \item parameters, pars, theta: The parameters supplied
+#' \item call the call
 #' }
 #' and some additional components
 #' \itemize{
 #' \item stress.m: default stress is the explicitly normalized stress on the normalized, transformed dissimilarities
-#' \item deltaorig: observed, untransformed dissimilarities
 #' \item tau: tau parameter
 #' \item k: k parameter
 #' }
 #'
 #'
+#' @importFrom stats median
+#' @importFrom stats rnorm
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
@@ -47,8 +53,8 @@
 #' plot(res)
 #' 
 #' @export
-lmds <- function(delta,init=NULL,ndim=3,k=2,tau=1,
-                   itmax=5000,verbose=0)
+lmds <- function(delta,init=NULL,ndim=2,k=2,tau=1,
+                   itmax=5000,verbose=0,principal=FALSE)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -88,6 +94,7 @@ lmds <- function(delta,init=NULL,ndim=3,k=2,tau=1,
       X1 <- cmd$vec[,1:d]%*%diag(cmd$val[1:d])+
         norm(Do)/n/n*0.01*matrix(stats::rnorm(n*d),nrow=n,ncol=d)
     }
+  xstart <- X1  
   D1 <- as.matrix(dist(X1))
   X1 <- X1*enorm(Do)/enorm(D1)
   s1 <- Inf
@@ -160,7 +167,7 @@ while ( stepsize > 1E-5 && i < niter)
     s1 <-    sum(Dnu*(D1mulam-1))/(mu+1/lambda)-sum((D1mu-1)*Dnulam)/mu-t*sum((D1mu-1)*(1-Inb1))/mu
      #   }
     ## Printing and Plotting
-     if(verbose > 4 & (i+1)%%100/verbose==0)
+     if(verbose > 1 & (i+1)%%100/verbose==0)
       {
         print (paste("niter=",i+1," stress=",round(s1,5), sep=""))
       }
@@ -199,11 +206,36 @@ while ( stepsize > 1E-5 && i < niter)
   s1n <- 1-s1e/normop
     
   result <- list()
-  result$conf <- X1 #new
-  #result$confn <- X1a #new  
-  result$confdist <- stats::as.dist(D1)
   result$delta <- stats::as.dist(Do)
-  result$obsdiss <- stats::as.dist(Do)
+  result$dhat <- stats::as.dist(Do)
+    if (principal) {
+        X1_svd <- svd(X1)
+        X1 <- X1 %*% X1_svd$v
+    }
+  result$iord <- order(as.vector(Do)) ##TODO: Check again
+  result$confdist <- stats::as.dist(D1)
+  result$conf <- X1 #new
+  result$stress <- sqrt(s1n)
+  weightmat <- stats::as.dist(1-diag(n))
+  spoint <- smacof::spp(result$delta, result$confdist, weightmat)
+  resmat<-spoint$resmat
+  rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
+  spp <- spoint$spp
+  result$spp <- spp
+  result$ndim <- ndim
+  result$weightmat <- weightmat
+  result$resmat <- resmat
+  result$rss <- rss
+  result$init <- xstart
+  result$model<- "Local MDS"
+  result$niter <- i
+  result$nobj <- n
+  result$type <- "ratio"
+  result$call <- match.call()
+  result$stress.m <- s1n
+  result$stress.r <- s1
+  result$tdelta <- stats::as.dist(Do)
+  result$parameters <- result$pars  <- result$theta <- c(k=k,tau=tau)    
   #result$Domulam <- Domulam  #should be the same across tau
   #result$D0mulam <- D0mulam #shoudl be the same across tau
   #result$Domu <- Domu#shoudl be the same across tau
@@ -212,19 +244,9 @@ while ( stepsize > 1E-5 && i < niter)
   #result$D1mu <- D1mu  #should not be the same across tau
   result$k <- k
   result$tau <- tau
-  result$pars  <- result$theta <- c(k=k,tau=tau)
-  result$stress.r <- s1
   #result$stress.e <- s1e  #for debug
   #result$normop <- normop  #for debug
   #result$normo0 <- normo0  #for debug  
-  result$stress.m <- s1n
-  result$call <- match.call()
-  result$ndim <- ndim
-  result$nobj <- n
-  result$niter <- i
-  result$stress <- sqrt(s1n)
-  result$model<- "Local MDS"
-  result$type <- "Local MDS Stress"
   class(result) <- c("lmds","smacofP","smacofB","smacof")
   return(result)
 }
