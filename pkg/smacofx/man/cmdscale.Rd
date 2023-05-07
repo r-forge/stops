@@ -16,7 +16,7 @@ cmdscale(d, k = 2, eig = TRUE, ...)
 \item{...}{additional parameters passed to cmdscale. See \code{\link{cmdscale}}}
 }
 \value{
-Object of class "cmdscaleE' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscaleE' and 'cmdscale'.
+Object of class "cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscalex' and 'cmdscale'.
 }
 \description{
 Wrapper to \code{cmdscale} for S3 class

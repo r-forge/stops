@@ -33,6 +33,8 @@
 #' \item nrep: Number of permutations
 #' \item nobj: Number of objects
 #' }
+#'
+#' @importFrom smacof permtest
 #' 
 #' @export
 #' @examples

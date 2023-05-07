@@ -19,6 +19,9 @@
 #' Returns an object belonging to classes ‘"mlm"’ and ‘"mdsbi"’. See ‘lm’ for details.
 #' R2vec: Vector containing the R2 values. See also \code{\link[smacof]{biplotmds}} for the plot method. 
 #'
+#'
+#' @importFrom smacof biplotmds
+#' 
 #' @examples
 #' ## see smacof::biplotmds for more
 #' res <- powerStressMin(morse,kappa=0.5,lambda=2)

@@ -59,6 +59,7 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, upsilon=nu+2*lambda*(1-
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     weightmat <- 1-diag(nrow(delta))
+    if(is.null(init)) init <- "torgerson"
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     type <- match.arg(type, c("ratio",several.ok = FALSE)) 

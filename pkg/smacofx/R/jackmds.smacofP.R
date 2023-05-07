@@ -23,6 +23,9 @@
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' }
+#'
+#'
+#' @importFrom smacof jackmds
 #' 
 #' @export
 #' @examples

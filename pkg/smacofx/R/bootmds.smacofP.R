@@ -21,6 +21,9 @@
 #' \item spp: Stress per point (based on stress.en) 
 #' \item stab: Stability coefficient
 #' }
+#'
+#'
+#' @importFrom smacof bootmds
 #' 
 #' @export
 #' @examples

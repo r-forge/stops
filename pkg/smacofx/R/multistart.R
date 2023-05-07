@@ -24,6 +24,8 @@
 #' \item models: A list of all the fitted objects.
 #'}
 #'
+#' @importFrom stats runif
+#' 
 #' @export
 #' @examples
 #' dis<-smacof::kinshipdelta
@@ -64,7 +66,7 @@ multistart <- function(object,mdscall=NULL,ndim=2,conflist,nstarts=10,return.all
         }
     if(missing(conflist))
     {
-        conflist <- replicate(nstarts,matrix(runif(n*ndim,min=min,max=max),ncol=ndim),simplify=FALSE)
+        conflist <- replicate(nstarts,matrix(stats::runif(n*ndim,min=min,max=max),ncol=ndim),simplify=FALSE)
     }
     o <- vector("list",length(conflist))
     for(i in 1:length(conflist))

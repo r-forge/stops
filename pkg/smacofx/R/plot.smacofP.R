@@ -267,7 +267,7 @@
 #'
 #' @importFrom graphics plot text identify legend mtext par
 #' @importFrom plotrix thigmophobe.labels
-#' @importFrom stats loess lm predict
+#' @importFrom stats loess lm predict coef
 #' @importFrom grDevices chull
 #'
 #' @return no return value; just plot for class 'smacofP' (see details)
@@ -444,7 +444,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if(x$type=="ratio")
         {
             ## I checked with plot vs. confd~dhat: In case "ratio" this must go through 0 so we do not fit an intercept
-        scallm <- coef(lm(confd1~-1+dhats1,weights=wm))
+        scallm <- stats::coef(stats::lm(confd1~-1+dhats1,weights=wm))
         scallm <- c(0,scallm)
         #dhatsscal <- as.vector(x$dhat[x$iord])
         #dhatsscal <- scallm[1]+scallm[2]*dhatsscal   
@@ -452,7 +452,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
         if(x$type=="interval")
         {
             ## In case of interval it needs not go through 0, so we fit intercept.
-            scallm <- coef(lm(confd1~dhats1,weights=wm)) #with intercept is better for interval and ratio; and ordinal and kappa <=1. A bit less good at higher kappa, but overall better to have the intercept.
+            scallm <- stats::coef(stats::lm(confd1~dhats1,weights=wm)) #with intercept is better for interval and ratio; and ordinal and kappa <=1. A bit less good at higher kappa, but overall better to have the intercept.
                                         #cat(scallm,"\n")
            #dhatsscal <- as.vector(x$dhat[x$iord])
            #dhatsscal <- scallm[1]+scallm[2]*dhatsscal
@@ -467,7 +467,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             ## In case of ordinal I also use lm with intercept to get the scaling factor, but we also need to take the power transformation into account, so I create expo and do the lm thus.  
             ## If found that re-scaling of the dhats gets better if we do this power regression
             ## I'm not 100% sure why but I think it is because the isotonic regression is invariant to parametric transformations of the dhats which are out x argument in isoreg: so we need to manually include the power transformation somwhow. It may not be 100% correct because of enorm() but it looks better than ever. But in the the metric MDS the power transformation is taken into account by the tdelta.  
-            scallm <- coef(lm(confd1~I(dhats1^expo),weights=wm))
+            scallm <- stats::coef(stats::lm(confd1~I(dhats1^expo),weights=wm))
             #scallm2 <- coef(lm(confd1^(1/expo)~dhats1,weights=wm)) #alternative where only the predictor gets transformed; looks a bit less but is a bit less accurate in trials. test more  
             #ir1 <- stats::isoreg(x=dhats1,y=confd1)
             #dhatscal+(ir1$yf[x$iord]-dhatsscal)    

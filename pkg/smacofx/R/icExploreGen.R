@@ -19,7 +19,7 @@
 #' @return an object of class icexplore, see \code{\link[smacof]{icExplore}} for more. There is a plot method in samcof. 
 #'
 #' @importFrom smacof Procrustes sim2diss mds
-#' @importFrom stats cor
+#' @importFrom stats cor runif
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
@@ -30,7 +30,7 @@
 #'
 #' ## Version 2: Using a call object and supplying conflist
 #' conflist<-list(res1$init,jitter(res1$init,1),jitter(res1$init,1),jitter(res1$init,1))
-#' c1 <- call("copstressMin",delta=dis,type="ordinal",itmax=100)
+#' c1 <- call("clca",delta=dis,tau=0.2,itmax=100)
 #' resm<-icExploreGen(mdscall=c1,conflist=conflist,returnfit=TRUE)
 #'
 #' plot(resm)
@@ -58,7 +58,7 @@ icExploreGen <- function(object, mdscall=NULL, conflist, nrep = 100, ndim, retur
     } else n <- nrow(as.matrix(mdscall$delta))
     v.stress <- vector()
     configs <- list()
-    if(missing(conflist)) conflist <- replicate(nrep, matrix(runif(n * ndim, min = min, max = max), nrow = n, ncol = ndim),simplify=FALSE) 
+    if(missing(conflist)) conflist <- replicate(nrep, matrix(stats::runif(n * ndim, min = min, max = max), nrow = n, ncol = ndim),simplify=FALSE) 
     simi <- matrix(0, nrow = nrep, ncol = nrep)
     labels <- as.character(1:nrep)
     restot <- list()

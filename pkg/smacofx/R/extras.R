@@ -7,7 +7,7 @@
 #' @param eig indicates whether eigenvalues should be returned.
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return Object of class "cmdscaleE' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscaleE' and 'cmdscale'.
+#' @return Object of class "cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 class 'cmdscalex' and 'cmdscale'.
 #'
 #' @importFrom stats cmdscale as.dist dist
 #'
@@ -21,10 +21,12 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
     {
      out <- stats::cmdscale(d,k=k,eig=eig,...)
      colnames(out$points) <- paste("D",1:k,sep="")
+     out$conf <- out$points
+     out$confdist <- dist(out$conf)
      out$call <- match.call()
      out$delta <- as.dist(d) #FIX
-     out$confdist <- dist(out$points)
-     class(out) <- c("cmdscaleE","cmdscale")
+     out$dhat <- dist(out$points)
+     class(out) <- c("cmdscalex","cmdscale")
      out
  }
 
@@ -37,7 +39,7 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' @param k The dimension of the configuration
 #' @param ... Additional parameters passed to \code{sammon}, see \code{\link{sammon}}  
 #'
-#' @return Object of class sammonE' inheriting from \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammonE', 'sammon' and 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
+#' @return Object of class sammonx' inheriting from \code{\link{sammon}}. This wrapper only adds an extra slot to the list with the call, adds column labels to the $points and assigns S3 classes 'sammonx', 'sammon' and 'cmdscale'. It also adds a slot obsdiss with normalized dissimilarities.
 #'
 #' @importFrom MASS sammon
 #' @importFrom stats as.dist dist 
@@ -48,15 +50,16 @@ cmdscale <- function(d,k=2,eig=TRUE,...)
 #' res<-sammon(dis)
 sammon <- function(d,y=NULL,k=2,...)
     {
-     if(is.null(y)) y <- cops::cmdscale(d,k,eig=TRUE)$points
+     if(is.null(y)) y <- smacofx::cmdscale(d,k,eig=TRUE)$conf
      out <- MASS::sammon(d,y=as.matrix(y),k=k,...)
      colnames(out$points) <- paste("D",1:k,sep="") 
      out$call <- match.call()
      out$delta <- as.dist(d)
-     out$obsdiss <- as.dist(d/enorm(d))
+     out$dhat <- as.dist(d/enorm(d))
      out$confdist <- dist(out$points)
-     out$stress.m <- sqrt(out$stress)
-     class(out) <- c("sammonE","sammon","cmdscale")
+     out$stress.m <- out$stress
+     out$stress <- sqrt(out$stress.m)
+     class(out) <- c("sammonx","sammon","cmdscale")
      out
  }
 
@@ -228,7 +231,7 @@ plot3dstatic <- function(x, plot.dim = c(1,2,3), main, xlab, ylab, zlab, col, ..
 #'
 #'@export
 #'@import scatterplot3d
-plot3dstatic.cmdscaleE <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
+plot3dstatic.cmdscalex <- function (x, plot.dim = c(1, 2, 3), main, xlab, ylab, zlab, col,...) 
 {
     ndim <- dim(x$points)[2]
     if (ndim < 3) 
@@ -331,6 +334,7 @@ result
 #' @return The scale adjusted configuration.
 #'
 #' @importFrom stats sd
+#' @importFrom smacof Procrustes 
 scale_adjust <- function(conf,ref,scale=c("sd","std","proc","none"))
 {
   #conf target, ref reference

@@ -49,13 +49,13 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-bcStressMin(dis,mu=2,lambda=1.5,rho=0)
+#' res<-bcmds(dis,mu=2,lambda=1.5,rho=0)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
 #' @export
-bcmds <- function(delta,init=NULL,verbose=0,ndim=2,mu=1,lambda=1,rho=0,itmax=2000,addD0=1e-4)
+bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=0,addD0=1e-4,principal=FALSE)
 {
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")

@@ -9,60 +9,58 @@
 \usage{
 bcmds(
   delta,
-  init = NULL,
-  verbose = 0,
-  ndim = 2,
   mu = 1,
   lambda = 1,
   rho = 0,
+  ndim = 2,
   itmax = 2000,
-  addD0 = 1e-04
+  init = NULL,
+  verbose = 0,
+  addD0 = 1e-04,
+  principal = FALSE
 )
 
 bcStressMin(
   delta,
-  init = NULL,
-  verbose = 0,
-  ndim = 2,
   mu = 1,
   lambda = 1,
   rho = 0,
+  ndim = 2,
   itmax = 2000,
-  addD0 = 1e-04
+  init = NULL,
+  verbose = 0,
+  addD0 = 1e-04,
+  principal = FALSE
 )
 
 bcstressMin(
   delta,
-  init = NULL,
-  verbose = 0,
-  ndim = 2,
   mu = 1,
   lambda = 1,
   rho = 0,
+  ndim = 2,
   itmax = 2000,
-  addD0 = 1e-04
+  init = NULL,
+  verbose = 0,
+  addD0 = 1e-04,
+  principal = FALSE
 )
 
 boxcoxmds(
   delta,
-  init = NULL,
-  verbose = 0,
-  ndim = 2,
   mu = 1,
   lambda = 1,
   rho = 0,
+  ndim = 2,
   itmax = 2000,
-  addD0 = 1e-04
+  init = NULL,
+  verbose = 0,
+  addD0 = 1e-04,
+  principal = FALSE
 )
 }
 \arguments{
 \item{delta}{dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object}
-
-\item{init}{initial configuration. If NULL a classical scaling solution is used.}
-
-\item{verbose}{prints progress if > 3.}
-
-\item{ndim}{the dimension of the configuration}
 
 \item{mu}{mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but I find the MDS model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.}
 
@@ -70,7 +68,13 @@ boxcoxmds(
 
 \item{rho}{the rho parameter, power for the weights (the easiest).}
 
+\item{ndim}{the dimension of the configuration}
+
 \item{itmax}{number of optimizing iterations, defaults to 2000.}
+
+\item{init}{initial configuration. If NULL a classical scaling solution is used.}
+
+\item{verbose}{prints progress if > 3.}
 
 \item{addD0}{a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.}
 
@@ -111,7 +115,7 @@ For numerical reasons with certain parameter combinations, the normalized stress
 }
 \examples{
 dis<-smacof::kinshipdelta
-res<-bcStressMin(dis,mu=2,lambda=1.5,rho=0)
+res<-bcmds(dis,mu=2,lambda=1.5,rho=0)
 res
 summary(res)
 plot(res)
