@@ -56,6 +56,7 @@
 #' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.   
 #'
 #' @importFrom stats dist as.dist
+#' @importFrom smacofx spp
 #' 
 #' @seealso \code{\link{smacofSym}}
 #' 
@@ -194,7 +195,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weigh
      weightmato <- stats::as.dist(weightmato)
      #resmat <- weightmatm*as.matrix((deltam - doutm)^2) #old spp now we sum up to 100
      #spp <- colMeans(resmat)
-     spoint <- smacof::spp(delta, dout, weightmat)
+     spoint <- smacofx::spp(delta, dout, weightmat)
      resmat<-spoint$resmat
      rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
      spp <- spoint$spp

@@ -273,6 +273,7 @@
 #' @return no return value; just plot for class 'smacofP' (see details)
 #' 
 #' @export
+#' 
 #' @examples
 #' dis<-as.matrix(smacof::kinshipdelta)
 #' res<-powerStressMin(dis)

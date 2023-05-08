@@ -661,7 +661,7 @@
 #'                   itmax=100) #use higher itmax about 10000 
 #' res1
 #' summary(res1)
-#' plot(res1)  #super clustered
+#' plot(res1)  #super clustered 
 #'
 #' ##Alias name 
 #' res1<-copsc(dis,stressweight=0.5,
@@ -673,7 +673,7 @@
 #'             stressweight=0.5, cordweight=0.5,itmax=100)
 #' 
 #' 
-#' @import cordillera
+#' @import cordillera 
 #' @importFrom utils tail
 #' @importFrom stats dist as.dist optim sd
 #' @importFrom dfoptim hjk
@@ -687,6 +687,7 @@
 #' @importFrom nloptr direct
 #' @importFrom minqa newuoa
 #' @importFrom smacof transPrep transform
+#' @importFrom smacofx spp
 #'
 #' 
 #' @keywords clustering multivariate
@@ -699,7 +700,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE) 
     trans <- type
     typo <- type
     if (trans=="ratio"){
@@ -768,7 +769,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              }   
              if(scale=="rmsq") #scales config to rmsq=1 for most spread dimension before cordillera
              {
-                 testso <- scale(init0,center=FALSE)
+                 testso <- base::scale(init0,center=FALSE)
                  init0 <- init0/max(attr(testso,"scaled:scale"))
              }
              if(scale=="proc") #scales config by procrusting to init
@@ -1128,7 +1129,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      #weightmatm <-weightmat
      weightmat <- stats::as.dist(weightmat)
      weightmato <- stats::as.dist(weightmato)
-     spoint <- spp(delta, dout, weightmat)
+     spoint <- smacofx::spp(delta, dout, weightmat)
      resmat<-spoint$resmat
      rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
      spp <- spoint$spp
@@ -1184,20 +1185,3 @@ copsc <- copstressMin
 #' @export 
 copStressMin <- copstressMin
 
-
-#'@export
-print.copsc <- function(x,...)
-    {
-    cat("\nCall: ")
-    print(x$call)
-    cat("\n")
-    cat("Model:",x$type,"COPS-C with parameter vector =",x$parameters,"\n")
-    cat("\n")
-    cat("Number of objects:", x$nobj, "\n")
-    cat("Stress-1 value of configuration:", round(x$stress,5), "\n")
-    cat("OPTICS Cordillera: Raw", round(x$OC$raw,5),"Normed", round(x$OC$normed,5),"\n")
-    cat("Cluster optimized loss (copstress): ", round(x$copstress,5), "\n")
-    cat("Stress weight:", x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
-    cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
-    cat("\n")
-    }

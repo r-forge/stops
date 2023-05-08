@@ -3,6 +3,7 @@
 \name{pclca}
 \alias{pclca}
 \alias{clca}
+\alias{som_pclca}
 \title{Curvilinear Component Analysis with powers}
 \usage{
 pclca(
@@ -33,13 +34,29 @@ clca(
   verbose = FALSE,
   principal = FALSE
 )
+
+som_pclca(
+  delta,
+  tau = 1,
+  epochs = 10,
+  kappa = 1,
+  type = c("ratio", "interval", "ordinal"),
+  ties = "primary",
+  weightmat = 1 - diag(nrow(delta)),
+  init = NULL,
+  ndim = 2,
+  acc = 1e-06,
+  itmax = 10000,
+  verbose = FALSE,
+  principal = FALSE
+)
 }
 \arguments{
 \item{delta}{dist object or a symmetric, numeric data.frame or matrix of distances}
 
 \item{kappa}{power of the transformation of the fitted distances; defaults to 1 for standard stress}
 
-\item{tau}{the boundary parameter. Transformed fitted distances exceeding the parameter are set to 0 via the weightmat.}
+\item{tau}{the boundary parameter (called lambda in the original paper). For 'pclca' and 'clca' the transformed fitted distances exceeding the parameter are set to 0 via the weightmat. For som_pclca tau is the maximum tau for which a decreasing sequence of taus is generated as 'seq(tau,tau/epochs,length.out=epochs)' and then used in sequence.}
 
 \item{type}{what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".}
 
@@ -57,7 +74,9 @@ clca(
 
 \item{verbose}{should iteration output be printed; if > 1 then yes}
 
-\item{principal}{If ‘TRUE’, principal axis transformation is applied to the final configuration}
+\item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
+
+\item{epochs}{for 'som_pcpla' it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'.}
 }
 \value{
 a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
@@ -80,10 +99,12 @@ a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a
 }
 }
 \description{
-An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Uses a repeat loop.
+An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Note the neighborhood parameter tau is kept fixed here. See detials for how to use it as a self-organizing map.
 }
 \details{
 If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
+
+We keep tau fixed throughout. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function by using a vector of decreasing tau values and calling the function with the first tau, then supplying the optimal configuration as the init for the next call with the next tau and so on. See the example.
 }
 \examples{
 dis<-smacof::kinshipdelta
@@ -94,6 +115,20 @@ plot(res)
 
 ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
 res$tweighmat
+
+
+\dontrun{
+## Self-organizing map style (as in the original publication)
+# Data 
+datsen<-ProjectionBasedClustering::Hepta
+dis<-dist(datsen$Data)
+
+#run the som-style pclca 
+sommod<-som_pclca(dis,tau=0.19,epochs=20,verbose=1)
+
+#the clusters are clearly visible 
+plot(sommod,col=datsen$Cls,cex=2,label.conf=list(label=FALSE))
+}
 
 }
 \seealso{

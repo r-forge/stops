@@ -5,11 +5,9 @@
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
 #' @param lambda the power of the transformation of the proximities; defaults to 1
-#' @param nu the power of the transformation for weightmat; defaults to 1
-#' @param upsilon The approximation transformation for the weights. It is nu+2*lambda*(1-(1/kappa)).  
-#' @param tau The approxmation transformation for the dissimilarities. It is lambda/kappa.
+#' @param nu the power of the transformation for weightmat; defaults to 1 
 #' @param type what type of MDS to fit. Only "ratio" currently.
-#' @param weightmat a matrix of finite weights (currently ignored)
+#' @param weightmat a binary matrix of finite nonegative weights.
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
@@ -37,7 +35,9 @@
 #' }
 #'
 #' @section Note:
-#' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.   
+#' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
+#'
+#' Internally we calculate the approximation parameters upsilon=nu+2*lambda*(1-(1/kappa)) and tau=lambda/kappa. They are also output in the pars argument but not in theta and parameters.
 #'
 #' @importFrom stats dist as.dist
 #' 
@@ -50,15 +50,14 @@
 #' summary(res)
 #' plot(res)
 #' 
-#' #equivalent to 
-#' res2<-apStressMin(as.matrix(dis),tau=0.75,upsilon=2.5,itmax=1000)
-#' res2
 #' 
 #' @export
-apStressMin <- function (delta, kappa=1, lambda=1, nu=1, upsilon=nu+2*lambda*(1-(1/kappa)), tau=lambda/kappa, type="ratio", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    #TODO add optional arguments tau=lambda/kappa, upsilon=nu+2*lambda*(1-(1/kappa))
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    weightmat <- 1-diag(nrow(delta))
+    if(missing(weightmat)) weightmat <- 1-diag(nrow(delta))
+    if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")
     if(is.null(init)) init <- "torgerson"
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
@@ -73,7 +72,8 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, upsilon=nu+2*lambda*(1-
     if (p > (n - 1)) stop("Maximum number of dimensions is n-1!")
     deltaorig <- delta
     tdelta <- delta^tau
-    out <- smacof::smacofSym(tdelta,type=type,weightmat=delta^upsilon,itmax=itmax,verbose=verbose,principal=principal,init=init,ndim=ndim,eps=acc)
+    combwght <- weightmat*(delta^upsilon)
+    out <- smacof::smacofSym(tdelta,type=type,weightmat=combwght,itmax=itmax,verbose=verbose,principal=principal,init=init,ndim=ndim,eps=acc)
     tweightmat <- out$weightmat
     #stressen <- sum(weightmat*(doute-delta)^2)
     out$delta <- deltaorig
@@ -85,7 +85,7 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, upsilon=nu+2*lambda*(1-
     out$tdelta <- tdelta
     #TODO: In approx power stress if we do the kappa or it will give us. Use parameters only for print and pars for the rest  
     out$parameters <- c(kappa=kappa,lambda=lambda,nu=nu)
-    out$pars <- c(upsilon=upsilon,tau=tau)
+    out$pars <- c(kappa=kappa,lambda=lambda,nu=nu,upsilon=upsilon,tau=tau)
     out$theta <- c(kappa=kappa,lambda=lambda,nu=nu)
     out$tweightmat <- weightmat
     class(out) <- c("smacofP","smacofB","smacof")

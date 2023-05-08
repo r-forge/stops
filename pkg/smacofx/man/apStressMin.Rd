@@ -13,10 +13,8 @@ apStressMin(
   kappa = 1,
   lambda = 1,
   nu = 1,
-  upsilon = nu + 2 * lambda * (1 - (1/kappa)),
-  tau = lambda/kappa,
   type = "ratio",
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -30,10 +28,8 @@ apowerstressMin(
   kappa = 1,
   lambda = 1,
   nu = 1,
-  upsilon = nu + 2 * lambda * (1 - (1/kappa)),
-  tau = lambda/kappa,
   type = "ratio",
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -47,10 +43,8 @@ apostmds(
   kappa = 1,
   lambda = 1,
   nu = 1,
-  upsilon = nu + 2 * lambda * (1 - (1/kappa)),
-  tau = lambda/kappa,
   type = "ratio",
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -64,10 +58,8 @@ apstressMin(
   kappa = 1,
   lambda = 1,
   nu = 1,
-  upsilon = nu + 2 * lambda * (1 - (1/kappa)),
-  tau = lambda/kappa,
   type = "ratio",
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -81,10 +73,8 @@ apstressmds(
   kappa = 1,
   lambda = 1,
   nu = 1,
-  upsilon = nu + 2 * lambda * (1 - (1/kappa)),
-  tau = lambda/kappa,
   type = "ratio",
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -102,13 +92,9 @@ apstressmds(
 
 \item{nu}{the power of the transformation for weightmat; defaults to 1}
 
-\item{upsilon}{The approximation transformation for the weights. It is nu+2*lambda*(1-(1/kappa)).}
-
-\item{tau}{The approxmation transformation for the dissimilarities. It is lambda/kappa.}
-
 \item{type}{what type of MDS to fit. Only "ratio" currently.}
 
-\item{weightmat}{a matrix of finite weights (currently ignored)}
+\item{weightmat}{a binary matrix of finite nonegative weights.}
 
 \item{init}{starting configuration}
 
@@ -148,6 +134,8 @@ An implementation to minimize power stress by majorization with ratio or interva
 \section{Note}{
 
 The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
+
+Internally we calculate the approximation parameters upsilon=nu+2*lambda*(1-(1/kappa)) and tau=lambda/kappa. They are also output in the pars argument but not in theta and parameters.
 }
 
 \examples{
@@ -157,9 +145,6 @@ res
 summary(res)
 plot(res)
 
-#equivalent to 
-res2<-apStressMin(as.matrix(dis),tau=0.75,upsilon=2.5,itmax=1000)
-res2
 
 }
 \seealso{
