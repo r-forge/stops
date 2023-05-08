@@ -1,3 +1,7 @@
+Version 0.3-0
+
+- Added function for self organizing map-style clca. 
+
 Version 0.2-0
 
 - Fixed compiling issues and methods and all. 

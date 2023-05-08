@@ -1,10 +1,10 @@
 #' Curvilinear Component Analysis with powers
 #'
-#' An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Uses a repeat loop.
+#' An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Note the neighborhood parameter tau is kept fixed here. See detials for how to use it as a self-organizing map. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1 for standard stress
-#' @param tau the boundary parameter. Transformed fitted distances exceeding the parameter are set to 0 via the weightmat. 
+#' @param tau the boundary parameter (called lambda in the original paper). For 'pclca' and 'clca' the transformed fitted distances exceeding the parameter are set to 0 via the weightmat. For som_pclca tau is the maximum tau for which a decreasing sequence of taus is generated as 'seq(tau,tau/epochs,length.out=epochs)' and then used in sequence.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights. 
@@ -13,7 +13,8 @@
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
-#' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
+#' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
+#' @param epochs for 'som_pcpla' it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. 
 #'
 #' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
@@ -36,7 +37,10 @@
 #'
 #'
 #' @details
-#' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.    
+#' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
+#'
+#' We keep tau fixed throughout. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function by using a vector of decreasing tau values and calling the function with the first tau, then supplying the optimal configuration as the init for the next call with the next tau and so on. See the example.   
+#' 
 #'
 #' @importFrom stats dist as.dist
 #' @importFrom smacof transform transPrep
@@ -51,6 +55,20 @@
 #'
 #' ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
 #' res$tweighmat
+#'
+#'
+#' \dontrun{
+#' ## Self-organizing map style (as in the original publication)
+#' # Data 
+#' datsen<-ProjectionBasedClustering::Hepta
+#' dis<-dist(datsen$Data)
+#'
+#' #run the som-style pclca 
+#' sommod<-som_pclca(dis,tau=0.19,epochs=20,verbose=1)
+#' 
+#' #the clusters are clearly visible 
+#' plot(sommod,col=datsen$Cls,cex=2,label.conf=list(label=FALSE))
+#' }
 #' 
 #' @export
 pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
@@ -219,7 +237,7 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
         xnew <- xnew %*% xnew_svd$v
     }
     #stressen <- sum(weightmat*(doute-delta)^2)
-    if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")
+    if(verbose>1) cat("*** Stress:",snew, "; Stress-1 (default reported):",sqrt(snew),"\n")
     #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
     out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="power CLCA", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,tau=tau), pars=c(kappa=kappa,tau=tau), theta=c(kappa=kappa, tau=tau),tweightmat=weightmat)
     class(out) <- c("smacofP","smacofB","smacof")
@@ -233,4 +251,21 @@ clca <- function(delta, tau=0.1, type=c("ratio","interval","ordinal"), ties="pri
     out <- pclca(delta=delta, kappa=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
     out$model <- "CLCA"
     out
+}
+
+#' @rdname pclca
+#' @export
+som_pclca <- function(delta, tau=1, epochs=10, kappa=1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    taumax <- tau
+    taumin <- tau/epochs
+    taus <- seq(taumax,taumin,length.out=epochs)
+    finconf <- init
+    for(i in 1:length(taus))
+    {
+      if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
+      tmp<-pclca(delta=delta, kappa=kappa, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, principal=principal)
+      finconf<-tmp$conf
+      finmod<-tmp
+     }
+     return(finmod)
     }
