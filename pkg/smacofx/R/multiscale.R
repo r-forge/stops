@@ -249,7 +249,7 @@ multiscale <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow
     r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval",several.ok = FALSE))
+    type <- match.arg(type, c("ratio", "interval"),several.ok = FALSE)
     trans <- type
     typo <- type
     if (trans=="ratio"){

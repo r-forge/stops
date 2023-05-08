@@ -61,7 +61,7 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
     r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE)
     #    "mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
@@ -107,7 +107,7 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
     xold <- xold / enorm (xold) 
     nn <- diag (n)
     dold <- sqdist (xold)
-    #weightmat[sqrt(dold)>tau] <- 0 ##CCA penalty
+    weightmat[sqrt(dold)>tau] <- 0 ##CCA penalty
     ##first optimal scaling
     eold <- as.dist(sqrt(dold))
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = normi)
@@ -139,7 +139,7 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
       dnew <- sqdist (xnew)
       ## TODO: What do we need? Two possibilities
       ### Should we always set the 0 freshly, so it is possible that a w_{ij} can change from 0 to >0 again? then we need next line     
-      # weightmat <- weightmato #new
+      weightmat <- weightmato #new
       ## or should we never change the 0 back once it was found? I'm sure that then the algorithm is majorizing this objective; it also coincides with the above if the d_{ij] are monotonically decreasing but I don't think that is what they do.
       ## test this 
       weightmat[!is.finite(weightmat)] <- 0
@@ -232,4 +232,5 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
 clca <- function(delta, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     out <- pclca(delta=delta, kappa=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
     out$model <- "CLCA"
+    out
     }

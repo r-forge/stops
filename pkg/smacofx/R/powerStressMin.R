@@ -72,7 +72,7 @@ powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weigh
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
-    type <- match.arg(type, c("ratio", "interval",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio", "interval"),several.ok = FALSE) 
     trans <- type
     typo <- type
     if (trans=="ratio"){

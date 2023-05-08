@@ -242,7 +242,7 @@ alscal <- function (delta, type="ratio", weightmat=1-diag(nrow(delta)), init=NUL
     lambda <- 2
     r <- kappa/2
     ## -- Setup for MDS type
-    type <- match.arg(type, c("ratio", "interval",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio", "interval"),several.ok = FALSE) 
     trans <- type
     typo <- type
     if (trans=="ratio"){

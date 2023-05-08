@@ -62,10 +62,10 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, upsilon=nu+2*lambda*(1-
     if(is.null(init)) init <- "torgerson"
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
-    type <- match.arg(type, c("ratio",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio"),several.ok = FALSE) 
     trans <- "ratio"
     typo <- "none"
-    if(verbose>0) cat("Minimizing",type,"approximate power-stress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
+    if(verbose>0) cat("Minimizing approximate",type,"power-stress with kappa=",kappa,"lambda=",lambda,"nu=",nu,"\n")
     n <- nrow (delta)
     upsilon <- nu+2*lambda*(1-(1/kappa))
     tau <- lambda/kappa

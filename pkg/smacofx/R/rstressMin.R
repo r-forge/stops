@@ -255,7 +255,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     #r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal",several.ok = FALSE)) 
+    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE) 
     #    "mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
