@@ -11,6 +11,7 @@ cop_cmdscale(
   ndim = 2,
   init = NULL,
   itmaxi = 1000,
+  add,
   ...,
   stressweight = 1,
   cordweight = 0.5,
@@ -36,7 +37,9 @@ cop_cmdscale(
 
 \item{itmaxi}{number of iterations. No effect here.}
 
-\item{...}{additional arguments to be passed to the fitting procedure}
+\item{add}{should the dissimilarities be made Euclidean? Defaults to TRUE.}
+
+\item{...}{additional arguments to be passed to the fitting procedure smacofx::cmdscale. Note we always use eig=TRUE and that can't be changed (we need the GOF). Also default if nothing is supplied is to use add=TRUE which in my opinion one always should to avoid negative eigenvalues.}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
@@ -59,16 +62,17 @@ cop_cmdscale(
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
-        \item stress.m: default normalized stress
+        \item stress: the badness-of-fit value (this isn't stress here but 1-(sum_ndim(max(eigenvalues,0))/sum_n(max(eigenvalues,0)), 1-GOF[2])
+        \item stress.m: default normalized stress (1-GOF[2])
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
         \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
+        \item fit: the returned object of the fitting procedurem, which is cmdscalex object with some extra slots for the parameters and stresses 
         \item cordillera: the cordillera object
+        \item stress.mOLD: The old badness-of-fit value used for pcops prior to v 1.8-0.
 }
 }
 \description{
-The free parameter is lambda for power transformations of the observed proximities.
+The free parameter that pcops optimizes over is lambda for power transformations of the observed proximities.
 }
 \keyword{multivariate}

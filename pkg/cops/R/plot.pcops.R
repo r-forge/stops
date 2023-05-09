@@ -19,7 +19,7 @@
 #' resl<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2)
 #' plot(resl)
 #' plot(resl,plot.type="Shepard")
-plot.pcops <- function(x,plot.type, main, asp=1,...)
+plot.pcops <- function(x, plot.type, main, asp=1,...)
     {
      if(missing(plot.type)) plot.type <- "confplot"  
      if(plot.type=="reachplot") {

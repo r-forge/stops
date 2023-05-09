@@ -2,7 +2,7 @@
 % Please edit documentation in R/cop_sammon.R
 \name{cop_sammon}
 \alias{cop_sammon}
-\title{PCOPS version of Sammon mapping}
+\title{PCOPS version of Sammon mapping from MASS}
 \usage{
 cop_sammon(
   dis,
@@ -10,7 +10,7 @@ cop_sammon(
   ndim = 2,
   init = NULL,
   weightmat = NULL,
-  itmaxi = 100,
+  itmaxi = 1000,
   ...,
   stressweight = 1,
   cordweight = 0.5,
@@ -20,8 +20,7 @@ cop_sammon(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = "default"
+  normed = TRUE
 )
 }
 \arguments{
@@ -33,9 +32,9 @@ cop_sammon(
 
 \item{init}{(optional) initial configuration}
 
-\item{weightmat}{(optional) a matrix of nonnegative weights}
+\item{weightmat}{(optional) a matrix of nonnegative weights.}
 
-\item{itmaxi}{number of iterations. default is 1000.}
+\item{itmaxi}{number of iterations. Default is 1000.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 
@@ -53,25 +52,23 @@ cop_sammon(
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
-\item{scale}{should the configuration be scale adjusted}
+\item{scale}{if TRUE the configuration is scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
-        \item stress.m: default normalized stress
+        \item stress: the stress-1
+        \item stress.m: default normalized stress (stress-1^2)
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
+        \item parameters: the parameters used for fitting (lambda)
+        \item fit: the returned object of the fitting procedure smacofx::sammon
         \item cordillera: the cordillera object
 }
 }
 \description{
-Uses MASS::sammon. The free parameter is lambda for power transformations of the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights=delta is -1.
+Uses smacofx::sammon wrapper for MASS::sammon. The free parameter is lambda for power transformations of the observed proximities.
 }
 \keyword{multivariate}

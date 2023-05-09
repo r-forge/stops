@@ -315,8 +315,8 @@ cops <- function(dis, variant=c("1","2","Variant1","Variant2","v1","v2",
 ##   #if(length(theta)==2L) lambda <- theta[2]
 ##   #if(length(theta)==3L) lambda <- theta[2]
 ##   #nu <- -1
-##  # if(is.null(init)) init <- cops::cmdscale(dis^lambda,k=ndim)$points
-##   fit <- cops::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
+##  # if(is.null(init)) init <- cmdscale(dis^lambda,k=ndim)$points
+##   fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
 ##   fit$lambda <- lambda
 ##   #fit$kappa <- 1
 ##   #fit$nu <- -1
@@ -443,7 +443,7 @@ cops <- function(dis, variant=c("1","2","Variant1","Variant2","v1","v2",
 ##   if(length(theta)==1L) lambda <- theta
 ##   #if(length(theta)==2L) lambda <- theta[2]
 ##   #if(length(theta)==3L) lambda <- theta[2]
-##   fit <- cops::cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
+##   fit <- cmdscale(dis^lambda,k=ndim,eig=TRUE,...) 
 ##   fit$lambda <- lambda
 ##  # fit$kappa <- 1
 ##  # fit$nu <- 1
