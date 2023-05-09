@@ -22,7 +22,7 @@ Object of class 'sammonx' inheriting from \code{\link{sammon}}. This wrapper add
 Wrapper to \code{sammon} for S3 class
 }
 \details{
-overloads MASS::sammon and adds new slots and class attributes for which there are methods.
+Overloads MASS::sammon and adds new slots and class attributes for which there are methods.
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

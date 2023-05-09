@@ -6,6 +6,6 @@ print.cmdscalex <- function(x,...)
     cat("\n")
     cat("Model: Torgerson-Gower Scaling \n")
     cat("Number of objects:", dim(x$points)[1], "\n")
-    cat("GOF:", x$GOF, "\n")
+    cat("GOF:", round(x$GOF,2), "\n")
     cat("\n")
     }

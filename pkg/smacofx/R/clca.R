@@ -71,9 +71,10 @@
 #' }
 #' 
 #' @export
-pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
+    if(missing(weightmat))  weightmat <- 1-diag(nrow(delta))
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     r <- kappa/2
@@ -247,7 +248,10 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
 
 #' @rdname pclca
 #' @export
-clca <- function(delta, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+clca <- function(delta, tau=0.1, type=c("ratio","interval","ordinal"), ties="primary", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
+    if(missing(weightmat))  weightmat <- 1-diag(nrow(delta))
     out <- pclca(delta=delta, kappa=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
     out$model <- "CLCA"
     out
@@ -255,7 +259,10 @@ clca <- function(delta, tau=0.1, type=c("ratio","interval","ordinal"), ties="pri
 
 #' @rdname pclca
 #' @export
-som_pclca <- function(delta, tau=1, epochs=10, kappa=1, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+som_pclca <- function(delta, tau=1, epochs=10, kappa=1, type=c("ratio","interval","ordinal"), ties="primary", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
+    if(missing(weightmat))  weightmat <- 1-diag(nrow(delta))
     taumax <- tau
     taumin <- tau/epochs
     taus <- seq(taumax,taumin,length.out=epochs)

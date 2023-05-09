@@ -233,8 +233,9 @@
 #' plot(res)
 #' 
 #' @export
-elscal <- function (delta, type=c("ratio","interval"), weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE,principal=FALSE) {
+elscal <- function (delta, type=c("ratio","interval"), weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE,principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(missing(weightmat))  weightmat <- 1-diag(nrow(delta))
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")

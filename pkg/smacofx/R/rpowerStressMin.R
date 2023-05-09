@@ -45,7 +45,10 @@
 #' plot(res)
 #' 
 #' @export
-rpowerStressMin <- function (delta, expo=1, nu=1,  type="ratio", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+rpowerStressMin <- function (delta, expo=1, nu=1,  type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
+    if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
+    if(missing(weightmat)) weightmat <- 1-diag(nrow(delta))
     out <- powerStressMin(delta=delta, kappa=expo, lambda=expo, nu=nu,  type=type, weightmat=weightmat, init=init, ndim = ndim, acc= acc, itmax = itmax, verbose = verbose, principal=principal)
     return(out)
 }

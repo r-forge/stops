@@ -1,6 +1,6 @@
 #'Wrapper to \code{sammon} for S3 class
 #'
-#' @details overloads MASS::sammon and adds new slots and class attributes for which there are methods. 
+#' @details Overloads MASS::sammon and adds new slots and class attributes for which there are methods. 
 #' 
 #' @param d a distance structure such as that returned by 'dist' or a full symmetric matrix.  Data are assumed to be dissimilarities or relative distances, but must be positive except for self-distance.  This can contain missing values.
 #' @param y An initial configuration. If NULL, \code{\link[smacofx]{cmdscale}} is used to provide the classical solution. (If there are missing values in 'd', an initial configuration must be provided.)  This must not have duplicates.

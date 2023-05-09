@@ -7,7 +7,7 @@
 multiscale(
   delta,
   type = c("ratio", "interval"),
-  weightmat = 1 - diag(nrow(delta)),
+  weightmat,
   init = NULL,
   ndim = 2,
   acc = 1e-06,
