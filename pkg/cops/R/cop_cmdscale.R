@@ -4,6 +4,7 @@
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta  the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities.
+#' @param type MDS type. Ignored here. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. No effect here.
 #' @param add should the dissimilarities be made Euclidean? Defaults to TRUE.
@@ -23,7 +24,7 @@
 #' @return A list with the components
 #' \itemize{
 #'         \item stress: the badness-of-fit value (this isn't stress here but 1-(sum_ndim(max(eigenvalues,0))/sum_n(max(eigenvalues,0)), 1-GOF[2])
-#'         \item stress.m: default normalized stress (1-GOF[2])
+#'         \item stress.m: default normalized stress (manually calculated)
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (kappa, lambda)
@@ -35,7 +36,7 @@
 #' @importFrom stats dist as.dist
 #' @import cordillera
 #' @keywords multivariate
-cop_cmdscale <- function(dis,theta=1,weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,add,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+cop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,add,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   if(length(theta)==1L) lambda <- theta
   if(missing(add)) add <- TRUE
@@ -49,6 +50,7 @@ cop_cmdscale <- function(dis,theta=1,weightmat=NULL,ndim=2,init=NULL,itmaxi=1000
   fit$stress <- sqrt(fit$stress.n)
   fit$stress.m <- fit$stress.n
   fit$parameters <- fit$pars <- fit$theta <- c(lambda=lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   #TODO: should we only  use 1-GOF[2] as badness-of-fit also for the stress.m? May break compatibilities.  
   list(stress=1-fit$GOF[2],stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions

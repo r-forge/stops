@@ -27,7 +27,7 @@
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the OPTICS cordillera value
 #'         \item{parameters:} the theta parameters used for fitting (kappa, lambda, nu)
-#'         \item{fit:} the returned object of the fitting procedure (typically of class smacofB or smacofP)
+#'         \item{fit:} the returned object of the fitting procedure (typically of class smacofB or smacofP plus a slot for the original data $deltaorig)
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
@@ -38,7 +38,6 @@
 #'@keywords multivariate
 cop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd") {
                                         #TODO Unfolding
-  deltao <- dis  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
   if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")   
@@ -50,7 +49,7 @@ cop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat=NULL,i
     fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacofx::apStressMin
     fit$stress.1 <- fit$stress
     fit$stress.m <- fit$stress^2
-    fit$deltaorig <-deltao
+    fit$deltaorig <-stats::as.dist(dis)
     copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
     out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress^2, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj) #target functions
    out

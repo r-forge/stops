@@ -1,9 +1,10 @@
 #' PCOPS version of rstress
 #'
-#' Free parameter is kappa for the fitted distances.
+#' Free parameter is r for the fitted distances.
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this must be a scalar of the kappa transformation for the fitted distances proximities. Defaults to 1. Note the kappa here differs from Jan's version where the parameter was called r and the relationship is r=kappa/2 or kappa=2r. 
+#' @param theta the theta vector of powers; this must be a scalar of the r transformation for the fitted distances proximities. Defaults to 0.5. Note that kappa=2r in powerstress.
+#' @param type MDS type. Defaults to ratio.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -17,7 +18,6 @@
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scale adjusted
-#' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
 #' @return A list with the components
@@ -26,29 +26,19 @@
 #'         \item stress.m: default normalized stress
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
+#'         \item parameters: the parameters used for fitting (r)
+#'         \item fit: the returned object of the fitting procedure plus a slot for the original data $deltaorig
 #'         \item cordillera: the cordillera object
 #' }
 #' @keywords multivariate
 #' @import cordillera
-cop_rstress <- function(dis,theta=c(1,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
-  if(missing(stresstype)) stresstype <- "default"  
+cop_rstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
-  kappa <- theta
-  #if(length(theta)==3L) kappa <- theta[1] 
-  fit <- powerStressMin(delta=dis,kappa=kappa,lambda=1,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  if(stresstype=="default") fit$stress.m <- fit$stress.m
-  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
-  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
-  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
-  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
-  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
-  fit$kappa <- kappa
-  #fit$lambda <- 1
-  #fit$nu <- 1
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
- # fit$deltaorig <- fit$delta^(1/fit$lambda)
+  r <- theta
+  fit <- smacofx::rStressMin(delta=dis,r=r,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit$r <- r
+  fit$parameters <- fit$theta <- c(r=r)
+  fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
   out

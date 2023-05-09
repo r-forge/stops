@@ -1,6 +1,6 @@
 #' Profile COPS Function (aka COPS Variant 2)
 #'
-#' Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection. It is a special case of a STOPS model. pcops uses explicitly normalized stress for copstress#' (not stress-1).
+#' Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection of explicit transformations (currently power transformations). It is a special case of a STOPS model and predated it; \code{\link[stops]{stops}} has more functionality and can be seen as the successor. pcops uses explicitly normalized stress for copstress (not stress-1).
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
@@ -12,6 +12,7 @@
 #' \item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
 #' }
 #' @param theta the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled. Defaults to 1.
+#' @param type MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.   
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.
@@ -65,11 +66,11 @@
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),weightmat=NULL,ndim=2,init=NULL,theta=1,stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-7,itmaxo=200,itmaxi=10000,...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),type="ratio",weightmat=NULL,ndim=2,init=NULL,theta=1,stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-7,itmaxo=200,itmaxi=10000,...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
-      if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
+      if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
       if(missing(loss)) loss <- "strain"
       #if(length(theta)==1L) expo <- theta
       #if(length(theta)>2) expo <- theta[2]
@@ -80,7 +81,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(rang)) 
           {
            if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi))
+           initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
            init0 <- initsol$fit$conf
            #if(scale=="std") init0 <- scale(init0)
            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
@@ -98,7 +99,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       {
           if(!exists("initsol")) {
                  if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi))
+                 initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
           }
             init0 <- initsol$fit$conf
             init0 <- scale_adjust(init0,.confin,scale=scale)
@@ -112,29 +113,29 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
             }
       if(verbose>1) cat("Starting Optimization \n ")
       if(optimmethod=="SANN") {
-          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,method="SANN",control=list(maxit=itmaxo,trace=verbose-2,reltol=acc),...)
+          opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,method="SANN",control=list(maxit=itmaxo,trace=verbose-2,reltol=acc),...)
       }
       if(optimmethod=="pso") {
         addargs <- list(...)
         control <- list(trace=verbose-2,s=s,addargs)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,control=control)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,control=control)
         thetaopt <- opt$par
        }
       if(optimmethod=="ALJ") {
-          opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc,...)
+          opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc,...)
             # opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc)
             thetaopt <- opt$par
       }
       if(optimmethod=="DIRECT") {
-          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
+          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
       }
        if(optimmethod=="stogo") {
-           opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),maxeval=itmaxo,xtol_rel=acc,...)
+           opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),maxeval=itmaxo,xtol_rel=acc,...)
              thetaopt <- opt$par
       }
       if(optimmethod=="DIRECTL") {
-          opt<- nloptr::directL(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
+          opt<- nloptr::directL(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
        }
       if(optimmethod=="MADS") {
@@ -147,17 +148,17 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
         tmpo <- do.call(psfunc,parlist)
         return(tmpo$copstress)
        }
-       params <- list(psfunc,dis=dis,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-4,scale=scale,normed=normed,itmaxi=itmaxi)   
+       params <- list(psfunc,dis=dis,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-4,scale=scale,normed=normed,itmaxi=itmaxi,type=type)   
        opt<- crs::snomadr(n=length(theta),x0=theta,eval.f=eval.f.pars,params=params,bbin=0,lb=lower,ub=upper,print.output=isTRUE(all.equal(verbose-2,0)),opts=list("MAX_BB_EVAL"=itmaxo),...)
        thetaopt <- opt$solution
        opt$par <- opt$solution  
        }
       if(optimmethod=="hjk") {
-          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,control=list(info=isTRUE(all.equal(verbose-2,0)),maxfeval=itmaxo,tol=acc),...)
+          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,control=list(info=isTRUE(all.equal(verbose-2,0)),maxfeval=itmaxo,tol=acc),...)
        thetaopt <- opt$par
        } 
     #refit the optimal version (TODO probably unnecessary if the other functions are properly reimplemented)
-    out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi))
+    out <- do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=thetaopt,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
     confopt <- scale_adjust(out$fit$conf,.confin,scale=scale)
     out$OC <- cordillera::cordillera(confopt,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
     #out$copstress <- opt$value 

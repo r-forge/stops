@@ -7,6 +7,7 @@
 cop_cmdscale(
   dis,
   theta = 1,
+  type = "ratio",
   weightmat = NULL,
   ndim = 2,
   init = NULL,
@@ -28,6 +29,8 @@ cop_cmdscale(
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities.}
+
+\item{type}{MDS type. Ignored here.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -63,7 +66,7 @@ cop_cmdscale(
 A list with the components
 \itemize{
         \item stress: the badness-of-fit value (this isn't stress here but 1-(sum_ndim(max(eigenvalues,0))/sum_n(max(eigenvalues,0)), 1-GOF[2])
-        \item stress.m: default normalized stress (1-GOF[2])
+        \item stress.m: default normalized stress (manually calculated)
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
         \item parameters: the parameters used for fitting (kappa, lambda)

@@ -67,7 +67,7 @@ A list with the components
         \item{copstress:} the weighted loss value
         \item{OC:} the OPTICS cordillera value
         \item{parameters:} the theta parameters used for fitting (kappa, lambda, nu)
-        \item{fit:} the returned object of the fitting procedure (typically of class smacofB or smacofP)
+        \item{fit:} the returned object of the fitting procedure (typically of class smacofB or smacofP plus a slot for the original data $deltaorig)
         \item{cordillera:} the cordillera object
 }
 }

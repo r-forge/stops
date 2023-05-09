@@ -27,8 +27,8 @@
 #'         \item{stress.m:} default normalized stress
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
-#'         \item{parameters:} the parameters used for fitting (kappa, lambda)
-#'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements and some more)
+#'         \item{parameters:} the parameters used for fitting (lambda)
+#'         \item{fit:} the returned object of the fitting procedure (which has all smacofB elements plus a slot for the original data $deltaorig)
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
@@ -42,27 +42,18 @@ cop_smacofSym <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NU
   if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  #kappa first argument, lambda=second
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
- # if(length(theta)==3L) lambda <- theta[2]
- # addargs <- list(...)
- # addargs
-  fit <- smacof::smacofSym(dis^lambda,type="type",ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
-  #fit$kappa <- 1
+  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$lambda <- lambda
-  #fit$nu <- 1
   fit$stress.1 <- fit$stress
- # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
- # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdist)
-  delts <- as.matrix(fit$delta) #That was my choice to not use the normalized deltas but try it on the original; that is scale and unit free as Buja said
- # if(inherits(fit,"smacofSP")) delts <- as.matrix(fit$delta)[-1,-1]
-  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
-  fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
-  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
-  fit$deltaorig <- fit$delta^(1/fit$lambda)  
+  fitdis <- fit$confdist
+  delts <- fit$delta 
+  fit$stress.r <- sum(as.dist(weightmat)*(delts-fitdis)^2)
+  fit$stress.m <- fit$stress^2
+  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
+  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
   out
 }

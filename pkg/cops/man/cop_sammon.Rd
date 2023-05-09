@@ -7,6 +7,7 @@
 cop_sammon(
   dis,
   theta = 1,
+  type = "ratio",
   ndim = 2,
   init = NULL,
   weightmat = NULL,
@@ -27,6 +28,8 @@ cop_sammon(
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{theta}{the theta vector of powers; this must be  a scalar of the lambda transformation for the observed proximities. Defaults to 1.}
+
+\item{type}{MDS type. Ignored here.}
 
 \item{ndim}{number of dimensions of the target space}
 
@@ -64,7 +67,7 @@ A list with the components
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
         \item parameters: the parameters used for fitting (lambda)
-        \item fit: the returned object of the fitting procedure smacofx::sammon
+        \item fit: the returned object of the fitting procedure smacofx::sammon plus a slot for the original data $deltaorig
         \item cordillera: the cordillera object
 }
 }

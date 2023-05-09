@@ -6,7 +6,8 @@
 \usage{
 cop_rstress(
   dis,
-  theta = c(1, 1, 1),
+  theta = 1,
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_rstress(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this must be a scalar of the kappa transformation for the fitted distances proximities. Defaults to 1. Note the kappa here differs from Jan's version where the parameter was called r and the relationship is r=kappa/2 or kappa=2r.}
+\item{theta}{the theta vector of powers; this must be a scalar of the r transformation for the fitted distances proximities. Defaults to 0.5. Note that kappa=2r in powerstress.}
+
+\item{type}{MDS type. Defaults to ratio.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -57,8 +58,6 @@ cop_rstress(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
 }
 \value{
 A list with the components
@@ -67,12 +66,12 @@ A list with the components
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
+        \item parameters: the parameters used for fitting (r)
+        \item fit: the returned object of the fitting procedure plus a slot for the original data $deltaorig
         \item cordillera: the cordillera object
 }
 }
 \description{
-Free parameter is kappa for the fitted distances.
+Free parameter is r for the fitted distances.
 }
 \keyword{multivariate}

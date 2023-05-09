@@ -9,6 +9,7 @@ pcops(
   loss = c("stress", "smacofSym", "smacofSphere", "strain", "sammon", "rstress",
     "powermds", "sstress", "elastic", "powersammon", "powerelastic", "powerstress",
     "sammon2", "powerstrain", "apstress", "rpowerstress"),
+  type = "ratio",
   weightmat = NULL,
   ndim = 2,
   init = NULL,
@@ -43,6 +44,8 @@ pcops(
 \item Power transfomations of fitted distances, observed proximities and weights (theta must be of length 3 at most): powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse is powerstressMin)
 \item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
 }}
+
+\item{type}{MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals}
 
@@ -100,7 +103,7 @@ A list with the components
 }
 }
 \description{
-Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection. It is a special case of a STOPS model. pcops uses explicitly normalized stress for copstress#' (not stress-1).
+Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection of explicit transformations (currently power transformations). It is a special case of a STOPS model and predated it; \code{\link[stops]{stops}} has more functionality and can be seen as the successor. pcops uses explicitly normalized stress for copstress (not stress-1).
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
