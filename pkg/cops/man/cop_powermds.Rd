@@ -6,7 +6,8 @@
 \usage{
 cop_powermds(
   dis,
-  theta = c(1, 1, 1),
+  theta = c(1, 1),
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_powermds(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{theta}{the theta vector of powers; a vector of length 2 where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1.}
+
+\item{type}{MDS type. Defaults to ratio.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -57,8 +58,6 @@ cop_powermds(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to whatever whim is my default (currently explicitly normed stress)}
 }
 \value{
 A list with the components
@@ -73,6 +72,6 @@ A list with the components
 }
 }
 \description{
-This is power stress with free kappa and lambda but nu is fixed to 1, so no weight transformation.
+This is power stress with free kappa and lambda but nu is internally fixed to 1, so no weight transformation.
 }
 \keyword{multivariate}

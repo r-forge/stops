@@ -7,6 +7,7 @@
 cop_powerstress(
   dis,
   theta = c(1, 1, 1),
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_powerstress(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{theta}{the theta vector of powers; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 1.}
+
+\item{type}{MDS type. Default is ratio.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -57,8 +58,6 @@ cop_powerstress(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
 }
 \value{
 A list with the components
@@ -67,12 +66,12 @@ A list with the components
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedure
+        \item parameters: the parameters used for fitting (kappa, lambda, nu)
+        \item fit: the returned object of the fitting procedure plus a slot for the original data $deltaorig
         \item cordillera: the cordillera object
 }
 }
 \description{
-Power stress with free kappa and lambda and rho (the theta argument).
+Power stress with free kappa and lambda and rho (the theta argument) and ratio and interval optimal scaling.
 }
 \keyword{multivariate}

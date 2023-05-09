@@ -7,6 +7,7 @@
 cop_rpowerstress(
   dis,
   theta = c(1, 1, 1),
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_rpowerstress(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; the first two arguments are for kappa and lambda and should be equal (for the fitted distances and observed proximities), the third nu (for the weights). Internally the kappa and lambda are equated. If a scalar is given it is recycled (so all elements of theta are equal); if a vector of length 2 is given, it gets expanded to c(theta[1],theta[1],theta[2]). Defaults to 1 1 1.}
+\item{theta}{the theta vector of powers; the first two arguments are for kappa and lambda and should be equal (for the fitted distances and observed proximities), the third nu (for the weights). Internally the kappa and lambda are equated based on theta[1]. If a scalar is given it is recycled (so all elements of theta are equal); if a vector of length 2 is given, it gets expanded to c(theta[1],theta[1],theta[2]). Defaults to 1 1 1.}
+
+\item{type}{MDS type. Defaults to "ratio".}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -57,8 +58,6 @@ cop_rpowerstress(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
 }
 \value{
 A list with the components

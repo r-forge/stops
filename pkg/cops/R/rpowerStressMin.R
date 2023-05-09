@@ -1,4 +1,3 @@
-
 #' Restricted Power Stress SMACOF
 #'
 #' An implementation to minimize restricted power stress by majorization with ratio or interval optimal scaling. Restricted means that the same power is used for both dissimilarities and fitted distances. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
