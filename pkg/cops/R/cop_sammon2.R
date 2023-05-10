@@ -39,13 +39,13 @@
 #' @importFrom smacof smacofSym
 #' @import cordillera
 #'@keywords multivariate
-cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
   if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
+  #if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
   #kappa first argument, lambda=second
-  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta[1]
   nu <- -1
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1

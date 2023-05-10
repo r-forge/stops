@@ -38,7 +38,8 @@
 #' 
 #'@keywords multivariate
 cop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd") {
-                                        #TODO Unfolding
+  #if(all.equal(theta,c(1,1,1))) theta <- 1
+  #TODO Unfolding
   if(inherits(dis,"dist") || is.data.frame(dis)) dis <- as.matrix(dis)
   if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")   
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")

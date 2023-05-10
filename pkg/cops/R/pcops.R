@@ -11,7 +11,7 @@
 #' \item Power transfomations of fitted distances, observed proximities and weights (theta must be of length 3 at most): powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse is powerstressMin)
 #' \item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
 #' }
-#' @param theta the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled and this will also make the optimizers equate all free parameters, so make sure to supply a theta of the correct length. Defaults to 1.
+#' @param theta the theta vector of free parameters; see above for the number of free parameters for each loss function. If this is a vector with more elements than necessary, it is either cut (so for a vector of length 3 and a function with 2 free parameters, the first two elements of the vector are used) or there will be an error.  If a scalar is given as argument and the number of free parameters is larger than 1, the scalar will be recycled and this will also make the optimizers equate all free parameters. Bottom line is: Make sure to supply a theta of the correct length. Defaults to 1 for all free parameters.
 #' @param type MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.   
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
@@ -66,7 +66,7 @@
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),type="ratio",weightmat=NULL,ndim=2,init=NULL,theta=1,stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-7,itmaxo=200,itmaxi=10000,...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),type="ratio",weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-7,itmaxo=200,itmaxi=10000,...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -81,7 +81,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(rang)) 
           {
             if(verbose>1) cat ("Fitting configuration for rang. \n")
-            initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
+            initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
            init0 <- initsol$fit$conf
            #if(scale=="std") init0 <- scale(init0)
            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
@@ -99,7 +99,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       {
           if(!exists("initsol")) {
               if(verbose>1) cat ("Fitting configuration for cordweight. \n")
-                initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
+                initsol <- do.call(psfunc,list(dis=dis,theta=c(1,1,1),init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
           }
             init0 <- initsol$fit$conf
             init0 <- scale_adjust(init0,.confin,scale=scale)
@@ -112,6 +112,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
             if(verbose>1) cat("Weights are stressweight=",stressweight,"cordweight=",cordweight,"\n")
             }
       if(verbose>1) cat("Starting Optimization \n ")
+      cat("THETA IS",theta,"\n") 
       if(optimmethod=="SANN") {
           opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,weightmat=weightmat,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,method="SANN",control=list(maxit=itmaxo,trace=verbose-2,reltol=acc),...)
       }

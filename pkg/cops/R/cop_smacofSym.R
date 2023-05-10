@@ -3,7 +3,7 @@
 #' The free parameter is lambda for power transformations the observed proximities. The fitted distances power is internally fixed to 1 and the power for the weights is 1. 
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector; must be a scalar for the lambda (proximity) transformation. Defaults to 1.
+#' @param theta the theta vector; should be a scalar for the lambda (proximity) transformation. Defaults to 1.
 #' @param type MDS type.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000
@@ -37,13 +37,13 @@
 #'@import smacof
 #' 
 #'@keywords multivariate
-cop_smacofSym <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+cop_smacofSym <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
                                         #TODO Unfolding
   if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
+  #if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta[1]
   fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$lambda <- lambda
   #fit$stress.1 <- fit$stress

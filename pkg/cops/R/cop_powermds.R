@@ -3,7 +3,7 @@
 #' This is power stress with free kappa and lambda but nu is internally fixed to 1, so no weight transformation.
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; a vector of length 2 where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1.
+#' @param theta the theta vector of powers; a vector of length 2 where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled.  Defaults to 1,1.
 #' @param type MDS type. Defaults to ratio.
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
@@ -34,7 +34,7 @@
 #' @import cordillera
 #' @importFrom smacofx powerStressMin
 cop_powermds <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<2) theta <- rep(theta,length.out=2)
   fit <- smacofx::powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   fit$kappa <- theta[1]

@@ -37,14 +37,14 @@
 #'@import cordillera 
 #' 
 #'@keywords multivariate
-cop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd") {
+cop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd") {
                                         #TODO Unfolding
   if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
+  #if(is.null(weightmat)) weightmat <-  1-diag(dim(dis)[1])
   #kappa first argument, lambda=second
-  if(length(theta)>1) stop("There are too many parameters in the theta argument.")
-  lambda <- theta
+  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+  lambda <- theta[1]
   #if(length(theta)==3L) lambda <- theta[2]
   nu <- -2
   #addargs <- list(...)
