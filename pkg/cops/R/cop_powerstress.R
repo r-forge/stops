@@ -101,7 +101,7 @@ cop_powerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=1-diag(nro
   fit$lambda <- theta[2]
   fit$nu <- theta[3]
   fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
-  fit$deltaorig <- stats::as.dist(dis)
+  #fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 

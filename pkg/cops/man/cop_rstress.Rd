@@ -62,12 +62,12 @@ cop_rstress(
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
+        \item stress: the stress-1 value
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
         \item parameters: the parameters used for fitting (r)
-        \item fit: the returned object of the fitting procedure plus a slot for the original data $deltaorig
+        \item fit: the returned object of the fitting procedure
         \item cordillera: the cordillera object
 }
 }

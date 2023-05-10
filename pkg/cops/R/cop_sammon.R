@@ -4,7 +4,7 @@
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this must be  a scalar of the lambda transformation for the observed proximities. Defaults to 1.
-#' @param type MDS type. Ignored here. 
+#' @param type MDS type. Only "ratio" here. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. Default is 1000.
 #' @param weightmat (optional) a matrix of nonnegative weights. 
@@ -40,15 +40,16 @@
 cop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  type <- match.arg(type,'ratio')
   lambda <- theta
   fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
   fit$lambda <- lambda
   fit$delta <- stats::as.dist(dis)
-  dhat <- stats::as.dist(fit$dhat)
-  fitdis <- stats::as.dist(fit$confdist)
-  fit$stress.r <- sum(((dhat-fitdis)^2)/dhat)
-  fit$stress.n <- fit$stress.r/sum(dhat)
-  fit$deltaorig <- stats::as.dist(dis)
+  #dhat <- stats::as.dist(fit$dhat)
+  #fitdis <- stats::as.dist(fit$confdist)
+  #fit$stress.r <- sum(((dhat-fitdis)^2)/dhat)
+  #fit$stress.n <- fit$stress.r/sum(dhat)
+  #fit$deltaorig <- stats::as.dist(dis)
   fit$parameters <- fit$theta <- c(lambda=lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,copsobj=copobj) #target functions

@@ -7,6 +7,7 @@
 cop_powerelastic(
   dis,
   theta = c(1, 1),
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_powerelastic(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
 \item{theta}{the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.}
+
+\item{type}{MDS type. defaults to "ratio".}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -57,16 +58,14 @@ cop_powerelastic(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
 }
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
+        \item stress: the stress-1 value (sqrt(stress.m))
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
-        \item OC: the Optics cordillera value
+        \item OC: the OPTICScordillera value
         \item parameters: the parameters used for fitting (kappa, lambda)
         \item fit: the returned object of the fitting procedure
         \item cordillera: the cordillera object

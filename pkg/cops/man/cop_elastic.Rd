@@ -21,8 +21,7 @@ cop_elastic(
   rang = NULL,
   verbose = 0,
   normed = TRUE,
-  scale = "sd",
-  stresstype = "default"
+  scale = "sd"
 )
 }
 \arguments{
@@ -59,8 +58,6 @@ cop_elastic(
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
 \item{scale}{should the configuration be scale adjusted}
-
-\item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }
 \value{
 A list with the components

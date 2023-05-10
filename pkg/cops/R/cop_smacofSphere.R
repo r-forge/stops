@@ -23,12 +23,12 @@
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
+#'         \item{stress:} the stress-1
 #'         \item{stress.m:} default normalized stress
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
 #'         \item{parameters:} the parameters used for fitting (lambda)
-#'         \item{fit:} the returned object of the fitting procedure  (typically of class smacofB or smacofP plus a slot for the original data $deltaorig)
+#'         \item{fit:} the returned object of the fitting procedure  
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
@@ -51,16 +51,16 @@ cop_smacofSphere <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init
   #fit$kappa <- 1
   fit$lambda <- lambda
   #nu <- 
-  fit$stress.1 <- fit$stress
+  #fit$stress.1 <- fit$stress
  # fit$stress <- (fit$stress^2)*sum(fit$obsdiss^2) check if this is like below
  # fitdis <- 2*sqrt(sqdist(fit$conf))
-  fitdis <- as.matrix(fit$confdist)
-  delts <- as.matrix(fit$delta)[-1,-1]
-  fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
+ # fitdis <- as.matrix(fit$confdist)
+  #delts <- as.matrix(fit$delta)[-1,-1]
+  #fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2#fit$stress.r/sum(weightmat*delts^2)
   fit$parameters <- fit$theta <- c(lambda=lambda) #c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
   out
 }

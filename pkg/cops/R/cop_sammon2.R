@@ -29,14 +29,14 @@
 #'         \item{stress.m:} default normalized stress
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
-#'         \item{parameters:} the parameters used for fitting (kappa, lambda)
-#'         \item{fit:} the returned object of the fitting procedure (typically of class smacofB or smacofP plus a slot for the original data $deltaorig)
+#'         \item{parameters:} the parameters used for fitting (lambda)
+#'         \item{fit:} the returned object of the fitting procedure
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
 #'
 #' @importFrom stats dist as.dist
-#' @import smacof
+#' @importFrom smacof smacofSym
 #' @import cordillera
 #'@keywords multivariate
 cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
@@ -52,14 +52,14 @@ cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL
   combwght <- stats::as.dist(weightmat*elscalw) #combine the user weights and the elastic scaling weights
   fit <- smacof::smacofSym(dis^lambda,ndim=ndim,type=type,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$lambda <- lambda
-  fit$stress.1 <- fit$stress
-  fitdis <- fit$confdist
-  delts <- fit$dhat 
-  fit$stress.r <- sum(combwght*((delts-fitdis)^2))
+  #fit$stress.1 <- fit$stress
+  #fitdis <- fit$confdist
+  #delts <- fit$dhat 
+  #fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress^2
   fit$parameters <- fit$theta <- c(lambda=lambda)
   fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
-  out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
+  out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
   out
 }

@@ -1,5 +1,8 @@
+Version 1.8-2:
+  - Finished moving to smacofx functions as workhorse for all cop_X functions (mostly using scmaofx::powerStressMin). Removed rStressMin and powerStressMin. 
+
 Version 1.8-0:
-  - Forked all the functionality that was not directly cops related to smacofx. Now the main function is copStressmIn which is essentially the cops version of a mash-up of smacofx::rstressMin and smacofx::powerStressMin, thus generalizing all the models in smacofx but lmds, bcmds and clca. cops-c models are of class smacofP and work with the infrastructure of smacofx. Similarly, objects returned from pcops have a slot fit that is of class smacofP or smacofB and thus can also use the smacofx functionality.  
+  - Forked all the functionality that was not directly cops related to smacofx. Now the main function is copStressMin which is essentially the cops version of a mash-up of smacofx::rstressMin and smacofx::powerStressMin, thus generalizing all the models in smacofx but lmds, bcmds and clca. cops-c models are of class smacofP and work with the infrastructure of smacofx. Similarly, objects returned from pcops have a slot fit that is of class smacofP or smacofB and thus can also use the smacofx functionality. Added type argument to all functions. 
 
 Version 1.7-2:
   - Changed the Shepard plot to now work with power exponents in the dhat regression line added to the plot. The latter are the same one as obtained by the MDS fit only linearly transformed to be on the same scale as the configuration distances.  

@@ -11,7 +11,7 @@
 #' \item Power transfomations of fitted distances, observed proximities and weights (theta must be of length 3 at most): powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse is powerstressMin)
 #' \item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
 #' }
-#' @param theta the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled. Defaults to 1.
+#' @param theta the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled and this will also make the optimizers equate all free parameters, so make sure to supply a theta of the correct length. Defaults to 1.
 #' @param type MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.   
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
@@ -80,8 +80,8 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(optimmethod)) optimmethod <- "ALJ"
       if(missing(rang)) 
           {
-           if(verbose>1) cat ("Fitting configuration for rang. \n")    
-           initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
+            if(verbose>1) cat ("Fitting configuration for rang. \n")
+            initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=c(0,1),q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
            init0 <- initsol$fit$conf
            #if(scale=="std") init0 <- scale(init0)
            #if(scale=="sd") init0 <- init0/max(apply(init0,2,sd))
@@ -98,8 +98,8 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
       if(missing(cordweight))
       {
           if(!exists("initsol")) {
-                 if(verbose>1) cat ("Fitting configuration for cordweight. \n")     
-                 initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
+              if(verbose>1) cat ("Fitting configuration for cordweight. \n")
+                initsol <- do.call(psfunc,list(dis=dis,theta=1,init=.confin,weightmat=weightmat,ndim=ndim,rang=rang,q=q,minpts=minpts,epsilon=epsilon,verbose=verbose-2,scale=scale,normed=normed,itmaxi=itmaxi,type=type))
           }
             init0 <- initsol$fit$conf
             init0 <- scale_adjust(init0,.confin,scale=scale)
@@ -168,6 +168,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
     out$call <- match.call()
     out$optimethod <- optimmethod
     out$losstype <- loss
+    out$type <- type
     out$nobj <- dim(out$fit$conf)[1]
     out$scale <- scale
     if(verbose>1) cat("Found minimum after",opt$counts["function"]," iterations at",round(thetaopt,4),"with copstress=",round(out$copstress,4),"and default scaling loss=",round(out$stress.m,4),"and OC=", round(out$OC$normed,4),". Thanks for your patience. \n")

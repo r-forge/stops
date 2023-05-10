@@ -486,3 +486,51 @@ iteli <- itelmax-itel
 
 res1<-copstressMin(dis,stressweight=0.95,cordweight=0.05,itmax=10000) #use higher itmax about 10000
 res1
+
+
+##### Trying out all losses in pcops
+library(cops)
+dis <- smacof::kinshipdelta
+#strain
+p1 <- pcops(dis,loss="strain",type="interval",theta=1,lower=0,upper=5)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#strain
+p1 <- pcops(dis,loss="strain",type="interval",theta=1,lower=0,upper=5)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+
+
+                                        #try all
+losses <- c("stress", "smacofSym", "strain", "rstress",
+            "powermds", "sstress", "powersammon", "powerelastic", "powerstress",
+       "sammon2", "powerstrain","rpowerstress","sammon","elastic","apstress"
+  
+
+dis <- as.matrix(dis)
+for(i in losses)
+{
+ cat("Testing:",i,"\n")   
+ p1 <- pcops(dis,loss=i,type="ratio",verbose=3)
+ p1
+ summary(p1)
+ par(mfrow=c(2,2))
+ plot(p1,"confplot")
+ plot(p1,"reachplot") 
+ plot(p1,"Shepard")
+ #plot(p1,"transplot") transplot for stress
+ par(mfrow=c(1,1))
+}
+
+## elastic has issues, apstress has issues (related to the upper agument)
+## what is sstress?
+## transplot for smacofB issues, sheaprd issues for apstress
+

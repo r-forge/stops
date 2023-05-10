@@ -66,7 +66,7 @@ A list with the components
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
+        \item parameters: the  explicit  parameters used for fitting (kappa=lambda, nu)
         \item fit: the returned object of the fitting procedure
         \item cordillera: the cordillera object
 }

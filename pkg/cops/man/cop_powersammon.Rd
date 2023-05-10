@@ -7,6 +7,7 @@
 cop_powersammon(
   dis,
   theta = c(1, 1),
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,15 +21,15 @@ cop_powersammon(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1..}
+\item{theta}{the theta vector of powers; a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar is given it is recycled for the free parameters.  Defaults to 1 1.}
+
+\item{type}{MDS type. defaults to ratio.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -36,7 +37,7 @@ cop_powersammon(
 
 \item{ndim}{number of dimensions of the target space}
 
-\item{itmaxi}{number of iterations. default is 10000.}
+\item{itmaxi}{number of iterations (of powerstress). default is 10000.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 
@@ -57,17 +58,15 @@ cop_powersammon(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
 }
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
+        \item stress: the stress1 value  (sqrt(stress.m))
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
+        \item parameters: the explicit parameters used for fitting (kappa, lambda)
         \item fit: the returned object of the fitting procedure
         \item cordillera: the cordillera object
 }

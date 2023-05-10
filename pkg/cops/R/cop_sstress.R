@@ -3,7 +3,8 @@
 #'Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)). 
+#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
+#' @param tyype MDS type, defaults to "ratio".
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -17,7 +18,6 @@
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scale adjusted
-#' @param stresstype which stress to report? Defaults to explicitly normed stress
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
 #' @return A list with the components
@@ -32,20 +32,14 @@
 #' }
 #' @keywords multivariate
 #' @import cordillera
-cop_sstress <- function(dis,theta=c(2,1,1),weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE,stresstype=c("default","stress1","rawstress","normstress","enormstress","enormstress1")) {
-  if(missing(stresstype)) stresstype <- "default"  
+#' @importFrom smacofx powerStressMin
+cop_sstress <- function(dis,theta=c(2,1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   lambda <- theta
   #if(length(theta)==3L) lambda <- theta[2]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
-  fit <- powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  if(stresstype=="default") fit$stress.m <- fit$stress.m
-  if(stresstype=="stress1") fit$stress.m <- fit$stress.1
-  if(stresstype=="rawstress") fit$stress.m <- fit$stress.r
-  if(stresstype=="normstress") fit$stress.m <- fit$stress.n
-  if(stresstype=="enormstress") fit$stress.m <- fit$stress.en
-  if(stresstype=="enormstress1") fit$stress.m <- fit$stress.en1
-  #fit$kappa <- 2
+  fit <- smacofx::powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+ #fit$kappa <- 2
   fit$lambda <- lambda
   #fit$nu <- 1
   fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)

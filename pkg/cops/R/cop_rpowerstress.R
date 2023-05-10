@@ -28,7 +28,7 @@
 #'         \item stress.m: default normalized stress
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item parameters: the  explicit  parameters used for fitting (kappa=lambda, nu)
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
@@ -40,7 +40,7 @@ cop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=1-diag(nr
   #if(length(theta)==3L & theta[1]!=theta[2]) warning("The powers given for kappa and lambda do not agree. The first value in theta will be used for both kappa and lambda.")  
   if(length(theta)==1L) theta <- rep(theta,3)
   if(length(theta)==2L) theta <- c(rep(theta[1],2),theta[2])
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   fit <- smacofx::powerStressMin(delta=dis,kappa=theta[1],lambda=theta[1],nu=theta[3],type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
 #  if(stresstype=="default") fit$stress.m <- fit$stress.m
@@ -48,7 +48,7 @@ cop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=1-diag(nr
   fit$lambda <- theta[1]
   fit$nu <- theta[3]
   fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
-   fit$deltaorig <- stats::as.dist(dis)
+  # fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 

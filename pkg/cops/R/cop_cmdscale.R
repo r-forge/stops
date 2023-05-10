@@ -27,10 +27,9 @@
 #'         \item stress.m: default normalized stress (manually calculated)
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedurem, which is cmdscalex object with some extra slots for the parameters and stresses 
+#'         \item parameters: the parameters used for fitting (lambda)
+#'         \item fit: the returned object of the fitting procedure, which is cmdscalex object with some extra slots for the parameters and stresses 
 #'         \item cordillera: the cordillera object
-#'         \item stress.mOLD: The old badness-of-fit value used for pcops prior to v 1.8-0.
 #' }
 #' 
 #' @importFrom stats dist as.dist
@@ -38,6 +37,7 @@
 #' @keywords multivariate
 cop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,add,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
+  type <- match.arg(type,'ratio')
   if(length(theta)==1L) lambda <- theta
   if(missing(add)) add <- TRUE
   fit <- smacofx::cmdscale(dis^lambda,k=ndim,eig=TRUE,add=add,...) #added in 

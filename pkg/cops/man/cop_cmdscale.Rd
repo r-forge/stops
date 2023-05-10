@@ -69,10 +69,9 @@ A list with the components
         \item stress.m: default normalized stress (manually calculated)
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
-        \item parameters: the parameters used for fitting (kappa, lambda)
-        \item fit: the returned object of the fitting procedurem, which is cmdscalex object with some extra slots for the parameters and stresses 
+        \item parameters: the parameters used for fitting (lambda)
+        \item fit: the returned object of the fitting procedure, which is cmdscalex object with some extra slots for the parameters and stresses 
         \item cordillera: the cordillera object
-        \item stress.mOLD: The old badness-of-fit value used for pcops prior to v 1.8-0.
 }
 }
 \description{
