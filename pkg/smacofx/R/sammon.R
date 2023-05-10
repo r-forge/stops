@@ -17,7 +17,8 @@
 #' dis<-as.matrix(smacof::kinshipdelta)
 #' res<-sammon(dis)
 sammon <- function(d,y=NULL,k=2,...)
-    {
+{
+     if(is.data.frame(d)) d <- as.matrix(d)
      if(is.null(y)) y <- smacofx::cmdscale(d,k,eig=TRUE)$conf
      out <- MASS::sammon(d,y=as.matrix(y),k=k,...)
      colnames(out$points) <- paste("D",1:k,sep="")

@@ -52,11 +52,10 @@
 #' 
 #' 
 #' @export
-apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat= 1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     #TODO add optional arguments tau=lambda/kappa, upsilon=nu+2*lambda*(1-(1/kappa))
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    if(missing(weightmat)) weightmat <- 1-diag(nrow(delta))
     if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")
     if(is.null(init)) init <- "torgerson"
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
@@ -76,18 +75,18 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat
     out <- smacof::smacofSym(tdelta,type=type,weightmat=combwght,itmax=itmax,verbose=verbose,principal=principal,init=init,ndim=ndim,eps=acc)
     tweightmat <- out$weightmat
     #stressen <- sum(weightmat*(doute-delta)^2)
-    out$delta <- deltaorig
-    out$weightmat <- weightmat
-    out$tweightmat <-tweightmat
+    out$delta <- stats::as.dist(deltaorig)
+    out$tweightmat <-stats::as.dist(tweightmat)
+    out$weightmat <- stats::as.dist(weightmat)
     out$model <- "Approx. Power-Stress SMACOF"
     out$call <- match.call()
     out$stress.m <- out$stress^2
     out$tdelta <- tdelta
     #TODO: In approx power stress if we do the kappa or it will give us. Use parameters only for print and pars for the rest  
     out$parameters <- c(kappa=kappa,lambda=lambda,nu=nu)
-    out$pars <- c(kappa=kappa,lambda=lambda,nu=nu,upsilon=upsilon,tau=tau)
+    out$pars <- c(kappa=kappa,lambda=lambda,nu=nu)#,upsilon=upsilon,tau=tau)
     out$theta <- c(kappa=kappa,lambda=lambda,nu=nu)
-    out$tweightmat <- weightmat
+    #out$tweightmat <- weightmat
     class(out) <- c("smacofP","smacofB","smacof")
     out
 }

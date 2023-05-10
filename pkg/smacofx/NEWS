@@ -1,3 +1,7 @@
+Version 0.3-2
+
+- sammon can now also take data frames.
+
 Version 0.3-1
 
 - Updated cmdscale wrapper and the plot function for cmdscalex. Same for sammon. Factorized all into their own files.

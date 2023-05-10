@@ -18,6 +18,7 @@
 #' res<-cmdscale(dis)
 cmdscale <- function(d, k=2, eig=FALSE,...)
 {
+    if(is.data.frame(d)) d <- as.matrix(d)
     out <- stats::cmdscale(d, k=k, eig=eig, list.=TRUE,...)
     colnames(out$points) <- paste("D",1:k,sep="")
     out$conf <- out$points
