@@ -6,7 +6,8 @@
 \usage{
 cop_sstress(
   dis,
-  theta = c(2, 1, 1),
+  theta = 1,
+  type = "ratio",
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
@@ -20,9 +21,7 @@ cop_sstress(
   rang = NULL,
   verbose = 0,
   scale = "sd",
-  normed = TRUE,
-  stresstype = c("default", "stress1", "rawstress", "normstress", "enormstress",
-    "enormstress1")
+  normed = TRUE
 )
 }
 \arguments{
@@ -58,7 +57,7 @@ cop_sstress(
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
-\item{stresstype}{which stress to report? Defaults to explicitly normed stress}
+\item{tyype}{MDS type, defaults to "ratio".}
 }
 \value{
 A list with the components

@@ -29,7 +29,7 @@ cop_sammon(
 
 \item{theta}{the theta vector of powers; this must be  a scalar of the lambda transformation for the observed proximities. Defaults to 1.}
 
-\item{type}{MDS type. Ignored here.}
+\item{type}{MDS type. Only "ratio" here.}
 
 \item{ndim}{number of dimensions of the target space}
 

@@ -13,7 +13,7 @@ pcops(
   weightmat = NULL,
   ndim = 2,
   init = NULL,
-  theta = 1,
+  theta = c(1, 1, 1),
   stressweight = 1,
   cordweight,
   q = 2,
@@ -53,7 +53,7 @@ pcops(
 
 \item{init}{(optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.}
 
-\item{theta}{the theta vector of powers; see the corresponding cop_XXX function for which theta are allowed. If a scalar is given as argument, it will be recycled. Defaults to 1.}
+\item{theta}{the theta vector of free parameters; see above for the number of free parameters for each loss function. If this is a vector with more elements than necessary, it is either cut (so for a vector of length 3 and a function with 2 free parameters, the first two elements of the vector are used) or there will be an error.  If a scalar is given as argument and the number of free parameters is larger than 1, the scalar will be recycled and this will also make the optimizers equate all free parameters. Bottom line is: Make sure to supply a theta of the correct length. Defaults to 1 for all free parameters.}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 

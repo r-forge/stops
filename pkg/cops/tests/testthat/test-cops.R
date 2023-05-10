@@ -491,8 +491,9 @@ res1
 ##### Trying out all losses in pcops
 library(cops)
 dis <- smacof::kinshipdelta
+dis <- cops::matchphi
 #strain
-p1 <- pcops(dis,loss="strain",type="interval",theta=1,lower=0,upper=5)
+p1 <- pcops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5)
 p1
 summary(p1)
 plot(p1,"confplot")
@@ -513,21 +514,21 @@ plot(p1,"transplot")
 losses <- c("stress",#1 ok
             "smacofSym",#1 ok
             "strain",#1 ok
-            "rstress",
+            "rstress", #1 ok
             "elastic",#1 ok
-            "apstress",
-            "sammon2",#1 ok
+            "apstress", #3 
+ losses <- c(           "sammon2",#1 ok
       "powerstrain",#1 ok
-      "rpowerstress",#2 ok
       "sammon", #1 ok
       "powerelastic",#2 ok
       "powerstress",#3 ok 
       "sstress") #1 ok 
 
 #why only one value by the wrong losses?  
-losses <-     c("powermds", #2 wrong, worked
+losses <-     c("powermds", #2 wrong, worked, wrong, worked
       
-      "powersammon"#2 wrong, worked
+      "powersammon",#2 wrong, worked, worked
+"rpowerstress" #2 wrong, worked
   )
       
  
@@ -537,13 +538,13 @@ dis <- as.matrix(dis)
 for(i in losses)
 {
  cat("Testing:",i,"\n")   
- p1 <- pcops(dis,loss=i,type="ratio",verbose=2,itmaxi=10000)
+ p1 <- pcops(dis,loss=i,type="ratio",verbose=2,itmaxi=5000)
  print(p1)
  summary(p1)
- par(mfrow=c(2,2))
- plot(p1,"confplot")
+ par(mfrow=c(2,1))
+ plot(p1,"confplot",label.conf=list(pos=5))
  plot(p1,"reachplot") 
- plot(p1,"Shepard")
+# plot(p1,"Shepard")
  #plot(p1,"transplot") transplot for stress
  par(mfrow=c(1,1))
 }

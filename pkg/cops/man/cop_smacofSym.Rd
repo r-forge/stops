@@ -9,7 +9,7 @@ cop_smacofSym(
   theta = 1,
   type = "ratio",
   ndim = 2,
-  weightmat = NULL,
+  weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   itmaxi = 1000,
   ...,
@@ -28,7 +28,7 @@ cop_smacofSym(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector; must be a scalar for the lambda (proximity) transformation. Defaults to 1.}
+\item{theta}{the theta vector; should be a scalar for the lambda (proximity) transformation. Defaults to 1.}
 
 \item{type}{MDS type.}
 

@@ -9,7 +9,7 @@ cop_apstress(
   theta = c(1, 1, 1),
   type = "ratio",
   ndim = 2,
-  weightmat = NULL,
+  weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   itmaxi = 1000,
   ...,
