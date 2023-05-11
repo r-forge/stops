@@ -15,7 +15,7 @@
 #' @param verbose should iteration output be printed; if > 1 then yes
 #' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
 #'
-#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized
@@ -81,7 +81,7 @@ apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat
     out$model <- "Approx. Power-Stress SMACOF"
     out$call <- match.call()
     out$stress.m <- out$stress^2
-    out$tdelta <- tdelta
+    out$tdelta <- stats::as.dist(tdelta)
     #TODO: In approx power stress if we do the kappa or it will give us. Use parameters only for print and pars for the rest  
     out$parameters <- c(kappa=kappa,lambda=lambda,nu=nu)
     out$pars <- c(kappa=kappa,lambda=lambda,nu=nu)#,upsilon=upsilon,tau=tau)
