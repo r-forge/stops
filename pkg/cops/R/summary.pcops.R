@@ -23,8 +23,8 @@ print.summary.pcops <- function(x,...)
     cat("\n\n")
     if(!is.null(x$sppmat))
      {   
-      cat("Stress per point:\n")
-      print(round(x$sppmat, 4))
+      cat("Stress per point (%):\n")
+      print(round(x$sppmat[,2], 4))
       cat("\n")
      }
     }

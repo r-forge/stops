@@ -488,20 +488,116 @@ res1<-copstressMin(dis,stressweight=0.95,cordweight=0.05,itmax=10000) #use highe
 res1
 
 
-##### Trying out all losses in pcops
+##### Trying out all losses in pcops with the correct for theta and upper and lower
 library(cops)
 dis <- smacof::kinshipdelta
 dis <- cops::matchphi
 #strain
-p1 <- pcops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5)
+p1 <- pcops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5,verbose=3)
 p1
 summary(p1)
 plot(p1,"confplot")
 plot(p1,"reachplot")
 plot(p1,"Shepard")
 plot(p1,"transplot")
-#strain
-p1 <- pcops(dis,loss="strain",type="interval",theta=1,lower=0,upper=5)
+#stress
+p1 <- pcops(dis,loss="stress",type="ratio",theta=1,lower=0,upper=5,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard") 
+plot(p1,"transplot") 
+#sammon 
+p1 <- pcops(dis,loss="sammon",type="ratio",theta=1,lower=0,upper=5,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#sammon2
+p1 <- pcops(dis,loss="sammon2",type="interval",theta=1,lower=0,upper=4,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#rstress
+p1 <- pcops(dis,loss="rstress",type="ordinal",theta=1,lower=0,upper=5,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#elastic ##CHECK again why such a large confdist
+p1 <- pcops(dis,loss="elastic",type="interval",theta=1,lower=0.5,upper=3,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#powerstrain #same as strain
+p1 <- pcops(dis,loss="powerstrain",type="ratio",theta=1,lower=0,upper=5,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#sstress
+p1 <- pcops(dis,loss="sstress",type="ratio",theta=1,lower=0,upper=5,verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#powermds
+p1 <- pcops(dis,loss="powermds",type="interval",theta=c(1,1),lower=c(0,0),upper=c(5,5))
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#powersammon
+p1 <- pcops(dis,loss="powersammon",type="interval",theta=c(1,1),lower=c(0,0),upper=c(5,5))
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#powerelastic
+p1 <- pcops(dis,loss="powerelastic",type="interval",theta=c(1,1),lower=c(0.1,0.1),upper=c(3,3),verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#rpowerstress
+p1 <- pcops(dis,loss="rpowerstress",type="interval",theta=c(1,1),lower=c(0,0),upper=c(5,5))
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#apstress
+p1 <- pcops(dis,loss="apstress",type="ratio",theta=c(1,1,1),lower=c(1,1,1),upper=c(3,3,3),verbose=3)
+p1
+summary(p1)
+plot(p1,"confplot")
+plot(p1,"reachplot")
+plot(p1,"Shepard",shepard.lin=FALSE) #doesnt work Maybe need to make this into a smacofB object not a smacofP
+plot(p1,"transplot") #doesnt work
+#powerstress
+p1 <- pcops(dis,loss="powerstress",type="interval",theta=c(1,1,1),lower=c(0,0,0),upper=c(5,5,5),verbose=3)
 p1
 summary(p1)
 plot(p1,"confplot")
@@ -510,25 +606,28 @@ plot(p1,"Shepard")
 plot(p1,"transplot")
 
 
-                                        #try all
-losses <- c("stress",#1 ok
-            "smacofSym",#1 ok
-            "strain",#1 ok
-            "rstress", #1 ok
-            "elastic",#1 ok
-            "apstress", #3 
- losses <- c(           "sammon2",#1 ok
-      "powerstrain",#1 ok
-      "sammon", #1 ok
-      "powerelastic",#2 ok
-      "powerstress",#3 ok 
-      "sstress") #1 ok 
 
+
+                                        #try all 2nd kinship 3rd matchphi
+losses <- c("stress",#1 ok ok
+            "smacofSym",#1 ok ok
+            "strain",#1 ok ok
+            "rstress", #1 ok ok
+          #  "elastic",#1 ok ok
+            "apstress", #3  ok
+losses <- c(           "sammon2",#1 ok ok
+      "powerstrain",#1 ok ok
+      "sammon", #1 ok ok
+      "powerelastic",#2 ok ok wrong
+      "powerstress",#3 ok ok
+      "sstress", #1 ok ok
+      #)  
+#works with 3 works with 1 but sometimes issues with 2
 #why only one value by the wrong losses?  
-losses <-     c("powermds", #2 wrong, worked, wrong, worked
-      
-      "powersammon",#2 wrong, worked, worked
-"rpowerstress" #2 wrong, worked
+#losses <-     c(
+    "powermds", #2 wrong, worked, wrong, worked ok     
+      "powersammon",#2 wrong, worked, worked ok
+"rpowerstress" #2 wrong, worked ok
   )
       
  
@@ -538,7 +637,7 @@ dis <- as.matrix(dis)
 for(i in losses)
 {
  cat("Testing:",i,"\n")   
- p1 <- pcops(dis,loss=i,type="ratio",verbose=2,itmaxi=5000)
+ p1 <- pcops(dis,loss=i,type="ratio",lower=c(0.1,0.1,0.1),upper=c(5,5,5),verbose=2,itmaxi=5000)
  print(p1)
  summary(p1)
  par(mfrow=c(2,1))
