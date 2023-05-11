@@ -27,23 +27,16 @@ pcops(
   scale = c("proc", "sd", "none", "std"),
   normed = TRUE,
   s = 4,
-  acc = 1e-07,
+  acc = 1e-05,
   itmaxo = 200,
-  itmaxi = 10000,
+  itmaxi = 5000,
   ...
 )
 }
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{loss}{which loss function to be used for fitting, defaults to strain. Currently allows for the following models:
-\itemize{
-\item Power transformations of observed proximities only (theta must be scalar): Strain loss or classical scaling (\code{strain}, workhorse is cmdscale), Kruskall's stress for symmetric matrices (\code{smacofSym} or \code{stress} and \code{smacofSphere} for scaling onto a sphere; workhorse is smacof), Sammon mapping (\code{sammon} or \code{sammon2}; for the earlier the workhorse is sammon from MASS for the latter it is smacof), elastic scaling (\code{elastic}, the workhorse is smacof), Takane et al's s-Stress \code{sstress} (workhorse is powerstressMin)
-\item Power transformations of fitted distances only (theta must be scalar): De Leeuw's r-stress \code{rstress} (workhorse is powerstressMin)
-\item Power transformations of fitted distances and observed proximities (theta must be scalar or of length 2): Power MDS (\code{powermds}), Sammon mapping/elastic scaling with powers (\code{powersammon}, \code{powerelastic})
-\item Power transfomations of fitted distances, observed proximities and weights (theta must be of length 3 at most): powerstress (POST-MDS, \code{powerstress}), restricted powerstress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse is powerstressMin)
-\item Approximation to power stress (theta must be of length 2): Approximated power stress (\code{apstress}; workhorse is smacof)
-}}
+\item{loss}{which loss function to be used for fitting, defaults to strain. See Details.}
 
 \item{type}{MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.}
 
@@ -53,11 +46,11 @@ pcops(
 
 \item{init}{(optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.}
 
-\item{theta}{the theta vector of free parameters; see above for the number of free parameters for each loss function. If this is a vector with more elements than necessary, it is either cut (so for a vector of length 3 and a function with 2 free parameters, the first two elements of the vector are used) or there will be an error.  If a scalar is given as argument and the number of free parameters is larger than 1, the scalar will be recycled and this will also make the optimizers equate all free parameters. Bottom line is: Make sure to supply a theta of the correct length. Defaults to 1 for all free parameters.}
+\item{theta}{the theta vector of free parameters; see details for the number of free parameters for each loss function. Defaults to 1 for all free parameters. Make sure to supply a theta of the correct length as the mechanisms in place to automatically choose theta/upper/lower are dependent on the optimizer and ad hoc: If this is a vector with more elements than necessary, it is either cut (so for a vector of length 3 and a function with 2 free parameters, the first two elements of the vector are used) or there will be an error. If a scalar is given as argument and the number of free parameters is larger than 1, the scalar will be recycled and this may also make the optimizers equate all free parameters.}
 
 \item{stressweight}{weight to be used for the fit measure; defaults to 1}
 
-\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=c(1,1)}
+\item{cordweight}{weight to be used for the cordillera; if missing gets estimated from the initial configuration so that copstress = 0 for theta=1}
 
 \item{q}{the norm of the cordillera; defaults to 1}
 
@@ -65,7 +58,7 @@ pcops(
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
-\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=c(1,1). If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}.}
+\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=1. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}.}
 
 \item{optimmethod}{What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS.}
 
@@ -85,7 +78,7 @@ pcops(
 
 \item{itmaxo}{iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.}
 
-\item{itmaxi}{iterations of the inner step (optimization of the MDS). Defaults to 10000 (whichis huge).}
+\item{itmaxi}{iterations of the inner step (optimization of the MDS). Defaults to 5000 (which is huge).}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
@@ -104,6 +97,15 @@ A list with the components
 }
 \description{
 Metaparameter selection for MDS models baseed on the Profile COPS approach (COPS Variant 2). It uses copstress for hyperparameter selection of explicit transformations (currently power transformations). It is a special case of a STOPS model and predated it; \code{\link[stops]{stops}} has more functionality and can be seen as the successor. pcops uses explicitly normalized stress for copstress (not stress-1).
+}
+\details{
+Currently allows for the following models:
+\itemize{
+\item Power transformations applied to observed proximities only (theta, upper, lower should be numeric scalar): Strain loss/Torgerson scaling (\code{strain}, workhorse: smacofx::cmdscale), Stress for symmetric matrices (\code{smacofSym}, \code{stress},\code{smacofSphere} for scaling onto a sphere; workhorse: smacof::smacofSym), Sammon mapping (\code{sammon}, workhorse is smacofx::sammon or \code{sammon2}, workhorse: smacof::smacofSym), elastic scaling (\code{elastic}, workhorse smacof::smacofSym), Alscal or S-Stress \code{sstress} (workhorse: smacofx::powerStressMin)
+\item Power transformations of fitted distances only (theta, upper, lower should be numeric scalar): r-stress \code{rstress} (workhorse: smacofx:rStressMin)
+\item Power transformations applied to fitted distances and observed proximities (theta, upper, lower should be numeric of length 2): Power MDS (\code{powermds}, workhorse: smacofx::powerStressMin), Sammon Mapping/elastic scaling with powers (\code{powersammon}, \code{powerelastic}, workhorse: smacofx::powerStressMin)
+\item Power transformations applied to fitted distances, observed proximities and weights (theta, upper, lower should be numeric of length 3): power stress (POST-MDS, \code{powerstress}, workhorse: smacofx::powerStressMin), restricted power stress with equal transformations for distances and proximities (\code{rpowerstress}); workhorse: smacofx::powerStressMin), approximated power stress (\code{apstress}; workhorse: smacof::smacofSym)
+}
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

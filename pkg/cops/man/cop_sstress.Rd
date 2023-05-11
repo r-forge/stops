@@ -29,6 +29,8 @@ cop_sstress(
 
 \item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).}
 
+\item{type}{MDS type, defaults to "ratio".}
+
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
 \item{init}{(optional) initial configuration}
@@ -56,8 +58,6 @@ cop_sstress(
 \item{scale}{should the configuration be scale adjusted}
 
 \item{normed}{should the cordillera be normed; defaults to TRUE}
-
-\item{tyype}{MDS type, defaults to "ratio".}
 }
 \value{
 A list with the components

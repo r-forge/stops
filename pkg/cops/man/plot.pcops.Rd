@@ -9,13 +9,13 @@
 \arguments{
 \item{x}{an object of class cops}
 
-\item{plot.type}{String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","transplot", "Shepard", "stressplot", "bubbleplot", "histogram"  (see details)}
+\item{plot.type}{String indicating which type of plot to be produced: can be one of "confplot", "reachplot", "resplot", "transplot", "Shepard", "stressplot", "bubbleplot", "histogram" *see plot.smacofP, plot.smacofB and plot.copsc). Note that not all plots might be available for all losses.}
 
 \item{main}{the main title of the plot}
 
 \item{asp}{aspect ratio of x/y axis; defaults to 1; setting to 1 will lead to an accurate represenation of the fitted distances.}
 
-\item{...}{Further plot arguments passed: see 'plot.smacof' and 'plot' for detailed information.}
+\item{...}{Further plot arguments passed: see 'plot.smacofP', 'plot.smacofB' and 'plot' for detailed information.}
 }
 \description{
 S3 plot method for p-cops objects
@@ -27,7 +27,12 @@ See plot.smacofP
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)
-resl<-pcops(dis,loss="strain",lower=0.1,upper=5,minpts=2)
-plot(resl)
+resl<-pcops(dis,loss="stress",lower=0.1,upper=5,minpts=2)
+plot(resl,plot.type="confplot")
+plot(resl,plot.type="reachplot")
 plot(resl,plot.type="Shepard")
+plot(resl,plot.type="transplot")
+plot(resl,plot.type="stressplot")
+plot(resl,plot.type="bubbleplot")
+plot(resl,plot.type="histogram")
 }

@@ -4,7 +4,7 @@
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
-#' @param tyype MDS type, defaults to "ratio".
+#' @param type MDS type, defaults to "ratio".
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
