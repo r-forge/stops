@@ -11,9 +11,9 @@
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
 #' @param strucweight weight to be used for the structures; defaults to 0.5
-#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structure
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stoptype which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
 #'
 #' @return A list with the components
 #' \itemize{

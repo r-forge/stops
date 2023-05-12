@@ -12,6 +12,7 @@ stops(
     "rstress", "sstress", "isomap", "isomapeps", "bcstress", "lmds", "apstress",
     "rpowerstress"),
   theta = 1,
+  type = "ratio",
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
     "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
     "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
@@ -27,7 +28,7 @@ stops(
   lower,
   upper,
   verbose = 0,
-  type = c("additive", "multiplicative"),
+  stoptype = c("additive", "multiplicative"),
   initpoints = 10,
   itmax = 50,
   itmaxps = 10000,
@@ -42,6 +43,8 @@ stops(
 \item{loss}{which loss function to be used for fitting, defaults to stress.}
 
 \item{theta}{hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.}
+
+\item{type}{type of MDS optimal scaling (implicit transformation). One of "ratio", "interval" or "ordinal". Default is "ratio". Not every type can be used with every loss, only ratio works with all.}
 
 \item{structures}{character vector of which c-structuredness indices should be considered; if missing no structure is considered.}
 
@@ -65,7 +68,7 @@ stops(
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose.}
 
-\item{type}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
+\item{stoptype}{which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'}
 
 \item{initpoints}{number of initial points to fit the surrogate model for Bayesian optimization; default is 10.}
 
@@ -88,10 +91,12 @@ A list with the components
         \item strucweight: the vector of structure weights
         \item call: the call
         \item optimmethod: The solver selected
-        \item losstype: The PS badness-of-fit function
+        \item loss: The PS badness-of-fit function
         \item nobj: the number of objects in the configuration
         \item type: The type of stoploss scalacrisation (additive or multiplicative)
-        \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration) 
+        \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration)
+         \item stoptype: Type of stoploss combinatio
+   
 }
 }
 \description{
@@ -197,7 +202,6 @@ resiso
 summary(resiso)
 plot(resiso)
 }
-
 data(kinshipdelta,package="smacof")
 strucpar<-list(NULL,NULL) #parameters for indices
 res1<-stops(kinshipdelta,loss="stress",

@@ -47,7 +47,7 @@ stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NUL
   #if(length(theta)==3L) lambda <- theta[1]
   disi <- vegan::isomapdist(dis,k=lambda,path="shortest",fragmentedOK=TRUE)
   if(length(disi)==0) stop("The distance matrix is of length 0 for the current k. Consider increasing the lower bound of the search region.")
-  fit <- smacofx::cmdscale(disi,type=type,k=ndim,eig=TRUE,add=TRUE) 
+  fit <- smacofx::cmdscale(disi,k=ndim,eig=TRUE,add=TRUE) 
   fit$k <- lambda
   #fit$kappa <- 1
   #fit$nu <- 1
@@ -111,7 +111,7 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),type="ratio",weightm
   #if(length(theta)==3L) lambda <- theta[1]
   disi <- vegan::isomapdist(dis,epsilon=lambda,path="shortest",fragmentedOK=TRUE)
   if(length(disi)==0) stop("The distance matrix is of length 0 for the current epsilon. Consider increasing the lower bound of the search region.")
-  fit <- smacofx::cmdscale(disi,type=type,k=ndim,eig=TRUE,add=TRUE) 
+  fit <- smacofx::cmdscale(disi,k=ndim,eig=TRUE,add=TRUE) 
   fit$eps <- lambda
   #fit$kappa <- 1
   #fit$nu <- 1

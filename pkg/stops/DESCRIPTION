@@ -19,14 +19,11 @@ Imports:
     DiceOptim,
     DiceKriging,
     energy,
-    MASS,
     minerva,
     nloptr,
     pomp,
     pso,
-    rgl,
     scagnostics,
-    scatterplot3d,
     tgp,
     vegan
 Enhances: stats

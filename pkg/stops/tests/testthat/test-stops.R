@@ -209,3 +209,172 @@ resa
 resa<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",verbose=3,strucpars=list(epsilon=10,minpts=2,rang=c(0,1.3)),type="additive",strucweight=c(-1),stressweight=0)
 resa
 
+
+
+
+
+##### Trying out all losses in pcops with the correct for theta and upper and lower
+library(stops)
+dis <- smacof::kinshipdelta #df
+dis <- cops::matchphi #matrix
+dis <- smacof::morse #dist object
+
+strucs <- c("cfunctionality","cstringiness")
+strucpars <- list(list(alpha=0.9,C=13),list(NULL))
+
+dis <- as.matrix(dis)
+
+#strain
+p1 <- stops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p1
+summary(p1)
+plot(p1,"confplot",label.conf=list(pos=5))
+plot(p1,"Shepard")
+plot(p1,"transplot")
+#stress
+p2 <- stops(dis,loss="stress",type="interval",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p2
+summary(p2)
+plot(p2,"confplot")
+plot(p2,"Shepard")
+plot(p2,"transplot") #why?
+#sammon 
+p3 <- stops(dis,loss="sammon",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p3
+summary(p3)
+plot(p3,"confplot") #issues?
+plot(p3,"Shepard")
+#sammon2
+p4 <- stops(dis,loss="sammon2",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p4
+summary(p4)
+plot(p4,"confplot")
+plot(p4,"Shepard")
+#rstress
+p5 <- stops(dis,loss="rstress",type="ordinal",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p5
+summary(p5)
+plot(p5,"confplot")
+plot(p5,"Shepard") #Wrong plot
+plot(p5,"Shepard")
+#elastic 
+p6 <- stops(dis,loss="elastic",type="ratio",theta=1,lower=0,upper=2,verbose=3,structures=strucs,strucpars=strucpars) 
+p6
+summary(p6)
+plot(p6,"confplot")
+plot(p6,"Shepard")
+#powerstrain #same as strain
+p7 <- stops(dis,loss="powerstrain",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p7
+summary(p7)
+plot(p7,"confplot")
+plot(p7,"Shepard")
+#sstress
+p8 <- stops(dis,loss="sstress",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p8
+summary(p8)
+plot(p8,"confplot")
+plot(p8,"Shepard")
+#powermds
+p9 <- stops(dis,loss="powermds",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p9
+summary(p9)
+plot(p9,"confplot")
+plot(p9,"Shepard")
+#powersammon
+p10 <- stops(dis,loss="powersammon",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p10
+summary(p10)
+plot(p10,"confplot")
+plot(p10,"Shepard")
+#powerelastic
+p11 <- stops(dis,loss="powerelastic",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p11
+summary(p11)
+plot(p11,"confplot")
+plot(p11,"Shepard")
+#rpowerstress
+p12 <- stops(dis,loss="rpowerstress",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p12
+summary(p12)
+plot(p12,"confplot")
+plot(p12,"Shepard")
+#apstress
+p13 <- stops(dis,loss="apstress",type="ratio",theta=c(1,1),lower=c(0,0),upper=c(5,5),verbose=3,structures=strucs,strucpars=strucpars) 
+p13
+summary(p13)
+plot(p13,"confplot")
+plot(p13,"Shepard")
+#powerstress
+p14 <- stops(dis,loss="powerstress",type="ratio",theta=c(1,1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p14
+summary(p14)
+plot(p14,"confplot")
+plot(p14,"Shepard")
+#bcmds
+p15 <- stops(dis,loss="bcstress",type="ratio",theta=c(1,1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p15
+summary(p15)
+plot(p15,"confplot")
+plot(p15,"Shepard")
+#lmds
+p16 <- stops(dis,loss="lmds",type="ratio",theta=c(3,0),upper=c(5,1),lower=c(2,0),verbose=2,structures=strucs,strucpars=strucpars) 
+p16
+summary(p16)
+plot(p16,"confplot")
+plot(p16,"Shepard")
+
+save(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,file="oldps.rda")
+
+
+
+
+                                        #try all 2nd kinship 3rd matchphi
+losses <- c("stress",#1 ok ok
+            "smacofSym",#1 ok ok
+            "strain",#1 ok ok
+            "rstress", #1 ok ok
+          #  "elastic",#1 ok ok
+            "apstress", #3  ok
+losses <- c(           "sammon2",#1 ok ok
+      "powerstrain",#1 ok ok
+      "sammon", #1 ok ok
+      "powerelastic",#2 ok ok wrong
+      "powerstress",#3 ok ok
+      "sstress", #1 ok ok
+      #)  
+#works with 3 works with 1 but sometimes issues with 2
+#why only one value by the wrong losses?  
+#losses <-     c(
+    "powermds", #2 wrong, worked, wrong, worked ok     
+      "powersammon",#2 wrong, worked, worked ok
+"rpowerstress" #2 wrong, worked ok
+  )
+      
+ 
+  
+
+dis <- as.matrix(dis)
+for(i in losses)
+{
+ cat("Testing:",i,"\n")   
+ p1 <- pcops(dis,loss=i,type="ratio",lower=c(0.1,0.1,0.1),upper=c(5,5,5),verbose=2,itmaxi=5000)
+ print(p1)
+ summary(p1)
+ par(mfrow=c(2,1))
+ plot(p1,"confplot",label.conf=list(pos=5))
+ plot(p1,"reachplot") 
+# plot(p1,"Shepard")
+ #plot(p1,"transplot") transplot for stress
+ par(mfrow=c(1,1))
+}
+
+## elastic has issues, apstress has issues (related to the upper agument)
+## what is sstress?
+## transplot for smacofB issues, sheaprd issues for apstress
+
+#rstessmin and powermds has only one parameter! what gives?
+
+
+
+

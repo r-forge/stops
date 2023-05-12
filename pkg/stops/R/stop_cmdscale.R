@@ -16,7 +16,8 @@
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
+#' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'
+#' @param add if TRUE dis is made to Euclidean disatnces
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -33,7 +34,7 @@
 #' @importFrom stats dist as.dist
 #' @importFrom smacofx cmdscale
 #' @keywords multivariate
-stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000) {
+stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000,add=TRUE) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   type <- match.arg(type,'ratio')
@@ -42,7 +43,7 @@ stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NU
   #if(length(theta)==1) lambda <- theta
   #if(length(theta)==2) lambda <- theta[2]
   #if(length(theta)==3) lambda <- theta[2]
-  if(missing(add)) add <- TRUE
+  #if(missing(add)) add <- TRUE
   fit <- smacofx::cmdscale(dis^lambda,k=ndim,eig=TRUE,add=add,...) 
   fit$lambda <- lambda
   #fit$kappa <- 1

@@ -1239,7 +1239,8 @@
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress. 
-#' @param theta hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.      
+#' @param theta hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.
+#' @param type type of MDS optimal scaling (implicit transformation). One of "ratio", "interval" or "ordinal". Default is "ratio". Not every type can be used with every loss, only ratio works with all.
 #' @param structures character vector of which c-structuredness indices should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
@@ -1251,13 +1252,14 @@
 #' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
 #' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose.
-#' @param type which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
+#' @param stoptype which aggregation for the multi objective target function? Either 'additive' (default) or 'multiplicative'
 #' @param itmax maximum number of iterations of the outer optimization (for theta) or number of steps of Bayesian optimization; default is 50. We recommend a higher number for ALJ (around 150). Note that due to the inner workings of some solvers, this may or may not correspond to the actual number of function evaluations performed (or PS models fitted). E.g., with tgp the actual number of function evaluation of the PS method is between itmax and 6*itmax as tgp samples 1-6 candidates from the posterior and uses the best candidate. For pso it is the number of particles s times itmax. For cmaes it is usually a bit higher than itmax. This currently may get overruled by a control argument if it is used (and then set to either ewhat is supplie dby control or to the default of the method).    
 #' @param itmaxps maximum number of iterations of the inner optimization (to obtain the PS configuration)
 #' @param initpoints number of initial points to fit the surrogate model for Bayesian optimization; default is 10.
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
 #' @param control a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the efect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms DIRECT, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.
 #' @param ... additional arguments passed to the outer optimization procedures (not fully tested).
+#' 
 #
 #'@return A list with the components
 #'         \itemize{
@@ -1267,14 +1269,15 @@
 #'         \item strucweight: the vector of structure weights
 #'         \item call: the call
 #'         \item optimmethod: The solver selected
-#'         \item losstype: The PS badness-of-fit function
+#'         \item loss: The PS badness-of-fit function
 #'         \item nobj: the number of objects in the configuration
 #'         \item type: The type of stoploss scalacrisation (additive or multiplicative)
-#'         \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration) 
+#'         \item fit: The fitted PS object (most importantly $fit$conf the fitted configuration)
+#'          \item stoptype: Type of stoploss combinatio
+#'    
 #' }
 #' 
 #' @examples
-#'
 #' data(kinshipdelta,package="smacof")
 #' strucpar<-list(NULL,NULL) #parameters for indices
 #' res1<-stops(kinshipdelta,loss="stress",
@@ -1312,7 +1315,7 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds","apstress","rpowerstress"), theta=1, structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","DIRECT","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, type=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
+stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","bcstress","lmds","apstress","rpowerstress"), theta=1, type="ratio",structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","DIRECT","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
     {
       #TODO add more transformations for the g() and f() by the transformation argument. We only use power versions right now, flexsmacof will allow for more (splines or a smoother or so)
       if(missing(structures)) {
@@ -1323,7 +1326,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
       if(missing(loss)) loss <- "stress"
-      if(missing(type)) type <- "additive"
+      if(missing(stoptype)) stoptype <- "additive"
       #TODO implement a Pareto multiobjective
       .confin <- init #initialize a configuration
       psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap1,"isomapeps"=stop_isomap2,"bcstress"=stop_bcmds,"bcmds"=stop_bcmds,"lmds"=stop_lmds,"apstress"=stop_apstress,"rpowerstress"=stop_rpowerstress) #choose the stress to minimize
@@ -1511,9 +1514,10 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
     out$strucweight <- strucweight
     out$call <- match.call()
     out$optimethod <- optimmethod
-    out$losstype <- loss
+    out$loss <- loss
     out$nobj <- dim(out$fit$conf)[1]
     out$type <- type
+    out$stoptype  <- stoptype    
     if(verbose>1) cat("Found minimum after",itel," iterations at",round(thetaopt,4),"with stoploss=",round(out$stoploss,4),"and default scaling loss=",round(out$stress.m,4),"and c-structuredness indices:",t(data.frame(names(out$strucindices),out$strucindices)),". Thanks for your patience. \n")
     class(out) <- c("stops")
     out

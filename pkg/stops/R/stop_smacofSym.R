@@ -55,7 +55,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   fit$stress.m <- fit$stress^2 #fit$stress.r/sum(weightmat*delts^2)
   #fit$pars <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$parameters <- fit$theta <- c(lambda=lambda)
-  fit$deltaorig <- stats::as.dist(dis))
+  fit$deltaorig <- stats::as.dist(dis)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions
   out
