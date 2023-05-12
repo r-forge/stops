@@ -25,7 +25,7 @@
 #' @param lambda the power of the transformation of the proximities; defaults to 1
 #' @param nu the power of the transformation for weightmat; defaults to 1
 #' @param type what type of MDS to fit. One of "ratio" or "interval". Default is "ratio".
-#' @param weightmat a matrix of finite weights
+#' @param weightmat a matrix of finite weights or dist object
 #' @param init starting configuration
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.

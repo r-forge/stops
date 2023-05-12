@@ -2,7 +2,7 @@
 #'@importFrom graphics plot abline lines text identify legend points hist
 #'@importFrom stats predict loess lm 
 #'@export
-plot.cmdscalex <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), hull.conf = list(hull = FALSE, col = 1, lwd = 1, ind = NULL), identify = FALSE, type = "p", cex=0.5, pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, col.hist=NULL, legend=TRUE, legpos, loess=TRUE,...)
+plot.cmdscalex <- function(x, plot.type = "confplot", plot.dim = c(1, 2), col, label.conf = list(label = TRUE, pos = 3, col = 1, cex = 0.8), hull.conf = list(hull = FALSE, col = 1, lwd = 1, ind = NULL), identify = FALSE, type = "p", cex=0.5, pch = 20, asp = 1, main, xlab, ylab, xlim, ylim, col.hist=NULL, legend=TRUE, legpos, loess=TRUE,...)
     {
 
  ## --- check type args:
@@ -118,14 +118,17 @@ plot.cmdscalex <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col
              else xlab <- xlab
              if (missing(ylim)) ylim <- c(min(deltat,deltao),max(deltat,deltao))
              if (missing(xlim)) xlim <- range(as.vector(dreal))
-            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, ...)
-            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1])
+            graphics::plot(dreal, deltao, main = main, type = "p", cex = 0.75, xlab = xlab, ylab = ylab, col = col[2], xlim = xlim, ylim = ylim, pch=20)
+            graphics::points(dreal, deltat, type = "p", cex = 0.75, col = col[1],pch=20)
             pt <- predict(stats::lm(deltat~dreal))
-            po <- predict(stats::lm(deltao~dreal))
-            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3])
-            graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
-            if(missing(legpos)) legpos <- "topleft" 
-            graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=1)
+            #po <- predict(stats::lm(deltao~dreal))
+            graphics::lines(dreal[order(dreal)],pt[order(dreal)],col=col[3],type="b",pch=19,cex=0.1)
+            #graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4])
+             if(legend)
+                 {
+                if(missing(legpos)) legpos <- "topleft" 
+                graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=20)
+                }
          }
     if (plot.type == "stressplot") {
         warning("Plot not supported for this class. Please use a stress-based MDS.")
@@ -140,7 +143,6 @@ plot.cmdscalex <- function(x, plot.type = c("confplot"), plot.dim = c(1, 2), col
     if (missing(main)) main <- paste("Weighted Histogram") else main <- main
     if (missing(xlab)) xlab <- paste("Dissimilarity") else xlab <- xlab
     if (missing(ylab)) ylab <- paste("Frequency") else ylab <- ylab
-
     graphics::hist(x$delta, main = main, xlab = xlab, ylab = ylab, col = col.hist, ...) 
   }
  }

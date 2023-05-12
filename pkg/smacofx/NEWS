@@ -1,3 +1,7 @@
+Version 0.4-0
+
+- Made plot.cmdscalex with the same defaults as plot.smacofP
+
 Version 0.3-2
 
 - sammon can now also take data frames.

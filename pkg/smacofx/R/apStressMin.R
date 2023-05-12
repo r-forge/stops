@@ -49,7 +49,8 @@
 #' res
 #' summary(res)
 #' plot(res)
-#' 
+#' plot(res,"Shepard")
+#' plot(res,"transplot")
 #' 
 #' @export
 apStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat= 1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {

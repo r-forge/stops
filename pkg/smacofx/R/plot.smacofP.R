@@ -546,7 +546,7 @@ plot.smacofP <- function (x, plot.type = "confplot", plot.dim = c(1, 2), bubscal
             #graphics::lines(dreal[order(dreal)],po[order(dreal)],col=col[4],type="b",pch=19,cex=0.25) 
             if(legend) {
                 if(missing(legpos)) legpos <- "topleft" 
-                graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=19)
+                graphics::legend(legpos,legend=c("Transformed","Untransformed"),col=col[1:2],pch=20)
             }
     }
  #--------------- Residual plot --------------------

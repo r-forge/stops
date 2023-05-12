@@ -109,7 +109,7 @@ apstressmds(
 \item{principal}{If ‘TRUE’, principal axis transformation is applied to the final configuration}
 }
 \value{
-a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 \itemize{
 \item delta: Observed, untransformed dissimilarities
 \item tdelta: Observed explicitly transformed dissimilarities, normalized
@@ -144,7 +144,8 @@ res<-apStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
 res
 summary(res)
 plot(res)
-
+plot(res,"Shepard")
+plot(res,"transplot")
 
 }
 \seealso{
