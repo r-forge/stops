@@ -27,7 +27,7 @@
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
 #'         \item parameters: the parameters used for fitting (lambda)
-#'         \item fit: the returned object of the fitting procedure smacofx::sammon plus a slot for the original data $deltaorig
+#'         \item fit: the returned object of the fitting procedure smacofx::sammon 
 #'         \item cordillera: the cordillera object
 #' }
 #'
@@ -45,11 +45,6 @@ cop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,
   fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
   fit$lambda <- lambda
   fit$delta <- stats::as.dist(dis)
-  #dhat <- stats::as.dist(fit$dhat)
-  #fitdis <- stats::as.dist(fit$confdist)
-  #fit$stress.r <- sum(((dhat-fitdis)^2)/dhat)
-  #fit$stress.n <- fit$stress.r/sum(dhat)
-  #fit$deltaorig <- stats::as.dist(dis)
   fit$parameters <- fit$theta <- c(lambda=lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,copsobj=copobj) #target functions

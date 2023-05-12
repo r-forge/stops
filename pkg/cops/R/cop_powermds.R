@@ -22,7 +22,7 @@
 #'
 #' @return A list with the components
 #' \itemize{
-#'         \item stress: the stress
+#'         \item stress: the stress-1 value
 #'         \item stress.m: default normalized stress
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
@@ -33,13 +33,13 @@
 #' @keywords multivariate
 #' @import cordillera
 #' @importFrom smacofx powerStressMin
-cop_powermds <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=itmaxi,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+cop_powermds <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<2) theta <- rep(theta,length.out=2)
-  fit <- smacofx::powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit <- smacofx::powerStressMin(delta=dis,type=type,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
-  fit$parameters <- fit$theta <- c(kappa=fit$kappa,lambda=fit$lambda)
+  fit$parameters <- fit$theta <- fit$pars  <- c(kappa=fit$kappa,lambda=fit$lambda)
   #fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)

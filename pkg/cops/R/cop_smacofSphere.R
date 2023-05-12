@@ -23,7 +23,7 @@
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress-1
+#'         \item{stress:} the stress-1 value
 #'         \item{stress.m:} default normalized stress
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
@@ -32,7 +32,7 @@
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
-#'@import smacof
+#'@importFrom smacof smacofSphere 
 #'@import cordillera 
 #'@importFrom stats dist as.dist
 #'@keywords multivariate

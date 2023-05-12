@@ -5,7 +5,7 @@
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.
-#' @param type MDS type. defaults to "ratio".
+#' @param type MDS type. Defaults to "ratio".
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a matrix of nonnegative weights
@@ -36,7 +36,7 @@
 #' @keywords multivariate
 cop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,2)
+  if(length(theta)<2) theta <- rep(theta,length.out=2)
   nu <- -2
   elawght <- dis^(theta[2])
   diag(elawght) <- 1

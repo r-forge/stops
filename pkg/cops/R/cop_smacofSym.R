@@ -32,7 +32,7 @@
 #'         \item{cordillera:} the cordillera object
 #' }
 #'
-#'@importFrom stats dist as.dist
+#'@importFrom stats as.dist
 #'@import cordillera 
 #'@import smacof
 #' 

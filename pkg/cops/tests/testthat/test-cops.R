@@ -490,8 +490,9 @@ res1
 
 ##### Trying out all losses in pcops with the correct for theta and upper and lower
 library(cops)
-dis <- smacof::kinshipdelta
-dis <- cops::matchphi
+dis <- smacof::kinshipdelta #df
+dis <- cops::matchphi #matrix
+dis <- smacof::morse #dist object
 #strain
 p1 <- pcops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5,verbose=3)
 p1
@@ -594,8 +595,8 @@ p1
 summary(p1)
 plot(p1,"confplot")
 plot(p1,"reachplot")
-plot(p1,"Shepard",shepard.lin=FALSE) #doesnt work Maybe need to make this into a smacofB object not a smacofP
-plot(p1,"transplot") #doesnt work
+plot(p1,"Shepard")
+plot(p1,"transplot")
 #powerstress
 p1 <- pcops(dis,loss="powerstress",type="interval",theta=c(1,1,1),lower=c(0,0,0),upper=c(5,5,5),verbose=3)
 p1

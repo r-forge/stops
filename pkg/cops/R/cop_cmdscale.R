@@ -33,6 +33,7 @@
 #' }
 #' 
 #' @importFrom stats dist as.dist
+#' @importFrom smacofx cmdscale
 #' @import cordillera
 #' @keywords multivariate
 cop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,itmaxi=1000,add,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
@@ -51,7 +52,7 @@ cop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NUL
   fit$stress <- sqrt(stress.n)
   fit$stress.m <- stress.n
   fit$parameters <- fit$pars <- fit$theta <- c(lambda=lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
-  fit$deltaorig <- stats::as.dist(dis)
+  #fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   #TODO: should we only  use 1-GOF[2] as badness-of-fit also for the stress.m? May break compatibilities.  
   list(stress=1-fit$GOF[2],stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions

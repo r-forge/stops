@@ -1,9 +1,9 @@
 #' PCOPS version of approximated power stress model.
 #'
-#' This uses an approximation to power stress that can make use of smacof as workhorse. Free parameters are tau and upsilon.
+#' This uses an approximation to power stress that makes use of smacofx as workhorse. Free parameters are kappa, lambda and nu
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of parameters to optimize over. Must be of length three, with the first the kappa argument, the second the lambda argument and the third the nu argument. It can also be a scalar and gets recycled for both ups and tau (so they are equal). One cannot supply upsilon and tau as of yet. Defaults to 1 1 1.
+#' @param theta the theta vector of parameters to optimize over. Must be of length three, with the first the kappa argument, the second the lambda argument and the third the nu argument. One cannot supply upsilon and tau as of yet. Defaults to 1 1 1.
 #' @param type MDS type. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. default is 1000.
@@ -43,15 +43,15 @@ cop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat=1-diag
   if(inherits(dis,"dist") || is.data.frame(dis)) dis <- as.matrix(dis)
   if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")   
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)==1L) theta <- rep(theta,3)
+  if(length(theta)<3) theta <- rep(theta,length.out=3)
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
-    fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacofx::apStressMin
+    fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat, init=init, verbose=isTRUE(verbose==2), itmax=itmaxi,...) #optimize with smacofx::apStressMin
     #fit$stress.1 <- fit$stress
     fit$stress.m <- fit$stress^2
     #fit$deltaorig <-stats::as.dist(dis)
     copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
-    out <- list(stress=fit$stress, stress.m=fit$stress^2, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj) #target functions
+    out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj) #target functions
    out
 }

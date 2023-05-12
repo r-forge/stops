@@ -20,12 +20,11 @@
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param normed should the cordillera be normed; defaults to TRUE
 #' @param scale should the configuration be scale adjusted
-#' @param stresstype which stress to report. Only takes smacofs default stress currrently.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' 
 #' @return A list with the components
 #'    \itemize{
-#'         \item{stress:} the stress
+#'         \item{stress:} the stress-1 value
 #'         \item{stress.m:} default normalized stress
 #'         \item{copstress:} the weighted loss value
 #'         \item{OC:} the Optics cordillera value
@@ -39,7 +38,7 @@
 #' @importFrom smacof smacofSym
 #' @import cordillera
 #'@keywords multivariate
-cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
+cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd"){
   if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   #if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1]) 
@@ -50,14 +49,14 @@ cop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(di
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
   combwght <- stats::as.dist(weightmat*elscalw) #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,ndim=ndim,type=type,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   fit$lambda <- lambda
   #fit$stress.1 <- fit$stress
   #fitdis <- fit$confdist
   #delts <- fit$dhat 
   #fit$stress.r <- sum(combwght*((delts-fitdis)^2))
   fit$stress.m <- fit$stress^2
-  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$parameters <- fit$theta <- fit$pars <-  c(lambda=lambda)
   fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions

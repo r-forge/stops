@@ -22,11 +22,11 @@
 #' 
 #' @return A list with the components
 #' \itemize{
-#'         \item stress: the stress
+#'         \item stress: the stress-1 value
 #'         \item stress.m: default normalized stress
 #'         \item copstress: the weighted loss value
 #'         \item OC: the Optics cordillera value
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
+#'         \item parameters: the parameters used for fitting (lambda)
 #'         \item fit: the returned object of the fitting procedure
 #'         \item cordillera: the cordillera object
 #' }
@@ -42,7 +42,7 @@ cop_sstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),ini
  #fit$kappa <- 2
   fit$lambda <- lambda
   #fit$nu <- 1
-  fit$parameters <- fit$theta <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
   out
