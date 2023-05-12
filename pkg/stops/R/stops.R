@@ -1005,99 +1005,99 @@
 ## }
 
 
-#' STOPS version of Box Cox Stress
-#'
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is mu (for the fitted distances), the second lambda (for the  proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 0.
-#' @param weightmat (not used) 
-#' @param init (optional) initial configuration
-#' @param ndim number of dimensions of the target space
-#' @param itmax number of iterations
-#' @param ... additional arguments to be passed to the fitting procedure
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param structures which structures to look for
-#' @param strucweight weight to be used for the structures; defaults to 0.5
-#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
-#'
-#' @return A list with the components
-#' \itemize{
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item stoploss: the weighted loss value
-#'         \item struc: the structuredness indices
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
-#'          \item{stopobj:} the stopobj object 
-#' }
-#' @keywords multivariate
-#' @export
-stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  theta <- as.numeric(theta)
-  if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(missing(type)) type <- "additive"
-  if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<3) theta <- rep(theta,length.out=3)
-  #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  #wght <- weightmat
-  #diag(wght) <- 1
-  fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],rho=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
-  fit$mu <- theta[1]
-  fit$lambda <- theta[2]
-  fit$rho <- theta[3]
-  fit$pars <- c(mu=fit$mu,lambda=fit$lambda,rho=fit$rho)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
-  out 
-}
+## #' STOPS version of Box Cox Stress
+## #'
+## #' @param dis numeric matrix or dist object of a matrix of proximities
+## #' @param theta the theta vector of powers; the first is mu (for the fitted distances), the second lambda (for the  proximities), the third nu (for the weights). If a scalar is given it is recycled.  Defaults to 1 1 0.
+## #' @param weightmat (not used) 
+## #' @param init (optional) initial configuration
+## #' @param ndim number of dimensions of the target space
+## #' @param itmax number of iterations
+## #' @param ... additional arguments to be passed to the fitting procedure
+## #' @param stressweight weight to be used for the fit measure; defaults to 1
+## #' @param structures which structures to look for
+## #' @param strucweight weight to be used for the structures; defaults to 0.5
+## #' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+## #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+## #' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+## #'
+## #' @return A list with the components
+## #' \itemize{
+## #'         \item stress: the stress
+## #'         \item stress.m: default normalized stress
+## #'         \item stoploss: the weighted loss value
+## #'         \item struc: the structuredness indices
+## #'         \item parameters: the parameters used for fitting (kappa, lambda)
+## #'         \item fit: the returned object of the fitting procedure
+## #'          \item{stopobj:} the stopobj object 
+## #' }
+## #' @keywords multivariate
+## #' @export
+## stop_bcstress <- function(dis,theta=c(1,1,0),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+##   theta <- as.numeric(theta)
+##   if(inherits(dis,"dist")) dis <- as.matrix(dis)
+##   if(missing(type)) type <- "additive"
+##   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
+##   if(length(theta)<3) theta <- rep(theta,length.out=3)
+##   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
+##   #wght <- weightmat
+##   #diag(wght) <- 1
+##   fit <- bcStressMin(delta=dis,mu=theta[1],lambda=theta[2],rho=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
+##   fit$mu <- theta[1]
+##   fit$lambda <- theta[2]
+##   fit$rho <- theta[3]
+##   fit$pars <- c(mu=fit$mu,lambda=fit$lambda,rho=fit$rho)
+##   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+##   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+##   out 
+## }
 
-#' STOPS version of lMDS
-#'
-#' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; the first is k (for the neighbourhood), the second tau (for the penalty) . If a scalar is given it is recycled.  Defaults to 2 and 0.5.
-#' @param weightmat (not used) 
-#' @param init (optional) initial configuration
-#' @param ndim number of dimensions of the target space
-#' @param itmax number of iterations 
-#' @param ... additional arguments to be passed to the fitting procedure
-#' @param stressweight weight to be used for the fit measure; defaults to 1
-#' @param structures which structures to look for
-#' @param strucweight weight to be used for the structures; defaults to 0.5
-#' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
-#' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
-#'
-#' @return A list with the components
-#' \itemize{
-#'         \item stress: the stress
-#'         \item stress.m: default normalized stress
-#'         \item stoploss: the weighted loss value
-#'         \item struc: the structuredness indices
-#'         \item parameters: the parameters used for fitting (kappa, lambda)
-#'         \item fit: the returned object of the fitting procedure
-#'         \item{stopobj:} the stopobj object 
-#' }
-#' @keywords multivariate
-#' @export
-stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
-  theta <- as.numeric(theta)
-  if(inherits(dis,"dist")) dis <- as.matrix(dis)
-  if(missing(type)) type <- "additive"
-  #we allow for three parameters in the theta argument
-  if(length(theta)>2) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<2) theta <- rep(theta,length.out=2)
-  #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  #wght <- weightmat
-  #diag(wght) <- 1
-  fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
-  fit$k <- theta[1]
-  fit$tau <- theta[2]
-  fit$pars  <- c(k=fit$k,tau=fit$tau)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
-  out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
-  out 
-}
+## #' STOPS version of lMDS
+## #'
+## #' @param dis numeric matrix or dist object of a matrix of proximities
+## #' @param theta the theta vector of powers; the first is k (for the neighbourhood), the second tau (for the penalty) . If a scalar is given it is recycled.  Defaults to 2 and 0.5.
+## #' @param weightmat (not used) 
+## #' @param init (optional) initial configuration
+## #' @param ndim number of dimensions of the target space
+## #' @param itmax number of iterations 
+## #' @param ... additional arguments to be passed to the fitting procedure
+## #' @param stressweight weight to be used for the fit measure; defaults to 1
+## #' @param structures which structures to look for
+## #' @param strucweight weight to be used for the structures; defaults to 0.5
+## #' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appeacrance in structures 
+## #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
+## #' @param type which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+## #'
+## #' @return A list with the components
+## #' \itemize{
+## #'         \item stress: the stress
+## #'         \item stress.m: default normalized stress
+## #'         \item stoploss: the weighted loss value
+## #'         \item struc: the structuredness indices
+## #'         \item parameters: the parameters used for fitting (kappa, lambda)
+## #'         \item fit: the returned object of the fitting procedure
+## #'         \item{stopobj:} the stopobj object 
+## #' }
+## #' @keywords multivariate
+## #' @export
+## stop_lmds <- function(dis,theta=c(2,0.5),weightmat=NULL,init=NULL,ndim=2,itmax=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,type=c("additive","multiplicative")) {
+##   theta <- as.numeric(theta)
+##   if(inherits(dis,"dist")) dis <- as.matrix(dis)
+##   if(missing(type)) type <- "additive"
+##   #we allow for three parameters in the theta argument
+##   if(length(theta)>2) stop("There are too many parameters in the theta argument.")
+##   if(length(theta)<2) theta <- rep(theta,length.out=2)
+##   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
+##   #wght <- weightmat
+##   #diag(wght) <- 1
+##   fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,itmax=itmax,...)
+##   fit$k <- theta[1]
+##   fit$tau <- theta[2]
+##   fit$pars  <- c(k=fit$k,tau=fit$tau)
+##   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),type=type)
+##   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
+##   out 
+## }
 
 
 ## #' STOPS version of restricted powerstress
@@ -1326,7 +1326,7 @@ stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powerm
       if(missing(type)) type <- "additive"
       #TODO implement a Pareto multiobjective
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap1,"isomapeps"=stop_isomap2,"bcstress"=stop_bcstress,"lmds"=stop_lmds,"apstress"=stop_apstress,"rpowerstress"=stop_rpowerstress) #choose the stress to minimize
+      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap1,"isomapeps"=stop_isomap2,"bcstress"=stop_bcmds,"bcmds"=stop_bcmds,"lmds"=stop_lmds,"apstress"=stop_apstress,"rpowerstress"=stop_rpowerstress) #choose the stress to minimize
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
          strucweight <- rep(-1/length(structures),length(structures))
