@@ -39,6 +39,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(missing(stoptype)) stoptype <- "additive"
+  #if(type=="ordinal") warning("Ordinal MDS is invariant to monotonic transformations of the dissimilarities.")
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   #if(length(theta)==1) lambda <- theta
   #if(length(theta)==2) lambda <- theta[2]
@@ -54,7 +55,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   #fit$stress.r <- sum(weightmat*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2 #fit$stress.r/sum(weightmat*delts^2)
   #fit$pars <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
-  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=lambda)
   fit$deltaorig <- stats::as.dist(dis)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions

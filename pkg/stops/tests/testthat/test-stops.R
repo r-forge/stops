@@ -231,19 +231,20 @@ summary(p1)
 plot(p1,"confplot",label.conf=list(pos=5))
 plot(p1,"Shepard")
 plot(p1,"transplot")
-#stress
-p2 <- stops(dis,loss="stress",type="interval",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+#stress 
+p2 <- stops(dis,loss="stress",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
 p2
 summary(p2)
 plot(p2,"confplot")
 plot(p2,"Shepard")
-plot(p2,"transplot") #why?
+plot(p2,"transplot") 
 #sammon 
-p3 <- stops(dis,loss="sammon",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p3 <- stops(dis,loss="sammon",type="ratio",theta=2,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
 p3
 summary(p3)
 plot(p3,"confplot") #issues?
 plot(p3,"Shepard")
+plot(p3,"transplot")
 #sammon2
 p4 <- stops(dis,loss="sammon2",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
 p4
@@ -251,7 +252,7 @@ summary(p4)
 plot(p4,"confplot")
 plot(p4,"Shepard")
 #rstress
-p5 <- stops(dis,loss="rstress",type="ordinal",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
+p5 <- stops(dis,loss="rstress",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
 p5
 summary(p5)
 plot(p5,"confplot")
@@ -276,7 +277,7 @@ summary(p8)
 plot(p8,"confplot")
 plot(p8,"Shepard")
 #powermds
-p9 <- stops(dis,loss="powermds",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p9 <- stops(dis,loss="powermds",type="ratio",theta=c(0,1),lower=c(0,0),upper=c(5,5),verbose=3,structures=strucs,strucpars=strucpars) 
 p9
 summary(p9)
 plot(p9,"confplot")
@@ -287,20 +288,20 @@ p10
 summary(p10)
 plot(p10,"confplot")
 plot(p10,"Shepard")
-#powerelastic
-p11 <- stops(dis,loss="powerelastic",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+#powerelastic 
+p11 <- stops(dis,loss="powerelastic",type="ratio",theta=c(0.0963,1.2471),lower=c(0,0),upper=c(5,5),verbose=3,structures=strucs,strucpars=strucpars) 
 p11
 summary(p11)
 plot(p11,"confplot")
 plot(p11,"Shepard")
 #rpowerstress
-p12 <- stops(dis,loss="rpowerstress",type="ratio",theta=c(1,1),lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars) 
+p12 <- stops(dis,loss="rpowerstress",type="ratio",theta=c(1,1),lower=c(0,0),upper=c(5,5),verbose=3,structures=strucs,strucpars=strucpars) 
 p12
 summary(p12)
 plot(p12,"confplot")
 plot(p12,"Shepard")
-#apstress
-p13 <- stops(dis,loss="apstress",type="ratio",theta=c(1,1),lower=c(0,0),upper=c(5,5),verbose=3,structures=strucs,strucpars=strucpars) 
+#apstress #Issues Check again or change it to ups/tau? 
+p13 <- stops(dis,loss="apstress",type="ratio",theta=c(1,1,1),lower=c(1,1,1),upper=c(3,3,3),verbose=3,structures=strucs,strucpars=strucpars) 
 p13
 summary(p13)
 plot(p13,"confplot")

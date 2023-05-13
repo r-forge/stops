@@ -66,7 +66,7 @@ stop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL
   #fit$stress.m <- fit$stress #or stress.r
                                         #fit$conf <- fit$points
   fit$delta <- stats::as.dist(dis)
-  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$parameters <- fit$theta <- fit$pars <- c(lambda=lambda)
   #fit$pars <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   list(stress=fit$stress, stress.m=fit$stress.m,stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters,  fit=fit,stopobj=stopobj) #target functions

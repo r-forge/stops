@@ -35,7 +35,7 @@
 stop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
-  if(missing(type)) type <- "additive"
+  if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<2) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
