@@ -39,10 +39,10 @@ cop_sstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),ini
   lambda <- theta[1]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- smacofx::powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
- #fit$kappa <- 2
+  fit$kappa <- 2
   fit$lambda <- lambda
   #fit$nu <- 1
-  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
+  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda,kappa=2)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)
   out
