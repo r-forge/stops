@@ -9,7 +9,7 @@
 #' @param ... Further plot arguments passed: see 'plot.smacofP', 'plot.smacofB' and 'plot' for detailed information.
 #' 
 #' @details
-#'See plot.smacofP
+#' See plot.smacofP
 #'
 #' #@importFrom smacofx plot
 #' 
