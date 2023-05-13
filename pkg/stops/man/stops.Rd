@@ -146,61 +146,177 @@ Maintainer: Thomas Rusch
 The combination of c-structurednes indices and stress uses the stress.m values, which are the explictly normalized stresses. Reported however is the stress-1 value which is sqrt(stress.m).
 }
 \examples{
-data(kinshipdelta,package="smacof")
+#data(Swissroll)
+#dissm<-as.matrix(dist(Swissroll[,1:3]))
+#cols<-Swissroll[,4]
 
+dissm<-as.matrix(smacof::morse)
+
+#Setting up structurenedness parameters
 strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
-dissm<-as.matrix(kinshipdelta)
 
 #STOPS with strain
 resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),
-strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10,itmax=10)
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=10)
 resstrain
 summary(resstrain)
 plot(resstrain)
+#Fun fact: With strain clinearity must be 0 as the
+#two principal axes are orthogonal
+#and this can't be changed by taking
+#the dissimilarities to a power
+
 
 \donttest{
-#STOPS with stress
-strucpars<-list(list(epsilon=10,minpts=2,scale=3),NULL) 
-resstress<-stops(dissm,loss="stress",
+#STOPS with stress or smacofSym
+resstress<-stops(dissm,loss="stress",theta=1,
 structures=c("cclusteredness","cdependence"),
-strucpars=strucpars,optimmethod="ALJ",lower=0,upper=10)
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 resstress
 summary(resstress)
 plot(resstress)
 plot(resstress,"Shepard")
 
+#STOPS with smacofSphere
+ressph<-stops(dissm,loss="smacofSphere",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+ressph
+summary(ressph)
+plot(ressph)
+
+#STOPS with sammon
+ressam<-stops(dissm,loss="sammon",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+ressam
+summary(ressam)
+plot(ressam)
+plot(ressam,"transplot")
+
+#STOPS with sammon2
+ressam<-stops(dissm,loss="sammon2",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+ressam
+summary(ressam)
+plot(ressam)
+plot(ressam,"Shepard")
+
+#STOPS with elastic 
+ressam<-stops(dissm,loss="elastic",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+ressam
+summary(ressam)
+plot(ressam)
+plot(ressam,"transplot")
+
+#STOPS with sstress
+resss<-stops(dissm,loss="sstress",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+resss
+summary(resss)
+plot(resss)
+plot(resss,"Shepard")
+plot(resss,"transplot")
+
 #STOPS with powerstress
 respstress<-stops(dissm,loss="powerstress",
-structures=c("cclusteredness","cdependence"),
+structures=c("cclusteredness","cdependence"),theta=c(1,1,1),
 strucpars=strucpars,weightmat=dissm,
-itmaxps=1000,optimmethod="ALJ",lower=c(0,0,1),upper=c(10,10,10))
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
 respstress
 summary(respstress)
 plot(respstress)
 
-#STOPS with bcstress
-resbcstress<-stops(dissm,loss="bcstress",
+#STOPS with restricted powerstress
+respstressr<-stops(dissm,loss="powerstress",theta=c(1,1),
 structures=c("cclusteredness","cdependence"),
-strucpars=strucpars,optimmethod="ALJ",lower=c(0,1,0),upper=c(10,10,10))
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+respstressr
+summary(respstressr)
+plot(respstressr)
+
+#STOPS with powermds
+respmds<-stops(dissm,loss="powermds",
+structures=c("cclusteredness","cdependence"),theta=c(1,1),
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+respmds
+summary(respmds)
+plot(respmds)
+
+#STOPS with powersammon
+respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+respmds
+summary(respmds)
+plot(respmds)
+
+#STOPS with powerelastic
+respmds<-stops(dissm,loss="powerelastic",theta=c(1,1),
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+respmds
+summary(respmds)
+plot(respmds)
+
+#STOPS with ordinal rstress 
+resr<-stops(dissm,loss="rstress",type="ordinal",theta=1,
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,weightmat=dissm,
+itmaxps=1000,optimmethod="ALJ",lower=0.5,upper=5)
+resr
+summary(resr)
+plot(resr)
+
+#STOPS with approximated powerstress
+respstressa<-stops(dissm,loss="powerstress",
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,weightmat=dissm,theta=c(1,1,1),
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+respstressa
+summary(respstressa)
+plot(respstressa,"transplot")
+
+#STOPS with bcmds
+resbcstress<-stops(dissm,loss="bcmds",
+structures=c("cclusteredness","cdependence"),
+strucpars=strucpars,optimmethod="ALJ",lower=c(0.5,1,0.5),upper=c(5,5,5))
 resbcstress
 summary(resbcstress)
 plot(resbcstress)
 
 #STOPS with lmds
-reslmds<-stops(dissm,loss="lmds",
+reslmds<-stops(dissm,loss="lmds",theta=c(1,1),
 structures=c("cclusteredness","clinearity"),
-strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(10,2))
+strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(5,1))
 reslmds
 summary(reslmds)
 plot(reslmds)
 
-#STOPS with Isomap (the epsilon version)
-resiso<-stops(dissm,loss="isomapeps",
+#STOPS with Isomap (the k version)
+resiso2<-stops(dissm,loss="isomap",theta=5,
 structures=c("cclusteredness","clinearity"),
-strucpars=strucpars,optimmethod="ALJ",lower=70,upper=120)
+strucpars=strucpars,optimmethod="ALJ",lower=3,upper=10)
+resiso2
+summary(resiso2)
+plot(resiso2)
+
+#STOPS with Isomap (the eps version)
+resiso<-stops(dissm,loss="isomapeps",
+structures=c("cclusteredness","clinearity"),theta=40,
+strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 resiso
 summary(resiso)
 plot(resiso)
+
 }
 data(kinshipdelta,package="smacof")
 strucpar<-list(NULL,NULL) #parameters for indices

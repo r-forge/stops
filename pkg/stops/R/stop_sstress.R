@@ -42,10 +42,10 @@ stop_sstress <- function(dis,theta=1,type=type,weightmat=1-diag(nrow(dis)),init=
   lambda <- theta[1]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- smacofx::powerStressMin(delta=dis,type=type,kappa=2,lambda=flambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  #fit$kappa <- 2
+  fit$kappa <- 2
   fit$lambda <- flambda
   #fit$nu <- 1
-  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu) 
+  fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda,kappa=2)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu) 
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out

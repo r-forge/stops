@@ -53,8 +53,8 @@ stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NUL
   #fit$nu <- 1
   dis <- stats::as.dist(disi)
   fitdis <- stats::dist(fit$conf)
-  stress.r <- sum((dis-fitdis)^2)
-  stress.n <- stress.r/sum(dis^2)
+  stress.r <- sum((disi-fitdis)^2)
+  stress.n <- stress.r/sum(disi^2)
   fit$stress.m <- stress.n
   #fit$stress <- sqrt(fit$stress.n)
   fit$parameters <- fit$theta <- fit$pars <- c(k=fit$k)
@@ -102,7 +102,7 @@ stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NUL
 #' @keywords multivariate
 #' @export
 stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),type="ratio",weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=NULL) {
-  theta <- unique(theta)
+  theta <- as.numeric(theta)
   type <- "ratio"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(stoptype)) stoptype <- "additive"
@@ -116,10 +116,10 @@ stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),type="ratio",weightm
   #fit$kappa <- 1
   #fit$nu <- 1
   dis <- stats::as.dist(disi)
-  fitdis <- stats::dist(fit$points)
+  fitdis <- stats::dist(fit$conf)
   stress.r <- sum((disi-fitdis)^2)
   stress.n <- stress.r/sum(disi^2)
-  stress.m <- stress.n
+  fit$stress.m <- stress.n
   #fit$stress <- sqrt(fit$stress.m)
   fit$parameters <- fit$theta <- fit$pars <- c(eps=fit$eps)
   #fit$conf <- fit$points
