@@ -288,7 +288,8 @@ elscal <- function (delta, type=c("ratio","interval"), weightmat, init=NULL, ndi
     xold <- xold / enorm (xold) 
     n <- nrow (xold)
     nn <- diag (n)
-    dold <- sqdist (xold)
+    dold <- sqdist (xold) #Was bug: can be lower than 0
+    #dold[dold<0] <- 0 
    ##first optimal scaling
     eold <- as.dist(sqrt(dold))
     #weightmat <- weightmato/mkPower(delta,2) #elastic weighting #2

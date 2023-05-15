@@ -277,6 +277,7 @@ alscal <- function (delta, type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e
     n <- nrow (xold)
     nn <- diag (n)
     dold <- sqdist (xold)
+    dold[dold<0] <- 0
    ##first optimal scaling
     eold <- as.dist(sqrt(dold))
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = 0.5)
@@ -305,6 +306,7 @@ alscal <- function (delta, type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e
       xnew <- my %*% xold
       xnew <- xnew / enorm (xnew)
       dnew <- sqdist (xnew)
+      #dnew[dnew<0] <- 0
       ##optimal scaling
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
       dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ## dhat update
@@ -354,6 +356,7 @@ alscal <- function (delta, type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e
     attr(xnew,"dimnames")[[1]] <- rownames(delta)
     attr(xnew,"dimnames")[[2]] <- paste("D",1:p,sep="")
     doutm <- mkPower(sqdist(xnew),r)
+    doutm[doutm<0] <- 0
     deltam <- delta
     delta <- stats::as.dist(delta)
     deltaorig <- stats::as.dist(deltaorig)

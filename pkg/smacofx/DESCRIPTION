@@ -1,7 +1,7 @@
 Package: smacofx
 Title: Flexible Multidimensional Scaling and SMACOF Extensions
-Version: 0.4-1
-Date: 2023-05-13
+Version: 0.4-3
+Date: 2023-05-15
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Lisha",family="Chen", role = "aut"), person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511"),role=c("aut")))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
