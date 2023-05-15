@@ -61,16 +61,16 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
+#' res<-powerStressMin(dis,type="ratio",kappa=2,lambda=1.5,itmax=1000)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
 #' @export
-powerStressMin <- function (delta, kappa=1, lambda=1, nu=1,  type="ratio", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+powerStressMin <- function (delta, kappa=1, lambda=1, nu=1, type="ratio", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-    if(missing(weightmat))  weightmat <- 1-diag(nrow(delta))
+    #if(missing(weightmat))  weightmat <- 
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     type <- match.arg(type, c("ratio", "interval"),several.ok = FALSE) 

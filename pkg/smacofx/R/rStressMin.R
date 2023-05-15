@@ -247,10 +247,10 @@
 #' plot(res)
 #' 
 #' @export
-rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat, init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    if(missing(weightmat)) weightmat <- 1-diag(nrow(delta))
+    #if(missing(weightmat)) weightmat <-
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     #r <- kappa/2
