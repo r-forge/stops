@@ -424,7 +424,7 @@ for(i in losses)
      #STOPS with sammon2
      ressam<-stops(dissm,loss="sammon2",theta=1,
      structures=c("cclusteredness","cdependence"),
-     strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+     strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,verbose=2)
      ressam
    #  summary(ressam)
      plot(ressam,col=cols,label.conf=list(col=cols))
@@ -433,14 +433,14 @@ for(i in losses)
      #STOPS with elastic 
      ressam<-stops(dissm,loss="elastic",theta=1,
      structures=c("cclusteredness","cdependence"),
-     strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+     strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,verbose=3)
      ressam
     # summary(ressam)
      plot(ressam,col=cols,label.conf=list(col=cols))
      plot(ressam,"transplot")
      
      #STOPS with sstress #Check
-     resss<-stops(dissm,loss="sstress",type="interval",theta=0.1,
+     resss<-stops(dissm,loss="sstress",type="ratio",theta=0.1,
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=2,verbose=3)
      resss
@@ -453,16 +453,16 @@ for(i in losses)
      respstress<-stops(dissm,loss="powerstress",
      structures=c("cclusteredness","cdependence"),theta=c(1,1,1),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5),verbose=3)
      respstress
      #summary(respstress)
      plot(respstress,col=cols,label.conf=list(col=cols))
      
      #STOPS with restricted powerstress
-     respstressr<-stops(dissm,loss="powerstress",theta=c(1,1),
+     respstressr<-stops(dissm,loss="rpowerstress",theta=c(1,1),
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),verbose=3)
      respstressr
      #summary(respstressr)
      plot(respstressr,col=cols,label.conf=list(col=cols))
@@ -471,7 +471,7 @@ for(i in losses)
      respmds<-stops(dissm,loss="powermds",
      structures=c("cclusteredness","cdependence"),theta=c(1,1),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),verbose=3)
      respmds
      #summary(respmds)
      plot(respmds,col=cols,label.conf=list(col=cols))
@@ -480,7 +480,7 @@ for(i in losses)
      respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),verbose=3)
      respmds
      #summary(respmds)
      plot(respmds,col=cols,label.conf=list(col=cols))
@@ -489,7 +489,7 @@ for(i in losses)
      respmds<-stops(dissm,loss="powerelastic",theta=c(1,1),
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),verbose=3)
      respmds
      #summary(respmds)
      plot(respmds,col=cols,label.conf=list(col=cols))
@@ -498,21 +498,21 @@ for(i in losses)
      resr<-stops(dissm,loss="rstress",type="ordinal",theta=1,
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,weightmat=dissm,
-     itmaxps=1000,optimmethod="ALJ",lower=0.5,upper=5)
+     itmaxps=5000,optimmethod="ALJ",lower=0.5,upper=5,verbose=3)
      resr
      #summary(resr)
-     plot(resr,col=cols,label.conf=list(col=cols))
+plot(resr,col=cols,label.conf=list(col=cols))
+plot(resr,"Shepard")
      
      #STOPS with approximated powerstress
      respstressa<-stops(dissm,loss="powerstress",
      structures=c("cclusteredness","cdependence"),
      strucpars=strucpars,weightmat=dissm,theta=c(1,1,1),
-     itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+     itmaxps=5000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5),verbose=3)
      respstressa
      #summary(respstressa)
      plot(respstressa,col=cols,label.conf=list(col=cols))
      plot(respstressa,"transplot")
-     #ISSUES til here
 
 
      #STOPS with bcmds
