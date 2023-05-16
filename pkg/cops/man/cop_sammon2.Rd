@@ -21,8 +21,7 @@ cop_sammon2(
   rang = NULL,
   verbose = 0,
   normed = TRUE,
-  scale = "sd",
-  stresstype = "default"
+  scale = "sd"
 )
 }
 \arguments{
@@ -59,13 +58,11 @@ cop_sammon2(
 \item{normed}{should the cordillera be normed; defaults to TRUE}
 
 \item{scale}{should the configuration be scale adjusted}
-
-\item{stresstype}{which stress to report. Only takes smacofs default stress currrently.}
 }
 \value{
 A list with the components
    \itemize{
-        \item{stress:} the stress
+        \item{stress:} the stress-1 value
         \item{stress.m:} default normalized stress
         \item{copstress:} the weighted loss value
         \item{OC:} the Optics cordillera value

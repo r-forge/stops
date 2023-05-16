@@ -29,7 +29,7 @@ cop_powerelastic(
 
 \item{theta}{the theta vector of powers;  a vector of length two where the first element is kappa (for the fitted distances), the second lambda (for the observed proximities). If a scalar for the free parameters is given it is recycled.  Defaults to 1 1.}
 
-\item{type}{MDS type. defaults to "ratio".}
+\item{type}{MDS type. Defaults to "ratio".}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 

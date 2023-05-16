@@ -62,7 +62,7 @@ cop_elastic(
 \value{
 A list with the components
    \itemize{
-        \item{stress:} the stress
+        \item{stress:} the stress-1 
         \item{stress.m:} default normalized stress
         \item{copstress:} the weighted loss value
         \item{OC:} the Optics cordillera value

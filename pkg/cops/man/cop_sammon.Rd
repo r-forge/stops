@@ -67,7 +67,7 @@ A list with the components
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value
         \item parameters: the parameters used for fitting (lambda)
-        \item fit: the returned object of the fitting procedure smacofx::sammon plus a slot for the original data $deltaorig
+        \item fit: the returned object of the fitting procedure smacofx::sammon 
         \item cordillera: the cordillera object
 }
 }

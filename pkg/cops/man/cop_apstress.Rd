@@ -27,7 +27,7 @@ cop_apstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of parameters to optimize over. Must be of length three, with the first the kappa argument, the second the lambda argument and the third the nu argument. It can also be a scalar and gets recycled for both ups and tau (so they are equal). One cannot supply upsilon and tau as of yet. Defaults to 1 1 1.}
+\item{theta}{the theta vector of parameters to optimize over. Must be of length three, with the first the kappa argument, the second the lambda argument and the third the nu argument. One cannot supply upsilon and tau as of yet. Defaults to 1 1 1.}
 
 \item{type}{MDS type.}
 
@@ -72,6 +72,6 @@ A list with the components
 }
 }
 \description{
-This uses an approximation to power stress that can make use of smacof as workhorse. Free parameters are tau and upsilon.
+This uses an approximation to power stress that makes use of smacofx as workhorse. Free parameters are kappa, lambda and nu
 }
 \keyword{multivariate}

@@ -11,7 +11,7 @@ cop_powermds(
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
-  itmaxi = itmaxi,
+  itmaxi = 10000,
   ...,
   stressweight = 1,
   cordweight = 0.5,
@@ -62,7 +62,7 @@ cop_powermds(
 \value{
 A list with the components
 \itemize{
-        \item stress: the stress
+        \item stress: the stress-1 value
         \item stress.m: default normalized stress
         \item copstress: the weighted loss value
         \item OC: the Optics cordillera value

@@ -27,9 +27,9 @@ cop_rstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this must be a scalar of the r transformation for the fitted distances proximities. Defaults to 0.5. Note that kappa=2r in powerstress.}
+\item{theta}{the theta vector of powers; this must be a scalar of the kappa=2*r transformation for the fitted distances proximities. Defaults to 1. Note that what is returned is r, not kappa.}
 
-\item{type}{MDS type. Defaults to ratio.}
+\item{type}{MDS type. Defaults to "ratio".}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights}
 
@@ -72,6 +72,6 @@ A list with the components
 }
 }
 \description{
-Free parameter is r for the fitted distances.
+Free parameter is kappa=2r for the fitted distances.
 }
 \keyword{multivariate}
