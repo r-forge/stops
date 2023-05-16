@@ -228,7 +228,7 @@ dis <- as.matrix(dis)
 p1 <- stops(dis,loss="strain",type="ratio",theta=1,lower=0,upper=5,verbose=3,structures=strucs,strucpars=strucpars)
 p1
 summary(p1)
-plot(p1,"confplot",label.conf=list(pos=5))
+plot(p1,"confplot")
 plot(p1,"Shepard")
 plot(p1,"transplot")
 #stress 
@@ -373,12 +373,11 @@ for(i in losses)
 
 
 ################################
-     data(Swissroll)
+     data(stops::Swissroll)
      dissm<-as.matrix(dist(Swissroll[,1:3]))
      cols<-Swissroll[,4]
      
-     
-     
+
      #Setting up structurenedness parameters
      strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
      
