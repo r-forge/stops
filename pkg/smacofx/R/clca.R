@@ -1,10 +1,10 @@
 #' Curvilinear Component Analysis with powers
 #'
-#' An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Note the neighborhood parameter tau is kept fixed here. See detials for how to use it as a self-organizing map. 
+#' An implementation of curvilinear component analysis by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and power transformations for fitted distances. Note the neighborhood parameter tau is kept fixed here. See details for how to use it as a self-organizing map. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1 for standard stress
-#' @param tau the boundary parameter (called lambda in the original paper). For 'pclca' and 'clca' the transformed fitted distances exceeding the parameter are set to 0 via the weightmat. For som_pclca tau is the maximum tau for which a decreasing sequence of taus is generated as 'seq(tau,tau/epochs,length.out=epochs)' and then used in sequence.
+#' @param tau the boundary parameter (called lambda in the original paper). For 'pclca' and 'clca' all the transformed fitted distances exceeding the parameter are set to 0 via the weightmat (assignment can change between iterations). For som_pclca tau is the maximum tau for which a decreasing sequence of taus is generated as 'seq(tau,tau/epochs,length.out=epochs)' and then used in sequence.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights. 
@@ -39,7 +39,7 @@
 #' @details
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
-#' We keep tau fixed throughout. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function by using a vector of decreasing tau values and calling the function with the first tau, then supplying the optimal configuration as the init for the next call with the next tau and so on. See the example.   
+#' In the standard function, we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function som_pclca or som_clca which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
 #' 
 #'
 #' @importFrom stats dist as.dist
@@ -200,7 +200,7 @@ pclca <- function (delta, kappa=1, tau=0.1, type=c("ratio","interval","ordinal")
           "\n"
         )
       }
-      if ((itel == itmax) || ((sold - snew) < acc))
+      if ((itel == itmax) || (abs(sold - snew) < acc)) #new
         break ()
       itel <- itel + 1
       xold <- xnew
