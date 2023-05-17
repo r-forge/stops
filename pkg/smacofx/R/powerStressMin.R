@@ -52,9 +52,6 @@
 #' \item tweightmat: transformed weighthingmatrix (here weightmat^nu)
 #' }
 #'
-#' @section Note:
-#' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.   
-#'
 #' @importFrom stats dist as.dist
 #' 
 #' @seealso \code{\link{smacofSym}}

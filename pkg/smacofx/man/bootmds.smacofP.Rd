@@ -50,10 +50,15 @@ In order to examine the stability solution of an MDS, a bootstrap on the raw dat
 ##see ?smacof::bootmds for more 
 data <- na.omit(smacof::PVQ40[,1:5])
 diss <- dist(t(data))   ## Euclidean distances
-fit <- rStressMin(diss,"ratio",r=0.5,itmax=1000) ## 2D ratio MDS
+fit <- rStressMin(diss,r=0.5,itmax=1000) ## 2D ratio MDS
 set.seed(123)
 resboot <- bootmds(fit, data, method.dat = "euclidean", nrep = 10) #run for more nrep
 resboot
 plot(resboot) #see ?smacof::bootmds for more on the plot method
+
+fit2 <- powerStressMin(diss,kappa=1.5,lambda=1.5,itmax=1000) ## 2D power stress MDS
+set.seed(123)
+resboot2 <- bootmds(fit2, data, method.dat = "euclidean", nrep = 10)
+plot(resboot)
 
 }

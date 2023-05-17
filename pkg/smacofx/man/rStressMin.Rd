@@ -12,7 +12,7 @@ rStressMin(
   r = 0.5,
   type = c("ratio", "interval", "ordinal"),
   ties = "primary",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -26,7 +26,7 @@ rstressMin(
   r = 0.5,
   type = c("ratio", "interval", "ordinal"),
   ties = "primary",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -40,7 +40,7 @@ rstressmds(
   r = 0.5,
   type = c("ratio", "interval", "ordinal"),
   ties = "primary",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -54,7 +54,7 @@ rstress(
   r = 0.5,
   type = c("ratio", "interval", "ordinal"),
   ties = "primary",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -107,13 +107,8 @@ a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a
 }
 }
 \description{
-An implementation to minimize r-stress by majorization with ratio, interval and ordinal optimal sclaling. Uses a repeat loop.
+An implementation to minimize r-stress by majorization with ratio, interval and ordinal optimal scaling. Uses a repeat loop.
 }
-\section{Note}{
-
-The functionality related to power stress, r stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
-}
-
 \examples{
 dis<-smacof::kinshipdelta
 res<-rStressMin(as.matrix(dis),type="ordinal",r=1,itmax=1000)

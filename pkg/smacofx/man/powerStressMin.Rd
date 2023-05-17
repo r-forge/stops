@@ -15,7 +15,7 @@ powerStressMin(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -30,7 +30,7 @@ powerstressMin(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -45,7 +45,7 @@ postmds(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -60,7 +60,7 @@ pstressMin(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -75,7 +75,7 @@ pStressMin(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -90,7 +90,7 @@ pstressmds(
   lambda = 1,
   nu = 1,
   type = "ratio",
-  weightmat,
+  weightmat = 1 - diag(nrow(delta)),
   init = NULL,
   ndim = 2,
   acc = 1e-06,
@@ -110,7 +110,7 @@ pstressmds(
 
 \item{type}{what type of MDS to fit. One of "ratio" or "interval". Default is "ratio".}
 
-\item{weightmat}{a matrix of finite weights}
+\item{weightmat}{a matrix of finite weights or dist object}
 
 \item{init}{starting configuration}
 
@@ -147,14 +147,9 @@ a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a
 \description{
 An implementation to minimize power stress by majorization with ratio or interval optimal scaling. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
 }
-\section{Note}{
-
-The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
-}
-
 \examples{
 dis<-smacof::kinshipdelta
-res<-powerStressMin(as.matrix(dis),kappa=2,lambda=1.5,itmax=1000)
+res<-powerStressMin(dis,type="ratio",kappa=2,lambda=1.5,itmax=1000)
 res
 summary(res)
 plot(res)

@@ -31,17 +31,13 @@
 #' \item type: Type of MDS model 
 #' \item weightmat: weighting matrix as supplied 
 #' \item stress.m: Default stress (stress-1^2)
-#' \item tweightmat: transformed weighthingmatrix (here weightmat^nu)
+#' \item tweightmat: transformed weightingmatrix (here weightmat^nu)
 #' }
 #'
 #' @section Note:
-#' The functionality related to power stress and the smacofP class is also available in the stops package (\code{\link[stops]{powerStressMin}}). Expect masking when both are loaded.
-#'
-#' Internally we calculate the approximation parameters upsilon=nu+2*lambda*(1-(1/kappa)) and tau=lambda/kappa. They are also output in the pars argument but not in theta and parameters.
+#' Internally we calculate the approximation parameters upsilon=nu+2*lambda*(1-(1/kappa)) and tau=lambda/kappa. They are not output. 
 #'
 #' @importFrom stats dist as.dist
-#' 
-#' @seealso \code{\link{smacofSym}}
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
