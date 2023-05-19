@@ -75,7 +75,7 @@
 #' }
 #' 
 #' @export
-pclca <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+pclca <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
@@ -262,7 +262,7 @@ pclca <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval
 
 #' @rdname pclca
 #' @export
-clca <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+clca <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -275,7 +275,7 @@ clca <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio","interval
 
 #' @rdname pclca
 #' @export
-so_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -301,7 +301,7 @@ so_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, 
 
 #' @rdname pclca
 #' @export
-so_clca <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_clca <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -316,7 +316,7 @@ so_clca <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval",
     for(i in 1:length(taus))
     {
       if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
-      tmp<-clca(delta=delta, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1,  acc=acc, itmax=itmax, principal=principal)
+      tmp<-clca(delta=delta, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose,  acc=acc, itmax=itmax, principal=principal)
       finconf<-tmp$conf
       finmod<-tmp
     }

@@ -80,16 +80,17 @@
 #' \dontrun{
 #' ## Self-organizing map style (as in the original publication)
 #' #run the som-style (p)clda 
-#' sommod1<-so_pclda(dis,tau=0.2,k=5,kappa=0.5,lambda=2,epochs=20,verbose=1)
-#' sommod2<-so_clda(dis,tau=0.2,epsilon=1,epochs=20,verbose=1)
+#' sommod1<-so_pclda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=100,verbose=1)
+#' sommod2<-so_clda(dis,tau=2.5,epsilon=1,epochs=50,verbose=1)
 #' sommod1
 #' sommod2
 #' }
 #' 
 #' @export
-pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval","ordinal"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
-                                        #Isomap distances
+pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    #Isomap distances
     cc <- match.call()
+    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE)
     #Conditions for when epsilon or k are given
     if (!missing(epsilon) && !missing(k)) message("Both epsilon and k given, using epsilon.") 
     if (missing(epsilon) && missing(k)) epsilon <- stats::quantile(delta,0.5) 
@@ -97,13 +98,14 @@ pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval
 
     #default tau
     if(missing(tau)) tau <- stats::quantile((delta^lambda/enorm(delta^lambda,weightmat)),0.9)
-    #run clca
-    out <- pclca(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose-2, principal=principal)
+                                        #run clca
+    isocrit <- attr(delta,"criterion")
+    isocritval <- attr(delta,"critval")
+    if(verbose>0) cat(paste("Fitting",type,"pCLDA with lambda=",lambda, "kappa=",kappa,"nu=",nu, "tau=",tau,"and",isocrit,"=", isocritval,"\n"))
+    out <- pclca(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose-1, principal=principal)
     #postprocess
     out$model= "power CLDA"
     out$call <- cc
-    isocrit <- attr(delta,"criterion")
-    isocritval <- attr(delta,"critval")
     out$parameters  <- c(kappa=kappa,lambda=lambda,nu=nu,tau=tau,isocritval)
     names(out$parameters)[5] <- isocrit
     out$theta <- out$pars <- out$parameters
@@ -114,7 +116,7 @@ pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval
 
 #' @rdname pclda
 #' @export
-clda <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio","interval","ordinal"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+clda <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -128,7 +130,7 @@ clda <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio","interval
 
 #' @rdname pclda
 #' @export
-so_pclda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_pclda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -154,7 +156,7 @@ so_pclda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, 
 
 #' @rdname pclda
 #' @export
-so_clda <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_clda <- function(delta, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
