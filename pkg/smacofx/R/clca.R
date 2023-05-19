@@ -1,12 +1,12 @@
-#' Curvilinear Component Analysis with or without power transformations either as self-organizing maps or not
+#' Curvilinear Component Analysis with or without power transformations either as self-organizing or not
 #'
-#' An implementation of curvilinear component analysis (CLCA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'som_pclca' and 'som_clca' implement the self-organising map principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
+#' An implementation of curvilinear component analysis (CLCA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'so_pclca' and 'so_clca' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'clca'
 #' @param kappa exponent of the power transformation of the fitted distances; defaults to 1, which is also the setup of 'clca'.
 #' @param nu exponent of the power of the weighting matrix; defaults to 1 which is also the setup for 'clca'. 
-#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'pclca' and 'clca' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'som_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
+#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'pclca' and 'clca' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'so_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights. 
@@ -16,7 +16,7 @@
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
-#' @param epochs for 'som_pclca' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.
+#' @param epochs for 'so_pclca' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.
 #'
 #' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
@@ -41,7 +41,7 @@
 #' @details
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
-#' In the standard functions 'pclca' and 'clca' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'som_pclca' 'som_clca' which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
+#' In the standard functions 'pclca' and 'clca' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_pclca' 'so_clca' which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
 #' 
 #' If tau is too low, there will be an error. 
 #'
@@ -68,14 +68,14 @@
 #' \dontrun{
 #' ## Self-organizing map style (as in the original publication)
 #' #run the som-style (p)clca 
-#' sommod1<-som_pclca(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
-#' sommod2<-som_clca(dis,tau=0.2,epochs=20,verbose=1)
+#' sommod1<-so_pclca(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
+#' sommod2<-so_clca(dis,tau=0.2,epochs=20,verbose=1)
 #' sommod1
 #' sommod2
 #' }
 #' 
 #' @export
-pclca <- function (delta, lambda=1, kappa=1, nu=1, tau=stats::quantile(delta,0.9), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+pclca <- function (delta, lambda=1, kappa=1, nu=1, tau, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
@@ -124,6 +124,7 @@ pclca <- function (delta, lambda=1, kappa=1, nu=1, tau=stats::quantile(delta,0.9
     weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
+    if(missing(tau)) tau <- stats::quantile(delta,0.9)
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
                                         #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
@@ -268,12 +269,14 @@ clca <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio","interval
     out <- pclca(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
     out$model <- "CLCA"
     out$call <- cc
+    out$parameters <- out$theta <- out$pars  <- c(tau=tau)
     out
 }
 
 #' @rdname pclca
 #' @export
-som_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(length(tau)<2)
@@ -290,13 +293,16 @@ som_pclca <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10,
       tmp<-pclca(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, acc=acc, itmax=itmax, principal=principal)
       finconf<-tmp$conf
       finmod<-tmp
-     }
-     return(finmod)
+    }
+    finmod$call  <- cc
+    finmod$model  <- "SO-pCLCA"
+    return(finmod)
 }
 
 #' @rdname pclca
 #' @export
-som_clca <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_clca <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+    cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(length(tau)<2)
@@ -313,6 +319,8 @@ som_clca <- function(delta, tau=max(delta), epochs=10, type=c("ratio","interval"
       tmp<-clca(delta=delta, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1,  acc=acc, itmax=itmax, principal=principal)
       finconf<-tmp$conf
       finmod<-tmp
-     }
-     return(finmod)
+    }
+    finmod$call  <- cc
+    finmod$model  <- "SO-CLCA"
+    return(finmod)
     }

@@ -3,16 +3,16 @@
 \name{pclca}
 \alias{pclca}
 \alias{clca}
-\alias{som_pclca}
-\alias{som_clca}
-\title{Curvilinear Component Analysis with or without power transformations either as self-organizing maps or not}
+\alias{so_pclca}
+\alias{so_clca}
+\title{Curvilinear Component Analysis with or without power transformations either as self-organizing or not}
 \usage{
 pclca(
   delta,
   lambda = 1,
   kappa = 1,
   nu = 1,
-  tau = stats::quantile(delta, 0.9),
+  tau,
   type = c("ratio", "interval", "ordinal"),
   ties = "primary",
   weightmat = 1 - diag(nrow(delta)),
@@ -38,7 +38,7 @@ clca(
   principal = FALSE
 )
 
-som_pclca(
+so_pclca(
   delta,
   kappa = 1,
   lambda = 1,
@@ -56,7 +56,7 @@ som_pclca(
   principal = FALSE
 )
 
-som_clca(
+so_clca(
   delta,
   tau = max(delta),
   epochs = 10,
@@ -80,7 +80,7 @@ som_clca(
 
 \item{nu}{exponent of the power of the weighting matrix; defaults to 1 which is also the setup for 'clca'.}
 
-\item{tau}{the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'pclca' and 'clca' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'som_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.}
+\item{tau}{the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'pclca' and 'clca' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'so_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.}
 
 \item{type}{what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".}
 
@@ -100,7 +100,7 @@ som_clca(
 
 \item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
 
-\item{epochs}{for 'som_pclca' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.}
+\item{epochs}{for 'so_pclca' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.}
 }
 \value{
 a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
@@ -123,12 +123,12 @@ a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a
 }
 }
 \description{
-An implementation of curvilinear component analysis (CLCA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'som_pclca' and 'som_clca' implement the self-organising map principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
+An implementation of curvilinear component analysis (CLCA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'so_pclca' and 'so_clca' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
 }
 \details{
 If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 
-In the standard functions 'pclca' and 'clca' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'som_pclca' 'som_clca' which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
+In the standard functions 'pclca' and 'clca' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_pclca' 'so_clca' which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
 
 If tau is too low, there will be an error.
 }
@@ -151,8 +151,8 @@ res2$tweightmat
 \dontrun{
 ## Self-organizing map style (as in the original publication)
 #run the som-style (p)clca 
-sommod1<-som_pclca(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
-sommod2<-som_clca(dis,tau=0.2,epochs=20,verbose=1)
+sommod1<-so_pclca(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
+sommod2<-so_clca(dis,tau=0.2,epochs=20,verbose=1)
 sommod1
 sommod2
 }
