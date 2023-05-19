@@ -1,5 +1,3 @@
-
-
 #' STOPS version of isomap to optimize over integer k.
 #'
 #' Free parameter is k. 

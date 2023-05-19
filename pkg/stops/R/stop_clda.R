@@ -41,7 +41,7 @@ stop_cldak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(di
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,tau=theta,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit <- smacofx::clda(delta=dis,tau=tau,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   fit$tau <- tau
   fit$k <- k
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
@@ -93,7 +93,7 @@ stop_cldae <- function(dis,theta=c(100,100),type="ratio",weightmat=1-diag(nrow(d
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,tau=theta,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit <- smacofx::clda(delta=dis,tau=tau,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   fit$tau <- tau
   fit$epsilon <- epsilon
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
