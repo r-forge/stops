@@ -4,12 +4,36 @@
 #'
 #' The stops package provides five categories of important functions:
 #'
-#' Models & Algorithms:
+#' Models:
 #' \itemize{
-#' \item stops() ... which fits STOPS models as described in Rusch et al. (2023). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
+#' \item stops ... which fits STOPS models as described in Rusch et al. (2023) via argument loss with ratio, interval or ordinal optimal scaling (not all optimal scalings can be used with all loss arguments). By setting cordweight or strucweight to zero they can also be used to fit MDS for many different models:
+#' \itemize{
+#' \item loss="stress": One parameter theta, power transformations of dissimilarities. Via stop_smacofSym.
+#' \item loss="sammon": One parameter theta, power transformations of dissimilarities. Via stop_sammon.
+#' \item loss="strain": One parameter theta, power transformations of dissimilarities. Via stop_cmdscale.
+#' \item loss="rstress": One parameter theta, power transformations of fitted distances. Via stop_rstress.
+#' \item loss="smacofSphere": One parameter theta, power transformations of dissimilarities. Via stop_smacofSphere.
+#' \item loss="sammon2": One parameter theta, power transformations of dissimilarities. Via stop_sammon2.
+#' \item loss="elastic": One parameter theta, power transformations of dissimilarities. Via stop_elastic.
+#' \item loss="sstress": One parameter theta, power transformations of dissimilarities. Via stop_sstress.
+#' \item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
+#' \item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
+#' \item loss="clca": One parameter theta, neighborhood parameter tau. Via stop_clca.
+#' \item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
+#' \item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
+#' \item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
+#' \item loss="rpstress": Two parameter theta, power transformations of dissimilarities/fitted distances and weights. Via stop_rpowerstress.
+#' \item loss="clda_k": Two parameter theta, neighborhood parameters k (geodesic distance) and tau. Via stop_cldak.
+#' \item loss="clda_eps": Two parameter theta, neighborhood parameters eps (geodesic distance) and tau. stop_cldae.
+#' #' \item loss="lmds": Two parameter theta, neighbourhood parameters tau and k. Via stop_lmds.
+#' \item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
+#' \item loss="bcmds": Three parameter theta, Box-Cox transformations of dissimilarities, fitted distances and weights. Via stop_bcmds. 
+#' \item loss="apstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_apstress.
+#' \item loss="pclca": Four parameter theta, power transformations of dissimilarities, fitted distances and weights and neighborhood parametr tau. Via stop_pclca.
+#' \item loss="pclda_k": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters k (geodesic distance) and tau. Via stop_pcldak.
+#' \item loss="pclda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_pcldae. 
 #' }
 #'
-#' 
 #' Structuredness Indices:
 #' Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2023). 
 #' 
@@ -17,14 +41,9 @@
 #' \itemize{
 #' \item ljoptim() ... An (adaptive) version of the Luus-Jakola random search
 #'}
-#' Wrappers and convenience functions:
-#' \itemize{
-#' \item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stop_lmds(), stop_apstress(),stops_rpowerstress(): stop versions of these MDS models.
-#' \item stoploss() ... a function to calculate stoploss (Rusch et al., 2023)
-#'}
 #'
 #' Methods: 
-#' For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.   
+#' For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, coef (extracting the hyperparameetrs).   
 #'
 #' References:
 #' \itemize{
@@ -60,7 +79,11 @@
 #' #two principal axes are orthogonal
 #' #and this can't be changed by taking
 #' #the dissimilarities to a power
-#' 
+#'
+#' resstressm<-stops(dissm,loss="stress",theta=1,structures=structures,
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=10,stoptype="multiplicative")
+#' resstressm
+#' plot(resstressm)
 #'
 #' \donttest{
 #' #STOPS with stress or smacofSym
@@ -148,7 +171,7 @@
 #' respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
 #' respmds
 #' summary(respmds)
 #' plot(respmds)
@@ -213,6 +236,8 @@
 #' summary(resiso)
 #' plot(resiso)
 #'
+#' strucweight<-c(-0.5,-0.5)
+#' 
 #' #STOPS with CLCA 
 #' resclca<-stops(dissm,loss="clca",theta=0.3,
 #' structures=structures, strucpars=strucpars,
@@ -228,6 +253,7 @@
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
 #' optimmethod="ALJ",itmax=7)
 #' respclca
+#' coef(respclca)
 #' summary(respclca)
 #' plot(respclca)
 #'
@@ -244,7 +270,7 @@
 #' rescldae<-stops(dissm,loss="clda_eps",theta=c(1,1),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.2,0.5),upper=c(4,6),
-#' optimmethod="SANN",itmax=20)
+#' optimmethod="SANN",itmax=20,stoptype="multiplicative")
 #' rescldae
 #' summary(rescldae)
 #' plot(rescldae)
@@ -259,15 +285,13 @@
 #' plot(respcldak)
 #'
 #' #STOPS with pCLDA with eps (five parameter already..)
-#' respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,0.2),
+#' respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,1),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,0.1),upper=c(5,5,5,5,0.5),
+#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,0.8),upper=c(5,5,5,5,3),
 #' optimmethod="tgp",itmax=20)
 #' respcldae
 #' summary(respcldae)
 #' plot(respcldae)
-#'
-#' 
 #' 
 #' }
 #' @docType package

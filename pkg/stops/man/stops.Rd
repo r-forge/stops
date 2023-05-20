@@ -3,7 +3,7 @@
 \docType{package}
 \name{stops}
 \alias{stops}
-\title{stops: structure optimized proximity scaling}
+\title{stops: Structure Optimized Proximity Scaling}
 \usage{
 stops(
   dis,
@@ -110,10 +110,34 @@ The stops package provides five categories of important functions:
 
 Models & Algorithms:
 \itemize{
-\item stops() ... which fits STOPS models as described in Rusch et al. (2023). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.  
-\item powerStressMin()... a workhorse for fitting many stresses, including s-stress, r-stress (De Leeuw, 2014), Sammon mapping with power transformations (powersammon), elastic scaling with power transformation (powerelastic), power stress. They can most conveniently be accessed via the stops functions and setting stressweight=1 and cordweight or strucweight=0 or by the dedicated functions starting with stop_foo where foo is the method and setting stressweight=1 and strucweight=0. It uses the nested majorization algorithm for r-stress of De Leeuw(2014).
-\item bcStressMin()... a workhorse for fitting Box-Cox stress (Chen & Buja, 2013).
-\item lmds()... a workhorse for the local MDS of Chen & Buja (2008).
+\item stops ... which fits STOPS models argument loss) as described in Rusch et al. (2023). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.
+\itemize{
+\item loss="stress": One parameter theta, power transformations of dissimilarities. Via stop_smacofSym.
+\item loss="sammon": One parameter theta, power transformations of dissimilarities. Via stop_sammon.
+\item loss="strain": One parameter theta, power transformations of dissimilarities. Via stop_cmdscale.
+\item loss="rstress": One parameter theta, power transformations of fitted distances. Via stop_rstress.
+\item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
+\item loss="smacofSphere": One parameter theta, power transformations of dissimilarities. Via stop_smacofSphere.
+\item loss="sammon2": One parameter theta, power transformations of dissimilarities. Via stop_sammon2.
+\item loss="elastic": One parameter theta, power transformations of dissimilarities. Via stop_elastic.
+\item loss="sstress": One parameter theta, power transformations of dissimilarities. Via stop_sstress.
+\item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
+\item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
+\item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
+\item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
+\item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
+\item loss="bcmds": stop_bcmds ... 
+\item loss="lmds": stop_lmds...
+\item loss="apstress": stop_apstress
+\item loss="rpstress": stop_rpowerstress
+\item loss="clca": stop_clca
+\item loss="pclca": stop_pclca
+\item loss="clda_k": stop_cldak
+\item loss="clda_eps": stop_cldae
+\item loss="pclda_k": stop_pcldak
+\item loss="pclda_eps": stop_pcldae
+\item stoploss() ... a function to calculate stoploss (Rusch et al., 2023)
+
 }
 
 
@@ -124,12 +148,6 @@ Optimization functions:
 \itemize{
 \item ljoptim() ... An (adaptive) version of the Luus-Jakola random search
 }
-Wrappers and convenience functions:
-\itemize{
-\item conf_adjust(): procrustes adjustment of configurations 
-\item cmdscale(), sammon(): wrappers that return S3 objects
-\item stop_smacofSym(), stop_sammon(), stop_cmdscale(), stop_rstress(), stop_powerstress(),stop_smacofSphere(), stop_sammon2(), stop_elastic(), stop_sstress(), stop_powerelastic(), stop_powersammon(),  stop_powermds(), stop_isomap(), stop_isomapeps(), stop_bcstress(), stop_lmds(), stop_apstress(),stops_rpowerstress(): stop versions of these MDS models.
-\item stoploss() ... a function to calculate stoploss (Rusch et al., 2023)
 }
 
 Methods: 
@@ -140,7 +158,7 @@ References:
 \item Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling. Statistics & Computing, 33, [28]. https://doi.org/10.1007/s11222-022-10197-w
 }
 
-Authors: Thomas Rusch, Lisha Chen, Jan de Leeuw, Patrick Mair, Kurt Hornik
+Authors: Thomas Rusch, Patrick Mair, Kurt Hornik
 
 Maintainer: Thomas Rusch
 
@@ -150,14 +168,18 @@ The combination of c-structurednes indices and stress uses the stress.m values, 
 #data(Swissroll)
 #dissm<-as.matrix(dist(Swissroll[,1:3]))
 #cols<-Swissroll[,4]
+#structures<-c("cregularity","cdependence")
+#strucweight<-c(-0.5,0.5)
+#strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
 
 dissm<-as.matrix(smacof::morse)
 
 #Setting up structurenedness parameters
-strucpars<-list(list(epsilon=10,minpts=2,scale=3),list(NULL))
+strucpars<-list(list(epsilon=10,scale=3),list(NULL))
+structures<-c("cclusteredness","cdependence")
 
 #STOPS with strain
-resstrain<-stops(dissm,loss="strain",theta=1,structures=c("cclusteredness","cdependence"),
+resstrain<-stops(dissm,loss="strain",theta=1,structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=10)
 resstrain
 summary(resstrain)
@@ -171,7 +193,7 @@ plot(resstrain)
 \donttest{
 #STOPS with stress or smacofSym
 resstress<-stops(dissm,loss="stress",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 resstress
 summary(resstress)
@@ -180,7 +202,7 @@ plot(resstress,"Shepard")
 
 #STOPS with smacofSphere
 ressph<-stops(dissm,loss="smacofSphere",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 ressph
 summary(ressph)
@@ -188,7 +210,7 @@ plot(ressph)
 
 #STOPS with sammon
 ressam<-stops(dissm,loss="sammon",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 ressam
 summary(ressam)
@@ -197,7 +219,7 @@ plot(ressam,"transplot")
 
 #STOPS with sammon2
 ressam<-stops(dissm,loss="sammon2",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 ressam
 summary(ressam)
@@ -206,7 +228,7 @@ plot(ressam,"Shepard")
 
 #STOPS with elastic 
 ressam<-stops(dissm,loss="elastic",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 ressam
 summary(ressam)
@@ -215,7 +237,7 @@ plot(ressam,"transplot")
 
 #STOPS with sstress
 resss<-stops(dissm,loss="sstress",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
 resss
 summary(resss)
@@ -225,7 +247,7 @@ plot(resss,"transplot")
 
 #STOPS with powerstress
 respstress<-stops(dissm,loss="powerstress",
-structures=c("cclusteredness","cdependence"),theta=c(1,1,1),
+structures=structures,theta=c(1,1,1),
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
 respstress
@@ -234,7 +256,7 @@ plot(respstress)
 
 #STOPS with restricted powerstress
 respstressr<-stops(dissm,loss="powerstress",theta=c(1,1),
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
 respstressr
@@ -243,7 +265,7 @@ plot(respstressr)
 
 #STOPS with powermds
 respmds<-stops(dissm,loss="powermds",
-structures=c("cclusteredness","cdependence"),theta=c(1,1),
+structures=structures,theta=c(1,1),
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
 respmds
@@ -252,7 +274,7 @@ plot(respmds)
 
 #STOPS with powersammon
 respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
 respmds
@@ -261,7 +283,7 @@ plot(respmds)
 
 #STOPS with powerelastic
 respmds<-stops(dissm,loss="powerelastic",theta=c(1,1),
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
 respmds
@@ -270,7 +292,7 @@ plot(respmds)
 
 #STOPS with ordinal rstress 
 resr<-stops(dissm,loss="rstress",type="ordinal",theta=1,
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,weightmat=dissm,
 itmaxps=1000,optimmethod="ALJ",lower=0.5,upper=5)
 resr
@@ -279,7 +301,7 @@ plot(resr)
 
 #STOPS with approximated powerstress
 respstressa<-stops(dissm,loss="powerstress",
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,weightmat=dissm,theta=c(1,1,1),
 itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
 respstressa
@@ -288,7 +310,7 @@ plot(respstressa,"transplot")
 
 #STOPS with bcmds
 resbcstress<-stops(dissm,loss="bcmds",
-structures=c("cclusteredness","cdependence"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=c(0.5,1,0.5),upper=c(5,5,5))
 resbcstress
 summary(resbcstress)
@@ -296,7 +318,7 @@ plot(resbcstress)
 
 #STOPS with lmds
 reslmds<-stops(dissm,loss="lmds",theta=c(1,1),
-structures=c("cclusteredness","clinearity"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(5,1))
 reslmds
 summary(reslmds)
@@ -304,7 +326,7 @@ plot(reslmds)
 
 #STOPS with Isomap (the k version)
 resiso2<-stops(dissm,loss="isomap",theta=5,
-structures=c("cclusteredness","clinearity"),
+structures=structures,
 strucpars=strucpars,optimmethod="ALJ",lower=3,upper=10)
 resiso2
 summary(resiso2)
@@ -312,11 +334,68 @@ plot(resiso2)
 
 #STOPS with Isomap (the eps version)
 resiso<-stops(dissm,loss="isomapeps",
-structures=c("cclusteredness","clinearity"),theta=40,
+structures=structures,
+theta=40,
 strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
 resiso
 summary(resiso)
 plot(resiso)
+
+#STOPS with CLCA 
+resclca<-stops(dissm,loss="clca",theta=0.3,
+structures=structures, strucpars=strucpars,
+strucweight=strucweight,lower=0.1,upper=5,
+optimmethod="pso",itmax=20)
+resclca
+summary(resclca)
+plot(resclca)
+
+#STOPS with pCLCA 
+respclca<-stops(dissm,loss="pclca",theta=c(1,1,1,1),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
+optimmethod="ALJ",itmax=7)
+respclca
+summary(respclca)
+plot(respclca)
+
+#STOPS with CLDA in k 
+rescldak<-stops(dissm,loss="clda_k",theta=c(1,5),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.2,4),upper=c(4,20),
+optimmethod="pso",itmax=20)
+rescldak
+summary(rescldak)
+plot(rescldak)
+
+#STOPS with CLDA in eps
+rescldae<-stops(dissm,loss="clda_eps",theta=c(1,1),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.2,0.5),upper=c(4,6),
+optimmethod="SANN",itmax=20)
+rescldae
+summary(rescldae)
+plot(rescldae)
+
+#STOPS with pCLDA with k (five parameters already..)
+respcldak<-stops(dissm,loss="pclda_k",theta=c(1,1,1,1,5),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,4),upper=c(5,5,5,5,20),
+optimmethod="tgp",itmax=10)
+respcldak
+summary(respcldak)
+plot(respcldak)
+
+#STOPS with pCLDA with eps (five parameter already..)
+respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,0.2),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,0.1),upper=c(5,5,5,5,0.5),
+optimmethod="tgp",itmax=20)
+respcldae
+summary(respcldae)
+plot(respcldae)
+
+
 
 }
 data(kinshipdelta,package="smacof")
