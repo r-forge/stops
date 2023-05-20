@@ -1,7 +1,7 @@
 Package: stops
 Title: Structure Optimized Proximity Scaling
 Version: 1.2-0
-Date: 2023-05-19
+Date: 2023-05-20
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"),comment = c(ORCID = "0000-0002-7773-2096")), person(given="Patrick", family="Mair", role = "aut",comment=c(ORCID="0000-0003-0100-6511")), person(given="Kurt",family="Hornik", role = "ctb", email = "Kurt.Hornik@R-project.org", comment = c(ORCID = "0000-0003-4198-9911")))
 Author: Thomas Rusch [aut, cre], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>

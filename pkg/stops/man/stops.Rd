@@ -106,61 +106,7 @@ A package for "structure optimized proximity scaling" (STOPS), a collection of m
 This allows to fit STOPS models as described in Rusch, Mair, Hornik (2023).
 }
 \details{
-The stops package provides five categories of important functions:
 
-Models & Algorithms:
-\itemize{
-\item stops ... which fits STOPS models argument loss) as described in Rusch et al. (2023). By setting cordweight or strucweight to zero they can also be used to fit metric MDS for many different models, see below.
-\itemize{
-\item loss="stress": One parameter theta, power transformations of dissimilarities. Via stop_smacofSym.
-\item loss="sammon": One parameter theta, power transformations of dissimilarities. Via stop_sammon.
-\item loss="strain": One parameter theta, power transformations of dissimilarities. Via stop_cmdscale.
-\item loss="rstress": One parameter theta, power transformations of fitted distances. Via stop_rstress.
-\item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
-\item loss="smacofSphere": One parameter theta, power transformations of dissimilarities. Via stop_smacofSphere.
-\item loss="sammon2": One parameter theta, power transformations of dissimilarities. Via stop_sammon2.
-\item loss="elastic": One parameter theta, power transformations of dissimilarities. Via stop_elastic.
-\item loss="sstress": One parameter theta, power transformations of dissimilarities. Via stop_sstress.
-\item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
-\item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
-\item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
-\item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
-\item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
-\item loss="bcmds": stop_bcmds ... 
-\item loss="lmds": stop_lmds...
-\item loss="apstress": stop_apstress
-\item loss="rpstress": stop_rpowerstress
-\item loss="clca": stop_clca
-\item loss="pclca": stop_pclca
-\item loss="clda_k": stop_cldak
-\item loss="clda_eps": stop_cldae
-\item loss="pclda_k": stop_pcldak
-\item loss="pclda_eps": stop_pcldae
-\item stoploss() ... a function to calculate stoploss (Rusch et al., 2023)
-
-}
-
-
-Structuredness Indices:
-Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2023). 
-
-Optimization functions:
-\itemize{
-\item ljoptim() ... An (adaptive) version of the Luus-Jakola random search
-}
-}
-
-Methods: 
-For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, plot3d, plot3dstatic.   
-
-References:
-\itemize{
-\item Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling. Statistics & Computing, 33, [28]. https://doi.org/10.1007/s11222-022-10197-w
-}
-
-Authors: Thomas Rusch, Patrick Mair, Kurt Hornik
-
-Maintainer: Thomas Rusch
 
 The combination of c-structurednes indices and stress uses the stress.m values, which are the explictly normalized stresses. Reported however is the stress-1 value which is sqrt(stress.m).
 }
@@ -189,6 +135,10 @@ plot(resstrain)
 #and this can't be changed by taking
 #the dissimilarities to a power
 
+resstressm<-stops(dissm,loss="stress",theta=1,structures=structures,
+strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=10,stoptype="multiplicative")
+resstressm
+plot(resstressm)
 
 \donttest{
 #STOPS with stress or smacofSym
@@ -276,7 +226,7 @@ plot(respmds)
 respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
 structures=structures,
 strucpars=strucpars,weightmat=dissm,
-itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
 respmds
 summary(respmds)
 plot(respmds)
@@ -341,6 +291,8 @@ resiso
 summary(resiso)
 plot(resiso)
 
+strucweight<-c(-0.5,-0.5)
+
 #STOPS with CLCA 
 resclca<-stops(dissm,loss="clca",theta=0.3,
 structures=structures, strucpars=strucpars,
@@ -356,6 +308,7 @@ structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
 optimmethod="ALJ",itmax=7)
 respclca
+coef(respclca)
 summary(respclca)
 plot(respclca)
 
@@ -369,10 +322,11 @@ summary(rescldak)
 plot(rescldak)
 
 #STOPS with CLDA in eps
-rescldae<-stops(dissm,loss="clda_eps",theta=c(1,1),
+set.seed(123)
+rescldae<-stops(dissm,loss="clda_eps",theta=c(1,2),
 structures=structures,strucpars=strucpars,
-strucweight=strucweight,lower=c(0.2,0.5),upper=c(4,6),
-optimmethod="SANN",itmax=20)
+strucweight=strucweight,lower=c(0.2,1),upper=c(4,10),
+optimmethod="SANN",itmax=20,stoptype="multiplicative")
 rescldae
 summary(rescldae)
 plot(rescldae)
@@ -387,15 +341,14 @@ summary(respcldak)
 plot(respcldak)
 
 #STOPS with pCLDA with eps (five parameter already..)
-respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,0.2),
+set.seed(123)
+respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,2),
 structures=structures,strucpars=strucpars,
-strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,0.1),upper=c(5,5,5,5,0.5),
+strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
 optimmethod="tgp",itmax=20)
 respcldae
 summary(respcldae)
 plot(respcldae)
-
-
 
 }
 data(kinshipdelta,package="smacof")

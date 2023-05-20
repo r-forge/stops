@@ -267,9 +267,10 @@
 #' plot(rescldak)
 #'
 #' #STOPS with CLDA in eps
-#' rescldae<-stops(dissm,loss="clda_eps",theta=c(1,1),
+#' set.seed(123)
+#' rescldae<-stops(dissm,loss="clda_eps",theta=c(1,2),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.2,0.5),upper=c(4,6),
+#' strucweight=strucweight,lower=c(0.2,1),upper=c(4,10),
 #' optimmethod="SANN",itmax=20,stoptype="multiplicative")
 #' rescldae
 #' summary(rescldae)
@@ -285,9 +286,10 @@
 #' plot(respcldak)
 #'
 #' #STOPS with pCLDA with eps (five parameter already..)
-#' respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,1),
+#' set.seed(123)
+#' respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,2),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,0.8),upper=c(5,5,5,5,3),
+#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
 #' optimmethod="tgp",itmax=20)
 #' respcldae
 #' summary(respcldae)
