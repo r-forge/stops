@@ -39,7 +39,7 @@
 #'
 #'
 #' @details
-#' The solution is found by "pseudo-majorization", which mean that the majorization is only working properly after a burn-in of a few iterations when the assignment which distances are ignored no longer changes. Due to that it can be that in the beginning the stress may not decrease monotonically and that there's a chance it might never. 
+#' The solution is found by "quasi-majorization", which means that the majorization is only working properly after a burn-in of a few iterations when the assignment which distances are ignored no longer changes. Due to that it can be that in the beginning the stress may not decrease monotonically and that there's a chance it might never. 
 #' 
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
