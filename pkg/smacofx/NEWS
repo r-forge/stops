@@ -1,6 +1,6 @@
 Version 0.6-0
 
-- Removed clca, pclca etc. because the majorization was buggy(-ish). Need to work on the theory more. Is now all moved to .devel.  
+- Tested and qualified more on clca, pclca etc. The used majorization is not 100% correct (I'll call this pseudo-majorization and it means stress can increase in iterations or completely fail) up until the point where we have a stable assignment of weight that are 0. Started work on fixing the majorization. 
 
 Version 0.5-0
 
