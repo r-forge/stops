@@ -1,8 +1,6 @@
 #' Curvilinear Distance Analysis with or without power transformations either as self-organizing or not
 #'
-#' An implementation of curvilinear distance analysis (CLDA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. In 'pclda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling.
-#'
-#' There is a wrapper 'clda' where the exponents are 1, which is standard CLDA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclda' and 'clda'. The functions 'so_pclda' and 'so_clda' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
+#' An implementation of curvilinear distance analysis (CLDA) by pseudo-majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. In 'pclda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling. There is a wrapper 'clda' where the exponents are 1, which is standard CLDA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclda' and 'clda'. The functions 'so_pclda' and 'so_clda' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'clda'
@@ -45,13 +43,13 @@
 #'
 #'
 #' @details
+#' The solution is found by "pseudo-majorization", which mean that the majorization is only working properly after a burn-in of a few iterations when the assignment which distances are ignored no longer changes. Due to that it can be that in the beginning the stress may not decrease monotonically and that there's a chance it might never.
+#' 
 #' The geodesic distances are calculated via 'vegan::isomapdist', see \code{\link[vegan]{isomapdist}} for a documentation of what these distances do. The functions of '(p)clda' are just a wrapper for '(p)clca' applied to the geodesic distances obtained via isomapdist. 
 #' 
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
 #' In the standard functions 'pclda' and 'clda' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_pclda' 'so_clda' which creates a vector of decreasing tau values, calls the function (p)clda with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
-#' 
-#' If tau is too low, there will be an error. 
 #'
 #' 
 #' @importFrom stats dist as.dist quantile

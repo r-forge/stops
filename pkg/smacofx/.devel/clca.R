@@ -1,6 +1,6 @@
 #' Curvilinear Component Analysis with or without power transformations either as self-organizing or not
 #'
-#' An implementation of curvilinear component analysis (CLCA) by majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'so_pclca' and 'so_clca' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
+#' An implementation of curvilinear component analysis (CLCA) by pseudo-majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. There is a wrapper 'clca' where the exponents are 1, which is standard CLCA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclca' and 'clca'. The functions 'so_pclca' and 'so_clca' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'clca'
@@ -39,11 +39,11 @@
 #'
 #'
 #' @details
+#' The solution is found by "pseudo-majorization", which mean that the majorization is only working properly after a burn-in of a few iterations when the assignment which distances are ignored no longer changes. Due to that it can be that in the beginning the stress may not decrease monotonically and that there's a chance it might never. 
+#' 
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
 #' In the standard functions 'pclca' and 'clca' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_pclca' 'so_clca' which creates a vector of decreasing tau values, calls the function (p)clca with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
-#' 
-#' If tau is too low, there will be an error. 
 #'
 #' 
 #' @importFrom stats dist as.dist quantile
