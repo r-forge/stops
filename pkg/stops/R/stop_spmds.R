@@ -1,10 +1,10 @@
 
-#' STOPS version of CLCA.
+#' STOPS version of sparsified POST-MDS for fixed tau
 #'
-#' CLCA with free tau.
+#' Sparsified power stress with free kappa, lambda, rho and tau.
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of explicit parameters; tau for the neighbourhood. Defaults to 100.
+#' @param theta the theta vector of explicit parameters; the first is kappa (for the fitted distances), the second lambda (for the observed proximities), the third nu (for the weights), the fourth tau (for the neighbourhood). If a scalar or vector shorter than 4 is given it is recycled.  Defaults to 1 1 1 100.
 #' @param type MDS type. 
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -24,23 +24,26 @@
 #'         \item stress.m: default normalized stress
 #'         \item stoploss: the weighted loss value
 #'         \item struc: the structuredness indices
-#'         \item parameters: the parameters used for fitting (tau)
+#'         \item parameters: the parameters used for fitting (kappa, lambda, nu, tau)
 #'         \item fit: the returned object of the fitting procedure
 #'         \item{stopobj:} the stopobj object 
 #' }
 #' @keywords multivariate
 #' @export
-stop_smds <- function(dis,theta=c(100),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_spmds <- function(dis,theta=c(1,1,1,100),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>4) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<4) theta <- theta[1]
+  if(length(theta)<4) theta <- rep(theta,length.out=4)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::smds(delta=dis,tau=theta,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$tau <- theta
+  fit <- smacofx::spmds(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],tau=theta[4],type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit$kappa <- theta[1]
+  fit$lambda <- theta[2]
+  fit$rho <- theta[3]
+  fit$tau <- theta[4]
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)

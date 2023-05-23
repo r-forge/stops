@@ -18,20 +18,20 @@
 #' \item loss="sstress": One parameter theta, power transformations of dissimilarities. Via stop_sstress.
 #' \item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
 #' \item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
-#' \item loss="clca": One parameter theta, neighborhood parameter tau. Via stop_clca.
+#' \item loss="smds": One parameter theta, neighborhood parameter tau. Via stop_smds.
 #' \item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
 #' \item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
 #' \item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
 #' \item loss="rpstress": Two parameter theta, power transformations of dissimilarities/fitted distances and weights. Via stop_rpowerstress.
-#' \item loss="clda_k": Two parameter theta, neighborhood parameters k (geodesic distance) and tau. Via stop_cldak.
-#' \item loss="clda_eps": Two parameter theta, neighborhood parameters eps (geodesic distance) and tau. stop_cldae.
-#' #' \item loss="lmds": Two parameter theta, neighbourhood parameters tau and k. Via stop_lmds.
+#' \item loss="smdda_k": Two parameter theta, neighborhood parameters k (geodesic distance) and tau. Via stop_smmdak.
+#' \item loss="smdda_eps": Two parameter theta, neighborhood parameters eps (geodesic distance) and tau. stop_smddae.
+#' \item loss="lmds": Two parameter theta, neighbourhood parameters tau and k. Via stop_lmds.
 #' \item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
 #' \item loss="bcmds": Three parameter theta, Box-Cox transformations of dissimilarities, fitted distances and weights. Via stop_bcmds. 
 #' \item loss="apstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_apstress.
-#' \item loss="pclca": Four parameter theta, power transformations of dissimilarities, fitted distances and weights and neighborhood parametr tau. Via stop_pclca.
-#' \item loss="pclda_k": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters k (geodesic distance) and tau. Via stop_pcldak.
-#' \item loss="pclda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_pcldae. 
+#' \item loss="spmds": Four parameter theta, power transformations of dissimilarities, fitted distances and weights and neighborhood parametr tau. Via stop_spmds.
+#' \item loss="spmdda_k": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters k (geodesic distance) and tau. Via stop_spmddak.
+#' \item loss="spmdda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_spmddae. 
 #' }
 #'
 #' Structuredness Indices:
@@ -238,8 +238,8 @@
 #'
 #' strucweight<-c(-0.5,-0.5)
 #' 
-#' #STOPS with CLCA 
-#' resclca<-stops(dissm,loss="clca",theta=0.3,
+#' #STOPS with smds
+#' resclca<-stops(dissm,loss="smds",theta=0.3,
 #' structures=structures, strucpars=strucpars,
 #' strucweight=strucweight,lower=0.1,upper=5,
 #' optimmethod="pso",itmax=20)
@@ -247,8 +247,8 @@
 #' summary(resclca)
 #' plot(resclca)
 #'
-#' #STOPS with pCLCA 
-#' respclca<-stops(dissm,loss="pclca",theta=c(1,1,1,1),
+#' #STOPS with spmds
+#' respclca<-stops(dissm,loss="spmds",theta=c(1,1,1,1),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
 #' optimmethod="ALJ",itmax=7)
@@ -257,8 +257,8 @@
 #' summary(respclca)
 #' plot(respclca)
 #'
-#' #STOPS with CLDA in k 
-#' rescldak<-stops(dissm,loss="clda_k",theta=c(1,5),
+#' #STOPS with smdda and k 
+#' rescldak<-stops(dissm,loss="smdda_k",theta=c(1,5),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.2,4),upper=c(4,20),
 #' optimmethod="pso",itmax=20)
@@ -266,9 +266,9 @@
 #' summary(rescldak)
 #' plot(rescldak)
 #'
-#' #STOPS with CLDA in eps
+#' #STOPS with smdda in eps
 #' set.seed(123)
-#' rescldae<-stops(dissm,loss="clda_eps",theta=c(1,2),
+#' rescldae<-stops(dissm,loss="smdda_eps",theta=c(1,2),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.2,1),upper=c(4,10),
 #' optimmethod="SANN",itmax=20,stoptype="multiplicative")
@@ -276,8 +276,8 @@
 #' summary(rescldae)
 #' plot(rescldae)
 #'
-#' #STOPS with pCLDA with k (five parameters already..)
-#' respcldak<-stops(dissm,loss="pclda_k",theta=c(1,1,1,1,5),
+#' #STOPS with spmdda with k (five parameters already..)
+#' respcldak<-stops(dissm,loss="spmdda_k",theta=c(1,1,1,1,5),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,4),upper=c(5,5,5,5,20),
 #' optimmethod="tgp",itmax=10)
@@ -285,9 +285,9 @@
 #' summary(respcldak)
 #' plot(respcldak)
 #'
-#' #STOPS with pCLDA with eps (five parameter already..)
+#' #STOPS with spmdda with eps (five parameter already..)
 #' set.seed(123)
-#' respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,2),
+#' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
 #' optimmethod="tgp",itmax=20)

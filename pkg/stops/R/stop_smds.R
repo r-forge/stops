@@ -1,7 +1,7 @@
 
-#' STOPS version of CLCA.
+#' STOPS version of sparsified MDS.
 #'
-#' CLCA with free tau.
+#' smds with free tau.
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param theta the theta vector of explicit parameters; tau for the neighbourhood. Defaults to 100.

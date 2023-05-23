@@ -83,20 +83,26 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss=c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","isomap_eps","isomap_k","bcstress","lmds","apstress","rpowerstress","clca","pclca","clda_k","clda_eps","pclda_k","pclda_eps"), theta=1, type="ratio",structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","DIRECT","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
+stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","DIRECT","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
     {
       if(missing(structures)) {
           structures <- "clinearity"
           strucweight <- 0
       }
+      ## allowed losses
+      loss <- match.arg(loss,c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","isomap_eps","isomap_k","bcstress","lmds","apstress","rpowerstress","smds","spmds","smdda_k","smdda_eps","spmdda_k","spmdda_eps"),several.ok=FALSE)
+      ## allowed structures
+      structures <- match.arg(structures,c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),several.ok=TRUE)
+      
       if(missing(strucpars)) strucpars <- vector("list",length(structures))
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
-      if(missing(loss)) loss <- "stress"
+      #if(missing(loss)) loss <- "stress"
       if(missing(stoptype)) stoptype <- "additive"
       #TODO implement a Pareto multiobjective
       .confin <- init #initialize a configuration
-      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap1,"isomap_k"=stop_isomap1,"isomapeps"=stop_isomap2,"isomap_eps"=stop_isomap2,"bcstress"=stop_bcmds,"bcmds"=stop_bcmds,"lmds"=stop_lmds,"apstress"=stop_apstress,"rpowerstress"=stop_rpowerstress,"clca"=stop_clca,"pclca"=stop_pclca,"clda_k"=stop_cldak,"clda_eps"=stop_cldae,"pclda_k"=stop_pcldak,"pclda_eps"=stop_pcldae) #choose the stress to minimize
+
+      psfunc <- switch(loss, "powerstrain"=stop_cmdscale, "stress"=stop_smacofSym,"smacofSym"=stop_smacofSym,"powerstress"=stop_powerstress,"strain"=stop_cmdscale,"smacofSphere"=stop_smacofSphere,"rstress"=stop_rstress,"sammon"=stop_sammon, "elastic"=stop_elastic, "powermds"=stop_powermds,"powerelastic"=stop_powerelastic,"powersammon"=stop_powersammon,"sammon2"=stop_sammon2,"sstress"=stop_sstress,"isomap"=stop_isomap1,"isomap_k"=stop_isomap1,"isomapeps"=stop_isomap2,"isomap_eps"=stop_isomap2,"bcstress"=stop_bcmds,"bcmds"=stop_bcmds,"lmds"=stop_lmds,"apstress"=stop_apstress,"rpowerstress"=stop_rpowerstress,"smds"=stop_smds,"spmds"=stop_spmds,"smdda_k"=stop_smddak,"smdda_eps"=stop_smddae,"spmdda_k"=stop_spmddak,"spmdda_eps"=stop_spmddae) #choose the stress to minimize
       if(missing(strucweight)) {
          #TODO: automatic handler of setting weights that makes sense
          strucweight <- rep(-1/length(structures),length(structures))
