@@ -30,7 +30,7 @@
 #'
 #' ## Version 2: Using a call object and supplying conflist
 #' conflist<-list(res1$init,jitter(res1$init,1),jitter(res1$init,1),jitter(res1$init,1))
-#' c1 <- call("clca",delta=dis,tau=0.2,itmax=100)
+#' c1 <- call("smds",delta=dis,tau=0.2,itmax=100)
 #' resm<-icExploreGen(mdscall=c1,conflist=conflist,returnfit=TRUE)
 #'
 #' plot(resm)

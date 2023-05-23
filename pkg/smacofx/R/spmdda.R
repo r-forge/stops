@@ -1,12 +1,14 @@
-#' Curvilinear Distance Analysis with or without power transformations either as self-organizing or not
+#' Sparse (POST-)Multidimensional Distance Analysis (SPMDDA or SMDDA) either as self-organizing or not 
 #'
-#' An implementation of curvilinear distance analysis (CLDA) by quasi-majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. In 'pclda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling. There is a wrapper 'clda' where the exponents are 1, which is standard CLDA but extend to allow optimal scaling. Different from the original article the neighborhood parameter tau is kept fixed in 'pclda' and 'clda'. The functions 'so_pclda' and 'so_clda' implement the self-organising principle of the original article, where the CLCA is repeatedly fitted for a decreasing sequence of taus.
+#' An implementation of a sparsified version of (POST-)MDS by pseudo-majorization with ratio, interval and ordinal optimal scaling for geodesic distances and optional power transformations. This is inspired by curvilinear distance analysis but works differently: It finds an initial weightmatrix where w_ij(X^0)=0 if d_ij(X^0)>tau and fits a POST-MDS with these weights. Then in each successive iteration step, the weightmat is recalculated so that w_ij(X^(n+1))=0 if d_ij(X^(n+1))>tau. Right now the zero weights are not found by the correct optimization, but we're working on that. 
+#'
+#' In 'spmdda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling. There is a wrapper 'smdda' where the exponents are 1, which is standard SMDDA but extend to allow optimal scaling. The neighborhood parameter tau is kept fixed in 'spmdda' and 'smdda'. The functions 'so_spmdda' and 'so_smdda' implement a self-organising principle where the is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
-#' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'clda'
-#' @param kappa exponent of the power transformation of the fitted distances; defaults to 1, which is also the setup of 'clda'.
+#' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'smdda'
+#' @param kappa exponent of the power transformation of the fitted distances; defaults to 1, which is also the setup of 'smdda'.
 #' @param nu exponent of the power of the weighting matrix; defaults to 1 which is also the setup for 'clca'. 
-#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'pclda' and 'clda' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations).  It defaults to the 90\% quantile of the enormed (power transformed) geodesic distances of delta. For 'so_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
+#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'spmdda' and 'smdda' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations).  It defaults to the 90\% quantile of the enormed (power transformed) geodesic distances of delta. For 'so_pclca' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
 #' @param epsilon  Shortest dissimilarity retained.
 #' @param k Number of shortest dissimilarities retained for a point. If both 'epsilon' and 'k' are given, 'epsilon' will be used.
 #' @param path Method used in 'stepacross' to estimate the shortest path, with alternatives '"shortest"' and '"extended"'.
@@ -45,11 +47,11 @@
 #' @details
 #' The solution is found by "quasi-majorization", which mean that the majorization is only working properly after a burn-in of a few iterations when the assignment which distances are ignored no longer changes. Due to that it can be that in the beginning the stress may not decrease monotonically and that there's a chance it might never.
 #' 
-#' The geodesic distances are calculated via 'vegan::isomapdist', see \code{\link[vegan]{isomapdist}} for a documentation of what these distances do. The functions of '(p)clda' are just a wrapper for '(p)clca' applied to the geodesic distances obtained via isomapdist. 
+#' The geodesic distances are calculated via 'vegan::isomapdist', see \code{\link[vegan]{isomapdist}} for a documentation of what these distances do. The functions of '(p)smdda' are just a wrapper for '(p)clca' applied to the geodesic distances obtained via isomapdist. 
 #' 
 #' If tau is too small it may happen that all distances for one i to all j are zero and then there will be an error, so make sure to set a larger tau.
 #'
-#' In the standard functions 'pclda' and 'clda' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_pclda' 'so_clda' which creates a vector of decreasing tau values, calls the function (p)clda with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
+#' In the standard functions 'spmdda' and 'smdda' we keep tau fixed throughout. This means that if tau is large enough, then the result is the same as the corresponding MDS. In the orginal publication the idea was that of a self-organizing map which decreased tau over epochs (i.e., passes through the data). This can be achieved with our function 'so_spmdda' 'so_smdda' which creates a vector of decreasing tau values, calls the function 'spmdda' with the first tau, then supplies the optimal configuration obtained as the init for the next call with the next tau and so on. 
 #'
 #' 
 #' @importFrom stats dist as.dist quantile
@@ -58,12 +60,12 @@
 #' 
 #' @examples
 #' dis<-smacof::morse
-#' res<-pclda(dis,kappa=2,lambda=2,tau=0.4,k=5,itmax=1000)
+#' res<-spmdda(dis,kappa=2,lambda=2,tau=0.4,k=5,itmax=1000)
 #' res
 #' #already many parameters 
 #' coef(res)
 #'
-#' res2<-clda(dis,type="interval",tau=0.4,epsilon=1,itmax=1000)
+#' res2<-smdda(dis,type="interval",tau=0.4,epsilon=1,itmax=1000)
 #' res2
 #' summary(res)
 #' par(mfrow=c(1,2))
@@ -77,15 +79,15 @@
 #'
 #' \dontrun{
 #' ## Self-organizing map style (as in the original publication)
-#' #run the som-style (p)clda 
-#' sommod1<-so_pclda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=100,verbose=1)
-#' sommod2<-so_clda(dis,tau=2.5,epsilon=1,epochs=50,verbose=1)
+#' #run the som-style (p)smdda 
+#' sommod1<-so_spmdda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=100,verbose=1)
+#' sommod2<-so_smdda(dis,tau=2.5,epsilon=1,epochs=50,verbose=1)
 #' sommod1
 #' sommod2
 #' }
 #' 
 #' @export
-pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+spmdda <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     #Isomap distances
     cc <- match.call()
     type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE)
@@ -99,10 +101,10 @@ pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
                                         #run clca
     isocrit <- attr(delta,"criterion")
     isocritval <- attr(delta,"critval")
-    if(verbose>0) cat(paste("Fitting",type,"pCLDA with lambda=",lambda, "kappa=",kappa,"nu=",nu, "tau=",tau,"and",isocrit,"=", isocritval,"\n"))
-    out <- pclca(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose-1, principal=principal)
+    if(verbose>0) cat(paste("Fitting",type,"spmdda with lambda=",lambda, "kappa=",kappa,"nu=",nu, "tau=",tau,"and",isocrit,"=", isocritval,"\n"))
+    out <- spmds(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose-1, principal=principal)
     #postprocess
-    out$model= "power CLDA"
+    out$model= "SPMDDA"
     out$call <- cc
     out$parameters  <- c(kappa=kappa,lambda=lambda,nu=nu,tau=tau,isocritval)
     names(out$parameters)[5] <- isocrit
@@ -112,23 +114,23 @@ pclda <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
   }
 
 
-#' @rdname pclda
+#' @rdname spmdda
 #' @export
-clda <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+smdda <- function(delta, tau=stats::quantile(delta,0.9), type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- pclda(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
-    out$model <- "CLDA"
+    out <- spmdda(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
+    out$model <- "SMDDA"
     out$call <- cc
     paro <- out$parameters[-(1:3)]
     out$parameters <- out$theta <- out$pars <- paro
     out
 }
 
-#' @rdname pclda
+#' @rdname spmdda
 #' @export
-so_pclda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_spmdda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -143,18 +145,18 @@ so_pclda <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, 
     for(i in 1:length(taus))
     {
       if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
-      tmp<-pclda(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=taus[i], type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, acc=acc, itmax=itmax, principal=principal)
+      tmp<-spmdda(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=taus[i], type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, acc=acc, itmax=itmax, principal=principal)
       finconf<-tmp$conf
       finmod<-tmp
     }
     finmod$call  <- cc
-    finmod$model  <- "SO-pCLDA"
+    finmod$model  <- "SO-SPMDDA"
     return(finmod)
 }
 
-#' @rdname pclda
+#' @rdname spmdda
 #' @export
-so_clda <- function(delta, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_smdda <- function(delta, tau=max(delta), epochs=10, type=c("ratio"), ties="primary", epsilon, k, path="shortest", fragmentedOK=FALSE, weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -169,11 +171,11 @@ so_clda <- function(delta, tau=max(delta), epochs=10, type=c("ratio"), ties="pri
     for(i in 1:length(taus))
     {
       if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
-      tmp<-clda(delta=delta, tau=taus[i], type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1,  acc=acc, itmax=itmax, principal=principal)
+      tmp<-smdda(delta=delta, tau=taus[i], type=type, ties=ties, epsilon=epsilon, k=k, path=path, fragmentedOK=fragmentedOK, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1,  acc=acc, itmax=itmax, principal=principal)
       finconf<-tmp$conf
       finmod<-tmp
     }
     finmod$call  <- cc
-    finmod$model  <- "SO-pCLDA"
+    finmod$model  <- "SO-SMDDA"
     return(finmod)
     }

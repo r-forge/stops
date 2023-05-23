@@ -1,6 +1,6 @@
 Version 0.6-0
 
-- Tested and qualified more on clca, pclca etc. The used majorization is not 100% correct (I'll call this pseudo-majorization and it means stress can increase in iterations or completely fail) up until the point where we have a stable assignment of weight that are 0. Started work on fixing the majorization. 
+- Renamed clca and pclca and clda and pclda functionalities to spmds (sparsified post mds) as our implementation is only inspired by CLCA. The used majorization is a quasi-majorization which means stress can increase in iterations or completely fail up until the point where we have a stable assignment of weight that are 0. The sparsity is not necessarily optimal and will likely be improved upon in the future.   
 
 Version 0.5-0
 

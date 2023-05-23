@@ -59,6 +59,7 @@ lmds <- function(delta,init=NULL,ndim=2,k=2,tau=1,
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing lmds with tau=",tau,"k=",k,"\n")
+    labos <- rownames(delta) 
     Do <- delta
     X1 <- init
     lambda <- 1
@@ -208,10 +209,14 @@ while ( stepsize > 1E-5 && i < niter)
   result <- list()
   result$delta <- stats::as.dist(Do)
   result$dhat <- stats::as.dist(Do)
-    if (principal) {
+  #X1 <- X1/enorm(X1) 
+  if (principal) {
         X1_svd <- svd(X1)
         X1 <- X1 %*% X1_svd$v
     }
+   ## relabeling as they were removed in the optimal scaling
+  attr(X1,"dimnames")[[1]] <- labos
+  attr(X1,"dimnames")[[2]] <- paste("D",1:ndim,sep="")  
   result$iord <- order(as.vector(Do)) ##TODO: Check again
   result$confdist <- stats::as.dist(D1)
   result$conf <- X1 #new

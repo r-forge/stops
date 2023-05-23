@@ -59,7 +59,8 @@ bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=
 {
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
-  if(verbose>0) cat("Minimizing bcStress with mu=",mu,"lambda=",lambda,"rho=",rho,"\n")  
+  if(verbose>0) cat("Minimizing bcStress with mu=",mu,"lambda=",lambda,"rho=",rho,"\n")
+  labos <- rownames(delta) 
   nu <- rho  
   Dorig <- Do <- delta 
   d <- ndim
@@ -227,6 +228,8 @@ while ( stepsize > 1E-5 && i < niter)
         X1_svd <- svd(X1)
         X1 <- X1 %*% X1_svd$v
   }
+  attr(X1,"dimnames")[[1]] <- labos
+  attr(X1,"dimnames")[[2]] <- paste("D",1:ndim,sep="")  
   result$iord <- order(as.vector(Do)) ##TODO: Check again
   result$confdist <- stats::as.dist(D1) #TODO: Check again
   result$conf <- X1 #new
