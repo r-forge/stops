@@ -1,3 +1,7 @@
+Version 0.6-1
+
+- Added new clca and clda that wrap ProjectionBasedClustering::CCA as works horse.    
+
 Version 0.6-0
 
 - Renamed clca and pclca and clda and pclda functionalities to spmds (sparsified post mds) as our implementation is only inspired by CLCA. The used majorization is a quasi-majorization which means stress can increase in iterations or completely fail up until the point where we have a stable assignment of weight that are 0. The sparsity is not necessarily optimal and will likely be improved upon in the future.   

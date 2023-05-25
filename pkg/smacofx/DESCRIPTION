@@ -1,11 +1,11 @@
 Package: smacofx
 Title: Flexible Multidimensional Scaling and SMACOF Extensions
-Version: 0.6-0
-Date: 2023-05-23
+Version: 0.6-1
+Date: 2023-05-25
 Authors@R: c(person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")), person(given="Jan",family="de Leeuw", role = c("aut")), person(given="Lisha",family="Chen", role = "aut"), person("Patrick","Mair",email="mair@fas.harvard.edu",comment=c(ORCID="0000-0003-0100-6511"),role=c("aut")))
 Author: Thomas Rusch [aut, cre], Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut], Kurt Hornik [ctb]
 Maintainer: Thomas Rusch <thomas.rusch@wu.ac.at>
-Description: Flexible multidimensional scaling (MDS) methods centered around scaling with majorization and extensions to the package smacof. This package contains various functions, wrappers, methods and classes for fitting, plotting and displaying a large number of different flexible MDS models (some as of yet unpublished) such as Torgerson scaling (Torgerson, 1958, ISBN:978-0471879459) with powers,  Sammon mapping (Sammon, 1969, <doi:10.1109/T-C.1969.222678>) with ratio and interval optimal scaling, Multiscale MDS (Ramsay, 1977, <doi:10.1007/BF02294052>) with ratio and interval optimal scaling, Alscal (s-stress) MDS (Takane, Young & de Leeuw, 1977, <doi:10.1007/BF02293745>) with ratio and interval optimal scaling, elastic scaling (McGee, 1966, <doi:10.1111/j.2044-8317.1966.tb00367.x>) with ratio and interval optimal scaling, r-stress MDS (de Leeuw, Groenen & Mair, 2016, <https://rpubs.com/deleeuw/142619>) for ratio, interval and nonmetric scaling, power stress (Buja & Swayne, 2002 <doi:10.1007/s00357-001-0031-0>) for ratio and interval optimal scaling, restricted power-stress (Rusch, Mair & Hornik, 2021, <doi:10.1080/10618600.2020.1869027>) with ratio and interval optimal scaling, approximate power-stress with ratio scaling (Rusch, Mair & Hornik, 2021, <doi:10.1080/10618600.2020.1869027>), Box-Cox MDS (Chen & Buja, 2013) and local MDS (Chen & Buja, 2009, <doi:10.1198/jasa.2009.0111>) with ratio optimal scaling. There is also an experimental version for a sparsified POST-MDS inspired by curvilienar component analysis. Some functions are suitably flexible to allow any other sensible combination of explicit power transformations for weights, distances and input proximities with implicit ratio, interval or ordinal optimal scaling of the input proximities. Most functions use a majorization algorithm. 
+Description: Flexible multidimensional scaling (MDS) methods centered around scaling with majorization and extensions to the package smacof. This package contains various functions, wrappers, methods and classes for fitting, plotting and displaying a large number of different flexible MDS models (some as of yet unpublished) such as Torgerson scaling (Torgerson, 1958, ISBN:978-0471879459) with powers,  Sammon mapping (Sammon, 1969, <doi:10.1109/T-C.1969.222678>) with ratio and interval optimal scaling, Multiscale MDS (Ramsay, 1977, <doi:10.1007/BF02294052>) with ratio and interval optimal scaling, Alscal (s-stress) MDS (Takane, Young & de Leeuw, 1977, <doi:10.1007/BF02293745>) with ratio and interval optimal scaling, elastic scaling (McGee, 1966, <doi:10.1111/j.2044-8317.1966.tb00367.x>) with ratio and interval optimal scaling, r-stress MDS (de Leeuw, Groenen & Mair, 2016, <https://rpubs.com/deleeuw/142619>) for ratio, interval and nonmetric scaling, power stress (Buja & Swayne, 2002 <doi:10.1007/s00357-001-0031-0>) for ratio and interval optimal scaling, restricted power-stress (Rusch, Mair & Hornik, 2021, <doi:10.1080/10618600.2020.1869027>) with ratio and interval optimal scaling, approximate power-stress with ratio scaling (Rusch, Mair & Hornik, 2021, <doi:10.1080/10618600.2020.1869027>), Box-Cox MDS (Chen & Buja, 2013), local MDS (Chen & Buja, 2009, <doi:10.1198/jasa.2009.0111>) with ratio optimal scaling, curvilinear component analysis (Demartines & Herault, 1997, <doi:10.1109/72.554199>) and curvilinear distance analysis with ratio optimal scaling (Lee, Lendasse & Verleysen, 2004, <doi:10.1016/j.neucom.2004.01.007>). There also are experimental version of sparsified MDS and POST-MDS models inspired by curvilinear component/distance analysis. Some functions are suitably flexible to allow any other sensible combination of explicit power transformations for weights, distances and input proximities with implicit ratio, interval or ordinal optimal scaling of the input proximities. Most functions use a majorization algorithm. 
 Depends:
     R (>= 3.5.0),
     smacof (>= 1.10-4)
@@ -13,9 +13,10 @@ Imports:
     MASS,
     minqa,
     plotrix,
+    ProjectionBasedClustering,
     weights,
     vegan
-Suggests: R.rsp, rmarkdown, ProjectionBasedClustering
+Suggests: R.rsp, rmarkdown
 VignetteBuilder: R.rsp
 License: GPL-2 | GPL-3
 LazyData: true

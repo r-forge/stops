@@ -1,9 +1,9 @@
-#' Curvilinear Component Analysis (CLCA)
+#' Curvilinear Distance Analysis (CLDA)
 #'
 #'
-#' A wrapper to run curvilinear component analysis via \code{\link[ProjectionBasedClustering]{CCA}} and returning a 'smacofP' object. Note this functionality is rather rudimentary.   
+#' A function to run curvilinear distance analysis via \code{\link[ProjectionBasedClustering]{CCA}} and returning a 'smacofP' object. Note this functionality is rather rudimentary.   
 #' 
-#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances. 
+#' @param delta dist object or a symmetric, numeric data.frame or matrix of distances. Will be turne dinto geodesci distances.
 #' @param Epochs Scalar; gives the number of passes through the data.
 #' @param lambda0 the boundary/neighbourhood parameter(s) (called lambda_y in the original paper). It is supposed to be a numeric scalar. It defaults to the 90\% quantile of delta. 
 #' @param alpha0 (scalar) initial step size, 0.5 by default
@@ -15,6 +15,10 @@
 #' @param verbose should iteration output be printed; not used
 #' @param method Distance calculation; currently not used.
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
+#' @param epsilon  Shortest dissimilarity retained.
+#' @param k Number of shortest dissimilarities retained for a point. If both 'epsilon' and 'k' are given, 'epsilon' will be used.
+#' @param path Method used in 'stepacross' to estimate the shortest path, with alternatives '"shortest"' and '"extended"'.
+#' @param fragmentedOK  What to do if dissimilarity matrix is fragmented. If 'TRUE', analyse the largest connected group, otherwise stop with error.
 #'
 #' @return a smacofP object. It is a list with the components
 #' \itemize{
@@ -37,8 +41,7 @@
 #'
 #'
 #' @details
-#' This implements CCA as in Demartines & Herault (1997). A different take on the ideas of curvilinear compomnent analysis is available in the experimental functions \code{\link{spmds}} and \code{\link{spmds}}.  
-#' 
+#' This implements CLDA as CLCA with geodesic distances. The geodesic distances are calculated via 'vegan::isomapdist', see \code{\link[vegan]{isomapdist}} for a documentation of what these distances do. 'clda' is just a wrapper for 'clca' applied to the geodesic distances obtained via isomapdist. 
 #'  
 #' @importFrom stats dist as.dist quantile
 #' @importFrom ProjectionBasedClustering CCA
@@ -47,27 +50,39 @@
 #' 
 #' @examples
 #' dis<-smacof::morse
-#' res<-clca(dis,lambda0=0.4)
+#' res<-clda(dis,lambda0=0.4,k=4)
 #' res
 #' summary(res)
 #' plot(res)
 #' 
-clca <- function (delta, Epochs=20,  alpha0 = 0.5, lambda0, ndim = 2, weightmat=1-diag(nrow(delta)), init= NULL, acc=1e-06, itmax=10000, verbose=0, method = "euclidean", principal=FALSE)
+clda <- function (delta, Epochs=20,  alpha0 = 0.5, lambda0, ndim = 2, weightmat=1-diag(nrow(delta)), init= NULL, acc=1e-06, itmax=10000, verbose=0, method = "euclidean", principal=FALSE, epsilon, k, path="shortest", fragmentedOK=FALSE)
 {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     type <- "ratio"
     labos <- rownames(delta)
+
     deltaorig <- delta
+    
+    if (!missing(epsilon) && !missing(k)) message("Both epsilon and k given, using epsilon.") 
+    if (missing(epsilon) && missing(k)) epsilon <- stats::quantile(delta,0.5) 
+    if(missing(epsilon) && !missing(k))
+         delta <- vegan::isomapdist(delta,k=k,path=path,fragmentedOK=fragmentedOK)
+    else delta <- vegan::isomapdist(delta,epsilon=epsilon,path=path,fragmentedOK=fragmentedOK)
+    isocrit <- attr(delta,"criterion")
+    isocritval <- attr(delta,"critval")
+    delta <- as.matrix(delta)
+    
     if(missing(lambda0)) lambda0 <- 3*max(stats::sd(as.matrix(delta)))
     potency_curve <-  function(v0, vn, l) return(v0 * (vn/v0)^((0:(l - 1))/(l - 1)))
     n <- nrow (delta)
     p <- ndim
     lambo <- potency_curve(lambda0, 0.01, Epochs*n)
-    if(verbose>0) cat("Minimizing",type,"CLCA Stress in", Epochs,"epochs with lambda0=",lambda0,"and alpha0=", alpha0,"\n")
+   
+    if(verbose>0) cat("Minimizing",type,"CLDA Stress in", Epochs,"epochs with lambda0=",lambda0,"alpha0=", alpha0,"and",isocrit,"=", isocritval,"\n")
     deltaold <- delta
-    delta <- delta/enorm(delta,weightmat)
+    #delta <- delta/enorm(delta,weightmat)
     tmp <- ProjectionBasedClustering::CCA(DataOrDistances=delta,Epochs=Epochs,alpha0=alpha0,lambda0=lambda0,OutputDimension=ndim,PlotIt=FALSE,method=method)
     out <- list()
     xnew <- tmp$ProjectedPoints #are already normalized somehow
@@ -94,8 +109,9 @@ clca <- function (delta, Epochs=20,  alpha0 = 0.5, lambda0, ndim = 2, weightmat=
     snew <- tmp$Error
     itel  <- Epochs*n
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew), "\n")  
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=sort(delta), conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=init, model="CLCA", niter = itel, nobj = dim(xnew)[1], type = type, call=cc, stress.m=snew, alpha = NA, sigma = snew, tdelta=deltaold, lambo=lambo, tweightmat=weightmat)
-    out$parameters  <- c(lambda0=lambda0,alpha0=alpha0)
+    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=sort(delta), conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=init, model="CLDA", niter = itel, nobj = dim(xnew)[1], type = type, call=cc, stress.m=snew, alpha = NA, sigma = snew, tdelta=deltaold, lambo=lambo, tweightmat=weightmat)
+    out$parameters  <- c(lambda0=lambda0,alpha0=alpha0,isocritval)
+    names(out$parameters)[3] <- isocrit
     out$theta <- out$pars <- out$parameters
     class(out) <- c("smacofP","smacofB","smacof")
     out
