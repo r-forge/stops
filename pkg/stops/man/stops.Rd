@@ -7,17 +7,10 @@
 \usage{
 stops(
   dis,
-  loss = c("strain", "stress", "smacofSym", "powerstress", "powermds", "powerelastic",
-    "powerstrain", "elastic", "sammon", "sammon2", "smacofSphere", "powersammon",
-    "rstress", "sstress", "isomap", "isomapeps", "isomap_eps", "isomap_k", "bcstress",
-    "lmds", "apstress", "rpowerstress", "clca", "pclca", "clda_k", "clda_eps", "pclda_k",
-    "pclda_eps"),
+  loss = "stress",
   theta = 1,
   type = "ratio",
-  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
-    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  structures,
   ndim = 2,
   weightmat = NULL,
   init = NULL,
@@ -106,7 +99,61 @@ A package for "structure optimized proximity scaling" (STOPS), a collection of m
 This allows to fit STOPS models as described in Rusch, Mair, Hornik (2023).
 }
 \details{
+The stops package provides five categories of important functions:
 
+Models:
+\itemize{
+\item stops ... which fits STOPS models as described in Rusch et al. (2023) via argument loss with ratio, interval or ordinal optimal scaling (not all optimal scalings can be used with all loss arguments). By setting cordweight or strucweight to zero they can also be used to fit MDS for many different models:
+\itemize{
+\item loss="stress": One parameter theta, power transformations of dissimilarities. Via stop_smacofSym.
+\item loss="sammon": One parameter theta, power transformations of dissimilarities. Via stop_sammon.
+\item loss="strain": One parameter theta, power transformations of dissimilarities. Via stop_cmdscale.
+\item loss="rstress": One parameter theta, power transformations of fitted distances. Via stop_rstress.
+\item loss="smacofSphere": One parameter theta, power transformations of dissimilarities. Via stop_smacofSphere.
+\item loss="sammon2": One parameter theta, power transformations of dissimilarities. Via stop_sammon2.
+\item loss="elastic": One parameter theta, power transformations of dissimilarities. Via stop_elastic.
+\item loss="sstress": One parameter theta, power transformations of dissimilarities. Via stop_sstress.
+\item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
+\item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
+\item loss="smds": One parameter theta, neighborhood parameter tau. Via stop_smds.
+\item loss="clca": One parameter theta, neighborhood parameters lambda0. Via stop_clca.
+\item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
+\item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
+\item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
+\item loss="rpstress": Two parameter theta, power transformations of dissimilarities/fitted distances and weights. Via stop_rpowerstress.
+\item loss="smdda_k": Two parameter theta, neighborhood parameters k (geodesic distance) and tau. Via stop_smmdak.
+\item loss="smdda_eps": Two parameter theta, neighborhood parameters eps (geodesic distance) and tau. stop_smddae.
+\item loss="lmds": Two parameter theta, neighbourhood parameters tau and k. Via stop_lmds.
+\item loss="clda_eps": Two parameter theta, neighborhood parameters lambda0 and epsilon (geodesic distance). Via stop_cldae.
+\item loss="clda_k": Two parameter theta, neighborhood parameters lambda0 and k (geodesic distance). Via stop_cldak.
+\item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
+\item loss="bcmds": Three parameter theta, Box-Cox transformations of dissimilarities, fitted distances and weights. Via stop_bcmds. 
+\item loss="apstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_apstress.
+\item loss="spmds": Four parameter theta, power transformations of dissimilarities, fitted distances and weights and neighborhood parametr tau. Via stop_spmds.
+\item loss="spmdda_k": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters k (geodesic distance) and tau. Via stop_spmddak.
+\item loss="spmdda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_spmddae.
+}
+}
+
+Structuredness Indices:
+Various c-structuredness as c_foo(), where foo is the name of the structuredness.  See Rusch et al. (2023). 
+
+Optimization functions:
+\itemize{
+\item ljoptim() ... An (adaptive) version of the Luus-Jakola random search
+}
+
+Methods: 
+For most of the objects returned by the high-level functions S3 classes and methods for standard generics were implemented, including print, summary, plot, coef (extracting the hyperparameetrs).   
+
+References:
+\itemize{
+\item Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling. Statistics & Computing, 33, [28]. https://doi.org/10.1007/s11222-022-10197-w
+}
+
+Authors: Thomas Rusch, Patrick Mair, Kurt Hornik
+
+Maintainer: Thomas Rusch
 
 The combination of c-structurednes indices and stress uses the stress.m values, which are the explictly normalized stresses. Reported however is the stress-1 value which is sqrt(stress.m).
 }
@@ -293,8 +340,8 @@ plot(resiso)
 
 strucweight<-c(-0.5,-0.5)
 
-#STOPS with CLCA 
-resclca<-stops(dissm,loss="clca",theta=0.3,
+#STOPS with smds
+resclca<-stops(dissm,loss="smds",theta=0.3,
 structures=structures, strucpars=strucpars,
 strucweight=strucweight,lower=0.1,upper=5,
 optimmethod="pso",itmax=20)
@@ -302,8 +349,8 @@ resclca
 summary(resclca)
 plot(resclca)
 
-#STOPS with pCLCA 
-respclca<-stops(dissm,loss="pclca",theta=c(1,1,1,1),
+#STOPS with spmds
+respclca<-stops(dissm,loss="spmds",theta=c(1,1,1,1),
 structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
 optimmethod="ALJ",itmax=7)
@@ -312,8 +359,8 @@ coef(respclca)
 summary(respclca)
 plot(respclca)
 
-#STOPS with CLDA in k 
-rescldak<-stops(dissm,loss="clda_k",theta=c(1,5),
+#STOPS with smdda and k 
+rescldak<-stops(dissm,loss="smdda_k",theta=c(1,5),
 structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.2,4),upper=c(4,20),
 optimmethod="pso",itmax=20)
@@ -321,9 +368,9 @@ rescldak
 summary(rescldak)
 plot(rescldak)
 
-#STOPS with CLDA in eps
+#STOPS with smdda in eps
 set.seed(123)
-rescldae<-stops(dissm,loss="clda_eps",theta=c(1,2),
+rescldae<-stops(dissm,loss="smdda_eps",theta=c(1,2),
 structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.2,1),upper=c(4,10),
 optimmethod="SANN",itmax=20,stoptype="multiplicative")
@@ -331,8 +378,8 @@ rescldae
 summary(rescldae)
 plot(rescldae)
 
-#STOPS with pCLDA with k (five parameters already..)
-respcldak<-stops(dissm,loss="pclda_k",theta=c(1,1,1,1,5),
+#STOPS with spmdda with k (five parameters already..)
+respcldak<-stops(dissm,loss="spmdda_k",theta=c(1,1,1,1,5),
 structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,4),upper=c(5,5,5,5,20),
 optimmethod="tgp",itmax=10)
@@ -340,9 +387,9 @@ respcldak
 summary(respcldak)
 plot(respcldak)
 
-#STOPS with pCLDA with eps (five parameter already..)
+#STOPS with spmdda with eps (five parameter already..)
 set.seed(123)
-respcldae<-stops(dissm,loss="pclda_eps",theta=c(1,1,1,1,2),
+respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
 structures=structures,strucpars=strucpars,
 strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
 optimmethod="tgp",itmax=20)
@@ -350,6 +397,24 @@ respcldae
 summary(respcldae)
 plot(respcldae)
 
+#STOPS with clca 
+set.seed(123)
+resclca<-stops(dissm,loss="clca",theta=c(1),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=0.1,upper=5)
+resclca
+summary(resclca)
+plot(resclca)
+
+#STOPS with clda with eps 
+set.seed(123)
+respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
+structures=structures,strucpars=strucpars,
+strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
+optimmethod="tgp",itmax=20)
+respcldae
+summary(respcldae)
+plot(respcldae)
 }
 data(kinshipdelta,package="smacof")
 strucpar<-list(NULL,NULL) #parameters for indices

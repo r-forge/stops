@@ -1,10 +1,18 @@
+Version 1.3-0
+
+- Added stop_clca and stop_clda hat work with smacofx.
+
+Version 1.3-0
+
+- Changed all clca models to spmds style models (makes more sense) but these are experimental models still. Added stop_clca.
+
 Version 1.2-0
 
 - Added stop_clca, stop_pclca, and stop_clda, stop_pclda in an epsilon and k version. 
 
 Version 1.1-1
 
-- Finished moving to smacofx as the workhorse. Added tests. Checks work.
+- Finished moving to smacofx as the workhorse (so all stand-alone are now in smacofx and only stop_xxx are here). Added tests. Checks work.
 
 Version 1.1-0
 
@@ -12,7 +20,7 @@ Version 1.1-0
 
 Version 1.0-6
 
-- Added curvilinear component analysis. Updated bcmds to give back a smacofP object and updated doc.
+- Added a curvilinear component analysis (clca). Updated bcmds to give back a smacofP object and updated doc.
 
 Version 1.0-5
 

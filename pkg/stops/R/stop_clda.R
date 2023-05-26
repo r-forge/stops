@@ -1,10 +1,10 @@
 
-#' STOPS version of curvilinear distances analysis for fixed k and tau
+#' STOPS version of CLDA with free k.
 #'
-#' CLDA with free parameters tau and k.
+#' CLDA with free lambda0 and k and 20 epochs. Should we add alpha0?
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of explicit parameters; first is tau for the neighbourhood, second is k. Defaults to 100, 10.
+#' @param theta the theta vector of explicit parameters; first is lambda0 for the maximal neighbourhood and second is k for the number of neighbours for the geodesic distance. 
 #' @param type MDS type. 
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -30,20 +30,18 @@
 #' }
 #' @keywords multivariate
 #' @export
-stop_cldak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>4) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<2) theta <- rep(theta,length.out=2)
-  tau <- theta[1]
-  k <- theta[2]
+  if(length(theta)<4) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,tau=tau,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$tau <- tau
-  fit$k <- k
+  fit <- smacofx::clda(delta=dis,lambda0=theta[1],k=theta[2],Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit$lambda0 <- theta[1]
+  fit$k <- theta[2]
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
@@ -51,12 +49,12 @@ stop_cldak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(di
 }
 
 
-#' STOPS version of curvilinear distances analysis for fixed tau and epsilon 
+#' STOPS version of CLDA with free epsilon.
 #'
-#' CLDA with free parameters tau and epsilon.
+#' CLDA with free lambda0 and epsilon and 20 epochs. Should we add alpha0?
 #'
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of explicit parameters; first is tau for the neighboourhood, second is epsilon for isomapdist. Defaults to 100, 100.
+#' @param theta the theta vector of explicit parameters; first is lambda0 for the maximal neighbourhood and second is k for the number of neighbours for the geodesic distance. 
 #' @param type MDS type. 
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
@@ -82,20 +80,18 @@ stop_cldak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(di
 #' }
 #' @keywords multivariate
 #' @export
-stop_cldae <- function(dis,theta=c(100,100),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>4) stop("There are too many parameters in the theta argument.")
-  if(length(theta)<2) theta <- rep(theta,length.out=2)
-  tau <- theta[1]
-  epsilon <- theta[2]
+  if(length(theta)<4) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,tau=tau,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$tau <- tau
-  fit$epsilon <- epsilon
+  fit <- smacofx::clda(delta=dis,lambda0=theta[1],epsilon=theta[2],Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit$lambda0 <- theta[1]
+  fit$k <- theta[2]
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)

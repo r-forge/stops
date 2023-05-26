@@ -19,6 +19,7 @@
 #' \item loss="isomap_k": One parameter theta, k neighborhood for geodesic distances. Via stop_isomap1.
 #' \item loss="isomap_eps": One parameter theta, epsilon neighborhood for geodesic distances. Via stop_isomap2.
 #' \item loss="smds": One parameter theta, neighborhood parameter tau. Via stop_smds.
+#' \item loss="clca": One parameter theta, neighborhood parameters lambda0. Via stop_clca.
 #' \item loss="powerelastic": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powerelastic.
 #' \item loss="powersammon": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powersammon.
 #' \item loss="powermds": Two parameter theta, power transformations of dissimilarities and fitted distances. Via stop_powermds.
@@ -26,12 +27,15 @@
 #' \item loss="smdda_k": Two parameter theta, neighborhood parameters k (geodesic distance) and tau. Via stop_smmdak.
 #' \item loss="smdda_eps": Two parameter theta, neighborhood parameters eps (geodesic distance) and tau. stop_smddae.
 #' \item loss="lmds": Two parameter theta, neighbourhood parameters tau and k. Via stop_lmds.
+#' \item loss="clda_eps": Two parameter theta, neighborhood parameters lambda0 and epsilon (geodesic distance). Via stop_cldae.
+#' \item loss="clda_k": Two parameter theta, neighborhood parameters lambda0 and k (geodesic distance). Via stop_cldak.
 #' \item loss="powerstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_powerstress.
 #' \item loss="bcmds": Three parameter theta, Box-Cox transformations of dissimilarities, fitted distances and weights. Via stop_bcmds. 
 #' \item loss="apstress": Three parameter theta, power transformations of dissimilarities, fitted distances and weights. Via stop_apstress.
 #' \item loss="spmds": Four parameter theta, power transformations of dissimilarities, fitted distances and weights and neighborhood parametr tau. Via stop_spmds.
 #' \item loss="spmdda_k": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters k (geodesic distance) and tau. Via stop_spmddak.
-#' \item loss="spmdda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_spmddae. 
+#' \item loss="spmdda_eps": Five parameter theta, power transformations for dissimilarities, fitted distances and weights and neighborhood parameters eps (geodesic distance) and tau. Via stop_spmddae.
+#' }
 #' }
 #'
 #' Structuredness Indices:
@@ -294,7 +298,25 @@
 #' respcldae
 #' summary(respcldae)
 #' plot(respcldae)
-#' 
+#'
+#' #STOPS with clca 
+#' set.seed(123)
+#' resclca<-stops(dissm,loss="clca",theta=c(1),
+#' structures=structures,strucpars=strucpars,
+#' strucweight=strucweight,lower=0.1,upper=5)
+#' resclca
+#' summary(resclca)
+#' plot(resclca)
+#'
+#' #STOPS with clda with eps 
+#' set.seed(123)
+#' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
+#' structures=structures,strucpars=strucpars,
+#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
+#' optimmethod="tgp",itmax=20)
+#' respcldae
+#' summary(respcldae)
+#' plot(respcldae)
 #' }
 #' @docType package
 #' @name stops
