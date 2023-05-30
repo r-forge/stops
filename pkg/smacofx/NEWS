@@ -1,3 +1,7 @@
+Version 0.6-2
+
+- Changed init=Null handling in the sparsified models. We now fit an rstress model instead of torgerson (more useful since we cut off based on fitted distances).
+
 Version 0.6-1
 
 - Added new clca and clda that wrap ProjectionBasedClustering::CCA as works horse.    

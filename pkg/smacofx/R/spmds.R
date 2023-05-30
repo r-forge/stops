@@ -12,7 +12,7 @@
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights. 
-#' @param init starting configuration
+#' @param init starting configuration. If NULL (default) we fit a full rstress model.
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
@@ -53,8 +53,8 @@
 #' 
 #' @examples
 #' dis<-smacof::morse
-#' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.4,itmax=1000)
-#' res2<-smds(dis,type="interval",tau=0.4,itmax=1000)
+#' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.35,itmax=1000)
+#' res2<-smds(dis,type="interval",tau=0.35,itmax=1000)
 #' res
 #' res2
 #' summary(res)
@@ -64,7 +64,7 @@
 #' par(mfrow=c(1,1))
 #'
 #' ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
-#' res$tweighmat
+#' res$tweightmat
 #' res2$tweightmat
 #'
 #' \dontrun{
@@ -135,7 +135,7 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     itel <- 1
     ##Starting Configs
     xold  <- init
-    if(is.null(init)) xold <- smacof::torgerson (delta, p = p)
+    if(is.null(init)) xold <- smacofx::rStressMin (delta,r=kappa/2,type=type,ties=ties,weightmat=weightmat,ndim=ndim,init=init,itmax=itmax,principal=principal)$conf
     xstart <- xold
     xold <- xold / enorm (xold) 
     nn <- diag (n)
@@ -179,7 +179,6 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
       ## test this 
       weightmat[!is.finite(weightmat)] <- 0
       weightmat[sqrt(dnew)>tau] <- 0
-      ## This works because b*x majorizes a*x for b>a and x>0. So if we set a weight to 0 and never change it back, this algorithm majorizes the CCA objective.     
       ##optimal scaling
       e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
       dhat2 <- smacof::transform(e, disobj, w = as.dist(weightmat), normq = normi)  ## dhat update
