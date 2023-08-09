@@ -50,7 +50,7 @@ Authors: Thomas Rusch, Jan de Leeuw, Lisha Chen, Patrick Mair
 Maintainer: Thomas Rusch
 }
 \examples{
-\donttest{
+\dontrun{
 data(BankingCrisesDistances)
 
 res<-rStressMin(BankingCrisesDistances[,1:69],type="ordinal",r=2)

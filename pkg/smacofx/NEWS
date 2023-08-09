@@ -1,6 +1,10 @@
+Version 0.6-3
+
+- Updated examples for permtest to be <5s. Updated Description.
+
 Version 0.6-2
 
-- Changed init=Null handling in the sparsified models. We now fit an rstress model instead of torgerson (more useful since we cut off based on fitted distances).
+- Changed init=NULL handling in the sparsified models. We now fit an rstress model instead of torgerson (more useful since we cut off based on fitted distances).
 
 Version 0.6-1
 

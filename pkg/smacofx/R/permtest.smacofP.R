@@ -40,26 +40,24 @@
 #' @examples
 #' ##see ?smacof::permtest for more
 #' ## permuting the dissimilarity matrix (full)
-#' data(kinshipdelta)
-#' fitkin <- rStressMin(kinshipdelta, ndim = 2, r=0.5,itmax=100) #use higher itmax
+#' #' data(kinshipdelta)
+#' fitkin <- rStressMin(kinshipdelta, ndim = 2, r=0.5,itmax=10) #use higher itmax
 #' set.seed(222)
 #' res.perm <- permtest(fitkin,nrep=5) #use higher nrep in reality
 #' res.perm
 #' plot(res.perm)
-#' 
 #' ## permuting the data matrix
 #' GOPdtm[GOPdtm > 1] <- 1     ## use binary version
 #' diss1 <- dist(t(GOPdtm[,1:10]), method = "binary")  ## Jaccard distance
-#' fitgop1 <- alscal(diss1,type="interval")
+#' fitgop1 <- alscal(diss1,type="interval",itmax=10) #use higher itmax
 #' fitgop1
 #' set.seed(123)
 #' permtest(fitgop1, GOPdtm[,1:10], nrep = 5, method.dat = "binary")
-#' 
 permtest.smacofP <- function(object, data, method.dat = "pearson", nrep = 100, verbose = FALSE, ...)
 {
     if(any(class(object)=="smacof"))
     {
-       class(object) <- c("smacof",class(object))
+     class(object) <- c("smacof",class(object))
     } else stop("MDS object must inherit from smacof.")
     out <- smacof::permtest(object,data=data,method.dat=method.dat,nrep=nrep,verbose=verbose,...)
     class(object) <- class(object)[-1]
