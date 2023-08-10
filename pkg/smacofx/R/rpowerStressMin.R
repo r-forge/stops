@@ -1,7 +1,7 @@
 
 #' Restricted Power Stress SMACOF
 #'
-#' An implementation to minimize restricted power stress by majorization with ratio or interval optimal scaling. Restricted means that the same power is used for both dissimilarities and fitted distances. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
+#' An implementation to minimize restricted power stress by majorization with ratio or interval optimal scaling. Restricted means that the same power is used for both dissimilarities and fitted distances. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param expo power of the transformation of the fitted distances and dissimilarities; defaults to 1
@@ -13,9 +13,9 @@
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
-#' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
+#' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #'
-#' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized

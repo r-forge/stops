@@ -36,7 +36,7 @@ icExploreGen(
 \item{verbose}{If >0 prints the fitting progress.}
 }
 \value{
-an object of class icexplore, see \code{\link[smacof]{icExplore}} for more. There is a plot method in samcof.
+an object of class 'icexplore', see \code{\link[smacof]{icExplore}} for more. There is a plot method in package 'smacof'.
 }
 \description{
 Allows to user to explore the effect of various starting configurations when fitting an MDS model. This is a bit more general than the icExplore function in smacof, as we allow any PS model to be used as the model is either setup by call or by a prefitted object (for the models in cops and stops we do not have a single UI function which necessitates this). Additionally, one can supply their own configurations and not just random ones.

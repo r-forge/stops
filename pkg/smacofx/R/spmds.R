@@ -20,7 +20,7 @@
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #' @param epochs for 'so_spmds' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.
 #'
-#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized
@@ -53,8 +53,8 @@
 #' 
 #' @examples
 #' dis<-smacof::morse
-#' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.35,itmax=1000)
-#' res2<-smds(dis,type="interval",tau=0.35,itmax=1000)
+#' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.35,itmax=100) #use higher itmax
+#' res2<-smds(dis,type="interval",tau=0.35,itmax=500) #use higher itmax
 #' res
 #' res2
 #' summary(res)
@@ -68,7 +68,7 @@
 #' res2$tweightmat
 #'
 #' \dontrun{
-#' ## Self-organizing map style (as in the original publication)
+#' ## Self-organizing map style (as in the clca publication)
 #' #run the som-style (p)smds 
 #' sommod1<-so_spmds(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
 #' sommod2<-so_smds(dis,tau=0.2,epochs=20,verbose=1)

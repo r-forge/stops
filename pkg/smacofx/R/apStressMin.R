@@ -1,6 +1,6 @@
 #' Approximate Power Stress SMACOF
 #'
-#' An implementation to minimize power stress by majorization with ratio or interval optimal scaling. Usually more accurate but slower than powerStressFast. Uses a repeat loop.
+#' An implementation to minimize power stress by majorization with ratio or interval optimal scaling. Usually more accurate but slower than 'powerStressFast'. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param kappa power of the transformation of the fitted distances; defaults to 1
@@ -13,9 +13,9 @@
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
-#' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
+#' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #'
-#' @return a smacofP object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized

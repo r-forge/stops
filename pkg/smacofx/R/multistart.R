@@ -17,7 +17,7 @@
 #'
 #' One can simply extract $best and save that and work with it right away.
 #' 
-#' @return if return.all=FALSE, a list with the best fitted model as $best (minimal badness-of-fit of all fitted models) and $stresvec the tresses of all models. If return.all=TRUE a list with slots
+#' @return if 'return.all=FALSE', a list with the best fitted model as '$best' (minimal badness-of-fit of all fitted models) and '$stressvec' the stresses of all models. If 'return.all=TRUE' a list with slots
 #' \itemize{
 #' \item best: The object resulting from the fit that had the overall lowest objective function value (usually stress)
 #' \item stressvec: The vector of objective function values

@@ -46,7 +46,7 @@
 #'
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(BankingCrisesDistances)
 #'
 #' res<-rStressMin(BankingCrisesDistances[,1:69],type="ordinal",r=2)

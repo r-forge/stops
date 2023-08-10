@@ -16,7 +16,7 @@
 #' If no configuration list is supplied, then nrep configurations are simulated. They are drawn from a ndim-dimensional uniform distribution with minimum min and maximum max. We recommend to use the route via supplying a fitted model as these are typically starting from a Torgerson configuration and are likely quite good.    
 #'
 #' @export
-#' @return an object of class icexplore, see \code{\link[smacof]{icExplore}} for more. There is a plot method in samcof. 
+#' @return an object of class 'icexplore', see \code{\link[smacof]{icExplore}} for more. There is a plot method in package 'smacof'. 
 #'
 #' @importFrom smacof Procrustes sim2diss mds
 #' @importFrom stats cor runif

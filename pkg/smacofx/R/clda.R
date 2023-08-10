@@ -20,7 +20,7 @@
 #' @param path Method used in 'stepacross' to estimate the shortest path, with alternatives '"shortest"' and '"extended"'.
 #' @param fragmentedOK  What to do if dissimilarity matrix is fragmented. If 'TRUE', analyse the largest connected group, otherwise stop with error.
 #'
-#' @return a smacofP object. It is a list with the components
+#' @return a 'smacofP' object. It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized

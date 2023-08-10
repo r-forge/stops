@@ -74,7 +74,7 @@
 #'@param verbose should adjustment be output; default to FALSE
 #'@param eps numerical accuracy
 #'@param itmax maximum number of iterations
-#'@return a list with ref.conf being the reference configuration, other.conf the adjusted coniguration and comparison.conf the comparison configuration
+#'@return a list with 'ref.conf' being the reference configuration, 'other.conf' the adjusted coniguration and 'comparison.conf' the comparison configuration
 #'@export
 conf_adjust<- function(conf1,conf2,verbose = FALSE,eps = 1e-12, itmax = 100)
  {

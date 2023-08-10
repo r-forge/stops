@@ -16,7 +16,7 @@ cmdscale(d, k = 2, eig = FALSE, ...)
 \item{...}{additional parameters passed to cmdscale. See \code{\link{cmdscale}}}
 }
 \value{
-Object of class "cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper always returns the results of cmdscale as a list, adds column labels to the $points and adds extra elements (conf=points, delta=d, confdist=dist(conf), dhat=d) and the call to the list, and assigns S3 class 'cmdscalex' and 'cmdscale'.
+Object of class 'cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper always returns the results of cmdscale as a list, adds column labels to the $points and adds extra elements (conf=points, delta=d, confdist=dist(conf), dhat=d) and the call to the list, and assigns S3 class 'cmdscalex' and 'cmdscale'.
 }
 \description{
 Wrapper to \code{cmdscale} for S3 class

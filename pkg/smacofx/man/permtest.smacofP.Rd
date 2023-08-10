@@ -27,7 +27,7 @@
 \item{...}{Additional arguments needed for dissimilarity computation as specified in \code{\link[smacof]{sim2diss}}.}
 }
 \value{
-An object of class smacofPerm, see \code{\link[smacof]{permtest}} for details and methods. It has values
+An object of class 'smacofPerm', see \code{\link[smacof]{permtest}} for details and methods. It has values
 \itemize{
 \item stressvec: Vector containing the stress values of the permutation samples
 \item stress.obs: Stress (observed sample) 
@@ -43,7 +43,7 @@ Performs a permutation test on an MDS solution. It works with a smacofP object a
 \details{
 This routine permutes m dissimilarity values, where m is the number of lower diagonal
 elements in the corresponding dissimilarity matrix. For each sample a symmetric, nonmetric SMACOF of
-dimension ‘ndim’ is computed and the stress values are stored in ‘stressvec’. Using the fitted
+dimension 'ndim' is computed and the stress values are stored in ‘stressvec’. Using the fitted
 stress value, the p-value is computed. Subsequently, the empirical cumulative distribution function
 can be plotted using the plot method.
 
@@ -52,7 +52,7 @@ this matrix can be passed to the ‘permtest’ function.
 Consequently, the data matrix is subject to permutations. The
 proximity measure used for MDS fit has to match the one used for
 the permutation test. If a correlation similarity is provided, it
-is converted internally into a dissimilarity using ‘sim2diss’ with
+is converted internally into a dissimilarity using 'sim2diss' with
 corresponding arguments passed to the ... argument.
 }
 \examples{

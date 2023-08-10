@@ -25,12 +25,12 @@
 
 \item{alpha}{Alpha level for condfidence ellipsoids.}
 
-\item{verbose}{If ‘TRUE’, bootstrap index is printed out.}
+\item{verbose}{If 'TRUE', bootstrap index is printed out.}
 
 \item{...}{Additional arguments needed for dissimilarity computation as specified in \code{\link[smacof]{sim2diss}}.}
 }
 \value{
-An object of class smacofboot, see \code{\link[smacof]{bootmds}}. With values 
+An object of class 'smacofboot', see \code{\link[smacof]{bootmds}}. With values 
 \itemize{
 \item cov: Covariances for ellipse computation
 \item bootconf: Configurations bootstrap samples

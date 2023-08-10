@@ -5,11 +5,11 @@
 #' @param object  Object of class smacofP if used as method or another object inheriting from smacofB (needs to be called directly as bootmds.smacofP then).
 #' @param eps Convergence criterion
 #' @param itmax Maximum number of iterations 
-#' @param verbose If ‘TRUE’, intermediate stress is printed out.
+#' @param verbose If 'TRUE', intermediate stress is printed out.
 #'
 #' @details  In order to examine the stability solution of an MDS, a Jackknife on the configurations can be performed (see de Leeuw & Meulman, 1986) and plotted. The plot shows the jackknife configurations which are connected to their centroid. In addition, the original configuration (transformed through Procrustes) is plotted. The Jackknife function itself returns also a stability measure (as ratio of between and total variance), a measure for cross validity, and the dispersion around the original smacof solution.
 #'
-#' @return An object of class smacofJK, see \code{\link[smacof]{jackmds}}. With values 
+#' @return An object of class 'smacofJK', see \code{\link[smacof]{jackmds}}. With values 
 #' \itemize{
 #' \item smacof.conf: Configurations
 #' \item jackknife.confboot: An array of n-1 configuration matrices for each Jackknife MDS solution

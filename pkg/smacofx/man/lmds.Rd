@@ -30,7 +30,7 @@ lmds(
 
 \item{verbose}{prints info if > 0 and progress if > 1.}
 
-\item{principal}{if TRUE If ‘TRUE’, principal axis transformation is applied to the final configuration}
+\item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
 }
 \value{
 an object of class 'lmds' (also inherits from 'smacofP'). See \code{\link{powerStressMin}}. It is a list with the components as in power stress

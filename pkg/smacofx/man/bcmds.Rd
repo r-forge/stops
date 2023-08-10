@@ -78,7 +78,7 @@ boxcoxmds(
 
 \item{addD0}{a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.}
 
-\item{principal}{If ‘TRUE’, principal axis transformation is applied to the final configuration}
+\item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
 }
 \value{
 an object of class 'bcmds' (also inherits from 'smacofP'). It is a list with the components

@@ -10,9 +10,9 @@
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
-#' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
+#' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #'
-#' @return a smacofB object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from smacofB, see \code{\link{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized

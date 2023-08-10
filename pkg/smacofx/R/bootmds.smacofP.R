@@ -7,12 +7,12 @@
 #' @param method.dat Dissimilarity computation used as MDS input. This must be one of "pearson", "spearman", "kendall", "euclidean", "maximum", "manhattan", "canberra", "binary".
 #' @param nrep Number of bootstrap replications.
 #' @param alpha Alpha level for condfidence ellipsoids.
-#' @param verbose If ‘TRUE’, bootstrap index is printed out.
+#' @param verbose If 'TRUE', bootstrap index is printed out.
 #' @param  ...  Additional arguments needed for dissimilarity computation as specified in \code{\link[smacof]{sim2diss}}.
 #'
 #' @details In order to examine the stability solution of an MDS, a bootstrap on the raw data can be performed. This results in confidence ellipses in the configuration plot. The ellipses are returned as list which allows users to produce (and further customize) the plot by hand. See \code{\link[smacof]{bootmds}} for more. 
 #'
-#' @return An object of class smacofboot, see \code{\link[smacof]{bootmds}}. With values 
+#' @return An object of class 'smacofboot', see \code{\link[smacof]{bootmds}}. With values 
 #' \itemize{
 #' \item cov: Covariances for ellipse computation
 #' \item bootconf: Configurations bootstrap samples

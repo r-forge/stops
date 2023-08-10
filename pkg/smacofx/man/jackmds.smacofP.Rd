@@ -13,10 +13,10 @@
 
 \item{itmax}{Maximum number of iterations}
 
-\item{verbose}{If ‘TRUE’, intermediate stress is printed out.}
+\item{verbose}{If 'TRUE', intermediate stress is printed out.}
 }
 \value{
-An object of class smacofJK, see \code{\link[smacof]{jackmds}}. With values 
+An object of class 'smacofJK', see \code{\link[smacof]{jackmds}}. With values 
 \itemize{
 \item smacof.conf: Configurations
 \item jackknife.confboot: An array of n-1 configuration matrices for each Jackknife MDS solution

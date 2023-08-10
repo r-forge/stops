@@ -7,7 +7,7 @@
 #' @param eig indicates whether eigenvalues should be returned. Defaults to TRUE. 
 #' @param ... additional parameters passed to cmdscale. See \code{\link{cmdscale}} 
 #'
-#' @return Object of class "cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper always returns the results of cmdscale as a list, adds column labels to the $points and adds extra elements (conf=points, delta=d, confdist=dist(conf), dhat=d) and the call to the list, and assigns S3 class 'cmdscalex' and 'cmdscale'.
+#' @return Object of class 'cmdscalex' and 'cmdscale' extending \code{\link{cmdscale}}. This wrapper always returns the results of cmdscale as a list, adds column labels to the $points and adds extra elements (conf=points, delta=d, confdist=dist(conf), dhat=d) and the call to the list, and assigns S3 class 'cmdscalex' and 'cmdscale'.
 #'
 #' @importFrom stats cmdscale as.dist dist
 #'

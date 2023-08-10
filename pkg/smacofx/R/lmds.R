@@ -9,7 +9,7 @@
 #' @param tau the penalty parameter (suggested to be in [0,1]) 
 #' @param itmax number of optimizing iterations, defaults to 5000.
 #' @param verbose prints info if > 0 and progress if > 1.
-#' @param principal if TRUE If ‘TRUE’, principal axis transformation is applied to the final configuration
+#' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #'
 #' @author Lisha Chen & Thomas Rusch
 #'

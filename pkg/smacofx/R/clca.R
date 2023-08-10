@@ -16,7 +16,7 @@
 #' @param method Distance calculation; currently not used.
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #'
-#' @return a smacofP object. It is a list with the components
+#' @return a 'smacofP' object. It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized

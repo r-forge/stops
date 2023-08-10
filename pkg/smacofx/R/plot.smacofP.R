@@ -270,7 +270,7 @@
 #' @importFrom stats loess lm predict coef
 #' @importFrom grDevices chull
 #'
-#' @return no return value; just plot for class 'smacofP' (see details)
+#' @return no return value; just plots for class 'smacofP' (see details)
 #' 
 #' @export
 #' 

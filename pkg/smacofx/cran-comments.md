@@ -1,67 +1,97 @@
 ## Test environments
-* local Linux Mint 19.2 install, R 4.2.1
+* local Linux Mint 19.2 install, R 4.3.1
 * win-builder (devel, release, oldrel)
 
-## R CMD check results (via devtools::check())
+## R CMD check results (via devtools::check() in devtools_2.4.5)
 There were no ERRORs or WARNINGs or NOTEs. 
 
 ## Win-builder results
 ## r-release, r-devel and r-oldrel
 There were no ERRORs or WARNINGs.
 
-There was one NOTE for r-release and r-devel.
+There was one NOTE for r-devel and r-oldrel.
 
       * checking CRAN incoming feasibility ... NOTE
-      	Maintainer: ‘Thomas Rusch <thomas.rusch@wu.ac.at>’
+Maintainer: 'Thomas Rusch <thomas.rusch@wu.ac.at>'
 
-       	Possibly misspelled words in DESCRIPTION:
-        Jaakola (7:1808)
+New submission
 
-The flagged word is an own name.
+Possibly misspelled words in DESCRIPTION:
+  ALSCAL (16:6)
+  Buja (20:16, 24:25, 25:23)
+  De (16:30, 18:36)
+  Demartines (26:6)
+  Groenen (18:46)
+  Herault (26:19)
+  Hornik (21:44, 23:20)
+  Leeuw (16:33, 18:39)
+  Lendasse (27:11)
+  MDS (10:49, 12:99, 15:16, 15:111, 18:31, 19:59, 20:11, 24:13, 25:11, 28:30, 28:54)
+  Mair (18:56, 21:37, 23:13)
+  Majorization (31:5)
+  Multiscale (15:5)
+  Rusch (21:30, 23:6)
+  Sammon (14:5, 14:21)
+  Swayne (20:23)
+  Takane (16:14)
+  Torgerson (13:42, 13:61)
+  Verleysen (27:22)
+  curvilinear (25:66, 26:63)
+  majorization (10:91)
+  proximities (29:93, 30:73)
+  sparsified (28:19, 28:38)
+
+
+The flagged words are all own names or acronyms that are explained in the text. Curvilinear, sparsified and proximities seem to be false positives. 
 
 There was one NOTE for r-release.
 
       * checking CRAN incoming feasibility ... NOTE
-      	Maintainer: ‘Thomas Rusch <thomas.rusch@wu.ac.at>’
-
-       	Possibly misspelled words in DESCRIPTION:
-        Jaakola (7:1808)
-
-	Found the following (possibly) invalid DOIs:
-  	DOI: 10.1111/j.2044-8317.1966.tb00367.x
-    	From: DESCRIPTION
-    	Status: Service Unavailable
-    	Message: 503
-
-The flagged word is an own name. The invalid DOI NOTE seems to be a false positive on CRAN's side. The DOI presents as valid and leads to the article in question, see https://bpspsychub.onlinelibrary.wiley.com/doi/10.1111/j.2044-8317.1966.tb00367.x 
-
-There was one NOTE for r-oldrel.
-
-* checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Thomas Rusch <thomas.rusch@wu.ac.at>'
 
-Possibly mis-spelled words in DESCRIPTION:
-  Buja (7:1413)
-  Groenen (7:602, 7:1340)
-  Hornik (7:191, 7:413, 7:1585, 7:1843)
-  Jaakola (7:1808)
-  Leeuw (7:1055, 7:1280, 7:1333)
-  Luus (7:1803)
-  MDS (7:93, 7:590, 7:846, 7:913, 7:1683)
-  Mair (7:184, 7:422, 7:1350, 7:1578, 7:1836)
-  Rusch (7:177, 7:406, 7:1571, 7:1829)
-  SMACOF (7:1044)
-  Sammon (7:1115, 7:1131, 7:1547)
-  Swayne (7:1420)
-  Takane (7:1261)
-  Torgerson (7:944, 7:963)
-  clusteredness (7:362)
-  de (7:1052, 7:1277, 7:1330)
-  majorizing (7:1013)
-  proximities (7:278)
+New submission
 
+Possibly misspelled words in DESCRIPTION:
+  ALSCAL (16:6)
+  Buja (20:16, 24:25, 25:23)
+  De (16:30, 18:36)
+  Demartines (26:6)
+  Groenen (18:46)
+  Herault (26:19)
+  Hornik (21:44, 23:20)
+  Leeuw (16:33, 18:39)
+  Lendasse (27:11)
+  MDS (10:49, 12:99, 15:16, 15:111, 18:31, 19:59, 20:11, 24:13, 25:11, 28:30, 28:54)
+  Mair (18:56, 21:37, 23:13)
+  Majorization (31:5)
+  Multiscale (15:5)
+  Rusch (21:30, 23:6)
+  Sammon (14:5, 14:21)
+  Swayne (20:23)
+  Takane (16:14)
+  Torgerson (13:42, 13:61)
+  Verleysen (27:22)
+  curvilinear (25:66, 26:63)
+  majorization (10:91)
+  proximities (29:93, 30:73)
+  sparsified (28:19, 28:38)
 
-The flagged words are own names, abbreviations (that are expanded) or technical terms. Proximities seems to be a false positive.
+Found the following (possibly) invalid DOIs:
+  DOI: 10.1080/10618600.2020.1869027
+    From: DESCRIPTION
+          DESCRIPTION
+    Status: Forbidden
+    Message: 403
+  DOI: 10.1111/j.2044-8317.1966.tb00367.x
+    From: DESCRIPTION
+    Status: Forbidden
+    Message: 403
+  DOI: 10.1198/jasa.2009.0111
+    From: DESCRIPTION
+    Status: Forbidden
+    Message: 403
+
+The flagged words are all own names or acronyms that are explained in the text. Curvilinear, sparsified and proximities seem to be false positives. The invalid DOI NOTE seem to be false positive on CRAN's side. The DOI presents as valid and leads to the article in question, see the URLs https://www.tandfonline.com/doi/full/10.1080/10618600.2020.1869027 https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/j.2044-8317.1966.tb00367.x https://www.tandfonline.com/doi/abs/10.1198/jasa.2009.0111.
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
