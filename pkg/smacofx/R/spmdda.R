@@ -68,16 +68,16 @@
 #' res2<-smdda(dis,type="interval",tau=0.4,epsilon=1,itmax=1000)
 #' res2
 #' summary(res)
-#' par(mfrow=c(1,2))
+#' oldpar<-par(mfrow=c(1,2))
 #' plot(res)
 #' plot(res2)
-#' par(mfrow=c(1,1))
+#' par(oldpar)
 #'
 #' ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
 #' res$tweighmat
 #' res2$tweightmat
 #'
-#' \dontrun{
+#' \donttest{
 #' ## Self-organizing map style (as in the original publication)
 #' #run the som-style (p)smdda 
 #' sommod1<-so_spmdda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=100,verbose=1)

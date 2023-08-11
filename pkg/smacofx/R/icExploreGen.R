@@ -1,4 +1,4 @@
-#' Exploring initial configurations in in agnostic way  
+#' Exploring initial configurations in an agnostic way  
 #'
 #' Allows to user to explore the effect of various starting configurations when fitting an MDS model. This is a bit more general than the icExplore function in smacof, as we allow any PS model to be used as the model is either setup by call or by a prefitted object (for the models in cops and stops we do not have a single UI function which necessitates this). Additionally, one can supply their own configurations and not just random ones.    
 #'
@@ -22,6 +22,7 @@
 #' @importFrom stats cor runif
 #' 
 #' @examples
+#'
 #' dis<-smacof::kinshipdelta
 #' 
 #' ## Version 1: Using a fitted object (recommended)
@@ -34,8 +35,6 @@
 #' resm<-icExploreGen(mdscall=c1,conflist=conflist,returnfit=TRUE)
 #'
 #' plot(resm)
-#' 
-#'
 #' 
 icExploreGen <- function(object, mdscall=NULL, conflist, nrep = 100, ndim, returnfit = FALSE, min=-5, max=5, verbose=FALSE) 
 {

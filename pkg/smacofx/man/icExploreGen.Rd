@@ -2,7 +2,7 @@
 % Please edit documentation in R/icExploreGen.R
 \name{icExploreGen}
 \alias{icExploreGen}
-\title{Exploring initial configurations in in agnostic way}
+\title{Exploring initial configurations in an agnostic way}
 \usage{
 icExploreGen(
   object,
@@ -45,6 +45,7 @@ Allows to user to explore the effect of various starting configurations when fit
 If no configuration list is supplied, then nrep configurations are simulated. They are drawn from a ndim-dimensional uniform distribution with minimum min and maximum max. We recommend to use the route via supplying a fitted model as these are typically starting from a Torgerson configuration and are likely quite good.
 }
 \examples{
+
 dis<-smacof::kinshipdelta
 
 ## Version 1: Using a fitted object (recommended)
@@ -57,7 +58,5 @@ c1 <- call("smds",delta=dis,tau=0.2,itmax=100)
 resm<-icExploreGen(mdscall=c1,conflist=conflist,returnfit=TRUE)
 
 plot(resm)
-
-
 
 }

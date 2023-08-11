@@ -58,20 +58,20 @@
 #' res
 #' res2
 #' summary(res)
-#' par(mfrow=c(1,2))
+#' oldpar<-par(mfrow=c(1,2))
 #' plot(res)
 #' plot(res2)
-#' par(mfrow=c(1,1))
+#' par(oldpar)
 #'
 #' ##which d_{ij}(X) exceeded tau at convergence (i.e., have been set to 0)?
 #' res$tweightmat
 #' res2$tweightmat
 #'
-#' \dontrun{
+#' \donttest{
 #' ## Self-organizing map style (as in the clca publication)
 #' #run the som-style (p)smds 
-#' sommod1<-so_spmds(dis,tau=0.2,kappa=0.5,lambda=2,epochs=20,verbose=1)
-#' sommod2<-so_smds(dis,tau=0.2,epochs=20,verbose=1)
+#' sommod1<-so_spmds(dis,tau=0.3,kappa=0.5,lambda=2,epochs=10,verbose=1)
+#' sommod2<-so_smds(dis,tau=0.3,epochs=10,verbose=1)
 #' sommod1
 #' sommod2
 #' }
