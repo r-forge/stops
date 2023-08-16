@@ -60,12 +60,12 @@
 #' 
 #' @examples
 #' dis<-smacof::morse
-#' res<-spmdda(dis,kappa=2,lambda=2,tau=0.4,k=5,itmax=1000)
+#' res<-spmdda(dis,kappa=2,lambda=2,tau=0.4,k=5,itmax=500) #use higher itmax
 #' res
 #' #already many parameters 
 #' coef(res)
 #'
-#' res2<-smdda(dis,type="interval",tau=0.4,epsilon=1,itmax=1000)
+#' res2<-smdda(dis,type="interval",tau=0.4,epsilon=1,itmax=500) #use higher itmax
 #' res2
 #' summary(res)
 #' oldpar<-par(mfrow=c(1,2))

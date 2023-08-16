@@ -24,19 +24,23 @@
 #'
 #'
 #' @importFrom smacof biplotmds
+#'
 #' 
 #' @examples
 #' ## see smacof::biplotmds for more
 #' res <- powerStressMin(morse,kappa=0.5,lambda=2)
 #' fitbi <- biplotmds(res, morsescales[,2:3])
 #' plot(fitbi, main = "MDS Biplot", vecscale = 0.03)
+#'
+#' @export
 #' 
 biplotmds.smacofP <- function(object,extvar,scale=TRUE)
 {
-    #klassi <- class(object)
+    oldclass <- class(object)
     class(object) <- class(object)[3]
     out <- smacof::biplotmds(object,extvar=extvar,scale=scale)
     out$conf <- object$conf
+    class(object) <- oldclass
     return(out)
 }
 
