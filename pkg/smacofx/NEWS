@@ -1,6 +1,18 @@
+Version 0.6-6
+
+- Fixed CRAN request: Exported biplotmds.smacofP. On CRAN now, first CRAN release.
+
+Version 0.6-5
+
+- Fixed CRAN requests: chnaged \donttrun to \donttest, added on.exit() when there were changes to par, for examples that changed par we reconstruct the original par.  
+
+Version 0.6-4
+
+- Tested and submitted to CRAN. 
+
 Version 0.6-3
 
-- Updated examples for permtest to be <5s. Updated DESCRIPTION and docs
+- Updated examples for permtest to be <5s. Updated DESCRIPTION and docs. 
 
 Version 0.6-2
 
