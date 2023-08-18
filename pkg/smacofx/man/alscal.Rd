@@ -2,7 +2,7 @@
 % Please edit documentation in R/alscal.R
 \name{alscal}
 \alias{alscal}
-\title{ALSCAL SMACOF}
+\title{ALSCAL - MDS via S-Stress Minimization}
 \usage{
 alscal(
   delta,
@@ -56,7 +56,7 @@ a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It 
 }
 }
 \description{
-An implementation to minimize s-stress by majorization with ratio and interval optimal scaling. Uses a repeat loo
+An implementation to minimize s-stress by majorization with ratio and interval optimal scaling.
 }
 \examples{
 dis<-smacof::kinshipdelta

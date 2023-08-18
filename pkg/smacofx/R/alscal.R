@@ -187,9 +187,9 @@
 ##     out
 ##   }
 
-#' ALSCAL SMACOF
+#' ALSCAL - MDS via S-Stress Minimization
 #'
-#' An implementation to minimize s-stress by majorization with ratio and interval optimal scaling. Uses a repeat loo
+#' An implementation to minimize s-stress by majorization with ratio and interval optimal scaling. 
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param type what type of MDS to fit. Currently one of "ratio" or "interval". Default is "ratio".
