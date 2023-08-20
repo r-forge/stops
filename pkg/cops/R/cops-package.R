@@ -34,9 +34,6 @@
 #' \item Rusch, T., Mair, P. & Hornik, K. (2021) Cluster optimized proximity scaling. Journal of Computational and Graphical Statistics. \doi{10.1080/10618600.2020.1869027}
 #' }
 #' 
-#'Authors: Thomas Rusch, Jan de Leeuw, Patrick Mair
-#'
-#'Maintainer: Thomas Rusch
 #'
 #'
 #' @examples
@@ -66,6 +63,6 @@
 #' plot(res,"transplot")
 #' plot(res,"Shepard")
 #'}
-#' @docType package
-#' @name cops
+#' @keywords internal 
+"_PACKAGE"
 NULL

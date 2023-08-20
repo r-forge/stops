@@ -54,9 +54,6 @@
 #' \item Rusch, T., Mair, P., & Hornik, K. (2023). Structure-based hyperparameter selection with Bayesian optimization in multidimensional scaling. Statistics & Computing, 33, [28]. https://doi.org/10.1007/s11222-022-10197-w
 #' }
 #' 
-#'Authors: Thomas Rusch, Patrick Mair, Kurt Hornik
-#'
-#'Maintainer: Thomas Rusch
 #'
 #'
 #' @examples
@@ -318,7 +315,7 @@
 #' summary(respcldae)
 #' plot(respcldae)
 #' }
-#' @docType package
-#' @name stops
+#' @keywords internal
+"_PACKAGE" 
 NULL
 
