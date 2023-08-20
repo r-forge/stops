@@ -40,10 +40,6 @@
 #' \item sammon... MASS::sammon but returns S3 objects to be used with smacof classes 
 #'}
 #'
-#'Authors: Thomas Rusch, Jan de Leeuw, Lisha Chen, Patrick Mair
-#'
-#'Maintainer: Thomas Rusch
-#'
 #'
 #' @examples
 #' \donttest{
@@ -64,6 +60,6 @@
 #' 
 #' 
 #'}
-#' @docType package
-#' @name smacofx
+#' @keywords internal
+"_PACKAGE"
 NULL

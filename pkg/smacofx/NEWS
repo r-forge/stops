@@ -1,6 +1,6 @@
 Version 1.0-0
 
-- Fixed some docs and set numbering to start at 1. 
+- Fixed some docs and set numbering to start at 1.0-0. Fixed roxygen @docType change from here https://github.com/r-lib/roxygen2/issues/1491. 
 
 Version 0.6-6
 
