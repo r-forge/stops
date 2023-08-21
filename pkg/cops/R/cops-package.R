@@ -63,6 +63,7 @@
 #' plot(res,"transplot")
 #' plot(res,"Shepard")
 #'}
-#' @keywords internal 
+#' @keywords internal
+#' @aliases cops-package
 "_PACKAGE"
 NULL

@@ -316,6 +316,7 @@
 #' plot(respcldae)
 #' }
 #' @keywords internal
+#' @aliases stops-package
 "_PACKAGE" 
 NULL
 
