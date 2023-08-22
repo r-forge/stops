@@ -56,10 +56,9 @@
 #' msres<- multistart(res)
 #'
 #' res2<-msres$best
-#' permtest(res2
-#' 
-#' 
+#' permtest(res2)
 #'}
 #' @keywords internal
+#' @aliases smacofx-package 
 "_PACKAGE"
 NULL
