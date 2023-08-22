@@ -54,18 +54,19 @@
 #' res1
 #' 
 #' \donttest{
+#' #use higher itmax in general, we use 5 just to shorten the tests
 #' data(BankingCrisesDistances)
 #' strucpar<-list(c(epsilon=10,minpts=2),NULL) #parameters for indices
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cclusteredness","clinearity"),strucpars=strucpar,
-#' lower=0,upper=10)
+#' lower=0,upper=10,itmax=5)
 #' res1
 #'
 #' strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
 #' list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
 #' res1<-stops(BankingCrisesDistances[,1:69],loss="stress",verbose=0,
 #' structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,
-#' lower=0,upper=10)
+#' lower=0,upper=10,itmax=5)
 #' res1
 #' }
 #' 

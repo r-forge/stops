@@ -88,9 +88,10 @@
 #'
 #' \donttest{
 #' #STOPS with stress or smacofSym
+#' im<-2 #this is the itmax argument used for testing; use higher itmax in practice 
 #' resstress<-stops(dissm,loss="stress",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' resstress
 #' summary(resstress)
 #' plot(resstress)
@@ -99,7 +100,7 @@
 #' #STOPS with smacofSphere
 #' ressph<-stops(dissm,loss="smacofSphere",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' ressph
 #' summary(ressph)
 #' plot(ressph)
@@ -107,7 +108,7 @@
 #' #STOPS with sammon
 #' ressam<-stops(dissm,loss="sammon",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' ressam
 #' summary(ressam)
 #' plot(ressam)
@@ -116,7 +117,7 @@
 #' #STOPS with sammon2
 #' ressam<-stops(dissm,loss="sammon2",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' ressam
 #' summary(ressam)
 #' plot(ressam)
@@ -125,7 +126,7 @@
 #' #STOPS with elastic 
 #' ressam<-stops(dissm,loss="elastic",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' ressam
 #' summary(ressam)
 #' plot(ressam)
@@ -134,7 +135,7 @@
 #' #STOPS with sstress
 #' resss<-stops(dissm,loss="sstress",theta=1,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5)
+#' strucpars=strucpars,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' resss
 #' summary(resss)
 #' plot(resss)
@@ -145,7 +146,7 @@
 #' respstress<-stops(dissm,loss="powerstress",
 #' structures=structures,theta=c(1,1,1),
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5),itmax=im)
 #' respstress
 #' summary(respstress)
 #' plot(respstress)
@@ -154,7 +155,7 @@
 #' respstressr<-stops(dissm,loss="powerstress",theta=c(1,1),
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),itmax=im)
 #' respstressr
 #' summary(respstressr)
 #' plot(respstressr)
@@ -163,7 +164,7 @@
 #' respmds<-stops(dissm,loss="powermds",
 #' structures=structures,theta=c(1,1),
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),itmax=im)
 #' respmds
 #' summary(respmds)
 #' plot(respmds)
@@ -172,7 +173,7 @@
 #' respmds<-stops(dissm,loss="powersammon",theta=c(1,1),
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5),upper=c(5,5),itmax=im)
 #' respmds
 #' summary(respmds)
 #' plot(respmds)
@@ -181,7 +182,7 @@
 #' respmds<-stops(dissm,loss="powerelastic",theta=c(1,1),
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5),itmax=im)
 #' respmds
 #' summary(respmds)
 #' plot(respmds)
@@ -190,7 +191,7 @@
 #' resr<-stops(dissm,loss="rstress",type="ordinal",theta=1,
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,
-#' itmaxps=1000,optimmethod="ALJ",lower=0.5,upper=5)
+#' itmaxps=1000,optimmethod="ALJ",lower=0.5,upper=5,itmax=im)
 #' resr
 #' summary(resr)
 #' plot(resr)
@@ -199,7 +200,7 @@
 #' respstressa<-stops(dissm,loss="powerstress",
 #' structures=structures,
 #' strucpars=strucpars,weightmat=dissm,theta=c(1,1,1),
-#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5))
+#' itmaxps=1000,optimmethod="ALJ",lower=c(0.5,0.5,1),upper=c(5,5,5),itmax=im)
 #' respstressa
 #' summary(respstressa)
 #' plot(respstressa,"transplot")
@@ -207,7 +208,7 @@
 #' #STOPS with bcmds
 #' resbcstress<-stops(dissm,loss="bcmds",
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=c(0.5,1,0.5),upper=c(5,5,5))
+#' strucpars=strucpars,optimmethod="ALJ",lower=c(0.5,1,0.5),upper=c(5,5,5),itmax=im)
 #' resbcstress
 #' summary(resbcstress)
 #' plot(resbcstress)
@@ -215,7 +216,7 @@
 #' #STOPS with lmds
 #' reslmds<-stops(dissm,loss="lmds",theta=c(1,1),
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(5,1))
+#' strucpars=strucpars,optimmethod="ALJ",lower=c(2,0),upper=c(5,1),itmax=im)
 #' reslmds
 #' summary(reslmds)
 #' plot(reslmds)
@@ -223,7 +224,7 @@
 #' #STOPS with Isomap (the k version)
 #' resiso2<-stops(dissm,loss="isomap",theta=5,
 #' structures=structures,
-#' strucpars=strucpars,optimmethod="ALJ",lower=3,upper=10)
+#' strucpars=strucpars,optimmethod="ALJ",lower=3,upper=10,itmax=im)
 #' resiso2
 #' summary(resiso2)
 #' plot(resiso2)
@@ -232,7 +233,7 @@
 #' resiso<-stops(dissm,loss="isomapeps",
 #' structures=structures,
 #' theta=40,
-#' strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120)
+#' strucpars=strucpars,optimmethod="ALJ",lower=50,upper=120,itmax=im)
 #' resiso
 #' summary(resiso)
 #' plot(resiso)
@@ -243,7 +244,7 @@
 #' resclca<-stops(dissm,loss="smds",theta=0.3,
 #' structures=structures, strucpars=strucpars,
 #' strucweight=strucweight,lower=0.1,upper=5,
-#' optimmethod="pso",itmax=20)
+#' optimmethod="pso",itmax=im*4)
 #' resclca
 #' summary(resclca)
 #' plot(resclca)
@@ -252,7 +253,7 @@
 #' respclca<-stops(dissm,loss="spmds",theta=c(1,1,1,1),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1),upper=c(5,5,5,5),
-#' optimmethod="ALJ",itmax=7)
+#' optimmethod="ALJ",itmax=im)
 #' respclca
 #' coef(respclca)
 #' summary(respclca)
@@ -262,7 +263,7 @@
 #' rescldak<-stops(dissm,loss="smdda_k",theta=c(1,5),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.2,4),upper=c(4,20),
-#' optimmethod="pso",itmax=20)
+#' optimmethod="pso",itmax=im*4)
 #' rescldak
 #' summary(rescldak)
 #' plot(rescldak)
@@ -272,7 +273,7 @@
 #' rescldae<-stops(dissm,loss="smdda_eps",theta=c(1,2),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.2,1),upper=c(4,10),
-#' optimmethod="SANN",itmax=20,stoptype="multiplicative")
+#' optimmethod="SANN",itmax=10*im,stoptype="multiplicative")
 #' rescldae
 #' summary(rescldae)
 #' plot(rescldae)
@@ -281,7 +282,7 @@
 #' respcldak<-stops(dissm,loss="spmdda_k",theta=c(1,1,1,1,5),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,4),upper=c(5,5,5,5,20),
-#' optimmethod="tgp",itmax=10)
+#' optimmethod="tgp",itmax=im)
 #' respcldak
 #' summary(respcldak)
 #' plot(respcldak)
@@ -291,7 +292,7 @@
 #' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
-#' optimmethod="tgp",itmax=20)
+#' optimmethod="tgp",itmax=im)
 #' respcldae
 #' summary(respcldae)
 #' plot(respcldae)
@@ -300,7 +301,7 @@
 #' set.seed(123)
 #' resclca<-stops(dissm,loss="clca",theta=c(1),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=0.1,upper=5)
+#' strucweight=strucweight,lower=0.1,upper=5,itmax=im)
 #' resclca
 #' summary(resclca)
 #' plot(resclca)
@@ -310,7 +311,7 @@
 #' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
 #' structures=structures,strucpars=strucpars,
 #' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
-#' optimmethod="tgp",itmax=20)
+#' optimmethod="tgp",itmax=im)
 #' respcldae
 #' summary(respcldae)
 #' plot(respcldae)
