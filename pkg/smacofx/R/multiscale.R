@@ -79,7 +79,7 @@
 ##     deltaorig <- delta
 ##     delta <- log(delta) #The multiscale dissimilarities 
 ##     diag(delta) <- 0 #making main diagonal 0.
-##     if(any(delta)<0) stop("Nonnegative dhats after log transformation. Input different dissimilarities.\n")
+##     if(any(delta<0)) stop("Nonnegative dhats after log transformation. Input different dissimilarities.\n")
 ##     #weightmato <- weightmat
 ##     #weightmat <- weightmat^nu
 ##     weightmat[!is.finite(weightmat)] <- 1
@@ -194,7 +194,7 @@
 
 #' Multiscale SMACOF
 #'
-#' An implementation for maximum likelihood MDS aka multiscale that minimizes the multiscale stress by majorization with ratio and interval optimal scaling. Uses a repeat loop.
+#' An implementation for maximum likelihood MDS aka multiscale that minimizes the multiscale stress by majorization with ratio and interval optimal scaling. Uses a repeat loop. Note that since this done via the route of r-sytress, the multiscale stress is approximate and only accuarte for kappa->0.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances. Warning: these will get transformed to the log scale, so make sure that log(delta)>=0.    
 #' @param type what optimal scaling type of MDS to fit. Currently one of "ratio" or "interval". Default is "ratio". 
@@ -278,7 +278,7 @@ multiscale <- function (delta, type=c("ratio","interval"), weightmat, init=NULL,
     deltaorig <- delta
     delta <- log(delta) #The multiscale dissimilarities 
     diag(delta) <- 0 #making main diagonal 0.
-    if(any(delta)<0) stop("Nonnegative delta after log transformation. Input different dissimilarities.\n")
+    if(any(delta<0)) stop("Nonnegative delta after log transformation. Input different dissimilarities.\n")
     #weightmato <- weightmat
     #weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0
