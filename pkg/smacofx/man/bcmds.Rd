@@ -66,7 +66,7 @@ boxcoxmds(
 
 \item{lambda}{lambda parameter. Must be larger than 0.}
 
-\item{rho}{the rho parameter, power for the weights (the easiest).}
+\item{rho}{the rho parameter, power for the weights (called nu in the original article).}
 
 \item{ndim}{the dimension of the configuration}
 

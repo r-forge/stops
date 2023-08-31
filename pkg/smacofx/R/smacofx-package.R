@@ -22,7 +22,7 @@
 #' \item pclca ... power curvilinear component analysis with ratio, interval, ordinal optimal scaling
 #' \item smdda ... sparsified multidimensional distance analsysis with ratio interval scaling (this is smds with Isomap distances) 
 #' \item spmdda ... sparsified power multidimensional distance analsysis with ratio interval scaling (this is spmds with Isomap distances)  
-#' \itme smds ... sparsified multidimensional scaling with ratio interval scaling (inspired by CLCA, so fitted distances larger than tau are weighted with 0)
+#' \item smds ... sparsified multidimensional scaling with ratio interval scaling (inspired by CLCA, so fitted distances larger than tau are weighted with 0)
 #' \item spmds ... sparsified multidimensional scaling with ratio interval scaling (inspired by CLCA, so fitted distances larger than tau are weighted with 0)
 #' }
 #'
@@ -32,12 +32,12 @@
 
 #' Wrappers and convenience functions for the model objects:
 #' \itemize{
-#' \item bootmds ... bootstrapping and MDS model
+#' \item bootmds ... Bootstrapping an MDS model
 #' \item biplotmds ... MDS Biplots
 #' \item icExploreGen ... Expore initial configurations 
-#' \item jackmds ... jackknife for MDS 
-#' \item multistart ... multistart function for MDS  
-#' \item permtest ... permutation test for MDS
+#' \item jackmds ... Jackknife for MDS 
+#' \item multistart ... Multistart function for MDS  
+#' \item permtest ... Permutation test for MDS
 #'}
 #'
 #' Wrappers:
