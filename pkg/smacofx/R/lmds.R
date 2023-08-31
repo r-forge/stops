@@ -59,16 +59,17 @@ lmds <- function(delta,init=NULL,ndim=2,k=2,tau=1,
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
     if(verbose>0) cat("Minimizing lmds with tau=",tau,"k=",k,"\n")
-    labos <- rownames(delta) 
     Do <- delta
+    n <- nrow(Do)
+    if(is.null(rownames(delta))) rownames(delta) <- 1:n
+    labos <- rownames(delta)
+    if (ndim > (n - 1)) stop("Maximum number of dimensions is n-1!")
     X1 <- init
     lambda <- 1
     mu <- 1
     nu <- 0
     niter <- itmax
-    d <- ndim
-    n <- nrow(Do)
-
+    d <- ndim   
     #New: make the neighbourhood graph adjacency matrix Inb
     Daux <- apply(Do,2,sort)[k+1,]
     Inb <- ifelse(Do>Daux, 0, 1)

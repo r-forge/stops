@@ -13,11 +13,17 @@
 #' \item powerStressMin... power stress MDS (POST-MDS) with ratio, interval optimal scaling
 #' \item apStressMin... approximate POST-MDS with ratio, interval optimal scaling
 #' \item rpowerStressMin... restricted POST-MDS with ratio, interval optimal scaling
-#' \item clca ... curvilinear component analysis with ratio, interval, ordinal optimal scaling
-#' \item pclca ... power curvilinear component analysis with ratio, interval, ordinal optimal scaling
+#' \item clca ... curvilinear component analysis with ratio optimal scaling
+#' \item clda ... curvilinear distance analysis with ratio optimal scaling (ie.e. clca with Isomap distances)
 #' \item bcmds ... Box-Cox MDS with ratio optimal scaling
 #' \item lmds... Local MDS with ratio optimal scaling
 #' \item sammonmap... Sammon mapping with ratio, interval optimal scaling
+#' \item smds ... power curvilinear component analysis with ratio, interval, ordinal optimal scaling
+#' \item pclca ... power curvilinear component analysis with ratio, interval, ordinal optimal scaling
+#' \item smdda ... sparsified multidimensional distance analsysis with ratio interval scaling (this is smds with Isomap distances) 
+#' \item spmdda ... sparsified power multidimensional distance analsysis with ratio interval scaling (this is spmds with Isomap distances)  
+#' \itme smds ... sparsified multidimensional scaling with ratio interval scaling (inspired by CLCA, so fitted distances larger than tau are weighted with 0)
+#' \item spmds ... sparsified multidimensional scaling with ratio interval scaling (inspired by CLCA, so fitted distances larger than tau are weighted with 0)
 #' }
 #'
 #' 

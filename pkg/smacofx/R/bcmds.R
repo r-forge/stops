@@ -8,7 +8,7 @@
 #' @param ndim the dimension of the configuration
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but I find the MDS model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
-#' @param rho the rho parameter, power for the weights (the easiest).
+#' @param rho the rho parameter, power for the weights (called nu in the original article).
 #' @param itmax number of optimizing iterations, defaults to 2000.
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.
@@ -60,9 +60,12 @@ bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
   if(verbose>0) cat("Minimizing bcStress with mu=",mu,"lambda=",lambda,"rho=",rho,"\n")
-  labos <- rownames(delta) 
   nu <- rho  
-  Dorig <- Do <- delta 
+  Dorig <- Do <- delta
+  n <- nrow(Do)
+  if (ndim > (n - 1)) stop("Maximum number of dimensions is n-1!")
+  if(is.null(rownames(delta))) rownames(delta) <- 1:n
+  labos <- rownames(delta) 
   d <- ndim
   X1 <- init
   xstart <- init
@@ -70,7 +73,7 @@ bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=
   if(lambda<=0) stop("The lambda parameter must be strictly positive.")
   lambdaorig <- lambda
   lambda <- 1/lambda
-  n <- nrow(Do)
+
   Dnu <- Do^nu
   Dnulam <- Do^(nu+1/lambda)
   diag(Dnu) <- 0
@@ -253,12 +256,12 @@ while ( stepsize > 1E-5 && i < niter)
   result$stress.m <- s1n
   result$stress.r <- s1
   result$tdelta <- stats::as.dist(Do)
-  result$parameters <- c(mu=mu,lambda=lambda,rho=nu)
-  result$pars <- c(mu=mu,lambda=lambda,rho=nu)
-  result$theta <- c(mu=mu,lambda=lambda,rho=nu)
+  result$parameters <- c(mu=mu,lambda=lambdaorig,rho=nu)
+  result$pars <- c(mu=mu,lambda=lambdaorig,rho=nu)
+  result$theta <- c(mu=mu,lambda=lambdaorig,rho=nu)
   #result$tweightmat <- weightmat
   result$mu <- mu
-  result$lambda <- lambda
+  result$lambda <- lambdaorig
   result$rho <- nu
   class(result) <- c("bcmds","smacofP","smacofB","smacof")
   return(result)
