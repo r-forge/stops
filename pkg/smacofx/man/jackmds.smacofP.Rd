@@ -7,7 +7,7 @@
 \method{jackmds}{smacofP}(object, eps = 1e-06, itmax = 100, verbose = FALSE)
 }
 \arguments{
-\item{object}{Object of class smacofP if used as method or another object inheriting from smacofB (needs to be called directly as bootmds.smacofP then).}
+\item{object}{Object of class smacofP if used as method or another object inheriting from smacofB (needs to be called directly as jackmds.smacofP then).}
 
 \item{eps}{Convergence criterion}
 
@@ -46,5 +46,4 @@ res.jk <- jackmds(fit)
 plot(res.jk, col.p = "black", col.l = "gray")
 plot(res.jk, hclpar = list(c = 80, l = 40))
 plot(res.jk, hclpar = list(c = 80, l = 40), plot.lines = FALSE)
-
 }
