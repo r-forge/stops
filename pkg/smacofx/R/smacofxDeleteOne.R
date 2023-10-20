@@ -8,17 +8,21 @@
 #' @param type type of MDS
 #'
 #' @return An array of size n with n coonfigurations
-smacofxDeleteOne <- function (object, delta, ndim, type) {
+smacofxDeleteOne <- function (object, delta, weightmat, ndim, type, verbose=FALSE) {
     ocall<-as.call(object$call) 
     n <- nrow (delta)
     x <- array (0, c (n, ndim, n))
+    flag <- any(class(object)%in%c("bcmds","lmds")) 
     for (i in 1:n) {
+        if(isTRUE(verbose)) cat("Jackknife Sample: ", formatC(i, digits = 3, width = 3))
         #xi <- smacofSym(delta[-i, -i], ndim = ndim, type = type)$conf
         ocall$delta<-delta[-i, -i]
+        if(!flag) ocall$weightmat<-weightmat[-i, -i]
         xi <- eval(ocall)
         xconf <- xi$conf
         x[((1 : n)[-i]), (1 : ndim), i] <- xconf
         x[i, (1 : ndim), i] <- 0
+        if(isTRUE(verbose)) cat("\n")
         }
     return (x)
 }

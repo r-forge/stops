@@ -1,3 +1,7 @@
+Version 1.2-1
+
+- Fixed jackknife to work with weightmat.
+
 Version 1.2-0
 
 - Fixed jackknife for smacofP objects (jackmds).  

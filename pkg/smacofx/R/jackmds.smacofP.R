@@ -49,9 +49,10 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
     x0 <- object$conf
     ndim <- object$ndim
     type <- object$type
+    weightmat <- as.matrix(object$weightmat)
     
-    #x0 <- smacofSym (delta, ndim = ndim, metric = metric) $ conf
-    xx <- smacofxDeleteOne(object, delta, ndim = ndim, type = type)
+   #x0 <- smacofSym (delta, ndim = ndim, metric = metric) $ conf
+    xx <- smacofxDeleteOne(object, delta, weightmat = weightmat, ndim = ndim, type = type, verbose=verbose)
     kk <- array(rep(diag (ndim), n), c(ndim, ndim, n))
     cc <- matrix(0, n, ndim)
     bb <- matrix(0, n, ndim)
@@ -109,3 +110,4 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
   class(result) <- "smacofJK"
   result
 }
+
