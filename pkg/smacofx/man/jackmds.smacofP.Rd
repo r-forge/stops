@@ -18,13 +18,13 @@
 \value{
 An object of class 'smacofJK', see \code{\link[smacof]{jackmds}}. With values 
 \itemize{
-\item smacof.conf: Configurations
+\item smacof.conf: Original configuration
 \item jackknife.confboot: An array of n-1 configuration matrices for each Jackknife MDS solution
 \item comparison.conf: Centroid Jackknife configurations (comparison matrix)
 \item cross: Cross validity
 \item stab: Stability coefficient
 \item disp: Dispersion
-\item loss: Value of the loss function
+\item loss: Value of the loss function (just used internally)
 \item ndim: Number of dimensions
 \item call: Model call
 \item niter: Number of iterations
@@ -40,7 +40,7 @@ In order to examine the stability solution of an MDS, a Jackknife on the configu
 \examples{
 data <- na.omit(smacof::PVQ40[,1:5])
 diss <- dist(t(data))   ## Euclidean distances
-fit <- rStressMin(diss,"ratio",r=0.5,itmax=1000) ## 2D ratio MDS
+fit <- rStressMin(diss,type="ordinal",r=0.4,itmax=1000) ## 2D ordinal MDS
 
 res.jk <- jackmds(fit)
 plot(res.jk, col.p = "black", col.l = "gray")

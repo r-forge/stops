@@ -1,6 +1,6 @@
 Version 1.2-1
 
-- Fixed jackknife to work with weightmat.
+- Fixed jackknife to work with weightmat and also with bcmds and lmds. Updated docs.
 
 Version 1.2-0
 

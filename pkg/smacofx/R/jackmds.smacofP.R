@@ -31,7 +31,7 @@
 #' @examples
 #' data <- na.omit(smacof::PVQ40[,1:5])
 #' diss <- dist(t(data))   ## Euclidean distances
-#' fit <- rStressMin(diss,type="ordinal",r=0.5,itmax=1000) ## 2D ordinal MDS
+#' fit <- rStressMin(diss,type="ordinal",r=0.4,itmax=1000) ## 2D ordinal MDS
 #'
 #' res.jk <- jackmds(fit)
 #' plot(res.jk, col.p = "black", col.l = "gray")
