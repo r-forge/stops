@@ -6,23 +6,29 @@
 #' @param delta the data (symmetric matrix, data frame or dist object)
 #' @param ndim target dimension of the mds
 #' @param type type of MDS
+#' @param init starting configuration 
+#' @param weightmat weighting matrix
+#' @param verbose print progress
 #'
 #' @return An array of size n with n coonfigurations
-smacofxDeleteOne <- function (object, delta, weightmat, ndim, type, verbose=FALSE) {
+smacofxDeleteOne <- function (object, delta, weightmat, init, ndim, type, verbose=FALSE) {
     ocall<-as.call(object$call) 
     n <- nrow (delta)
     x <- array (0, c (n, ndim, n))
+    reslist <- list()
     flag <- any(class(object)%in%c("bcmds","lmds")) 
     for (i in 1:n) {
         if(isTRUE(verbose)) cat("Jackknife Sample: ", formatC(i, digits = 3, width = 3))
         #xi <- smacofSym(delta[-i, -i], ndim = ndim, type = type)$conf
         ocall$delta<-delta[-i, -i]
         if(!flag) ocall$weightmat<-weightmat[-i, -i]
+        ocall$init <- init[-i,]
         xi <- eval(ocall)
         xconf <- xi$conf
         x[((1 : n)[-i]), (1 : ndim), i] <- xconf
         x[i, (1 : ndim), i] <- 0
-        if(isTRUE(verbose)) cat("\n")
+        reslist[[i]] <- xi
+        if(isTRUE(verbose)) cat("\n")      
         }
-    return (x)
+    return (list(x=x,res=reslist))
 }

@@ -50,9 +50,11 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
     ndim <- object$ndim
     type <- object$type
     weightmat <- as.matrix(object$weightmat)
-    
+    init <- as.matrix(object$init)
+        
    #x0 <- smacofSym (delta, ndim = ndim, metric = metric) $ conf
-    xx <- smacofxDeleteOne(object, delta, weightmat = weightmat, ndim = ndim, type = type, verbose=verbose)
+    tmpo <- smacofxDeleteOne(object, delta, weightmat = weightmat, init=init, ndim = ndim, type = type, verbose=verbose)
+    xx <- tmpo$x
     kk <- array(rep(diag (ndim), n), c(ndim, ndim, n))
     cc <- matrix(0, n, ndim)
     bb <- matrix(0, n, ndim)
@@ -105,8 +107,8 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
   
   ## dispersion around x0
   disp <- 2 - (stab + cross)
-  
-	result <- list(smacof.conf = x0, jackknife.conf = yy, comparison.conf = y0, stab = stab, cross = cross, disp = disp, niter = itel, loss = nloss, nobj = n, call = match.call())
+
+  result <- list(smacof.conf = x0, jackknife.conf = yy, comparison.conf = y0, stab = stab, cross = cross, disp = disp, niter = itel, loss = nloss, nobj = n, call = match.call())
   class(result) <- "smacofJK"
   result
 }
