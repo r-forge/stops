@@ -1,4 +1,8 @@
-Version 1.3-1
+Version 1.4-1
+
+- Added jackmds and bootmds methods. Changed the stop_* functions to work with it by NSE and internally changing the calls. 
+
+Version 1.4-1
 
 - Updates docs. Fixed roxygen @docType change from here https://github.com/r-lib/roxygen2/issues/1491.
 

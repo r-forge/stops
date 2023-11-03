@@ -42,11 +42,15 @@ stop_powersammon <- function(dis,theta=c(1,1),type="ratio",weightmat=NULL,init=N
   sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
   combwght <- stats::as.dist(sammwght*weightmat) #powerStressMin will turn this into the correct data structure
-  fit <- smacofx::powerStressMin(delta=dis,type=type,kappa=theta[1],lambda=theta[2],nu=nu,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[2]
-  #fit$rho <- nu
-  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)#c(kapp=fit$kappa,lambda=fit$lambda,rho=fit$rho)
+  kappa <- theta[1]
+  lambda<- theta[2]
+  fit <- smacofx::powerStressMin(delta=dis,kappa=kappa,lambda=lambda,nu=nu,type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,weightmat=combwght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
+  fit$kappa <- kappa
+  fit$lambda <- lambda
+  fit$nu <- nu
+  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 

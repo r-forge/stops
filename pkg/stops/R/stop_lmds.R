@@ -37,10 +37,15 @@ stop_lmds <- function(dis,theta=c(2,0.5),type="ratio",weightmat=NULL,init=NULL,n
   if(length(theta)<2) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
-  #diag(wght) <- 1
-  fit <- lmds(delta=dis,k=theta[1],tau=theta[2],init=init,ndim=ndim,verbose=verbose+2,itmax=itmaxi,...)
-  fit$k <- theta[1]
-  fit$tau <- theta[2]
+                                        #diag(wght) <- 1
+  k <- theta[1]
+  tau <- theta[2]
+  verbose <- verbose+2
+  fit <- lmds(delta=dis,k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
+  fit$k <- k
+  fit$tau <- tau
   fit$parameters <- fit$theta  <- fit$pars  <- c(k=fit$k,tau=fit$tau)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)

@@ -47,7 +47,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   lambda <- theta[1]
   fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
   #fit$kappa <- 1
-  fit$lambda <- theta
+  fit$lambda <- lambda
   #fit$nu <- 1
   #fit$stress.1 <- fit$stress
   #fitdis <- as.matrix(fit$confdist)

@@ -36,11 +36,17 @@ stop_bcmds<- function(dis,theta=c(1,1,0),type="ratio",weightmat=NULL,init=NULL,n
   if(length(theta)<3) theta <- rep(theta,length.out=3)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #wght <- weightmat
-  #diag(wght) <- 1
-  fit <- smacofx::bcmds(delta=dis,mu=theta[1],lambda=theta[2],rho=theta[3],init=init,ndim=ndim,verbose=verbose+2,itmax=itmaxi,...)
-  fit$mu <- theta[1]
-  fit$lambda <- theta[2]
-  fit$rho <- theta[3]
+                                        #diag(wght) <- 1
+  verbose <- verbose+2
+  mu <- theta[1]
+  lambda <- theta[2]
+  rho <- theta[3]
+  fit <- smacofx::bcmds(delta=dis,mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
+  fit$mu <- mu
+  fit$lambda <- lambda
+  fit$rho <- rho
   fit$parameters <- fit$theta  <- fit$pars <- c(mu=fit$mu,lambda=fit$lambda,rho=fit$rho)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)

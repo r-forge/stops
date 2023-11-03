@@ -46,7 +46,10 @@ stop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat= 1-di
   kappa <- theta[1]
   lambda <- theta[2]
   nu <- theta[3]
-  fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat, init=init, verbose=isTRUE(verbose==2), itmax=itmaxi,...) #optimize with smacof
+  verbose <- isTRUE(verbose>=2)
+  fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, init=init, verbose=verbose, itmax=itmaxi,...) #optimize with smacof
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   #fit$kappa <- 1
   #fit$tau <- tau
   #fit$upsilon <- ups

@@ -37,12 +37,16 @@ stop_powermds <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow(di
   if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
-  #if(is.null(weightmat)) weightmat <- 
-  fit <- smacofx::powerStressMin(delta=dis,type=type,kappa=theta[1],lambda=theta[2],nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  kappa <- theta[1]
+  lambda <- theta[2]
+  nu <- 1
+  fit <- smacofx::powerStressMin(delta=dis,type=type,kappa=kappa,lambda=lambda,nu=1,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                 
   fit$kappa <- theta[1]
   fit$lambda <- theta[2]
- # fit$nu <- 1
-  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)# c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
+  fit$nu <- 1
+  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 

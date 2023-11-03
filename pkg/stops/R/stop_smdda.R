@@ -42,9 +42,11 @@ stop_smddak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(d
   wght <- weightmat
   diag(wght) <- 1
   fit <- smacofx::smdda(delta=dis,tau=tau,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(tau=tau,k=k,type=type,init=init,weightmat=wght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   fit$tau <- tau
   fit$k <- k
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  fit$parameters <- fit$theta <- fit$pars <- c(tau=fit$tau,k=fit$k)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -94,9 +96,11 @@ stop_smddae <- function(dis,theta=c(100,100),type="ratio",weightmat=1-diag(nrow(
   wght <- weightmat
   diag(wght) <- 1
   fit <- smacofx::smdda(delta=dis,tau=tau,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(tau=tau,epsilon=epsilon,type=type,init=init,weightmat=wght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   fit$tau <- tau
   fit$epsilon <- epsilon
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  fit$parameters <- fit$theta <- fit$pars <- c(tau=fit$tau,epsilon=fit$epsilon)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 

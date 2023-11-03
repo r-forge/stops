@@ -40,6 +40,8 @@ stop_smds <- function(dis,theta=c(100),type="ratio",weightmat=1-diag(nrow(dis)),
   wght <- weightmat
   diag(wght) <- 1
   fit <- smacofx::smds(delta=dis,tau=theta,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(tau=theta,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   fit$tau <- theta
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)

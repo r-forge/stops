@@ -39,7 +39,9 @@ stop_clca <- function(dis,theta=3*max(sd(dis)),type="ratio",weightmat=1-diag(nro
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clca(delta=dis,lambda0=theta,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit <- smacofx::clca(delta=dis,lambda0=theta,Epochs=20,alpha0=0.5,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda0=theta,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   fit$lambda0 <- theta
   #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)

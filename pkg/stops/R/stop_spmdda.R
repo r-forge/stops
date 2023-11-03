@@ -39,13 +39,20 @@ stop_spmddak <- function(dis,theta=c(1,1,1,100,10),type="ratio",weightmat=1-diag
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::spmdda(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],tau=theta[4],k=theta[5],type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[2]
-  fit$rho <- theta[3]
-  fit$tau <- theta[4]
-  fit$k <- theta[5]
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  kappa <- theta[1]
+  lambda <- theta[2]
+  nu <- theta[3]
+  tau <- theta[4]
+  k <-  theta[5]
+  fit <- smacofx::spmdda(delta=dis,kappa=kappa,lambda=lambda,nu=nu,tau=tau,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,tau=tau,k=k,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall
+  fit$kappa <- kappa 
+  fit$lambda  <- lambda
+  fit$nu <- nu
+  fit$tau <- tau
+  fit$k <- k
+  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,tau=fit$tau,k=fit$k)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -92,13 +99,19 @@ stop_spmddae <- function(dis,theta=c(1,1,1,100,100),type="ratio",weightmat=1-dia
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::spmdda(delta=dis,kappa=theta[1],lambda=theta[2],nu=theta[3],tau=theta[4],epsilon=theta[5],type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[2]
-  fit$rho <- theta[3]
-  fit$tau <- theta[4]
-  fit$epsilon <- theta[5]
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  kappa <- theta[1]
+  lambda <- theta[2]
+  nu <- theta[3]
+  tau <- theta[4]
+  epsilon <- theta[5]
+  fit <- smacofx::spmdda(delta=dis,kappa=kappa,lambda=lambda,nu=nu,tau=tau,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,tau=tau,epsilon=epsilon,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$kappa <- kappa
+  fit$lambda <- lambda
+  fit$nu <- nu
+  fit$tau <- tau
+  fit$epsilon <- epsilon
+  fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,tau=fit$tau,epsilon=fit$epsilon)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 

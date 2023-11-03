@@ -39,10 +39,14 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,lambda0=theta[1],k=theta[2],Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  lambda0 <- theta[1]
+  k <- theta[2]
+  fit <- smacofx::clda(delta=dis,lambda0=lambda0,k=k,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda0=lambda0,k=k,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall               
   fit$lambda0 <- theta[1]
   fit$k <- theta[2]
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  fit$parameters <- fit$theta <- fit$pars <- c(lambda0=fit$lambda0,k=fit$k)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
@@ -89,10 +93,14 @@ stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
   diag(wght) <- 1
-  fit <- smacofx::clda(delta=dis,lambda0=theta[1],epsilon=theta[2],Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$lambda0 <- theta[1]
-  fit$k <- theta[2]
-  #fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu,)
+  lambda0 <- theta[1]
+  epsilon <- theta[2]
+  fit <- smacofx::clda(delta=dis,lambda0=lambda0,epsilon=epsilon,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda0=lambda0,epsilon=epsilon,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall              
+  fit$lambda0 <- lambda0
+  fit$epsilon <- epsilon
+  fit$parameters <- fit$theta <- fit$pars <- c(lambda0=fit$lambda0,epsilon=fit$epsilon)
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
