@@ -1,6 +1,6 @@
 #' MDS Jackknife for smacofP objects
 #'
-#' These methods perform an MDSJackknife and plot the corresponding solution.
+#' These functions perform an MDS Jackknife and plot the corresponding solution.
 #'
 #' @param object  Object of class smacofP if used as method or another object inheriting from smacofB (needs to be called directly as jackmds.smacofP then).
 #' @param eps Convergence criterion
@@ -43,7 +43,8 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
   ## object... object of class smacofP
   #if (class(object)[1] != "smacofP") stop("Jackknife is currently implemented for objects of class smacofB from smacofSym() only! \n")
   ##  if (object$model == "SMACOF constraint") stop("Jackknife is currently implemented for smacofSym() objects only! \n")
-    
+
+    calli <- match.call()
     delta <- as.matrix(object$delta)
     n <- nrow(delta)
     x0 <- object$conf
@@ -108,7 +109,7 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
   ## dispersion around x0
   disp <- 2 - (stab + cross)
 
-  result <- list(smacof.conf = x0, jackknife.conf = yy, comparison.conf = y0, stab = stab, cross = cross, disp = disp, niter = itel, loss = nloss, nobj = n, call = match.call())
+  result <- list(smacof.conf = x0, jackknife.conf = yy, comparison.conf = y0, stab = stab, cross = cross, disp = disp, niter = itel, loss = nloss, nobj = n, call = calli)
   class(result) <- "smacofJK"
   result
 }

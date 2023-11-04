@@ -1,3 +1,15 @@
+Version 1.2-4
+
+- Changed default nrep in multistart. 
+
+Version 1.2-3
+
+- Fixed jackmds and smacofxDeleteOne to also work with init. New multistart default and updates to docs.
+
+Version 1.2-2
+
+- Fixed returned calls for functions that internally call other functions.
+
 Version 1.2-1
 
 - Fixed jackknife to work with weightmat and also with bcmds and lmds. Updated docs.

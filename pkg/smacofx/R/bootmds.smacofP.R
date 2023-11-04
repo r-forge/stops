@@ -45,11 +45,13 @@ bootmds.smacofP <- function(object, data, method.dat = "pearson", nrep = 100, al
                             verbose = FALSE, ...)
     #TODO add an itmax argument?
 {
+    calli <- match.call()
     if(any(class(object)=="smacofB"))
     {
         class(object) <- c("smacofB",class(object))
     } else stop("MDS object must inherit from smacofB.")
     out <- smacof::bootmds(object,data=data,method.dat=method.dat,nrep=nrep,alpha=alpha,verbose=verbose,...)
+    out$call <- calli
     class(object) <- class(object)[-1]
     out
  }
