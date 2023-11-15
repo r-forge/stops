@@ -9,7 +9,7 @@ cop_smacofSphere(
   theta = 1,
   type = "ratio",
   ndim = 2,
-  weightmat = 1 - diag(nrow(dis)),
+  weightmat = NULL,
   init = NULL,
   itmaxi = 5000,
   ...,

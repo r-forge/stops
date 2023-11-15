@@ -571,12 +571,12 @@ plot(resr,"Shepard")
      
 
 
-########### Test methods for jackmds NOT WORKING!
+########### Test methods for jackmds 
  data(kinshipdelta)
  dissm<-as.matrix(kinshipdelta)
  strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
  list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
-#smacofB object in $fit works
+##smacofB object in $fit works
 res1<-stops(dissm,loss="stress",verbose=2,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=0,upper=0.5)
 res1$fit
 jk1 <- jackmds(res1$fit)
@@ -585,47 +585,62 @@ jk1
 jk2
 
 
-#smacofP object in $fit works
-#doesn't work because the parameters we use are in $pars and r=r is called in the call. We'd need to subtitute the R with the pars but what if we have more parameters? Mayb ebest would be to allow a pars argument but how do we use that internallly then?   
+#smacofP object in $fit 
 res2<-stops(dissm,loss="powerstress",theta=c(1,1,1),verbose=3,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=c(0,0,0),upper=c(10,10,10))
+res<-stops(dissm,loss="rstress",type="ordinal",theta=1,verbose=2,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=0,upper=10)
+res2$fit #we see itmaxi is not substituted in the call, so it won't work.
+## we may fix it by either changing it in the stops call with substitute, I believe (but super hard as we have so many of these calls), or via hard code in jackmds
+res3 <- powerstressMin(dissm,itmax=100000)
+res3$call
+res3$call$itmax
 
-res<-stops(dissm,loss="rstress",theta=1,verbose=2,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=0,upper=10)
-res2$fit
-jk1 <- jackmds(res2$fit,verbose=TRUE)
-jk2 <- jackmds(res2)
+jk1 <- jackmds(res2$fit)
+jk2 <- jackmds(res)
 jk1
 jk2
-plot(jk1)
+plot(jk2)
 
-
+system.time(jk2 <- jackmds(res2))
+system.time(jk3 <- jackmds(res3))
 
 r <- 0.4
 fit <- rStressMin(dissm,type="ordinal",r=r,itmax=1000) ## 2D ordinal MDS
 jackmds(fit)
 #works, but if we rm(r) then it no longer does
 fit$pars
+#works
+
 ########
 
- dats <- na.omit(PVQ40[,1:5])
- dissm <- as.matrix(dist(t(dats)))   ## Euclidean distances 
+dats <- na.omit(PVQ40[,1:5])
+dissm <- as.matrix(dist(t(dats)))   ## Euclidean distances 
  
- strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
- list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
+strucpar<-list(list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL),
+list(alpha=0.6,C=15,var.thr=1e-5,zeta=NULL))
 #smacofB object in $fit works
 res1<-stops(dissm,loss="stress",verbose=2,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=0,upper=10)
 res1
-jk1 <- bootmds(res1$fit,data=dats,type="ratio")
 jk2 <- bootmds(res1,data=dats)
-jk1
-jk2
 
-t1 <- stop_rstress(dissm,theta=1,structures="clinearity")
-t1$fit
-r
-rm(r)
-eval(t1$fit$call)
 
-t2 <- stop_rstress2(dissm,theta=1,structures="clinearity")
-t2$fit
-itmaxi <- 10000
-eval(t2$fit$call)
+#smacofP in $fit works
+res2<-stops(dissm,loss="powerstress",theta=c(1,1,1),verbose=3,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=c(0,0,0),upper=c(10,10,10))
+bs2 <- bootmds(res2,data=dats) #works
+
+bs2 <- bootmds(res2$fit,data=dats) #doesnt work; would need to change bootmds.smacofP
+
+res<-stops(dissm,loss="rstress",type="ratio",theta=1,verbose=2,structures=c("cfunctionality","ccomplexity"),strucpars=strucpar,lower=0,upper=10)
+
+bs3 <- bootmds(res,data=dats) #works
+
+
+#t1 <- stop_rstress(dissm,theta=1,structures="clinearity")
+#t1$fit
+#r
+#rm(r)
+#eval(t1$fit$call)
+
+#t2 <- stop_rstress2(dissm,theta=1,structures="clinearity")
+#t2$fit
+#itmaxi <- 10000
+#eval(t2$fit$call)

@@ -38,6 +38,7 @@
 #'
 #' 
 cop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+  theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   type <- match.arg(type,'ratio')
@@ -45,7 +46,7 @@ cop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,
   fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
   fit$lambda <- lambda
   fit$delta <- stats::as.dist(dis)
-  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$parameters <- fit$theta <- fit$pars <-  c(lambda=lambda)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters,  fit=fit,copsobj=copobj) #target functions
 }

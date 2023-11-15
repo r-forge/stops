@@ -38,8 +38,8 @@ These functions perform an MDS Jackknife and plot the corresponding solution.
 In order to examine the stability solution of an MDS, a Jackknife on the configurations can be performed (see de Leeuw & Meulman, 1986) and plotted. The plot shows the jackknife configurations which are connected to their centroid. In addition, the original configuration (transformed through Procrustes) is plotted. The Jackknife function itself returns also a stability measure (as ratio of between and total variance), a measure for cross validity, and the dispersion around the original smacof solution.
 }
 \examples{
-data <- na.omit(smacof::PVQ40[,1:5])
-diss <- dist(t(data))   ## Euclidean distances
+dats <- na.omit(smacof::PVQ40[,1:5])
+diss <- dist(t(dats))   ## Euclidean distances
 fit <- rStressMin(diss,type="ordinal",r=0.4,itmax=1000) ## 2D ordinal MDS
 
 res.jk <- jackmds(fit)

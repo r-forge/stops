@@ -34,9 +34,14 @@
 #' @import cordillera
 #' @importFrom smacofx rStressMin
 cop_rstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+  theta <- as.numeric(theta)
+  if(inherits(dis,"dist")) dis <- as.matrix(dis) 
+  #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   r <- theta[1]/2
   fit <- smacofx::rStressMin(delta=dis,r=r,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(r=r,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
   fit$r <- r
   fit$parameters <- fit$theta  <- fit$pars <- c(r=r)
   #fit$deltaorig <- stats::as.dist(dis)

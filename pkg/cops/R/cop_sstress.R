@@ -39,6 +39,8 @@ cop_sstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),ini
   lambda <- theta[1]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
   fit <- smacofx::powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda=flambda,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                  
   fit$kappa <- 2
   fit$lambda <- lambda
   #fit$nu <- 1

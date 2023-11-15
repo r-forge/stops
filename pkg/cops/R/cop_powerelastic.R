@@ -41,12 +41,17 @@ cop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nrow
   elawght <- dis^(theta[2])
   diag(elawght) <- 1
   combwght <- elawght*weightmat
-  fit <- smacofx::powerStressMin(delta=dis,kappa=theta[1],lambda=theta[2],nu=nu,type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[2]
-  fit$parameters <- fit$theta <-  c(kappa=fit$kappa,lambda=fit$lambda)
+  kappa <- theta[1]
+  lambda <- theta[2]
+  verbose <- isTRUE(verbose>=2)
+  fit <- smacofx::powerStressMin(delta=dis,kappa=kappa,lambda=lambda,nu=nu,type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose+1,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,weightmat=combwght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
+  fit$kappa <- kappa
+  fit$lambda <- lambda
+  fit$parameters <- fit$theta <-  fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)
   #fit$deltaorig <- stats::as.dist(dis)
-  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
+  copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>0),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit, copsobj=copobj)
   out 
 }

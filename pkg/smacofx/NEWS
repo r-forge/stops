@@ -1,3 +1,7 @@
+Version 1.3-1
+
+- Added a handler for the itmax in a call when using jackknife.smacofP oder bootmds.smacofP so that it is passed down accordingly. Necessary also for the corresponding methods in stops.  
+
 Version 1.2-4
 
 - Changed default nrep in multistart. 

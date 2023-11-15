@@ -29,8 +29,8 @@
 #' 
 #' @export
 #' @examples
-#' data <- na.omit(smacof::PVQ40[,1:5])
-#' diss <- dist(t(data))   ## Euclidean distances
+#' dats <- na.omit(smacof::PVQ40[,1:5])
+#' diss <- dist(t(dats))   ## Euclidean distances
 #' fit <- rStressMin(diss,type="ordinal",r=0.4,itmax=1000) ## 2D ordinal MDS
 #'
 #' res.jk <- jackmds(fit)
@@ -52,9 +52,11 @@ jackmds.smacofP <- function(object, eps = 1e-6, itmax = 100, verbose = FALSE)
     type <- object$type
     weightmat <- as.matrix(object$weightmat)
     init <- as.matrix(object$init)
-        
+    if(!is.numeric(object$call$itmax)) itmaxi <- object$niter+1000 else itmaxi <- object$call$itmax #this is for using it in the jackmds.stops method. We have not substituted itmaxi there and it would be hard to do, so I just use the returned iterations upon convergence and add 1000 iterations as max in case it was passed down. Shouldn't effect a direct smacofP object. 
+  
+    
    #x0 <- smacofSym (delta, ndim = ndim, metric = metric) $ conf
-    tmpo <- smacofxDeleteOne(object, delta, weightmat = weightmat, init=init, ndim = ndim, type = type, verbose=verbose)
+    tmpo <- smacofxDeleteOne(object, delta, weightmat = weightmat, init=init, ndim = ndim, type = type, verbose=verbose,itmaxi=itmaxi)
     xx <- tmpo$x
     kk <- array(rep(diag (ndim), n), c(ndim, ndim, n))
     cc <- matrix(0, n, ndim)

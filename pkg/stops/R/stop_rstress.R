@@ -33,9 +33,11 @@
 #' @keywords multivariate
 #' @importFrom smacofx rStressMin
 #' @export
-stop_rstress <- function(dis,theta=1,type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_rstress <- function(dis,theta=1,type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)   
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
+  #itmaxi2 <- itmaxi
   theta <- as.numeric(theta)
-  if(inherits(dis,"dist")) dis <- as.matrix(dis) 
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(stoptype)) stoptype <- "additive"

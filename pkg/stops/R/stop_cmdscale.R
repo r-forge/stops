@@ -43,7 +43,7 @@ stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NU
   #if(length(theta)==1) lambda <- theta
   #if(length(theta)==2) lambda <- theta[2]
   #if(length(theta)==3) lambda <- theta[2]
-  #if(missing(add)) add <- TRUE
+  if(missing(add)) add <- TRUE
   fit <- smacofx::cmdscale(dis^lambda,k=ndim,eig=TRUE,add=add,...) 
   fit$lambda <- lambda
   #fit$kappa <- 1

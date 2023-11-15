@@ -51,8 +51,9 @@ cop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(di
   #addargs
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling
   diag(elscalw) <- 1
+  verbose <- isTRUE(verbose>=2)
   combwght <- stats::as.dist(weightmat*elscalw) #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=verbose,itmax=itmaxi,...) #optimize with smacof
   fit$lambda <- lambda
   #fit$stress.1 <- fit$stress
   #fitdis <- fit$confdist
@@ -135,3 +136,5 @@ cop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(di
 ##   out <- list(stress=fit$stress, stress.r=fit$stress.r, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj) #target functions
 ##   out
 ## }
+
+

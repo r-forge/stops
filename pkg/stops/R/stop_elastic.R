@@ -50,7 +50,7 @@ stop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(d
   verbose <- isTRUE(verbose>=2)  
   combwght <- stats::as.dist(weightmat*elscalw) #combine the user weights and the elastic scaling weights
   fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=verbose,itmax=itmaxi,...) #optimize with smacof
-  #ncall <- do.call(substitute,list(fit$call,list(delta=dis^lambda,type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  #ncall <- do.call(substitute,list(fit$call,list(type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   #fit$call <- ncall                  
   #fit$kappa <- 1
   fit$lambda <- lambda

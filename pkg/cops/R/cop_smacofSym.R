@@ -39,6 +39,7 @@
 #'@keywords multivariate
 cop_smacofSym <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,normed=TRUE,scale="sd",stresstype="default") {
                                         #TODO Unfolding
+  theta <- as.numeric(theta)
   if(is.null(init)) init <- "torgerson"
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   #if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -51,7 +52,7 @@ cop_smacofSym <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(
   #delts <- fit$delta 
   #fit$stress.r <- sum(as.dist(weightmat)*(delts-fitdis)^2)
   fit$stress.m <- fit$stress^2
-  fit$parameters <- fit$theta <- c(lambda=lambda)
+  fit$parameters <- fit$theta <- fit$pars <- c(lambda=lambda)
   fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, copstress=copobj$copstress, OC=copobj$OC, parameters=copobj$parameters, fit=fit,copsobj=copobj)

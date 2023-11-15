@@ -45,6 +45,7 @@ stop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nro
   combwght <- elawght*weightmat
   kappa <- theta[1]
   lambda <- theta[2]
+  verbose <- isTRUE(verbose>=2)
   fit <- smacofx::powerStressMin(delta=dis,kappa=kappa,lambda=lambda,nu=nu,type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,weightmat=combwght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   fit$call <- ncall                
@@ -53,7 +54,7 @@ stop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nro
   fit$nu <- nu
   #fit$nu <- nu
   fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>0),stoptype=stoptype)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
 }

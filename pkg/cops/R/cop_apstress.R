@@ -47,7 +47,10 @@ cop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat=1-diag
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
-    fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat, init=init, verbose=isTRUE(verbose==2), itmax=itmaxi,...) #optimize with smacofx::apStressMin
+    verbose <- isTRUE(verbose>=2)
+    fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, weightmat=weightmat, init=init, verbose=verbose, itmax=itmaxi,...)
+    ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                
     #fit$stress.1 <- fit$stress
     fit$stress.m <- fit$stress^2
     #fit$deltaorig <-stats::as.dist(dis)

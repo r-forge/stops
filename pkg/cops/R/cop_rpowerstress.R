@@ -35,18 +35,23 @@
 #' @import cordillera
 #' @importFrom smacofx powerStressMin
 #' @keywords multivariate
-cop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+cop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,cordweight=0.5,q=1,minpts=ndim+1,epsilon=10,rang=NULL,verbose=0,scale="sd",normed=TRUE) {
+  theta <- as.numeric(theta)
+  if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   #if(length(theta)==3L & theta[1]!=theta[2]) warning("The powers given for kappa and lambda do not agree. The first value in theta will be used for both kappa and lambda.")  
   if(length(theta)==1L) theta <- rep(theta,3)
   if(length(theta)==2L) theta <- c(rep(theta[1],2),theta[2])
-  wght <- as.matrix(weightmat)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   diag(wght) <- 1
-  fit <- smacofx::powerStressMin(delta=dis,kappa=theta[1],lambda=theta[1],nu=theta[3],type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-#  if(stresstype=="default") fit$stress.m <- fit$stress.m
-  fit$kappa <- theta[1]
-  fit$lambda <- theta[1]
-  fit$nu <- theta[3]
+  expo <- theta[1]
+  nu <- theta[3]
+  fit <- smacofx::rpStressMin(delta=dis,expo=expo,nu=nu,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  ncall <- do.call(substitute,list(fit$call,list(expo=expo,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit$call <- ncall                 
+  fit$kappa <- expo
+  fit$lambda <- expo
+  fit$nu <- nu
   fit$parameters <- fit$theta <- fit$pars <- c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu)
   # fit$deltaorig <- stats::as.dist(dis)
   copobj <- copstress(fit,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=isTRUE(verbose>1),scale=scale,normed=normed,init=init)

@@ -45,7 +45,7 @@ stop_sstress <- function(dis,theta=1,type=type,weightmat=1-diag(nrow(dis)),init=
   ncall <- do.call(substitute,list(fit$call,list(lambda=flambda,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   fit$call <- ncall                
   fit$kappa <- 2
-  fit$lambda <- flambda
+  fit$lambda <- lambda
   #fit$nu <- 1
   fit$parameters <- fit$theta <- fit$pars  <- c(lambda=fit$lambda,kappa=2)#c(kappa=fit$kappa,lambda=fit$lambda,nu=fit$nu) 
   stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
