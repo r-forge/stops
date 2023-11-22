@@ -39,7 +39,7 @@ stop_smddak <- function(dis,theta=c(100,10),type="ratio",weightmat=1-diag(nrow(d
   tau <- theta[1]
   k <- theta[2]
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   fit <- smacofx::smdda(delta=dis,tau=tau,k=k,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(tau=tau,k=k,type=type,init=init,weightmat=wght,ndim=ndim,verbose=verbose,itmax=itmaxi)))
@@ -93,7 +93,7 @@ stop_smddae <- function(dis,theta=c(100,100),type="ratio",weightmat=1-diag(nrow(
   tau <- theta[1]
   epsilon <- theta[2]
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   fit <- smacofx::smdda(delta=dis,tau=tau,epsilon=epsilon,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(tau=tau,epsilon=epsilon,type=type,init=init,weightmat=wght,ndim=ndim,verbose=verbose,itmax=itmaxi)))

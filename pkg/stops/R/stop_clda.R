@@ -38,7 +38,7 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
   if(length(theta)<4) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
-  diag(wght) <- 1
+  #diag(wght) <- 1
   lambda0 <- theta[1]
   k <- theta[2]
   fit <- smacofx::clda(delta=dis,lambda0=lambda0,k=k,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
@@ -92,7 +92,7 @@ stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-
   if(length(theta)<4) theta <- rep(theta,length.out=2)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
-  diag(wght) <- 1
+  #diag(wght) <- 1
   lambda0 <- theta[1]
   epsilon <- theta[2]
   fit <- smacofx::clda(delta=dis,lambda0=lambda0,epsilon=epsilon,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)

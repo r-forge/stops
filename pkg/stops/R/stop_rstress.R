@@ -41,6 +41,7 @@ stop_rstress <- function(dis,theta=1,type="ratio",weightmat=NULL,init=NULL,ndim=
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(stoptype)) stoptype <- "additive"
+  weightmat <- as.matrix(weightmat)
   #if(length(theta)<3) theta <- rep(theta,length.out=3)
   r <- theta[1]/2
   fit <- smacofx::rStressMin(delta=dis,r=r,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)

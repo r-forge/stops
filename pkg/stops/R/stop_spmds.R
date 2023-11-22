@@ -38,7 +38,7 @@ stop_spmds <- function(dis,theta=c(1,1,1,100),type="ratio",weightmat=1-diag(nrow
   if(length(theta)<4) theta <- rep(theta,length.out=4)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   wght <- weightmat
-  diag(wght) <- 1
+  #diag(wght) <- 1
   kappa <- theta[1]
   lambda <- theta[2]
   nu <- theta[3]

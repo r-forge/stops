@@ -42,7 +42,8 @@ stop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(d
   #kappa first argument, lambda=second
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   #if(length(theta)<3) theta <- rep(theta,length.out=3)
-  #if(is.null(weightmat)) weightmat <- 
+                                        #if(is.null(weightmat)) weightmat <-
+  weightmat <- as.matrix(weightmat)
   lambda <- theta[1]
   nu <- -2
   elscalw <- dis^(nu*lambda) #the weighting in elastic scaling

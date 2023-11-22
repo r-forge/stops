@@ -30,19 +30,19 @@
 #' }
 #' @keywords multivariate
 #' @export
-stop_powerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_powerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<3) theta <- rep(theta,length.out=3)
-  #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
-  diag(wght) <- 1
+  weightmat <- as.matrix(weightmat)
+  #diag(weightmat) <- 1
   kappa <- theta[1]
   lambda <- theta[2]
   nu <- theta[3]
-  fit <- smacofx::powerStressMin(delta=dis,kappa=kappa,lambda=lambda,nu=nu,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
+  fit <- smacofx::powerStressMin(delta=dis,kappa=kappa,lambda=lambda,nu=nu,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose-3,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   fit$call <- ncall                 
   fit$kappa <- kappa

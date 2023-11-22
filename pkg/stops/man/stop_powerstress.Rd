@@ -8,7 +8,7 @@ stop_powerstress(
   dis,
   theta = c(1, 1, 1),
   type = "ratio",
-  weightmat = 1 - diag(nrow(dis)),
+  weightmat = NULL,
   init = NULL,
   ndim = 2,
   itmaxi = 10000,

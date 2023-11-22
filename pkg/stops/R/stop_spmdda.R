@@ -37,7 +37,7 @@ stop_spmddak <- function(dis,theta=c(1,1,1,100,10),type="ratio",weightmat=1-diag
   if(length(theta)>5) stop("There are too many parameters in the theta argument.")
   if(length(theta)<5) theta <- rep(theta,length.out=5)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   kappa <- theta[1]
   lambda <- theta[2]
@@ -97,7 +97,7 @@ stop_spmddae <- function(dis,theta=c(1,1,1,100,100),type="ratio",weightmat=1-dia
   if(length(theta)>5) stop("There are too many parameters in the theta argument.")
   if(length(theta)<5) theta <- rep(theta,length.out=5)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   kappa <- theta[1]
   lambda <- theta[2]

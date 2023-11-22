@@ -112,25 +112,6 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
       if(missing(optimmethod)) optimmethod <- "ALJ"  
       if(verbose>0) cat("Starting Optimization \n ")
         if(optimmethod=="SANN") {
-            ##NOTE: Used optim first, but that has no box constraints. Then tried all kinds but it all sucks.
-            ## opt<- stats::optim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,method="SANN",...)
-            ## GenSA::GenSA
-            ## GenSA but can't pass-by-value properly with objects, so needs to be set manuall. Also has other issues with the max.call not always working (not sure why). SUCKS!
-           ## if(missing(control)) control <- list(verbose=!isTRUE(verbose==0),smooth=FALSE,max.call=120)
-           ##TR: somethings off here, doesn't take the control list from above. I know why:> doesn't allows object passing
-           ##control <- list(verbose=TRUE,max.call=10,maxit=10,smooth=FALSE) #takes this one,difference is max.call-itmax vs a real value   
-           ## opt <- GenSA::GenSA(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,lower=lower,upper=upper,control=list(verbose=TRUE,smooth=FALSE,max.call=9,maxit=9))
-            ## optimization::optim_sa
-            ## Disadvantage: Can't control the maximum number of iterations
-          ##if(missing(control)) control <- list(nlimit=itmax)
-          ##control <- list(nlimit=5)
-            ##opt <- optimization::optim_sa(start=theta,fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmax=itmaxps))$stoploss,trace=TRUE,lower=lower,upper=upper,control=control)
-          ##thetaopt <- opt$par #for optim and GenSA
-          ##bestval <- opt$value #for optim and GenSA
-          ##bestval <- opt$function_value#for optim_sa
-          ##itel <- opt$counts#for optim and GenSA
-          ## itel <- dim(opt$trace)[1]#for optim_sa
-          ##pomp::sannbox
             if(missing(control)) control <- list(trace=verbose-2,lower=lower,upper=upper,maxit=itmax)
             opt <- pomp::sannbox(par=theta,fn=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps))$stoploss,control=control)
           thetaopt <- opt$par

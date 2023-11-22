@@ -37,7 +37,7 @@ stop_smds <- function(dis,theta=c(100),type="ratio",weightmat=1-diag(nrow(dis)),
   if(length(theta)>4) stop("There are too many parameters in the theta argument.")
   if(length(theta)<4) theta <- theta[1]
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
+  wght <- as.matrix(weightmat)
   diag(wght) <- 1
   fit <- smacofx::smds(delta=dis,tau=theta,type=type,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(tau=theta,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))

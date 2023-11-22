@@ -41,7 +41,8 @@ stop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NUL
   if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
-  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis)) 
+  if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
+  weightmat <- as.matrix(weightmat)
   #kappa first argument, lambda=second
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   #if(length(theta)<3) theta <- rep(theta, length.out=3)

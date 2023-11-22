@@ -38,6 +38,7 @@ stop_powerelastic <- function(dis,theta=c(1,1),type="ratio",weightmat=1-diag(nro
   if(missing(stoptype)) stoptype <- "additive"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(length(theta)<2) theta <- rep(theta,length.out=2)
+  weightmat <- as.matrix(weightmat)
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   nu <- -2
   elawght <- dis^(theta[2])

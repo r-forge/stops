@@ -1,3 +1,7 @@
+Version 1.4-2
+
+- Fixed bug when stops was used with a distance object weighmat.
+
 Version 1.4-1
 
 - Added jackmds and bootmds methods. Changed the stop_* functions to work with it by NSE and internally changing the calls. 

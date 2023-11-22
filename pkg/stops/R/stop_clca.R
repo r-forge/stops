@@ -37,8 +37,8 @@ stop_clca <- function(dis,theta=3*max(sd(dis)),type="ratio",weightmat=1-diag(nro
   if(length(theta)>4) stop("There are too many parameters in the theta argument.")
   if(length(theta)<4) theta <- theta[1]
   #if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
-  diag(wght) <- 1
+  #wght <- weightmat
+  #diag(wght) <- 1
   fit <- smacofx::clca(delta=dis,lambda0=theta,Epochs=20,alpha0=0.5,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
   ncall <- do.call(substitute,list(fit$call,list(lambda0=theta,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   fit$call <- ncall                

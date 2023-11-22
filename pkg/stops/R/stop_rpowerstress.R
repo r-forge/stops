@@ -38,8 +38,8 @@ stop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,ini
   if(length(theta)==1L) theta <- rep(theta,3)
   if(length(theta)==2L) theta <- c(rep(theta[1],2),theta[2])
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
-  wght <- weightmat
-  diag(wght) <- 1
+  wght <- as.matrix(weightmat)
+  #diag(wght) <- 1
   expo <- theta[1]
   nu <- theta[3]
   fit <- smacofx::rpStressMin(delta=dis,expo=expo,nu=nu,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)

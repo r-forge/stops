@@ -38,6 +38,7 @@ stop_powersammon <- function(dis,theta=c(1,1),type="ratio",weightmat=NULL,init=N
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   #if(length(theta)<2) theta <- rep(theta,length.out=2)
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
+  weightmat <- as.matrix(weightmat)
   nu <- -1
   sammwght <-dis^(theta[2])
   diag(sammwght) <- 1
