@@ -595,3 +595,60 @@ c_striatedness<- function(conf,aggr=max){
 }
 
 
+
+#' c-shepardness 
+#' calculates the c-shepardness as the correlation between a loess smoother of the transformed distances and the transformed dissimilarities 
+#'
+#' @param object an object of class smacofP 
+#'
+#' @return a numeric value
+#'
+#' @importFrom stats predict
+#' @examples
+#' delts<-smacof::kinshipdelta
+#' res<-smacofx::postmds(delts)
+#' c_shepardness(res)
+#' @export
+c_shepardness<- function(object)
+{
+   wm <- object$tweightmat
+   if(is.null(wm)) wm <- object$weightmat 
+   notmiss <- as.vector(as.dist(object$weightmat) > 0)
+   delts <- as.vector(object$tdelta)
+   confd <- as.vector(object$confdist) #Confdist are already transformed
+   wm <- as.vector(wm)
+        #delta=observed delta Delta
+        #tdelta=transformed delta normalized T(Delta) 
+        #distances= dhats, optimally scaled transformed Delta and normalized f(T(Delta))
+        notmiss.iord <- notmiss[object$iord]
+        delts1 <- delts[notmiss]
+        confd1 <- confd[notmiss]
+        wm1 <- wm[notmiss]
+        dhats1 <- as.vector(object$dhat)[notmiss]
+        expo <- 1
+        disttrans.ind <- names(object$pars)%in%c("kappa","r") 
+        disttrans <- object$pars[disttrans.ind]
+        if(object$type=="ratio")
+        {
+        scallm <- stats::lm(confd1~-1+dhats1,weights=wm)
+        scallp <- stats::predict(scallm)
+        }
+        if(object$type=="interval")
+        {
+            scallm <- stats::lm(confd1~dhats1,weights=wm)
+            scallp <- predict(scallm)
+        }
+        if(object$type=="ordinal")
+        {
+        expo <- switch(names(disttrans),
+                       r=2*disttrans,
+                       kappa=disttrans
+                       )                   
+        scallm <- stats::lm(confd1~I(dhats1^expo),weights=wm)
+        scallp <- predict(scallp)
+        }
+     ptl <- predict(stats::loess(confd1~delts1,weights=wm),family="symmetric")
+     res <- cor(ptl,scallp)
+     return(res)
+  }
+

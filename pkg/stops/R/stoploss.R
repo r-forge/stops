@@ -117,6 +117,11 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
             {
                indst <- which(structures=="cinequality")
                cinequality <- do.call(stops::c_inequality,c(list(confs),strucpars[[indst]]))
+            }
+         if("cshepardness"%in%structures)
+            {
+              #indst <- which(structures=="cshepardness")
+              cshepardness <- do.call(stops::c_shepardness,list(obj))
            }
         ##TODO add more structures
         struc <- unlist(mget(structures))

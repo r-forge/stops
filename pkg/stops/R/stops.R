@@ -93,7 +93,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
       ## allowed losses
       loss <- match.arg(loss,c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","isomap_eps","isomap_k","bcstress","bcmds","lmds","apstress","rpowerstress","smds","spmds","smdda_k","smdda_eps","spmdda_k","spmdda_eps","clca","clda_k","clda_eps"),several.ok=FALSE)
       ## allowed structures
-      structures <- match.arg(structures,c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),several.ok=TRUE)
+      structures <- match.arg(structures,c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality","cshepardness"),several.ok=TRUE)
       
       if(missing(strucpars)) strucpars <- vector("list",length(structures))
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
