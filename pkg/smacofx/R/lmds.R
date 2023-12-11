@@ -10,6 +10,7 @@
 #' @param itmax number of optimizing iterations, defaults to 5000.
 #' @param verbose prints info if > 0 and progress if > 1.
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
+#' @param normconf normalize the configuration to sum(delta^2)=1 (as in the power stresses). Note that then the distances in confdist do not match the manually calculated ones.
 #'
 #' @author Lisha Chen & Thomas Rusch
 #'
@@ -54,7 +55,7 @@
 #' 
 #' @export
 lmds <- function(delta,init=NULL,ndim=2,k=2,tau=1,
-                   itmax=5000,verbose=0,principal=FALSE)
+                   itmax=5000,verbose=0,principal=FALSE,normconf=FALSE)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -207,10 +208,10 @@ while ( stepsize > 1E-5 && i < niter)
                                         #s1n <- (s1e-normop)/(normo0-normop) #normalized stress
   s1n <- 1-s1e/normop
     
-  result <- list()
+  result <- list()  
   result$delta <- stats::as.dist(Do)
   result$dhat <- stats::as.dist(Do)
-  #X1 <- X1/enorm(X1) 
+  if(isTRUE(normconf)) X1 <- X1/enorm(X1) 
   if (principal) {
         X1_svd <- svd(X1)
         X1 <- X1 %*% X1_svd$v

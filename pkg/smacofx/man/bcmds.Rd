@@ -17,7 +17,8 @@ bcmds(
   init = NULL,
   verbose = 0,
   addD0 = 1e-04,
-  principal = FALSE
+  principal = FALSE,
+  normconf = FALSE
 )
 
 bcStressMin(
@@ -30,7 +31,8 @@ bcStressMin(
   init = NULL,
   verbose = 0,
   addD0 = 1e-04,
-  principal = FALSE
+  principal = FALSE,
+  normconf = FALSE
 )
 
 bcstressMin(
@@ -43,7 +45,8 @@ bcstressMin(
   init = NULL,
   verbose = 0,
   addD0 = 1e-04,
-  principal = FALSE
+  principal = FALSE,
+  normconf = FALSE
 )
 
 boxcoxmds(
@@ -56,7 +59,8 @@ boxcoxmds(
   init = NULL,
   verbose = 0,
   addD0 = 1e-04,
-  principal = FALSE
+  principal = FALSE,
+  normconf = FALSE
 )
 }
 \arguments{
@@ -79,6 +83,8 @@ boxcoxmds(
 \item{addD0}{a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.}
 
 \item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
+
+\item{normconf}{normalize the configuration to sum(delta^2)=1 (as in the power stresses). Default is FALSE. Note that then the distances in confdist do not match manually calculated ones.}
 }
 \value{
 an object of class 'bcmds' (also inherits from 'smacofP'). It is a list with the components

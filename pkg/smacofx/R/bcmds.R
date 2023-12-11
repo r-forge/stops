@@ -13,7 +13,8 @@
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
-#'
+#' @param normconf normalize the configuration to sum(delta^2)=1 (as in the power stresses). Default is FALSE. Note that then the distances in confdist do not match manually calculated ones.
+#' 
 #' @details For numerical reasons with certain parameter combinations, the normalized stress uses a configuration as worst result where every d(X) is 0+addD0. The same number is not added to the delta so there is a small inaccuracy of the normalized stress (but negligible if min(delta)>>addD0). Also, for mu<0 or mu+lambda<0 the normalization cannot generally be trusted (in the worst case of D(X)=0 one would have an 0^(-a)).    
 #'
 #'
@@ -55,7 +56,7 @@
 #' plot(res)
 #' 
 #' @export
-bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=0,addD0=1e-4,principal=FALSE)
+bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=0,addD0=1e-4,principal=FALSE,normconf=FALSE)
 {
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -227,6 +228,7 @@ while ( stepsize > 1E-5 && i < niter)
   result <- list()
   result$delta <- stats::as.dist(Dorig)
   result$dhat <- stats::as.dist(Do)  #TODO: Check again
+  if(isTRUE(normconf)) X1 <- X1/enorm(X1)
   if (principal) {
         X1_svd <- svd(X1)
         X1 <- X1 %*% X1_svd$v

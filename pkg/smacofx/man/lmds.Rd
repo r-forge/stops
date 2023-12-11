@@ -12,7 +12,8 @@ lmds(
   tau = 1,
   itmax = 5000,
   verbose = 0,
-  principal = FALSE
+  principal = FALSE,
+  normconf = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ lmds(
 \item{verbose}{prints info if > 0 and progress if > 1.}
 
 \item{principal}{If 'TRUE', principal axis transformation is applied to the final configuration}
+
+\item{normconf}{normalize the configuration to sum(delta^2)=1 (as in the power stresses). Note that then the distances in confdist do not match the manually calculated ones.}
 }
 \value{
 an object of class 'lmds' (also inherits from 'smacofP'). See \code{\link{powerStressMin}}. It is a list with the components as in power stress

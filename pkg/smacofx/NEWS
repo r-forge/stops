@@ -1,3 +1,7 @@
+Version 1.3-3
+
+- Added argument normconf to bcmds and lmds so that the configuration get normed the same way as the power stresses (default is FALSE). Note that then the foo$confdist no longer matched dist(foo$conf). Added biplotmds for bcmds and lmds objects (which work better with the non-normalized configurations in these two). 
+
 Version 1.3-2
 
 - Fixed biplotmds to work with any objects that inherit from smacof (e.g. in cops).

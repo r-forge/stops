@@ -278,7 +278,7 @@ elscal <- function (delta, type=c("ratio","interval"), weightmat, init=NULL, ndi
     weightmat[!is.finite(weightmat)] <- 0
     disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
     ## Add an intercept to the spline base transformation
-                                        #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
+    #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
     deltaold <- delta
     itel <- 1
     ##Starting Configs
