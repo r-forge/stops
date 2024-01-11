@@ -80,8 +80,8 @@
 #' \donttest{
 #' ## Self-organizing map style (as in the original publication)
 #' #run the som-style (p)smdda 
-#' sommod1<-so_spmdda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=100,verbose=1)
-#' sommod2<-so_smdda(dis,tau=2.5,epsilon=1,epochs=50,verbose=1)
+#' sommod1<-so_spmdda(dis,tau=2,k=5,kappa=0.5,lambda=2,epochs=10,verbose=1)
+#' sommod2<-so_smdda(dis,tau=2.5,epsilon=1,epochs=10,verbose=1)
 #' sommod1
 #' sommod2
 #' }

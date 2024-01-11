@@ -1,3 +1,11 @@
+Version 1.5-0
+
+- Added Koller data snapshot.
+
+Version 1.4-1
+
+- Changed smpds (and related funcs) to weight zero is d(X)^kappa>tau, not d(X)>tau as before
+
 Version 1.3-3
 
 - Added argument normconf to bcmds and lmds so that the configuration get normed the same way as the power stresses (default is FALSE). Note that then the foo$confdist no longer matched dist(foo$conf). Added biplotmds for bcmds and lmds objects (which work better with the non-normalized configurations in these two). 
