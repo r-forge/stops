@@ -606,7 +606,7 @@
 #' @param optimmethod What optimizer to use? Choose one string of 'Newuoa' (from package minqa), 'NelderMead', 'hjk' (Hooke-Jeeves algorithm from dfoptim), 'solnl' (from nlcOptim), 'solnp' (from Rsolnp), 'subplex' (from subplex), 'SANN' (simulated annealing), 'BFGS', 'snomadr' (from crs), 'genoud' (from rgenoud), 'gensa' (from GenSA), 'cmaes' (from cmaes) and 'direct' (from nloptr). See the according R packages for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually everything with hjk, BFGS, Newuoa, subplex and solnl in it work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.   
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose
 #' @param normed should the Cordillera be normed; defaults to TRUE.
-#' @param scale Scale the configuration for calculation of the OC (the scaled configuration is returned as $confs, the unscaled as $conf, so manual calculation of the OC must be done with $confs) . One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".   
+#' @param scale Scale the configuration (in MDS stress is invariant up to a scaling factor). One of "none" (so no extra scaling of the configuration but normalized to sum delta^2=1), "sd" (configuration divided by the highest standard deviation of any the columns), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd" which often gives a nicer spread on the axes. Note that the scaled configuration is returned as $conf and the unscaled as $usconf, so manual calculation of the OC should be done with $conf.  
 #' @param accuracy numerical accuracy, defaults to 1e-7.
 #' @param itmax maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the first solver, the second algorithm is run for at least 0.1*itmax (so overall itmax may be exceeded by a factor of 1.1).
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2 is used. Using stress-1 puts more weight on MDS fit.
@@ -619,8 +619,8 @@
 #'         \item tdelta: the explicitly transformed dissimilarities 
 #'         \item dhat: the explicitly transformed dissimilarities (dhats), optimally scaled and normalized (which are approximated by the fit)
 #'         \item confdist: Configuration distances, the fitted distances
-#'         \item conf: the configuration (normed)
-#'         \item sconf: the scaled configuration as specified in scale. Scaling applied to conf gives sconf.
+#'         \item conf: the configuration (normed) and scaled as specified in scale. 
+#'         \item usconf: the unscaled configuration (normed to sum delta^2=1). Scaling applied to usconf gives conf.
 #'         \item parameters, par, pars : the theta vector of powers tranformations (kappa, lambda, nu)
 #'         \item niter: number of iterations of the optimizer. 
 #'         \item stress: the square root of explicitly normalized stress (calculated for confo).
@@ -648,7 +648,7 @@
 #' @details
 #' Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.
 #'
-#' For some solvers there also sometimes may be an error starting [smacof::transform()] which comes from the algorithm placing two object at exactly the same place so their fitted distance is 0. This is good from a OPTICS Cordillera point of view (as it is more clustered) which is why some solvers lie to pick that up, but can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects (so include them as a combined row in the distance matrix).
+#' For some solvers theresometimes may be an error [NA/NaN/Inf in foreign function call (arg 3)] stemming from smacof::transform(). This happens when the algorithm places two object at exactly the same place so their fitted distance is 0. This is good from an OPTICS Cordillera point of view (as it is more clustered) which is why some solvers like to pick that up, but it can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects into one (so include them as a combined row in the distance matrix).
 #'
 #' We might eventually switch to newuoa in nloptr. 
 #' 
@@ -1158,11 +1158,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     }
     if(verbose>0) cat("*** Stress:",stress.m,"; Stress-1:",stress,"; from optimization: ",ovalue,"\n")
     #like smacofP
-    out <- list(delta=deltaorig, tdelta=deltaold, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=stress, spp=spp, ndim=ndim, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="COPS-C", niter = itel, nobj = n, type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, pars=c(kappa=kappa,lambda=lambda,nu=nu),parameters=c(kappa=kappa,lambda=lambda,nu=nu),theta=c(kappa=kappa,lambda=lambda,nu=nu),tweightmat=weightmat)
+    out <- list(delta=deltaorig, tdelta=deltaold, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnews, stress=stress, spp=spp, ndim=ndim, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="COPS-C", niter = itel, nobj = n, type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, pars=c(kappa=kappa,lambda=lambda,nu=nu),parameters=c(kappa=kappa,lambda=lambda,nu=nu),theta=c(kappa=kappa,lambda=lambda,nu=nu),tweightmat=weightmat)
     #extra slots for class copsc
     out$gamma <- NA 
     out$ties <- ties 
-    out$sconf <- xnews 
+    out$usconf <- xnew 
     #out$loss <- "copstress"
     out$OC <- cordillera::cordillera(out$conf,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=FALSE)
     out$OCv <- ifelse(normed,out$OC$normed,out$OC$raw)

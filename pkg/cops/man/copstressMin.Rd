@@ -138,7 +138,7 @@ copStressMin(
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
-\item{scale}{Scale the configuration for calculation of the OC (the scaled configuration is returned as $confs, the unscaled as $conf, so manual calculation of the OC must be done with $confs) . One of "none" (so no scaling), "sd" (configuration divided by the highest standard deviation of the columns), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd".}
+\item{scale}{Scale the configuration (in MDS stress is invariant up to a scaling factor). One of "none" (so no extra scaling of the configuration but normalized to sum delta^2=1), "sd" (configuration divided by the highest standard deviation of any the columns), "proc" (procrustes adjustment to the initial fit) and "rmsq" (configuration divided by the maximum root mean square of the columns). Default is "sd" which often gives a nicer spread on the axes. Note that the scaled configuration is returned as $conf and the unscaled as $usconf, so manual calculation of the OC should be done with $conf.}
 
 \item{normed}{should the Cordillera be normed; defaults to TRUE.}
 
@@ -159,8 +159,8 @@ A copsc object (inheriting from smacofP). A list with the components
         \item tdelta: the explicitly transformed dissimilarities 
         \item dhat: the explicitly transformed dissimilarities (dhats), optimally scaled and normalized (which are approximated by the fit)
         \item confdist: Configuration distances, the fitted distances
-        \item conf: the configuration (normed)
-        \item sconf: the scaled configuration as specified in scale. Scaling applied to conf gives sconf.
+        \item conf: the configuration (normed) and scaled as specified in scale. 
+        \item usconf: the unscaled configuration (normed to sum delta^2=1). Scaling applied to usconf gives conf.
         \item parameters, par, pars : the theta vector of powers tranformations (kappa, lambda, nu)
         \item niter: number of iterations of the optimizer. 
         \item stress: the square root of explicitly normalized stress (calculated for confo).
@@ -194,7 +194,7 @@ If one wants to fit these models without the cops penalty, we recommend to use p
 
 Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.
 
-For some solvers there also sometimes may be an error starting [smacof::transform()] which comes from the algorithm placing two object at exactly the same place so their fitted distance is 0. This is good from a OPTICS Cordillera point of view (as it is more clustered) which is why some solvers lie to pick that up, but can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects (so include them as a combined row in the distance matrix).
+For some solvers theresometimes may be an error [NA/NaN/Inf in foreign function call (arg 3)] stemming from smacof::transform(). This happens when the algorithm places two object at exactly the same place so their fitted distance is 0. This is good from an OPTICS Cordillera point of view (as it is more clustered) which is why some solvers like to pick that up, but it can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects into one (so include them as a combined row in the distance matrix).
 
 We might eventually switch to newuoa in nloptr.
 }

@@ -1,9 +1,11 @@
+Version 1.11-1:
+  - Fixed bug (or perhaps it intended at some point) where the returned OC is for the unscaled configuration with the dmax for the scaled config. We now return the scaled configuration as $conf, the unscaled as $usconf. OC now matches between manual calculation with foo$conf and summary function.   
+
 Version 1.10-1:
   - Added jackmds and bootmds methods for pcops objects. Fixed calls in cop_* functions to work with jackmds and bootmds.  
 
 Version 1.9-1:
   - Updates for CRAN. Fixed roxygen @docType change from here https://github.com/r-lib/roxygen2/issues/1491. 
-
 
 Version 1.8-2:
   - Finished moving to smacofx functions as workhorse for all cop_X functions (mostly using scmaofx::powerStressMin). Removed rStressMin and powerStressMin. 
