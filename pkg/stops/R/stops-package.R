@@ -281,7 +281,7 @@
 #' #STOPS with spmdda with k (five parameters already..)
 #' respcldak<-stops(dissm,loss="spmdda_k",theta=c(1,1,1,1,5),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,4),upper=c(5,5,5,5,20),
+#' strucweight=strucweight,lower=c(0.8,0.8,0.8,0.8,4),upper=c(5,5,5,5,20),
 #' optimmethod="tgp",itmax=im)
 #' respcldak
 #' summary(respcldak)
@@ -291,7 +291,7 @@
 #' set.seed(123)
 #' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
 #' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
+#' strucweight=strucweight,lower=c(0.8,0.8,0.8,0.8,1),upper=c(5,5,5,5,10),
 #' optimmethod="tgp",itmax=im)
 #' respcldae
 #' summary(respcldae)
