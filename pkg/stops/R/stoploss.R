@@ -126,9 +126,9 @@ stoploss<- function(obj,stressweight=1,structures=c("cclusteredness","clinearity
         ##TODO add more structures
         struc <- unlist(mget(structures))
         ic <- stressi*stressweight + sum(struc*strucweight) 
-        if (stoptype =="multiplicative") ic <- exp(stressweight*log(stressi) + sum(strucweight*log(struc))) #is this what we want? stress/structure or do we want stress - prod(structure)
+        if (stoptype =="multiplicative") ic <- stressi^stressweight*prod(struc^strucweight) 
         if(verbose>0) cat("stoploss =",ic,"mdsloss =",stressi,"structuredness =",struc,"parameters =",pars,"\n")
-        #return the full combi of stress and indices or only the aggregated scalars; for aSTOPS and mSTOPS we want the latter but for a Pareto approach we want the first; get rid of the sums in ic if the first is wanted  
+        #TODO: return the individual values for a Pareto approach
         out <- list(stoploss=ic,strucindices=struc,parameters=pars,theta=pars)
         out
     }
