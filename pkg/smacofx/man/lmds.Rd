@@ -6,11 +6,12 @@
 \usage{
 lmds(
   delta,
-  init = NULL,
-  ndim = 2,
   k = 2,
   tau = 1,
+  ndim = 2,
+  weightmat = 1 - diag(nrow(delta)),
   itmax = 5000,
+  init = NULL,
   verbose = 0,
   principal = FALSE,
   normconf = FALSE
@@ -19,15 +20,17 @@ lmds(
 \arguments{
 \item{delta}{dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object}
 
-\item{init}{initial configuration. If NULL a classical scaling solution is used.}
-
-\item{ndim}{the dimension of the configuration}
-
 \item{k}{the k neighbourhood parameter}
 
 \item{tau}{the penalty parameter (suggested to be in [0,1])}
 
+\item{ndim}{the dimension of the configuration}
+
+\item{weightmat}{a matrix of finite weights. Not implemented.}
+
 \item{itmax}{number of optimizing iterations, defaults to 5000.}
+
+\item{init}{initial configuration. If NULL a classical scaling solution is used.}
 
 \item{verbose}{prints info if > 0 and progress if > 1.}
 

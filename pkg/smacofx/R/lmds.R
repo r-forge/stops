@@ -3,10 +3,12 @@
 #' This function minimizes the Local MDS Stress of Chen & Buja (2006) via gradient descent. This is a ratio metric scaling method. 
 #' 
 #' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object
-#' @param init initial configuration. If NULL a classical scaling solution is used. 
-#' @param ndim the dimension of the configuration
 #' @param k the k neighbourhood parameter
 #' @param tau the penalty parameter (suggested to be in [0,1]) 
+#' @param type what type of MDS to fit. Only "ratio" currently. 
+#' @param init initial configuration. If NULL a classical scaling solution is used. 
+#' @param ndim the dimension of the configuration
+#' @param weightmat a matrix of finite weights. Not implemented.
 #' @param itmax number of optimizing iterations, defaults to 5000.
 #' @param verbose prints info if > 0 and progress if > 1.
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
@@ -54,8 +56,8 @@
 #' plot(res)
 #' 
 #' @export
-lmds <- function(delta,init=NULL,ndim=2,k=2,tau=1,
-                   itmax=5000,verbose=0,principal=FALSE,normconf=FALSE)
+lmds <- function(delta,k=2,tau=1,type="ratio",ndim=2,weightmat=1-diag(nrow(delta)),
+                   itmax=5000,init=NULL,verbose=0,principal=FALSE,normconf=FALSE)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")

@@ -1,14 +1,16 @@
 #' Box-Cox MDS
 #'
-#' This function minimizes the Box-Cox Stress of Chen & Buja (2013) via gradient descent. This is a ratio metric scaling method. The transformations are not straightforward to interpret but mu is associated with fitted distances in the configuration and lambda with the dissimilarities. Concretely for fitted distances (attraction part) it is BC_{mu+lambda}(d(X)) and for the repulsion part it is delta^lambdaBC_{mu}(d(X)) with BC being the one-parameter Box Cox transformation.
+#' This function minimizes the Box-Cox Stress of Chen & Buja (2013) via gradient descent. This is a ratio metric scaling method. The transformations are not straightforward to interpret but mu is associated with fitted distances in the configuration and lambda with the dissimilarities. Concretely for fitted distances (attraction part) it is \eqn{BC_{mu+lambda}(d(X))} and for the repulsion part it is \eqn{delta^lambda BC_{mu}(d(X))} with BC being the one-parameter Box-Cox transformation.
 #'
 #' 
-#' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object 
-#' @param init initial configuration. If NULL a classical scaling solution is used. 
-#' @param ndim the dimension of the configuration
+#' @param delta dissimilarity or distance matrix, dissimilarity or distance data frame or 'dist' object
 #' @param mu mu parameter. Should be 0 or larger for everything working ok. If mu<0 it works but I find the MDS model is strange and normalized stress tends towards 0 regardless of fit. Use normalized stress at your own risk in that case.
 #' @param lambda lambda parameter. Must be larger than 0.
 #' @param rho the rho parameter, power for the weights (called nu in the original article).
+#' @param type what type of MDS to fit. Only "ratio" currently. 
+#' @param ndim the dimension of the configuration
+#' @param init initial configuration. If NULL a classical scaling solution is used. 
+#' @param weightmat a matrix of finite weights. Not implemented.
 #' @param itmax number of optimizing iterations, defaults to 2000.
 #' @param verbose prints progress if > 3.
 #' @param addD0 a small number that's added for D(X)=0 for numerical evaluation of worst fit (numerical reasons, see details). If addD0=0 the normalized stress for mu!=0 and mu+lambda!=0 is correct, but will give useless normalized stress for mu=0 or mu+lambda!=0.
@@ -32,7 +34,7 @@
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
 #' \item pars: hyperparameter vector theta
-#' \item weightmat:  delta^rho
+#' \item weightmat: 1-diagonal matrix. For compatibility with smacofP classes. 
 #' \item parameters, pars, theta: The parameters supplied
 #' \item call the call
 #' }
@@ -56,7 +58,7 @@
 #' plot(res)
 #' 
 #' @export
-bcmds <- function(delta,mu=1,lambda=1,rho=0,ndim=2,itmax=2000,init=NULL,verbose=0,addD0=1e-4,principal=FALSE,normconf=FALSE)
+bcmds <- function(delta,mu=1,lambda=1,rho=0,type="ratio", ndim=2,weightmat=1-diag(nrow(delta)),itmax=2000,init=NULL,verbose=0,addD0=1e-4,principal=FALSE,normconf=FALSE)
 {
   if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
   if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -239,7 +241,7 @@ while ( stepsize > 1E-5 && i < niter)
   result$confdist <- stats::as.dist(D1) #TODO: Check again
   result$conf <- X1 #new
   result$stress <- sqrt(s1n)
-  weightmat <- stats::as.dist(Dnu)
+  weightmat <- stats::as.dist(1-diag(n))
   spoint <- spp(result$delta, result$confdist, weightmat)
   resmat<-spoint$resmat
   rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
