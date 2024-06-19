@@ -1,3 +1,6 @@
+Version 1.11-2:
+  - New CRAN release.
+
 Version 1.11-1:
   - Fixed bug (or perhaps it intended at some point) where the returned OC is for the unscaled configuration with the dmax for the scaled config. We now return the scaled configuration as $conf, the unscaled as $usconf. OC now matches between manual calculation with foo$conf and summary function.   
 

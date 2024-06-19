@@ -58,7 +58,7 @@ pcops(
 
 \item{epsilon}{the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10}
 
-\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=1. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link{cordillera}}.}
+\item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=1. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link[cordillera]{cordillera}}.}
 
 \item{optimmethod}{What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS.}
 
