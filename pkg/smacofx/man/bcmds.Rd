@@ -12,6 +12,7 @@ bcmds(
   mu = 1,
   lambda = 1,
   rho = 0,
+  type = "ratio",
   ndim = 2,
   weightmat = 1 - diag(nrow(delta)),
   itmax = 2000,
@@ -27,6 +28,7 @@ bcStressMin(
   mu = 1,
   lambda = 1,
   rho = 0,
+  type = "ratio",
   ndim = 2,
   weightmat = 1 - diag(nrow(delta)),
   itmax = 2000,
@@ -42,6 +44,7 @@ bcstressMin(
   mu = 1,
   lambda = 1,
   rho = 0,
+  type = "ratio",
   ndim = 2,
   weightmat = 1 - diag(nrow(delta)),
   itmax = 2000,
@@ -57,6 +60,7 @@ boxcoxmds(
   mu = 1,
   lambda = 1,
   rho = 0,
+  type = "ratio",
   ndim = 2,
   weightmat = 1 - diag(nrow(delta)),
   itmax = 2000,
@@ -75,6 +79,8 @@ boxcoxmds(
 \item{lambda}{lambda parameter. Must be larger than 0.}
 
 \item{rho}{the rho parameter, power for the weights (called nu in the original article).}
+
+\item{type}{what type of MDS to fit. Only "ratio" currently.}
 
 \item{ndim}{the dimension of the configuration}
 

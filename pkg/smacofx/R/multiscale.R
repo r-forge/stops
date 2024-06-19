@@ -12,7 +12,7 @@
 ## #' @param verbose should iteration output be printed; if > 1 then yes
 ## #' @param kappa As this is not exactly multiscale but an r-stress approximation, we have multiscale only for kappa->0. This argument can therefore be used to make the approximation more accurate by making it smaller. Default is 0.1.
 ## #' 
-## #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+## #' @return a smacofP object (inheriting form smacofB, see \code{\link[smacof]{smacofSym}}). It is a list with the components
 ## #' \itemize{
 ## #' \item delta: Observed dissimilarities on log scale 
 ## #' \item obsdiss: Observed dissimilarities (dhats), optimally scaled and normalized 
@@ -207,7 +207,7 @@
 #' @param kappa As this is not exactly multiscale but an r-stress approximation, we have multiscale only for kappa->0. This argument can therefore be used to make the approximation more accurate by making it smaller. Default is 0.1.
 #' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
 #' 
-#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link[smacof]{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed dissimilarities
 #' \item tdelta: Observed explicitly transformed (log) dissimilarities, normalized

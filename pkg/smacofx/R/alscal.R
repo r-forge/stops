@@ -11,7 +11,7 @@
 ## #' @param itmax maximum number of iterations. Default is 10000.
 ## #' @param verbose should iteration output be printed; if > 1 then yes
 ## #'
-## #' @return a smacofP object (inheriting form smacofB, see \code{\link{smacofSym}}). It is a list with the components
+## #' @return a smacofP object (inheriting form smacofB, see \code{\link[smacof]{smacofSym}}). It is a list with the components
 ## #' \itemize{
 ## #' \item delta: Observed dissimilarities squared 
 ## #' \item obsdiss: Observed dissimilarities (dhats), optimally scaled and normalized 
@@ -201,7 +201,7 @@
 #' @param verbose should iteration output be printed; if > 1 then yes
 #' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration
 #'
-#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link{smacofSym}}). It is a list with the components
+#' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link[smacof]{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed untransformed dissimilarities
 #' \item tdelta: Observed explicitly transformed (squared) dissimilarities, normalized

@@ -8,6 +8,7 @@ lmds(
   delta,
   k = 2,
   tau = 1,
+  type = "ratio",
   ndim = 2,
   weightmat = 1 - diag(nrow(delta)),
   itmax = 5000,
@@ -23,6 +24,8 @@ lmds(
 \item{k}{the k neighbourhood parameter}
 
 \item{tau}{the penalty parameter (suggested to be in [0,1])}
+
+\item{type}{what type of MDS to fit. Only "ratio" currently.}
 
 \item{ndim}{the dimension of the configuration}
 
