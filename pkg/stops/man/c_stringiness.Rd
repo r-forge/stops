@@ -12,7 +12,7 @@ c_stringiness(conf, aggr = max)
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \value{
-a numeric value; stringiness (see \code{\link{scagnostics}})
+a numeric value; stringiness (see \code{\link[scagnostics]{scagnostics}})
 }
 \description{
 Measures the c-stringiness structure

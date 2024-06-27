@@ -12,7 +12,7 @@ c_convexity(conf, aggr = max)
 \item{aggr}{the aggregation function for configurations of more than two dimensions. Defaults to max.}
 }
 \value{
-a numeric value; convexity (see \code{\link{scagnostics}})
+a numeric value; convexity (see \code{\link[scagnostics]{scagnostics}})
 }
 \description{
 Measures the c-convexity structure

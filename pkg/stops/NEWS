@@ -1,3 +1,7 @@
+Version 1.6-1
+
+- Updated docs to include more hyperlinks.
+
 Version 1.6-0
 
 - Fixed bug for stoptype="multiplicative". 

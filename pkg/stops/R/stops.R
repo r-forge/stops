@@ -16,7 +16,7 @@
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight vector of weights to be used for the c-structuredness indices (in the same order as in structures); defaults to -1/length(structures) for each index 
 #' @param strucpars (possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.  
-#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"), "DIRECT", Stochastic Global Optimization ("stogo"), COBYLA ("cobyla"), Controlled Random Search 2 with local mutation ("crs2lm"), Improved Stochastic Ranking Evolution Strategy ("isres"), Multi-Level Single-Linkage ("mlsl"), Nelder-Mead ("neldermead"), Subplex ("sbplx"), Hooke-Jeeves Pattern Search ("hjk"), CMA-ES ("cmaes"). Defaults to "ALJ" version. tgp, ALJ, Kriging and pso usually work well for relatively low values of itmax. 
+#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging", see \code{\link[DiceOptim]{EGO.nsteps}}), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp", see \code{\link[tgp]{dopt.gp}}), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso", see \code{\link[pso]{psoptim}}), simulated annealing ("SANN", \code{\link[stats]{optim}}), "direct (\code{\link[nloptr]{direct}})", Stochastic Global Optimization ("stogo", \code{\link[nloptr]{stogo}}), COBYLA ("cobyla", \code{\link[nloptr]{cobyla}}), Controlled Random Search 2 with local mutation ("crs2lm", \code{\link[nloptr]{crs2lm}}), Improved Stochastic Ranking Evolution Strategy ("isres", \code{\link[nloptr]{isres}}), Multi-Level Single-Linkage ("mlsl", \code{\link[nloptr]{mlsl}}), Nelder-Mead ("neldermead", \code{\link[nloptr]{neldermead}}), Subplex ("sbplx", \code{\link[nloptr]{sbplx}}), Hooke-Jeeves Pattern Search ("hjk", \code{\link[dfoptim]{hjk}}), CMA-ES ("cmaes", \code{\link[cmaes]{cma_es}}). Defaults to "ALJ" version. "tgp", "ALJ", "Kriging" and "pso" usually work well for relatively low values of 'itmax'. 
 #' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
 #' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose.
@@ -24,8 +24,8 @@
 #' @param itmax maximum number of iterations of the outer optimization (for theta) or number of steps of Bayesian optimization; default is 50. We recommend a higher number for ALJ (around 150). Note that due to the inner workings of some solvers, this may or may not correspond to the actual number of function evaluations performed (or PS models fitted). E.g., with tgp the actual number of function evaluation of the PS method is between itmax and 6*itmax as tgp samples 1-6 candidates from the posterior and uses the best candidate. For pso it is the number of particles s times itmax. For cmaes it is usually a bit higher than itmax. This currently may get overruled by a control argument if it is used (and then set to either ewhat is supplie dby control or to the default of the method).    
 #' @param itmaxps maximum number of iterations of the inner optimization (to obtain the PS configuration)
 #' @param initpoints number of initial points to fit the surrogate model for Bayesian optimization; default is 10.
-#' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm" 
-#' @param control a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the efect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms DIRECT, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.
+#' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link[DiceKriging]{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link[tgp]{bgp}}, defaults to "btgpllm" 
+#' @param control a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the effect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms direct, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.
 #' @param ... additional arguments passed to the outer optimization procedures (not fully tested).
 #' 
 #
@@ -84,7 +84,7 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","DIRECT","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
+stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","direct","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
     {
       if(missing(structures)) {
           structures <- "clinearity"
@@ -171,7 +171,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
        bestval <- opt$value #best stoploss value
        itel <- opt$counts["function"] 
     }
-     if(optimmethod=="DIRECT") {
+     if(optimmethod=="direct") {
             if (verbose>1) cat("DIRECT Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)
           opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=control,...)
@@ -277,37 +277,4 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
     class(out) <- c("stops")
     out
   }
-
-
-
-
-## #' S3 plot3d method for class stops
-## #'
-## #' 
-## #' This methods produces a dynamic 3D configuration plot.
-## #' @param x object of class stops
-## #' @param ... Further plot arguments to the method of the class of slot $fit, see \code{\link{plot.smacof}} or \code{\link{plot3d.cmdscaleE}} . Also see 'rgl' in package 'rgl' 
-## #'
-## #' @return no return value, just plots
-## #' 
-## #' @export
-## #' @import rgl
-## plot3d.stops <- function(x,...)
-##     {
-##         plot3d(x$fit,...)
-##     }
-
-## #' S3 plot3dstatic method for class stops
-## #' 
-## #' This methods produces a static 3D configuration plot.
-## #' @param x object of class stops
-## #' @param ... Further plot arguments to the method of the class of slot fit, see \code{\link{plot3dstatic}} or \code{\link{plot3dstatic.cmdscaleE}} . Also see 'scatterplot3d' in package 'scatterplot3d'.
-## #'
-## #' @return no return value, just plots
-## #' 
-## #' @export
-## plot3dstatic.stops <- function(x,...)
-##     {
-##         plot3dstatic(x$fit,...)
-##     }
 

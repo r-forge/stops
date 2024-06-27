@@ -42,7 +42,7 @@ ljoptim(
 \item{adaptive}{should the adaptive version be used? defaults to TRUE.}
 }
 \value{
-A list with the components (\code{\link{optim}})
+A list with the components (\code{\link[stats]{optim}})
 \itemize{
      \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
      \item value The value of the objective function at the optimum (min fun)

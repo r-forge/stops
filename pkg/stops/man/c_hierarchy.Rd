@@ -12,7 +12,7 @@ c_hierarchy(confs, p = 2, agglmethod = "complete")
 
 \item{p}{the parameter of the Minokwski distances (p=2 euclidean and p=1 is manhattan)}
 
-\item{agglmethod}{the method used for creating the clustering, see \code{\link{hclust}}.}
+\item{agglmethod}{the method used for creating the clustering, see \code{\link[stats]{hclust}}.}
 }
 \value{
 a numeric value; hierarchy (see \code{\link[clue]{cl_validity}})

@@ -20,7 +20,7 @@ c_clusteredness(
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
 
-\item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan:optics]{optics}} where it is called minPts. Defaults to 2.}
+\item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan]{optics}} where it is called minPts. Defaults to 2.}
 
 \item{q}{The norm used for the Cordillera. Defaults to 2.}
 

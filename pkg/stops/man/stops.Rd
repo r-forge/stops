@@ -16,7 +16,7 @@ stops(
   stressweight = 1,
   strucweight,
   strucpars,
-  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp", "DIRECT", "stogo", "cobyla",
+  optimmethod = c("SANN", "ALJ", "pso", "Kriging", "tgp", "direct", "stogo", "cobyla",
     "crs2lm", "isres", "mlsl", "neldermead", "sbplx", "hjk", "cmaes"),
   lower,
   upper,
@@ -53,7 +53,7 @@ stops(
 
 \item{strucpars}{(possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.}
 
-\item{optimmethod}{What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging"), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp"), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso"), simulated annealing ("SANN"), "DIRECT", Stochastic Global Optimization ("stogo"), COBYLA ("cobyla"), Controlled Random Search 2 with local mutation ("crs2lm"), Improved Stochastic Ranking Evolution Strategy ("isres"), Multi-Level Single-Linkage ("mlsl"), Nelder-Mead ("neldermead"), Subplex ("sbplx"), Hooke-Jeeves Pattern Search ("hjk"), CMA-ES ("cmaes"). Defaults to "ALJ" version. tgp, ALJ, Kriging and pso usually work well for relatively low values of itmax.}
+\item{optimmethod}{What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging", see \code{\link[DiceOptim]{EGO.nsteps}}), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp", see \code{\link[tgp]{dopt.gp}}), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso", see \code{\link[pso]{psoptim}}), simulated annealing ("SANN", \code{\link[stats]{optim}}), "direct (\code{\link[nloptr]{direct}})", Stochastic Global Optimization ("stogo", \code{\link[nloptr]{stogo}}), COBYLA ("cobyla", \code{\link[nloptr]{cobyla}}), Controlled Random Search 2 with local mutation ("crs2lm", \code{\link[nloptr]{crs2lm}}), Improved Stochastic Ranking Evolution Strategy ("isres", \code{\link[nloptr]{isres}}), Multi-Level Single-Linkage ("mlsl", \code{\link[nloptr]{mlsl}}), Nelder-Mead ("neldermead", \code{\link[nloptr]{neldermead}}), Subplex ("sbplx", \code{\link[nloptr]{sbplx}}), Hooke-Jeeves Pattern Search ("hjk", \code{\link[dfoptim]{hjk}}), CMA-ES ("cmaes", \code{\link[cmaes]{cma_es}}). Defaults to "ALJ" version. "tgp", "ALJ", "Kriging" and "pso" usually work well for relatively low values of 'itmax'.}
 
 \item{lower}{The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.}
 
@@ -69,9 +69,9 @@ stops(
 
 \item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the PS configuration)}
 
-\item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link{bgp}}, defaults to "btgpllm"}
+\item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link[DiceKriging]{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link[tgp]{bgp}}, defaults to "btgpllm"}
 
-\item{control}{a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the efect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms DIRECT, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.}
+\item{control}{a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the effect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms direct, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.}
 
 \item{...}{additional arguments passed to the outer optimization procedures (not fully tested).}
 }

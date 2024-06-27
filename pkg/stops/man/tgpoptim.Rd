@@ -40,7 +40,7 @@ tgpoptim(
 \item{model}{which surrogate model class to use (currently uses defaults only, will extend this to tweak the model)}
 }
 \value{
-A list with the components (for compatiility with \code{\link{optim}})
+A list with the components (for compatibility with \code{\link[stats]{optim}})
 \itemize{
      \item par The position of the optimum in the search space (parameters that minimize the function; argmin fun). 
      \item value The value of the objective function at the optimum (min fun). Note we do not use the last value in the candidate list but the best candidate (which can but need not coincide). 
