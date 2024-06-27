@@ -15,10 +15,10 @@ There was one NOTE for r-release, r-devel and r-oldrel.
       	Maintainer: ‘Thomas Rusch <thomas.rusch@wu.ac.at>’
 
 	Possibly misspelled words in DESCRIPTION:
-  	hyperparameters (6:737)
-  	smacofx (6:972)
+  	hyperparameters (6:738)
+  	smacofx (6:973)
 
-The first flagged words seems false positive. smacofx is a package name. 
+The first flagged words seems to be a false positive. smacofx is a package name. 
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.

@@ -1,5 +1,8 @@
+Version 1.11-3:
+  - Updated docs to include better hyperlinks. Also changed some solver names to match the function names we use. Touchups for CRAN release.
+
 Version 1.11-2:
-  - New CRAN release.
+  - Touchups for CRAN release. 
 
 Version 1.11-1:
   - Fixed bug (or perhaps it intended at some point) where the returned OC is for the unscaled configuration with the dmax for the scaled config. We now return the scaled configuration as $conf, the unscaled as $usconf. OC now matches between manual calculation with foo$conf and summary function.   

@@ -20,7 +20,7 @@ pcops(
   minpts = ndim + 1,
   epsilon = 100,
   rang,
-  optimmethod = c("ALJ", "pso", "SANN", "DIRECT", "DIRECTL", "stogo", "MADS", "hjk"),
+  optimmethod = c("ALJ", "pso", "SANN", "direct", "directL", "stogo", "MADS", "hjk"),
   lower = 0.5,
   upper = 5,
   verbose = 0,
@@ -60,7 +60,7 @@ pcops(
 
 \item{rang}{range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=1. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link[cordillera]{cordillera}}.}
 
-\item{optimmethod}{What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS.}
+\item{optimmethod}{What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso", \code{\link[pso]{psoptim}}) and simulated annealing ("SANN", \code{\link[stats]{optim}}), "directT" or "directL" (see \code{\link[nloptr]{direct}}), Hooke-Jeeves ("hjk", \code{\link[dfoptim]{hjk}}), StoGo ("stogo", \code{\link[nloptr]{stogo}}), and "snomadr" (\code{\link[crs]{snomadr}}). We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, direct and directL and also snomadr.}
 
 \item{lower}{A vector of the lower box contraints of the search region. Its length must match the length of theta.}
 
@@ -78,7 +78,7 @@ pcops(
 
 \item{itmaxo}{iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.}
 
-\item{itmaxi}{iterations of the inner step (optimization of the MDS). Defaults to 5000 (which is huge).}
+\item{itmaxi}{iterations of the inner step (optimization of the MDS). Defaults to 5000.}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }

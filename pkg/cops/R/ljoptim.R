@@ -14,7 +14,7 @@
 #' @param itmax maximum number of iterations
 #' @param adaptive should the adaptive version be used? defaults to TRUE.
 #' 
-#' @return A list with the components (see also \code{\link{optim}})
+#' @return A list with the components (see also \code{\link[stats]{optim}})
 #' \itemize{
 #'      \item par The position of the optimimum in the search space (parameters that minimize the function; argmin fun)
 #'      \item value The value of the objective function at the optimum (min fun)

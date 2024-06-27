@@ -15,7 +15,7 @@
 #' @param minpts the minimum points to make up a cluster in OPTICS; defaults to ndim+1
 #' @param epsilon the epsilon parameter of OPTICS, the neighbourhood that is checked; defaults to 10
 #' @param rang range of the minimum reachabilities to be considered. If missing it is found from the initial configuration by taking 1.5 times the maximal minimum reachability of the model with theta=1. If NULL it will be normed to each configuration's minimum and maximum distance, so an absolute value of goodness-of-clusteredness. Note that the latter is not necessarily desirable when comparing configurations for their relative clusteredness. See also \code{\link[cordillera]{cordillera}}.     
-#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso") and simulated annealing ("SANN"), "DIRECT" and "DIRECTL", Hooke-Jeeves ("hjk"), StoGo ("stogo"), and "MADS". We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, DIRECT and DIRECTL and also MADS. 
+#' @param optimmethod What general purpose optimizer to use? Defaults to our adaptive LJ version (ALJ). Also allows particle swarm optimization with s particles ("pso", \code{\link[pso]{psoptim}}) and simulated annealing ("SANN", \code{\link[stats]{optim}}), "directT" or "directL" (see \code{\link[nloptr]{direct}}), Hooke-Jeeves ("hjk", \code{\link[dfoptim]{hjk}}), StoGo ("stogo", \code{\link[nloptr]{stogo}}), and "snomadr" (\code{\link[crs]{snomadr}}). We recommend not using SANN and pso with the rstress, sstress and the power stress models. We made good experiences with ALJ, stogo, direct and directL and also snomadr. 
 #' @param lower A vector of the lower box contraints of the search region. Its length must match the length of theta.
 #' @param upper A vector of the upper box contraints of the search region. Its length must match the length of theta. 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose. Note that for models with some parameters fixed, the iteration progress of the optimizer shows different values also for the fixed parameters because due to the modular setup we always optimize over a three parameter vector. These values are inconsequential however as internally they will be fixed. 
@@ -23,7 +23,7 @@
 #' @param scale should the configuration be scaled and/or centered for calculating the cordillera? "std" standardizes each column of the configurations to mean=0 and sd=1 (typically not a good idea), "sd" scales the configuration by the maximum standard devation of any column (default), "proc" adjusts the fitted configuration to the init configuration (or the Togerson scaling solution if init=NULL). This parameter only has an effect for calculating the cordillera, the fitted and returned configuration is NOT scaled.     
 #'@param s number of particles if pso is used
 #'@param itmaxo iterations of the outer step (optimization over the hyperparmeters; if solver allows it). Defaults to 200.  
-#'@param itmaxi iterations of the inner step (optimization of the MDS). Defaults to 5000 (which is huge).
+#'@param itmaxi iterations of the inner step (optimization of the MDS). Defaults to 5000.
 #'@param acc termination threshold difference of two successive outer minimization steps.
 #'@param ... additional arguments to be passed to the optimization procedure
 #'
@@ -67,7 +67,7 @@
 #' 
 #'@keywords clustering multivariate
 #'@export
-pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),type="ratio",weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","DIRECT","DIRECTL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-5,itmaxo=200,itmaxi=5000,...)
+pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammon","rstress","powermds","sstress","elastic","powersammon","powerelastic","powerstress","sammon2","powerstrain","apstress","rpowerstress"),type="ratio",weightmat=NULL,ndim=2,init=NULL,theta=c(1,1,1),stressweight=1,cordweight,q=2,minpts=ndim+1,epsilon=100,rang,optimmethod=c("ALJ","pso","SANN","direct","directL","stogo","MADS","hjk"),lower=0.5,upper=5,verbose=0,scale=c("proc", "sd", "none", "std"),normed=TRUE,s=4,acc=1e-5,itmaxo=200,itmaxi=5000,...)
 {
       if(missing(scale)) scale <- "sd"
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -128,7 +128,7 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
             # opt<- cops::ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,stresstype=stresstype,itmaxi=itmaxi))$copstress,lower=lower,upper=upper,verbose=verbose-2,itmax=itmaxo,acc=acc)
             thetaopt <- opt$par
       }
-      if(optimmethod=="DIRECT") {
+      if(optimmethod=="direct") {
           opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
       }
@@ -136,11 +136,11 @@ pcops <- function(dis,loss=c("stress","smacofSym","smacofSphere","strain","sammo
            opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),maxeval=itmaxo,xtol_rel=acc,...)
              thetaopt <- opt$par
       }
-      if(optimmethod=="DIRECTL") {
+      if(optimmethod=="directL") {
           opt<- nloptr::directL(function(theta) do.call(psfunc,list(dis=dis,weightmat=weightmat,theta=theta,init=.confin,ndim=ndim,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,verbose=verbose-3,scale=scale,normed=normed,itmaxi=itmaxi,type=type))$copstress,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=list(maxeval=itmaxo,xtol_rel=acc),...)
             thetaopt <- opt$par
        }
-      if(optimmethod=="MADS") {
+      if(optimmethod=="snomadr") {
       #snomard is super stupid with extra parameters    
       eval.f.pars <- function(x,params)
       {
