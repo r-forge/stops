@@ -324,7 +324,7 @@ c_faithfulness<- function(confs,obsdiss,k=3,...)
     nk <- (apply(nnconf*nnmat, 2, sum)-1)/(kv-1)
     mkadj <- mean(nk)-(sum(nnmat)-n)/n/n
     res <- list(mda=mkadj,nk=nk)
-    return(res)
+    return(res$mda) #changed to only return the scalar
   }
 
 #'calculate k nearest neighbours from a distance matrix

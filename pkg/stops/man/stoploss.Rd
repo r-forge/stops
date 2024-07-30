@@ -2,7 +2,10 @@
 % Please edit documentation in R/stoploss.R
 \name{stoploss}
 \alias{stoploss}
-\title{Calculate the weighted multiobjective loss function used in STOPS}
+\title{Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoploss
+write stops_foo where foo is the MDS model of interest
+TODO: also do this with a pareto approach    
+ Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
 stoploss(
   obj,
@@ -36,5 +39,8 @@ stoploss(
 a list with calculated stoploss ($stoploss), structuredness indices ($strucinidices) and hyperparameters ($parameters and $theta)
 }
 \description{
-Calculate the weighted multiobjective loss function used in STOPS
+Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoploss
+write stops_foo where foo is the MDS model of interest
+TODO: also do this with a pareto approach    
+ Calculate the weighted multiobjective loss function used in STOPS
 }
