@@ -26,6 +26,7 @@
 #' @param initpoints number of initial points to fit the surrogate model for Bayesian optimization; default is 10.
 #' @param model a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link[DiceKriging]{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link[tgp]{bgp}}, defaults to "btgpllm" 
 #' @param control a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the effect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms direct, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.
+#' @param registry an object of class registry containing the c-structuredness indices. Defaults to the what is created .onLoad. 
 #' @param ... additional arguments passed to the outer optimization procedures (not fully tested).
 #' 
 #
@@ -84,7 +85,7 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","direct","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,...)
+stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, weightmat=NULL, init=NULL, stressweight=1, strucweight, strucpars, optimmethod=c("SANN","ALJ","pso","Kriging","tgp","direct","stogo","cobyla","crs2lm","isres","mlsl","neldermead","sbplx","hjk","cmaes"), lower, upper, verbose=0, stoptype=c("additive","multiplicative"), initpoints=10, itmax=50,itmaxps=10000, model, control,registry=struc_reg,...)
     {
       if(missing(structures)) {
           structures <- "clinearity"
@@ -93,8 +94,9 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
       ## allowed losses
       loss <- match.arg(loss,c("strain","stress","smacofSym","powerstress","powermds","powerelastic","powerstrain","elastic","sammon","sammon2","smacofSphere","powersammon","rstress","sstress","isomap","isomapeps","isomap_eps","isomap_k","bcstress","bcmds","lmds","apstress","rpowerstress","smds","spmds","smdda_k","smdda_eps","spmdda_k","spmdda_eps","clca","clda_k","clda_eps"),several.ok=FALSE)
       ## allowed structures
-      structures <- match.arg(structures,c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality","cshepardness"),several.ok=TRUE)
-      
+      ##structures <- match.arg(structures,c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality","cshepardness"),several.ok=TRUE)
+      ##Write the above to match against the registry names
+     
       if(missing(strucpars)) strucpars <- vector("list",length(structures))
       if(inherits(dis,"dist")) dis <- as.matrix(dis)
       if(is.null(weightmat)) weightmat <- 1-diag(dim(dis)[1])
@@ -113,7 +115,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
       if(verbose>0) cat("Starting Optimization \n ")
         if(optimmethod=="SANN") {
             if(missing(control)) control <- list(trace=verbose-2,lower=lower,upper=upper,maxit=itmax)
-            opt <- pomp::sannbox(par=theta,fn=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,control=control)
+            opt <- pomp::sannbox(par=theta,fn=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,control=control)
           thetaopt <- opt$par
           bestval <- opt$value
           itel <- opt$counts[1]
@@ -121,13 +123,13 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
        if(optimmethod=="pso") {
         #addargs <- list(...)
         if(missing(control)) control <- list(trace=verbose-2,s=5,maxit=itmax)
-        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,control=control,...)
+        opt<- pso::psoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,control=control,...)
          thetaopt <- opt$par
          bestval <-  opt$value
          itel <- opt$counts["function"]
        }
       if(optimmethod=="ALJ")  {
-        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
+        opt <- ljoptim(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,verbose=verbose-2,itmax=itmax,...)
        thetaopt <- opt$par
        bestval <-  opt$value
        itel <- opt$counts["function"] 
@@ -145,13 +147,13 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         X <- tgp::dopt.gp(initpoints-1,X=x,Xcand)$XX
         design <- rbind(x,X)
         #design <- data.frame(X) 
-        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss) #support points for fitting kriging model
+        responsec <- apply(design, 1, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss) #support points for fitting kriging model
         if (verbose>1) cat("Kriging Model Fitting","\n")
         surrogatemodel <- DiceKriging::km(~1, design = design, response = responsec,covtype=model,control=list(trace=isTRUE(verbose>3))) #fit the kriging model
         #EGO.nsteps has no verbose argument so I capture.output and return it if desired
         if (verbose>2) cat("EGO (DICE) Optimization","\n")
         logged <- capture.output({
-           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)
+           opt<- DiceOptim::EGO.nsteps(model=surrogatemodel, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nsteps=itmax,...)
        }) #bayesian optimization with gaussian process prior
        if(verbose>2) print(logged)
        thetaopt <- opt$par[which.min(opt$value),] #parameters where best value found (we do not use the last one as that may be worse)
@@ -166,7 +168,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         #if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1
         #if(loss%in%c("powermds","powerelastic","powersammon","smacofSphere","strain","sammon","elastic","sammon2")) optdim <- 2
         if (verbose>1) cat("EGO (TGP) Optimization","\n")
-        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
+        opt <- tgpoptim(theta, fun=function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,itmax=itmax,initpoints=initpoints,model=model,verbose=verbose-2,...) #bayesian optimization with treed gaussian process prior
        thetaopt <- opt$par #parameters where best value found (we do not use the last one as that may be worse)
        bestval <- opt$value #best stoploss value
        itel <- opt$counts["function"] 
@@ -174,7 +176,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
      if(optimmethod=="direct") {
             if (verbose>1) cat("DIRECT Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)
-          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=control,...)
+          opt<- nloptr::direct(function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -183,7 +185,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
           if (verbose>1) cat("StoGO Optimization","\n")
           #cat(itmax,"\n")
          #   if(missing(control)) control <- list(maxeval=itmax)  
-          opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>2),maxeval=itmax,...)
+          opt<- nloptr::stogo(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>2),maxeval=itmax,...)
           #TODO Issue with maxeval?
             thetaopt <- opt$par
             bestval <- opt$value
@@ -192,7 +194,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
          if(optimmethod=="cobyla") {
             if (verbose>1) cat("COBYLA Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::cobyla(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=control,...)
+           opt<- nloptr::cobyla(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(all.equal(verbose-2,0)),control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -200,7 +202,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         if(optimmethod=="crs2lm") {
             if (verbose>1) cat("crs2lm Optimization","\n")
             #if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::crs2lm(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),maxeval=itmax,...)
+           opt<- nloptr::crs2lm(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),maxeval=itmax,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -208,7 +210,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         if(optimmethod=="isres") {
             if (verbose>1) cat("isres Optimization","\n")
             #if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::crs2lm(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),maxeval=itmax,...)
+           opt<- nloptr::crs2lm(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),maxeval=itmax,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -216,7 +218,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         if(optimmethod=="mlsl") {
             if (verbose>1) cat("MLSL Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::mlsl(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
+           opt<- nloptr::mlsl(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -224,7 +226,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         if(optimmethod=="neldermead") {
             if (verbose>1) cat("Nelder-Mead Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::neldermead(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
+           opt<- nloptr::neldermead(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -232,7 +234,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
           if(optimmethod=="sbplx") {
             if (verbose>1) cat("Subplex Optimization","\n")
             if(missing(control)) control <- list(maxeval=itmax)  
-           opt<- nloptr::sbplx(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
+           opt<- nloptr::sbplx(theta,function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,nl.info=isTRUE(verbose>3),control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$iter
@@ -240,7 +242,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
         if(optimmethod=="hjk") {
             if (verbose>1) cat("Hooke-Jeeves Optimization","\n")
             if(missing(control)) control <- list(info=isTRUE(all.equal(verbose-2,0)),maxfeval=itmax)
-          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,control=control,...)
+          opt<- dfoptim::hjkb(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$feval
@@ -254,14 +256,14 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
                   lambda <- 4 + floor(3 * log(N))
                   control <- list(maxit=ceiling(itmax/lambda))
                 }
-          opt<- cmaes::cma_es(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))$stoploss,lower=lower,upper=upper,control=control,...)
+          opt<- cmaes::cma_es(theta, function(theta) do.call(psfunc,list(dis=dis,theta=theta,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))$stoploss,lower=lower,upper=upper,control=control,...)
             thetaopt <- opt$par
             bestval <- opt$value
             itel <- opt$counts[1]
          }
         #TODO: Streamline the number of function evaluations to be supplied returned for the different solvers. E.g. for cma_es it is itmax*population size. Or for tgp it is also itmax*6 or so. 
     #refit optimal model  
-    out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype))
+    out <- do.call(psfunc,list(dis=dis,theta=thetaopt,ndim=ndim,weightmat=weightmat,init=.confin,structures=structures,stressweight=stressweight,strucweight=strucweight,strucpars=strucpars,verbose=verbose-3,type=type,itmaxi=itmaxps,stoptype=stoptype,registry=registry))
     out$stoploss <- bestval
     out$theta <- out$parameters
     out$optim <- opt

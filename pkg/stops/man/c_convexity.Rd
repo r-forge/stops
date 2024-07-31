@@ -4,7 +4,7 @@
 \alias{c_convexity}
 \title{c-convexity}
 \usage{
-c_convexity(conf, aggr = max)
+c_convexity(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

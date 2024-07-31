@@ -9,7 +9,7 @@ this is one of few c-structuredness indices not between 0 and 1}
 \usage{
 c_nonmonotonicity(
   confs,
-  aggr = max,
+  aggr = NULL,
   alpha = 1,
   C = 15,
   var.thr = 1e-05,

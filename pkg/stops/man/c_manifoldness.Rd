@@ -5,7 +5,7 @@
 \title{c-manifoldness
 calculates c-manifoldness as the aggregated maximal correlation coefficient (i.e., Pearson correlation of the ACE transformed variables) of all pairwise combinations of two different columns in confs. If there is an NA (happens usually when the optimal transformation of any variable is a constant and therefore the covariance is 0 but also one of the sds in the denominator), it gets skipped.}
 \usage{
-c_manifoldness(confs, aggr = max)
+c_manifoldness(confs, aggr = NULL)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}

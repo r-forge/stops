@@ -2,22 +2,17 @@
 % Please edit documentation in R/stoploss.R
 \name{stoploss}
 \alias{stoploss}
-\title{Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoploss
-write stops_foo where foo is the MDS model of interest
-TODO: also do this with a pareto approach    
- Calculate the weighted multiobjective loss function used in STOPS}
+\title{Calculate the weighted multiobjective loss function used in STOPS}
 \usage{
 stoploss(
   obj,
   stressweight = 1,
-  structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
-    "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
-    "cregularity", "chierarchy", "cconvexity", "cstriatedness", "coutlying",
-    "cskinniness", "csparsity", "cstringiness", "cclumpiness", "cinequality"),
+  structures,
   strucweight = rep(-1/length(structures), length(structures)),
   strucpars,
   stoptype = c("additive", "multiplicative"),
-  verbose = 0
+  verbose = 0,
+  registry = struc_reg
 )
 }
 \arguments{
@@ -34,13 +29,12 @@ stoploss(
 \item{stoptype}{what type of weighted combination should be used? Can be 'additive' or 'multiplicative'.}
 
 \item{verbose}{verbose output}
+
+\item{registry}{an object of class registry. This can be used to add additional c-structuredness indices. Defaults ot the registry created via .onLoad in zzz.R}
 }
 \value{
 a list with calculated stoploss ($stoploss), structuredness indices ($strucinidices) and hyperparameters ($parameters and $theta)
 }
 \description{
-Idea for stops function allow an arbitrary number of indices in a weighted multi-objective optimization way; for this use stoploss
-write stops_foo where foo is the MDS model of interest
-TODO: also do this with a pareto approach    
- Calculate the weighted multiobjective loss function used in STOPS
+Calculate the weighted multiobjective loss function used in STOPS
 }

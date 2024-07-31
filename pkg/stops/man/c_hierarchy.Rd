@@ -5,10 +5,12 @@
 \title{c-hierarchy
 captures how well a partition/ultrametric (obtained by hclust) explains the configuration distances. Uses variance explained for euclidean distances and deviance explained for everything else.}
 \usage{
-c_hierarchy(confs, p = 2, agglmethod = "complete")
+c_hierarchy(confs, voidarg = NULL, p = 2, agglmethod = "complete")
 }
 \arguments{
 \item{confs}{a numeric matrix}
+
+\item{voidarg}{a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments}
 
 \item{p}{the parameter of the Minokwski distances (p=2 euclidean and p=1 is manhattan)}
 

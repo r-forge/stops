@@ -4,7 +4,7 @@
 \alias{c_striatedness}
 \title{c-striatedness}
 \usage{
-c_striatedness(conf, aggr = max)
+c_striatedness(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

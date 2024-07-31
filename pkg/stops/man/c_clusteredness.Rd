@@ -7,6 +7,7 @@ calculates c-clusteredness as the OPTICS cordillera. The higher the more cluster
 \usage{
 c_clusteredness(
   confs,
+  voidarg = NULL,
   minpts = 2,
   q = 2,
   epsilon = 2 * max(dist(confs)),
@@ -19,6 +20,8 @@ c_clusteredness(
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
+
+\item{voidarg}{a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments}
 
 \item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan]{optics}} where it is called minPts. Defaults to 2.}
 

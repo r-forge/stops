@@ -5,10 +5,12 @@
 \title{c-faithfulness 
 calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods}
 \usage{
-c_faithfulness(confs, obsdiss, k = 3, ...)
+c_faithfulness(confs, voidarg = NULL, obsdiss, k = 3, ...)
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
+
+\item{voidarg}{a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments}
 
 \item{obsdiss}{a symmetric numeric matrix or a dist object}
 
@@ -26,5 +28,5 @@ calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) w
 \examples{
 delts<-smacof::kinshipdelta
 dis<-smacofSym(delts)$confdist
-c_faithfulness(dis,delts,k=3)
+c_faithfulness(dis,obsdiss=delts,k=3)
 }

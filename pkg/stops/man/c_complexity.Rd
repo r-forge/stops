@@ -9,7 +9,7 @@ This is one of few c-structuredness indices not between 0 and 1, but can be betw
 \usage{
 c_complexity(
   confs,
-  aggr = min,
+  aggr = NULL,
   alpha = 1,
   C = 15,
   var.thr = 1e-05,

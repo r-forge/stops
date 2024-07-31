@@ -4,7 +4,7 @@
 \alias{c_sparsity}
 \title{c-sparsity}
 \usage{
-c_sparsity(conf, aggr = max)
+c_sparsity(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

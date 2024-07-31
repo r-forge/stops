@@ -4,7 +4,7 @@
 \alias{c_stringiness}
 \title{c-stringiness}
 \usage{
-c_stringiness(conf, aggr = max)
+c_stringiness(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

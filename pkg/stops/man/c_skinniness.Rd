@@ -4,7 +4,7 @@
 \alias{c_skinniness}
 \title{c-skinniness}
 \usage{
-c_skinniness(conf, aggr = max)
+c_skinniness(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

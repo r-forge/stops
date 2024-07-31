@@ -7,6 +7,7 @@ calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more re
 \usage{
 c_regularity(
   confs,
+  voidarg = NULL,
   q = 1,
   epsilon = 2 * max(dist(confs)),
   distmeth = "euclidean",
@@ -18,6 +19,8 @@ c_regularity(
 }
 \arguments{
 \item{confs}{a numeric matrix or a dist object}
+
+\item{voidarg}{a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments}
 
 \item{q}{The norm used for the Cordillera. Defaults to 1 (and should always be 1 imo).}
 

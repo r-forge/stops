@@ -22,7 +22,8 @@ stop_cmdscale(
   verbose = 0,
   stoptype = c("additive", "multiplicative"),
   itmaxi = 1000,
-  add = TRUE
+  add = TRUE,
+  registry = struc_reg
 )
 }
 \arguments{
@@ -54,7 +55,9 @@ stop_cmdscale(
 
 \item{itmaxi}{number of iterations. No effect here.}
 
-\item{add}{if TRUE dis is made to Euclidean disatnces}
+\item{add}{if TRUE dis is made to Euclidean distances}
+
+\item{registry}{registry object with c-structuredness indices.}
 }
 \value{
 A list with the components

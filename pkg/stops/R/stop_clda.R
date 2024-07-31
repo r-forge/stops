@@ -16,7 +16,8 @@
 #' @param strucweight weight to be used for the structures; defaults to 1/number of structures
 #' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appearance in structures 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param stoptype which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stoptype which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'.
+#' @param registry registry object with c-structuredness indices.
 #'
 #' @return A list with the components
 #' \itemize{
@@ -30,7 +31,7 @@
 #' }
 #' @keywords multivariate
 #' @export
-stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -47,7 +48,7 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
   fit$lambda0 <- theta[1]
   fit$k <- theta[2]
   fit$parameters <- fit$theta <- fit$pars <- c(lambda0=fit$lambda0,k=fit$k)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype,registry=registry)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
 }
@@ -70,7 +71,8 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
 #' @param strucweight weight to be used for the structures; defaults to 1/number of structures
 #' @param strucpars a list of parameters for the structuredness indices; each list element corresponds to one index in the order of the appearance in structures 
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param stoptype which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stoptype which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'.
+#' @param registry registry object with c-structuredness indices.
 #'
 #' @return A list with the components
 #' \itemize{
@@ -84,7 +86,7 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
 #' }
 #' @keywords multivariate
 #' @export
-stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -101,7 +103,7 @@ stop_cldae <- function(dis,theta=rep(3*max(sd(dis)),2),type="ratio",weightmat=1-
   fit$lambda0 <- lambda0
   fit$epsilon <- epsilon
   fit$parameters <- fit$theta <- fit$pars <- c(lambda0=fit$lambda0,epsilon=fit$epsilon)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype,registry=registry)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj)
   out 
 }

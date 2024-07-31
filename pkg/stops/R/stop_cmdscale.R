@@ -17,7 +17,8 @@
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'
-#' @param add if TRUE dis is made to Euclidean disatnces
+#' @param add if TRUE dis is made to Euclidean distances
+#' @param registry registry object with c-structuredness indices.
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -34,7 +35,7 @@
 #' @importFrom stats dist as.dist
 #' @importFrom smacofx cmdscale
 #' @keywords multivariate
-stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000,add=TRUE) {
+stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000,add=TRUE,registry=struc_reg) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   type <- match.arg(type,'ratio')
@@ -64,7 +65,7 @@ stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NU
  # fit$stress.m <- fit$stress.n
   #fit$pars <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   #fit$conf <- fit$points
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype,registry=registry)
   list(stress=1-fit$GOF[2],stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit, stopobj=stopobj) #target functions
 }
 

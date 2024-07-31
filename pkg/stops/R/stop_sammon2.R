@@ -15,7 +15,8 @@
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
-#' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'. 
+#' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'.
+#' @param registry registry object with c-structuredness indices.
 #' 
 #' 
 #' @return A list with the components
@@ -36,7 +37,7 @@
 #' 
 #'@keywords multivariate
 #'@export
-stop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(is.null(init)) init <- "torgerson" 
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -63,7 +64,7 @@ stop_sammon2 <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NUL
   fit$stress.m <- fit$stress^2# fit$stress.r/sum(combwght*delts^2)
   fit$parameters <- fit$theta <- fit$pars <- c(lambda=lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$deltaorig <- stats::as.dist(dis) 
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype,registry=registry)
   out <- list(stress=fit$stress, stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices, parameters=stopobj$parameters, fit=fit,stopobj=stopobj) #target functions
   out
 }

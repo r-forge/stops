@@ -16,7 +16,7 @@
 #' @param strucpars the parameters for the structuredness indices
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
-#' 
+#' @param registry registry object with c-structuredness indices.
 #' 
 #' @return A list with the components
 #'    \itemize{
@@ -33,7 +33,7 @@
 #'@import smacof
 #'@importFrom stats as.dist
 #'@export
-stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative")) {
+stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(is.null(init)) init <- "torgerson"  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -57,7 +57,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   #fit$pars <- c(lambda=fit$lambda)#c(kappa=fit$kappa,lambda=fit$lambda,rho=fit$nu)
   fit$parameters <- fit$theta <- fit$pars  <- c(lambda=lambda)
   fit$deltaorig <- stats::as.dist(dis)
-  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype)
+  stopobj <- stoploss(fit,stressweight=stressweight,structures=structures,strucweight=strucweight,strucpars=strucpars,verbose=isTRUE(verbose>1),stoptype=stoptype,registry=registry)
   out <- list(stress=fit$stress, stress.r=fit$stress.r,stress.m=fit$stress.m, stoploss=stopobj$stoploss, strucindices=stopobj$strucindices,parameters=stopobj$parameters,fit=fit,stopobj=stopobj) #target functions
   out
 }

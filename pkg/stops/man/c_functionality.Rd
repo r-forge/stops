@@ -8,7 +8,7 @@ We define c-functionality as the aggregated functionality between any two column
 \usage{
 c_functionality(
   confs,
-  aggr = max,
+  aggr = NULL,
   alpha = 1,
   C = 15,
   var.thr = 1e-05,

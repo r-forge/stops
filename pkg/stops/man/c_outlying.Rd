@@ -4,7 +4,7 @@
 \alias{c_outlying}
 \title{c-outlying}
 \usage{
-c_outlying(conf, aggr = max)
+c_outlying(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}

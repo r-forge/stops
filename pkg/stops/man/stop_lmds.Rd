@@ -21,7 +21,8 @@ stop_lmds(
   strucweight = rep(1/length(structures), length(structures)),
   strucpars,
   verbose = 0,
-  stoptype = c("additive", "multiplicative")
+  stoptype = c("additive", "multiplicative"),
+  registry = struc_reg
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ stop_lmds(
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{stoptype}{which weighting to be used in the multi-objective optimization? Either 'additive' (default) or 'multiplicative'.}
+
+\item{registry}{registry object with c-structuredness indices.}
 }
 \value{
 A list with the components

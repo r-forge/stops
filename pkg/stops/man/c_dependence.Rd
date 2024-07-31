@@ -5,7 +5,7 @@
 \title{c-dependence
 calculates c-dependence as the aggregated distance correlation of each pair if nonidentical columns}
 \usage{
-c_dependence(confs, aggr = max, index = 1)
+c_dependence(confs, aggr = NULL, index = 1)
 }
 \arguments{
 \item{confs}{a numeric matrix or data frame}

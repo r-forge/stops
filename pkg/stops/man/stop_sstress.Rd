@@ -21,7 +21,8 @@ stop_sstress(
   strucweight = rep(1/length(structures), length(structures)),
   strucpars,
   verbose = 0,
-  stoptype = c("additive", "multiplicative")
+  stoptype = c("additive", "multiplicative"),
+  registry = struc_reg
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ stop_sstress(
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is extremely verbose}
 
 \item{stoptype}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
+
+\item{registry}{registry object with c-structuredness indices.}
 }
 \value{
 A list with the components

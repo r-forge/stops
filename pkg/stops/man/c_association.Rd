@@ -8,7 +8,7 @@ We define c-association as the aggregated association between any two columns in
 \usage{
 c_association(
   confs,
-  aggr = max,
+  aggr = NULL,
   alpha = 0.6,
   C = 15,
   var.thr = 1e-05,

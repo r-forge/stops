@@ -2,7 +2,8 @@
 #' Calculates c-inequality (as in an economic measure of inequality) as Pearsons coefficient of variation of the fitted distance matrix. This can help with avoiding degenerate solutions.   
 #' This is one of few c-structuredness indices not between 0 and 1, but 0 and infinity.
 #' @param confs a numeric matrix or data frame
-#'
+#' @param ... additional arguments (don't do anything)
+#' 
 #' @importFrom stats dist sd
 #'
 #' @return a numeric value; inequality (Pearsons coefficient of variation of the fitted distance matrix)
@@ -14,7 +15,7 @@
 #' confs<-cbind(z,y,x)
 #' c_inequality(confs)
 #' @export
-c_inequality <- function(confs)
+c_inequality <- function(confs,...)
     {
         distm <- stats::dist(confs)
         out <- stats::sd(distm,na.rm=TRUE)/mean(distm,na.rm=TRUE)
@@ -39,9 +40,9 @@ c_inequality <- function(confs)
 #' confs<-cbind(z,y,x)
 #' c_linearity(confs)
 #' @export
-
-c_linearity <- function(confs,aggr=max)
-    {
+c_linearity <- function(confs,aggr=NULL)
+{
+        if(is.null(aggr)) aggr <- max #we need this for the registry mechanism to be able to pass a NULL as second argument after confs
         confs <- scale(confs)
         p <- dim(confs)[2]
         tmp <- numeric()
@@ -75,8 +76,9 @@ c_linearity <- function(confs,aggr=max)
 #' confs<-cbind(x,y)
 #' c_dependence(confs,1.5)
 #' @export
-c_dependence <- function(confs,aggr=max,index=1)
-    {
+c_dependence <- function(confs,aggr=NULL,index=1)
+{
+        if(is.null(aggr)) aggr <- max      
         if(dim(confs)[2]<2) stop("Distance correlation is not defined for one column.")
         if(dim(confs)[2]==2) {
             x <- confs[,1]
@@ -118,8 +120,9 @@ c_dependence <- function(confs,aggr=max,index=1)
 #' confs<-cbind(x,y)
 #' c_manifoldness(confs)
 #' @export
-c_manifoldness <- function(confs,aggr=max)
-    {
+c_manifoldness <- function(confs,aggr=NULL)
+{
+        if(is.null(aggr)) aggr <- max  
         if(dim(confs)[2]<2) stop("Maximal correlation is not available for less than two column vectors.")
         #max cor is not symmetric 
         #if(dim(confs)[2]==2){
@@ -190,9 +193,10 @@ c_mine <- function(confs,master=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_association(confs)
 #' @export
-c_association <- function(confs,aggr=max,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
+c_association <- function(confs,aggr=NULL,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 {
-     #symmetric
+                                        #symmetric
+        if(is.null(aggr)) aggr <- max
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MIC
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- aggr(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
@@ -222,9 +226,10 @@ c_association <- function(confs,aggr=max,alpha=0.6,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_nonmonotonicity(confs)
 #' @export
-c_nonmonotonicity <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_nonmonotonicity <- function(confs,aggr=NULL,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
-        #symmetric
+                                        #symmetric
+        if(is.null(aggr)) aggr <- max
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MAS
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- aggr(tmp) #the question is how to aggregate this for more than two dimensions, I now use the maximum so the maximum association of any two dimensions is looked at - but perhaps a harmonic mean or even the arithmetic one might be better 
@@ -254,9 +259,10 @@ c_nonmonotonicity <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL
 #' confs<-cbind(x,y,z)
 #' c_functionality(confs)
 #' @export
-c_functionality <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_functionality <- function(confs,aggr=NULL,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
-    #symmetric
+                                        #symmetric
+        if(is.null(aggr)) aggr <- max
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MEV
         tmp <- tmp[lower.tri(tmp)] #to get rid of the main diagonal
         out <- aggr(tmp) 
@@ -286,8 +292,9 @@ c_functionality <- function(confs,aggr=max,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' confs<-cbind(x,y,z)
 #' c_complexity(confs)
 #' @export
-c_complexity <- function(confs,aggr=min,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
+c_complexity <- function(confs,aggr=NULL,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 {
+      if(is.null(aggr)) aggr <- min
     #symmetric
         tmp <- c_mine(confs=confs,master=NULL,alpha=alpha,C=C,var.thr=var.thr,zeta=zeta)$MCN
         tmp <- tmp[lower.tri(tmp)]
@@ -299,6 +306,7 @@ c_complexity <- function(confs,aggr=min,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods 
 #'
 #' @param confs a numeric matrix or a dist object
+#' @param voidarg a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments
 #' @param obsdiss a symmetric numeric matrix or a dist object
 #' @param k the number of nearest neighbours to be looked at
 #' @param ... additional arguments passed to dist()  
@@ -308,9 +316,9 @@ c_complexity <- function(confs,aggr=min,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' @examples
 #' delts<-smacof::kinshipdelta
 #' dis<-smacofSym(delts)$confdist
-#' c_faithfulness(dis,delts,k=3)
+#' c_faithfulness(dis,obsdiss=delts,k=3)
 #' @export
-c_faithfulness<- function(confs,obsdiss,k=3,...)
+c_faithfulness<- function(confs,voidarg=NULL,obsdiss,k=3,...)
 {
     if(inherits(obsdiss,"dist")) obsdiss <- as.matrix(obsdiss)
     tdiss <- apply(obsdiss,2,sort)[k+1,] 
@@ -350,6 +358,7 @@ knn_dist <- function(dis,k)
 #' calculates c-clusteredness as the OPTICS cordillera. The higher the more clustered. 
 #' 
 #' @param confs a numeric matrix or a dist object
+#' @param voidarg a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments
 #' @param q The norm used for the Cordillera. Defaults to 2. 
 #' @param minpts The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan]{optics}} where it is called minPts. Defaults to 2.
 #' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
@@ -368,7 +377,7 @@ knn_dist <- function(dis,k)
 #' dis<-smacofSym(delts)$confdist
 #' c_clusteredness(dis,minpts=3)
 #' @export
-c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
+c_clusteredness<- function(confs,voidarg=NULL,minpts=2,q=2,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
 {
     out <- cordillera::cordillera(confs,minpts=minpts,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=scale,...)$normed
     return(out)
@@ -379,6 +388,7 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' calculates c-regularity as 1 - OPTICS cordillera for k=2. The higher the more regular. 
 #' 
 #' @param confs a numeric matrix or a dist object
+#' @param voidarg a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments
 #' @param q The norm used for the Cordillera. Defaults to 1 (and should always be 1 imo). 
 #' @param epsilon The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.
 #' @param distmeth The distance to be computed if X is not a symmetric matrix or a dist object (otherwise ignored). Defaults to Euclidean distance. 
@@ -395,7 +405,7 @@ c_clusteredness<- function(confs,minpts=2,q=2,epsilon=2*max(dist(confs)),distmet
 #' hpts2<-cbind(jitter(hpts[,1]),jitter(hpts[,2]))
 #' c_regularity(hpts2)
 #' @export
-c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
+c_regularity<- function(confs,voidarg=NULL,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean",dmax=NULL,digits=10,scale=0,...)
 {
     out <- 1-cordillera::cordillera(confs,minpts=2,q=q,epsilon=epsilon,distmeth=distmeth,dmax=dmax,digits=digits,scale=scale,...)$normed
     return(out)
@@ -405,6 +415,7 @@ c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean
 #' captures how well a partition/ultrametric (obtained by hclust) explains the configuration distances. Uses variance explained for euclidean distances and deviance explained for everything else. 
 #'
 #' @param confs a numeric matrix
+#' @param voidarg a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments
 #' @param p the parameter of the Minokwski distances (p=2 euclidean and p=1 is manhattan)
 #' @param agglmethod the method used for creating the clustering, see \code{\link[stats]{hclust}}.
 #'
@@ -419,7 +430,7 @@ c_regularity<- function(confs,q=1,epsilon=2*max(dist(confs)),distmeth="euclidean
 #' c_hierarchy(conf,p=2,agglmethod="single")
 #' @export
 #'
-c_hierarchy <- function(confs,p=2,agglmethod="complete")
+c_hierarchy <- function(confs,voidarg=NULL,p=2,agglmethod="complete")
 {
      #maybe not using this?
         d <- dist(confs,method="minkowski",p=p)
@@ -445,7 +456,8 @@ c_hierarchy <- function(confs,p=2,agglmethod="complete")
 #' conf3<-smacof::smacofSym(delts,ndim=3)$conf
 #' c_outlying(conf3)
 #' @export
-c_outlying<- function(conf,aggr=max){
+c_outlying<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Outlying"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Outlying",])
@@ -468,7 +480,8 @@ c_outlying<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_convexity(conf)
 #' @export
-c_convexity<- function(conf,aggr=max){
+c_convexity<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Convex"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Convex",])
@@ -492,7 +505,8 @@ c_convexity<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_skinniness(conf)
 #' @export
-c_skinniness<- function(conf,aggr=max){
+c_skinniness<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Skinny"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Skinny",])
@@ -516,7 +530,8 @@ c_skinniness<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_stringiness(conf)
 #' @export
-c_stringiness<- function(conf,aggr=max){
+c_stringiness<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Stringy"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Stringy",])
@@ -539,7 +554,8 @@ c_stringiness<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_sparsity(conf)
 #' @export
-c_sparsity<- function(conf,aggr=max){
+c_sparsity<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Sparse"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Sparse",])
@@ -563,7 +579,8 @@ c_sparsity<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_clumpiness(conf)
 #' @export
-c_clumpiness<- function(conf,aggr=max){
+c_clumpiness<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Clumpy"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Clumpy",])
@@ -587,7 +604,8 @@ c_clumpiness<- function(conf,aggr=max){
 #' plot(conf,pch=19,asp=1)
 #' c_striatedness(conf)
 #' @export
-c_striatedness<- function(conf,aggr=max){
+c_striatedness<- function(conf,aggr=NULL){
+    if(is.null(aggr)) aggr <- max
     if(dim(conf)[2]<2) stop("The configuration X must have at least two columns.")
     if(dim(conf)[2]==2) out <- as.numeric(scagnostics::scagnostics(conf)["Striated"])
     if(dim(conf)[2]>2) out <- aggr(scagnostics::scagnostics(conf)["Striated",])
@@ -599,7 +617,8 @@ c_striatedness<- function(conf,aggr=max){
 #' c-shepardness 
 #' calculates the c-shepardness as the correlation between a loess smoother of the transformed distances and the transformed dissimilarities 
 #'
-#' @param object an object of class smacofP 
+#' @param object an object of class smacofP
+#' @param voidarg empty argument to allow passing NULL as strucpar
 #'
 #' @return a numeric value
 #'
@@ -609,7 +628,7 @@ c_striatedness<- function(conf,aggr=max){
 #' res<-smacofx::postmds(delts)
 #' c_shepardness(res)
 #' @export
-c_shepardness<- function(object)
+c_shepardness<- function(object,voidarg=NULL)
 {
    wm <- object$tweightmat
    if(is.null(wm)) wm <- object$weightmat 

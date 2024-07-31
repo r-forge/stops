@@ -4,7 +4,7 @@
 \alias{c_clumpiness}
 \title{c-clumpiness}
 \usage{
-c_clumpiness(conf, aggr = max)
+c_clumpiness(conf, aggr = NULL)
 }
 \arguments{
 \item{conf}{A numeric matrix.}
