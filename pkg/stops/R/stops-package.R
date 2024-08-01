@@ -315,6 +315,7 @@
 #' respcldae
 #' summary(respcldae)
 #' plot(respcldae)
+#'
 #' }
 #' @keywords internal
 #' @aliases stops-package

@@ -25,13 +25,6 @@
 #'
 #' @importFrom smacof biplotmds
 #'
-#' 
-#' @examples
-#' ## see smacof::biplotmds for more
-#' res <- powerStressMin(morse,kappa=0.5,lambda=2)
-#' fitbi <- biplotmds(res, morsescales[,2:3])
-#' plot(fitbi, main = "MDS Biplot", vecscale = 0.03)
-#'
 #' @export
 #' 
 biplotmds.stops <- function(object,extvar,scale=TRUE)

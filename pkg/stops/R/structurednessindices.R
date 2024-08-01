@@ -306,8 +306,7 @@ c_complexity <- function(confs,aggr=NULL,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' calculates the c-faithfulness based on the index by Chen and Buja 2013 (M_adj) with equal input neigbourhoods 
 #'
 #' @param confs a numeric matrix or a dist object
-#' @param voidarg a placeholder to allow to pass NULL as strucpar  and not interfere with the other arguments
-#' @param obsdiss a symmetric numeric matrix or a dist object
+#' @param obsdiss a symmetric numeric matrix or a dist object. Must be supplied.
 #' @param k the number of nearest neighbours to be looked at
 #' @param ... additional arguments passed to dist()  
 #'
@@ -318,7 +317,7 @@ c_complexity <- function(confs,aggr=NULL,alpha=1,C=15,var.thr=1e-5,zeta=NULL)
 #' dis<-smacofSym(delts)$confdist
 #' c_faithfulness(dis,obsdiss=delts,k=3)
 #' @export
-c_faithfulness<- function(confs,voidarg=NULL,obsdiss,k=3,...)
+c_faithfulness<- function(confs,obsdiss,k=3,...)
 {
     if(inherits(obsdiss,"dist")) obsdiss <- as.matrix(obsdiss)
     tdiss <- apply(obsdiss,2,sort)[k+1,] 

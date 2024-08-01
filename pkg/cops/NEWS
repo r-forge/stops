@@ -1,3 +1,6 @@
+Version 1.11-4:
+  - Added a biplotmds method for pcops.
+
 Version 1.11-3:
   - Updated docs to include better hyperlinks. Also changed some solver names to match the function names we use. Touchups for CRAN release.
 
