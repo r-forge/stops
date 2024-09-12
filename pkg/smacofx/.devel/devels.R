@@ -1570,3 +1570,107 @@ res/ft>res*cw
 ##################
 ###################
 
+
+
+## test new implementations with correct disparities
+library(smacof)
+library(devtools)
+load_all()
+dis <- kinshipdelta
+dis <- dist(t(corpsepaint),"manhattan")
+###ratio mds - seems for ratio it makes no difference
+## tested with kinship
+## tested with corpsepaint
+m1 <- rStressMin(dis,r=2,verbose=3) 
+m2 <- rStressMin2(dis,r=2,verbose=3) 
+m1
+m2
+m3 <- rStressMin(dis,r=3) 
+m4 <- rStressMin2(dis,r=3)
+m3
+m4
+m5 <- rStressMin(dis,r=1) 
+m6 <- rStressMin2(dis,r=1)
+m5
+m6
+m7 <- rStressMin(dis,r=0.5,verbose=5) 
+m8 <- rStressMin2(dis,r=0.5,verbose=5)
+m7 
+m8
+m9 <- rStressMin(dis,r=0.1,verbose=5) 
+m10 <- rStressMin2(dis,r=0.1,verbose=5)
+m9 
+m10 
+par(mfrow=c(1,2))
+plot(m5)
+plot(m6)
+plot(m5,"Shepard")
+plot(m6,"Shepard")
+plot(m5,"resplot")
+plot(m6,"resplot")
+plot(m5,"transplot")
+plot(m6,"transplot")
+
+###interval mds - makes a difference - better disparities
+##tested with kinship
+m1 <- rStressMin(dis,r=2,type="interval") 
+m2 <- rStressMin2(dis,r=2,type="interval") 
+m1
+m2
+m3 <- rStressMin(dis,r=3,type="interval") 
+m4 <- rStressMin2(dis,r=3,type="interval")
+m3
+m4
+m5 <- rStressMin(dis,r=1,type="interval") 
+m6 <- rStressMin2(dis,r=1,type="interval")
+m5
+m6
+m7 <- rStressMin(dis,r=0.5,type="interval") 
+m8 <- rStressMin2(dis,r=0.5,type="interval")
+m7 
+m8
+m9 <- rStressMin(dis,r=0.1,type="interval") 
+m10 <- rStressMin2(dis,r=0.1,type="interval")
+m9 
+m10 
+par(mfrow=c(1,2))
+plot(m9)
+plot(m10)
+plot(m9,"Shepard")
+plot(m10,"Shepard")
+plot(m9,"resplot")
+plot(m10,"resplot")
+plot(m9,"transplot")
+plot(m10,"transplot")
+
+###ordinal mds - makes a difference - better disparities
+##tested with kinship
+m1 <- rStressMin(dis,r=2,type="ordinal") 
+m2 <- rStressMin2(dis,r=2,type="ordinal") 
+m1
+m2
+m3 <- rStressMin(dis,r=3,type="ordinal") 
+m4 <- rStressMin2(dis,r=3,type="ordinal")
+m3
+m4
+m5 <- rStressMin(dis,r=1,type="ordinal") 
+m6 <- rStressMin2(dis,r=1,type="ordinal")
+m5
+m6
+m7 <- rStressMin(dis,r=0.5,type="ordinal") 
+m8 <- rStressMin2(dis,r=0.5,type="ordinal")
+m7 
+m8
+m9 <- rStressMin(dis,r=0.1,type="ordinal") 
+m10 <- rStressMin2(dis,r=0.1,type="ordinal")
+m9 
+m10 
+par(mfrow=c(1,2))
+plot(m9)
+plot(m10)
+plot(m9,"Shepard")
+plot(m10,"Shepard")
+plot(m9,"resplot")
+plot(m10,"resplot")
+plot(m9,"transplot")
+plot(m10,"transplot")
