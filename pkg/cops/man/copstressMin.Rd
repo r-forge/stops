@@ -158,7 +158,7 @@ A copsc object (inheriting from smacofP). A list with the components
         \item delta: the original untransformed dissimilarities
         \item tdelta: the explicitly transformed dissimilarities 
         \item dhat: the explicitly transformed dissimilarities (dhats), optimally scaled and normalized (which are approximated by the fit)
-        \item confdist: Configuration distances, the fitted distances
+        \item confdist: Configuration distances, the transformed fitted distances
         \item conf: the configuration (normed) and scaled as specified in scale. 
         \item usconf: the unscaled configuration (normed to sum delta^2=1). Scaling applied to usconf gives conf.
         \item parameters, par, pars : the theta vector of powers tranformations (kappa, lambda, nu)

@@ -40,7 +40,7 @@
 #'         \item delta: the original untransformed dissimilarities
 #'         \item tdelta: the explicitly transformed dissimilarities 
 #'         \item dhat: the explicitly transformed dissimilarities (dhats), optimally scaled and normalized (which are approximated by the fit)
-#'         \item confdist: Configuration distances, the fitted distances
+#'         \item confdist: Configuration distances, the transformed fitted distances
 #'         \item conf: the configuration (normed) and scaled as specified in scale. 
 #'         \item usconf: the unscaled configuration (normed to sum delta^2=1). Scaling applied to usconf gives conf.
 #'         \item parameters, par, pars : the theta vector of powers tranformations (kappa, lambda, nu)
@@ -226,10 +226,9 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              delta <- delta/enorm(delta,weightmat)             
              x <- x/enorm(x)
              dnew <- sqdist (x)
-             e <- as.dist(sqrt(dnew)) #I need the dist(x) here for interval
-             #e <- dist(x) #I need the dist(x) here for interval
+             e <- as.dist(mkPower(dnew,r)) #was bug prior to 1.12-1
              dhat2 <<- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ##I use <<- to change this also in the parent environment because the copsf function should only return a scalar for the optimizers but I the last dhats2 and also delta later on
-             dhatt <- dhat2$res #FIXME: I need the structure here to reconstruct the delta; alternatively turn all into vectors? - check how they do it in smacof
+             dhatt <- dhat2$res 
              dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)   
              delta <<- as.matrix(dhatd) ##I use <<- to save this also in the parent environment
              rnew <- sum (weightmat * delta * mkPower (dnew, r))

@@ -1,3 +1,6 @@
+Version 1.12-1:
+  - Fixed bug in optimal scaling of disparities.  
+  
 Version 1.11-4:
   - Added a biplotmds method for pcops.
 
