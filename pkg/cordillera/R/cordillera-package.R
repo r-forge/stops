@@ -51,6 +51,7 @@
 #' summary(cres3d)
 #' plot(cres3d)
 #'
-#' @docType package
-#' @name cordillera-package
+#' @keywords internal
+#' @aliases cordillera-package
+"_PACKAGE"
 NULL

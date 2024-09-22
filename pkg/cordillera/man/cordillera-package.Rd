@@ -56,3 +56,21 @@ summary(cres3d)
 plot(cres3d)
 
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://r-forge.r-project.org/projects/stops/}
+}
+
+}
+\author{
+\strong{Maintainer}: Thomas Rusch \email{thomas.rusch@wu.ac.at} (\href{https://orcid.org/0000-0002-7773-2096}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Patrick Mair \email{mair@fas.harvard.edu} (\href{https://orcid.org/0000-0003-0100-6511}{ORCID}) [contributor]
+  \item Kurt Hornik \email{Kurt.Hornik@R-project.org} (\href{https://orcid.org/0000-0003-4198-9911}{ORCID}) [contributor]
+}
+
+}
+\keyword{internal}
