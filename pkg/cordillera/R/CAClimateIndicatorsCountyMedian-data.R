@@ -60,6 +60,6 @@
 #'\item{fireB1_2085}{The median aggregated Centre National de Recherches Meteorologiques (CNRM) projected annual wildfire risk (observing 1 or more fires in the next 30 years) for each county in year 2085 under scenarios B1. The source of the raw data was California Energy Commission (2008).}
 #' }
 #'
-#' @source Cooley, H., Moore, E., Heberger, M. and Allen, L. (2012) Social Vulnerability to Climate Change. California Energy Commission. Publication Number: CEC-500-2012-013 \url{https://pacinst.org/wp-content/uploads/sites/21/2014/04/social-vulnerability-climate-change-ca.pdf} and Heberger, M., Cooley, C., Herrera, P., Gleick, P. and Moore, E. (2009) The impacts of sea-level rise on the Californian coast. California Energy Commission. Publication Number: CEC-500-2009-024-F \url{https://pacinst.org/publication/the-impacts-of-sea-level-rise-on-the-california-coast/} (\url{https://pacinst.org/reports/sea_level_rise_data/Blk_fld.zip} for raw data) and California Energy Comission (2008) \url{https://cal-adapt.org/data/download/}
+#' @source Cooley, H., Moore, E., Heberger, M. and Allen, L. (2012) Social Vulnerability to Climate Change. California Energy Commission. Publication Number: CEC-500-2012-013 , Heberger, M., Cooley, C., Herrera, P., Gleick, P. and Moore, E. (2009) The impacts of sea-level rise on the Californian coast. California Energy Commission. Publication Number: CEC-500-2009-024-F and California Energy Comission (2008) \url{https://cal-adapt.org/data/download/}
 #' @name CAClimateIndicatorsCountyMedian
 NULL

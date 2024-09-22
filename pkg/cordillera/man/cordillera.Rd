@@ -18,11 +18,11 @@ cordillera(
 )
 }
 \arguments{
-\item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link{optics}}, see also there.}
+\item{X}{numeric matrix or data frame representing coordinates of points, or a symmetric matrix of distance of points or an object of class \link{dist}. Passed to \code{\link[dbscan]{optics}}, see also there.}
 
 \item{q}{The norm used for the Cordillera. Defaults to 2.}
 
-\item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link{optics}} where it is called minPts. Defaults to 2.}
+\item{minpts}{The minimum number of points that must make up a cluster in OPTICS (corresponds to k in the paper). It is passed to \code{\link[dbscan]{optics}} where it is called minPts. Defaults to 2.}
 
 \item{epsilon}{The epsilon parameter for OPTICS (called epsilon_max in the paper). Defaults to 2 times the maximum distance between any two points.}
 
@@ -36,7 +36,7 @@ cordillera(
 
 \item{scale}{Should X be scaled if it is an asymmetric matrix or data frame? Can take values TRUE or FALSE or a numeric value. If TRUE or 1, standardisation is to mean=0 and sd=1. If 2, no centering is applied and scaling of each column is done with the root mean square of each column. If 3, no centering is applied and scaling of all columns is done as X/max(standard deviation(allcolumns)). If 4, no centering is applied and scaling of all columns is done as X/max(rmsq(allcolumns)). If FALSE, 0 or any other numeric value, no standardisation is applied. Defaults to FALSE.}
 
-\item{...}{Additional arguments to be passed to \code{\link{optics}}}
+\item{...}{Additional arguments to be passed to \code{\link[dbscan]{optics}}}
 }
 \value{
 A list with the elements

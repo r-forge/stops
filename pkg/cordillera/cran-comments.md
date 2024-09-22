@@ -1,24 +1,13 @@
 ## Test environments
-* local Linux Mint 19.2 64-bit install, R 4.2.1
+* local Linux Mint 21.4 64-bit install, R 4.4.1
 * win-builder (R-devel, R-release, R-oldrelease)
 
 ## R CMD check results (via devtools::check()))
 There were no ERRORs or WARNINGs or NOTEs. 
 
 ## Win-Builder
-There were no ERRORs or WARNINGs or NOTEs on R-release and R-devel.
-
-There was one NOTE on R-oldrel.
-
-Possibly mis-spelled words in DESCRIPTION:
-  Hornik (10:273)
-  Mair (10:281)
-  Rusch (10:266)
-
-  These are own names in a reference.  
+There were no ERRORs or WARNINGs or NOTEs on R-release, R-devel and R-oldrelease.
 
 ## Downstream dependencies
-There are currently these downstream dependencies for this package:
-
-cops
-       
+I have also run R CMD check on downstream dependencies of cordillera.
+All packages that I could install passed. 
