@@ -34,6 +34,7 @@ copstressMin(
   itmax = 10000,
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
+  minkp = 2,
   ...
 )
 
@@ -65,6 +66,7 @@ copsc(
   itmax = 10000,
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
+  minkp = 2,
   ...
 )
 
@@ -96,6 +98,7 @@ copStressMin(
   itmax = 10000,
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
+  minkp = 2,
   ...
 )
 }
@@ -150,6 +153,8 @@ copStressMin(
 
 \item{principal}{If ‘TRUE’, principal axis transformation is applied to the final configuration.}
 
+\item{minkp}{Power of the Minkowski distance. Defaults to 2 (Euclidean distance).}
+
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
 \value{
@@ -181,6 +186,7 @@ A copsc object (inheriting from smacofP). A list with the components
         \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
         \item optimmethod: The solver used 
         \item type: the type of MDS fitted
+        \item minkowski: the power of the minkowski distance fitted in the configuration.
 }
 }
 \description{
@@ -202,12 +208,18 @@ We might eventually switch to newuoa in nloptr.
 dis<-as.matrix(smacof::kinshipdelta)
 
 set.seed(1)
-## Copstress with equal weight to stress and cordillera 
+## Copstress with equal weight to stress and cordillera and L2 configuration distance
 res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
                   itmax=100) #use higher itmax about 10000 
 res1
 summary(res1)
 plot(res1)  #super clustered 
+
+## Copstress with equal weight to stress and cordillera and L1 configuration distance 
+res2<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
+                  itmax=100, minkp=1) #use higher itmax about 10000
+res2
+plot(res2)
 
 ##Alias name 
 res1<-copsc(dis,stressweight=0.5,

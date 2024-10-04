@@ -1,3 +1,9 @@
+Version 1.13-1:
+  - copsc now supports any fitted Minkowski distance in the configuration.
+
+Version 1.12-2:
+  - Fixed bug in two solvers that had no xnew. 
+  
 Version 1.12-1:
   - Fixed bug in optimal scaling of disparities.  
   

@@ -33,6 +33,7 @@
 #' @param itmax maximum number of iterations. Defaults to 10000. For the two-step algorithms if itmax is exceeded by the first solver, the second algorithm is run for at least 0.1*itmax (so overall itmax may be exceeded by a factor of 1.1).
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2 is used. Using stress-1 puts more weight on MDS fit.
 #' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration.
+#' @param minkp Power of the Minkowski distance. Defaults to 2 (Euclidean distance).
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
 #' @return A copsc object (inheriting from smacofP). A list with the components
@@ -63,6 +64,7 @@
 #'         \item stressweight, cordweight: the weights of the stress and OC respectively (v_1 and v_2)
 #'         \item optimmethod: The solver used 
 #'         \item type: the type of MDS fitted
+#'         \item minkowski: the power of the minkowski distance fitted in the configuration.
 #'}
 #'
 #'
@@ -78,13 +80,19 @@
 #' dis<-as.matrix(smacof::kinshipdelta)
 #'
 #' set.seed(1)
-#' ## Copstress with equal weight to stress and cordillera 
+#' ## Copstress with equal weight to stress and cordillera and L2 configuration distance
 #' res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
 #'                   itmax=100) #use higher itmax about 10000 
 #' res1
 #' summary(res1)
 #' plot(res1)  #super clustered 
 #'
+#' ## Copstress with equal weight to stress and cordillera and L1 configuration distance 
+#' res2<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
+#'                   itmax=100, minkp=1) #use higher itmax about 10000
+#' res2
+#' plot(res2)
+#' 
 #' ##Alias name 
 #' res1<-copsc(dis,stressweight=0.5,
 #'                   cordweight=0.5,itmax=100) 
@@ -114,7 +122,7 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=max(10,max(delta)),dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 10000, stresstype=c("stress-1","stress"),principal=FALSE,...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=max(10,max(delta)),dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 10000, stresstype=c("stress-1","stress"),principal=FALSE, minkp=2, ...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -225,8 +233,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
              if(!is.matrix(x)) x <- matrix(x,ncol=ndim)
              delta <- delta/enorm(delta,weightmat)             
              x <- x/enorm(x)
-             dnew <- sqdist (x)
-             e <- as.dist(mkPower(dnew,r)) #was bug prior to 1.12-1
+             dnew <- as.matrix(dist(x, method="minkowski", p=minkp))
+             e <- as.dist(mkPower(dnew,2*r)) #was bug prior to 1.12-1
              dhat2 <<- smacof::transform(e, disobj, w = as.dist(weightmat), normq = 0.5)  ##I use <<- to change this also in the parent environment because the copsf function should only return a scalar for the optimizers but I the last dhats2 and also delta later on
              dhatt <- dhat2$res 
              dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)   
@@ -263,11 +271,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
            }
     if(verbose>1) cat("Starting Minimization with",optimmethod,":\n")
     if(optimmethod=="Newuoa") {
-         suppressWarnings(optimized <- minqa::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...))
-         itel <- itel+optimized$feval
+         suppressWarnings(optimized <- minqa::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...))
+         itel <- optimized$feval
          ovalue <-optimized$fval
          #optimized <- nloptr::newuoa(xold,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),control=list(maxfun=itmax,rhoend=accuracy,iprint=verbose-2),...)
-         #xnew <- matrix(optimized$par,ncol=ndim)
+         xnew <- matrix(optimized$par,ncol=ndim)
          #itel <- optimized$iter
          #ovalue <-optimized$value
      }
@@ -290,7 +298,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
          itel <- itel1+optimized$feval
          ovalue <-optimized$fval
          #optimized <- nloptr::newuoa(xnew,function(par) copsf(par,delta=delta,disobj=disobj,r=r,n=n,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init),nl.info=isTRUE(verbose>2),control=list(maxeval=itmaxreduced,xtol_rel=accuracy),...)
-         #xnew <- matrix(optimized$par,ncol=ndim)
+         xnew <- matrix(optimized$par,ncol=ndim)
          #itel <- itel1+optimized$iter
          #ovalue <-optimized$value
          }
@@ -535,7 +543,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
      attr(xnew,"dimnames")[[2]] <- paste("D",1:ndim,sep="")
      #doutm <- (2*sqrt(sqdist(xnew)))^kappa  #fitted powered euclidean distance but times two
      #doutm <- as.matrix(dist(xnew)^kappa)
-     doutm <- mkPower(sqdist(xnew),r)
+     minkd <- as.matrix(dist(xnew, method="minkowski", p=minkp)) 
+     doutm <- mkPower(minkd,2*r)
      #deltam <- delta
      #deltaorigm <- deltaorig
      #deltaoldm <- deltaold
@@ -592,6 +601,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     out$stressweight <- stressweight
     out$cordweight <- cordweight
     out$optimethod <- optimmethod
+    out$minkowski <- minkp
     #out$typo <- typo
     #out$nobj <- dim(out$conf)[1]
     class(out) <- c("copsc","cops","smacofP","smacofB","smacof")
