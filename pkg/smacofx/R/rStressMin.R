@@ -20,17 +20,25 @@
 #' \item tdelta: Observed explicitly transformed dissimilarities, normalized
 #' \item dhat: Explicitly transformed dissimilarities (dhats), optimally scaled and normalized 
 #' \item confdist: Transformed fitted configuration distances
+#' \item iord: Optimally scaled disparities function
 #' \item conf: Matrix of fitted configuration
 #' \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 #' \item spp: Stress per point 
 #' \item ndim: Number of dimensions
-#' \item model: Name of smacof model
+#' \item weightmat: Weighting matrix as supplied
+#' \item resmat: Residual matrix
+#' \item rss: Sum of residuals
+#' \item init: The starting configuration
+#' \item model: Name of MDS model
 #' \item niter: Number of iterations
 #' \item nobj: Number of objects
-#' \item type: Type of MDS model
-#' \item weightmat: weighting matrix as supplied
+#' \item type: Type of optimal scaling 
+#' \item call : the matched call
 #' \item stress.m: Default stress (stress-1^2)
-#' \item tweightmat: transformed weighting matrix (here NULL)
+#' \item alpha: Alpha matrix
+#' \item sigma: Stress
+#' \item parameters, pars, theta: Optimal transformation parameter
+#' \item tweightmat: Transformed weighting matrix (here NULL)
 #'}
 #'
 #'
@@ -46,7 +54,7 @@
 #' plot(res)
 #' 
 #' @export
-rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     #if(missing(weightmat)) weightmat <-
@@ -59,21 +67,23 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     #    "mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
-    if (trans=="ratio"){
-    trans <- "none"
+    if (trans=="ratio") {
+        trans <- "none"
     }
-    else if (trans=="ordinal" & ties=="primary"){
-    trans <- "ordinalp"
-    typo <- "ordinal (primary)"
-   } else if(trans=="ordinal" & ties=="secondary"){
-    trans <- "ordinals"
-    typo <- "ordinal (secondary)"
-  } else if(trans=="ordinal" & ties=="tertiary"){
-    trans <- "ordinalt"
-    typo <- "ordinal (tertiary)"
-  #} else if(trans=="spline"){
+    else if (trans=="ordinal" && ties=="primary") {
+        trans <- "ordinalp"
+        typo <- "ordinal (primary)"
+        }
+    else if(trans=="ordinal" && ties=="secondary") {
+        trans <- "ordinals"
+        typo <- "ordinal (secondary)"
+        }
+    else if(trans=="ordinal" && ties=="tertiary") {
+        trans <- "ordinalt"
+        typo <- "ordinal (tertiary)"
+        }
+   #} else if(trans=="spline"){
   #  trans <- "mspline"
-  }
     if(verbose>0) cat(paste("Minimizing",type,"rStress with r=",r,"\n"))
     n <- nrow (delta)
     normi <- 0.5
@@ -98,9 +108,9 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     xold  <- init
     if(is.null(init)) xold <- smacof::torgerson (delta, p = p)
     xstart <- xold
-    xold <- xold / enorm (xold) 
-    nn <- diag (n)
-    dold <- sqdist (xold)
+    xold <- xold / enorm(xold) 
+    nn <- diag(n)
+    dold <- sqdist(xold)
    ##first optimal scaling
     ## eold <- as.dist(sqrt(dold)) #was bug prior to 1.6-1
     eold <- as.dist(mkPower(dold,r))
@@ -143,23 +153,22 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
       snew <- 1 - 2 * anew * rnew + (anew ^ 2) * nnew
-      if(is.na(snew)) #if there are issues with the values
-          {
-              snew <- sold
-              dnew <- dold
-              anew <- aold
-              xnew <- xold
-          }   
+      if(is.na(snew)) { #if there are issues in the values
+          snew <- sold
+          dnew <- dold
+          anew <- aold
+          xnew <- xold
+      }   
       if (verbose>2) {
-        cat (
-          formatC (itel, width = 4, format = "d"),
-          formatC (
+        cat(
+          formatC(itel, width = 4, format = "d"),
+          formatC(
             sold,
             digits = 10,
             width = 13,
             format = "f"
           ),
-          formatC (
+          formatC(
             snew,
             digits = 10,
             width = 13,
@@ -208,7 +217,7 @@ rStressMin <- function (delta, r=0.5, type=c("ratio","interval","ordinal"), ties
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")
     #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(r=r), pars=c(r=r), theta=c(r=r),tweightmat=NULL)
+    out <- list(delta=deltaorig, tdelta=deltaold, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, parameters=c(r=r), pars=c(r=r), theta=c(r=r), tweightmat=NULL)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
