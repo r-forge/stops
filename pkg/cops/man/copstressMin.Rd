@@ -190,7 +190,7 @@ A copsc object (inheriting from smacofP). A list with the components
 }
 }
 \description{
-Minimizing Copstress to obtain a clustered ratio, interval or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments.
+Minimizing Copstress to obtain a clustered ratio, interval or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
 }
 \details{
 This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
@@ -200,7 +200,7 @@ If one wants to fit these models without the cops penalty, we recommend to use \
 
 Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.
 
-For some solvers theresometimes may be an error [NA/NaN/Inf in foreign function call (arg 3)] stemming from smacof::transform(). This happens when the algorithm places two object at exactly the same place so their fitted distance is 0. This is good from an OPTICS Cordillera point of view (as it is more clustered) which is why some solvers like to pick that up, but it can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects into one (so include them as a combined row in the distance matrix).
+For some solvers there sometimes may be an error [NA/NaN/Inf in foreign function call (arg 3)] stemming from smacof::transform(). This happens when the algorithm places two object at exactly the same place so their fitted distance is 0. This is good from an OPTICS Cordillera point of view (as it is more clustered) which is why some solvers like to pick that up, but it can lead to an issue in the optimal scaling in smacof. This can usually be mitigated when specifying the model by either using less cordweight, less itmax, less accuracy or combining the two offending objects into one (so include them as a combined row in the distance matrix).
 
 We might eventually switch to newuoa in nloptr.
 }
@@ -209,25 +209,25 @@ dis<-as.matrix(smacof::kinshipdelta)
 
 set.seed(1)
 ## Copstress with equal weight to stress and cordillera and L2 configuration distance
-res1<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
+res1<-copstressMin(dis,stressweight=0.75,cordweight=0.25,
                   itmax=100) #use higher itmax about 10000 
 res1
 summary(res1)
 plot(res1)  #super clustered 
 
 ## Copstress with equal weight to stress and cordillera and L1 configuration distance 
-res2<-copstressMin(dis,stressweight=0.5,cordweight=0.5,
+res2<-copstressMin(dis,stressweight=0.75,cordweight=0.25,
                   itmax=100, minkp=1) #use higher itmax about 10000
 res2
 plot(res2)
 
 ##Alias name 
-res1<-copsc(dis,stressweight=0.5,
-                  cordweight=0.5,itmax=100) 
+res1<-copsc(dis,stressweight=0.75,
+                  cordweight=0.25,itmax=100) 
 
 
 ## Elastic scaling ordinal s-stress with cops penalty
-res1<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
+res3<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
             stressweight=0.5, cordweight=0.5,itmax=100)
 
 
