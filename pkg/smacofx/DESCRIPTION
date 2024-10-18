@@ -22,5 +22,5 @@ License: GPL-2 | GPL-3
 LazyData: true
 URL: https://r-forge.r-project.org/projects/stops/
 BugReports: https://r-forge.r-project.org/tracker/?atid=5375&group_id=2037&func=browse
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Encoding: UTF-8

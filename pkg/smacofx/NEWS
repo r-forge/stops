@@ -1,6 +1,6 @@
 Version 1.7-1
 
-- Added smacofPO for nonlinear MDS with power functions.
+- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO).
 
 Version 1.6-1
 

@@ -93,17 +93,25 @@ a 'smacofP' object (inheriting from 'smacofB', see \code{\link[smacof]{smacofSym
 \item tdelta: Observed explicitly transformed dissimilarities, normalized
 \item dhat: Explicitly transformed dissimilarities (dhats), optimally scaled and normalized 
 \item confdist: Transformed fitted configuration distances
+\item iord: Optimally scaled disparities function
 \item conf: Matrix of fitted configuration
 \item stress: Default stress  (stress 1; sqrt of explicitly normalized stress)
 \item spp: Stress per point 
 \item ndim: Number of dimensions
-\item model: Name of smacof model
+\item weightmat: Weighting matrix as supplied
+\item resmat: Residual matrix
+\item rss: Sum of residuals
+\item init: The starting configuration
+\item model: Name of MDS model
 \item niter: Number of iterations
 \item nobj: Number of objects
-\item type: Type of MDS model
-\item weightmat: weighting matrix as supplied
+\item type: Type of optimal scaling 
+\item call : the matched call
 \item stress.m: Default stress (stress-1^2)
-\item tweightmat: transformed weighting matrix (here NULL)
+\item alpha: Alpha matrix
+\item sigma: Stress
+\item parameters, pars, theta: Optimal transformation parameter
+\item tweightmat: Transformed weighting matrix (here NULL)
 }
 }
 \description{

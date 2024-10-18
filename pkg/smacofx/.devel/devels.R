@@ -1674,3 +1674,269 @@ plot(m9,"resplot")
 plot(m10,"resplot")
 plot(m9,"transplot")
 plot(m10,"transplot")
+
+
+###############
+                                        # smacofpo tests
+
+s <- seq(0, 2 * pi, length = 11)
+x <- cbind(sin(s), cos(s))[1:10, ]
+delta <- dist(x) ^ 2
+harti <- smacofPO(as.matrix(delta), itmax = 1000, verbose = FALSE)
+hartiX <- opmds(as.matrix(delta), itmax = 1000, verbose = FALSE)
+harti$stress
+hartiX$stress
+
+s <- seq(0, 2 * pi, length = 11)
+x <- cbind(sin(s), cos(s))[1:10, ]
+delta <- sqrt(dist(x))
+harti <- smacofPO(as.matrix(delta), itmax = 1000, verbose = FALSE)
+hartiX<- opmds(as.matrix(delta), itmax = 1000, verbose = FALSE)
+harti
+hartiX
+harti$stress
+hartiX$stress
+
+
+## Ekman data 
+
+hzero <- smacofPO(as.matrix(ekman), interval = c(0, 0), eps = 1e-15, verbose = FALSE)
+hzeroX <- opmds(as.matrix(ekman), interval = c(0, 0), acc = 1e-15, verbose = FALSE)
+hzero
+hzeroX
+par(mfrow=c(1,2))
+plot(hzero$x)
+plot(hzeroX)
+
+hekman1 <- smacofPO(as.matrix(ekman), interval=c(0,4),itmax = 10000) #local minimum, my version better
+hekman1 <- smacofPO(as.matrix(ekman), interval=c(0.033,0.033), itmax = 10000, verbose = TRUE) 
+
+hekmanX <- opmds(as.matrix(ekman), itmax = 10000, verbose = FALSE)
+hekman1
+hekman2
+hekmanX
+
+##Compare with STOPS. Stops better but takes longer. 
+library(stops)
+hekmanS <- stops(as.matrix(ekman),theta=1,upper=4,lower=0,loss="stress",strucweight=0,optimmethod="pso")
+hekmanS
+hekmanS$stress
+
+hekmanS2 <- stops(as.matrix(ekman),theta=1,upper=4,lower=0,loss="stress",strucweight=0,optimmethod="tgp")
+hekmanS2
+hekmanS2$stress
+
+hekmanX2 <- opmds(as.matrix(ekman), interval=c(hekmanS$par,hekmanS$par), itmax = 10000, verbose = FALSE)
+hekmanX2
+hekmanX
+
+## looks like the opmds implementation is faster and more accurate. But gives different results (due to enorm). Bt if we enorm the smacofPO result, we get lower stress throughout when doing enorm in opmds. 
+
+
+ekv <- as.vector(ekman)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hekman1$d))[ord]
+epv <- as.vector(as.dist(hekman1$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+devX <- as.vector(as.dist(hekmanX$confdist))[ord]
+epvX <- as.vector(as.dist(hekmanX$dhat))[ord]
+plot(ekv, devX, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epvX, col = "RED", lwd = 2)
+
+r <- seq(0, 20, length = 500)
+s <- rep(0, 500)
+for (i in 1:500) {
+if (i == 1) {
+  xe <- NULL
+} 
+h <- smacofPO(as.matrix(ekman), xe = xe , interval = c(r[i],r[i]), itmax = 10000, verbose = FALSE)
+s[i] <- h$stress.m
+xe <- h$x
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+sX <- rep(0, 500)
+for (i in 1:500) {
+if (i == 1) {
+  xe <- NULL
+} 
+hX <- opmds(as.matrix(ekman), init = xe , interval = c(r[i],r[i]), itmax = 10000, verbose = FALSE)
+sX[i] <- hX$stress
+xe <- h$x
+}
+plot(r, sX, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+
+hzero <- smacofPO(1 - diag(9), interval = c(0, 0), eps = 1e-15, itmax = 10000, verbose = FALSE)
+hzeroX <- opmds(1 - diag(9), interval = c(0, 0), acc = 1e-15, itmax = 10000, verbose = FALSE)
+hzero
+hzeroX
+
+source("./.devel/gruijter.R")
+gmax <- max(gruijter)
+gmin <- min(gruijter)
+ggruijter <- (gruijter - gmin) / (gmax - gmin)
+print(sum(log(as.matrix(ggruijter) + diag(9)) * (1 - hzero$d)))
+hgruijter <- smacofPO(as.matrix(ggruijter),itmax = 1000, verbose = FALSE)
+hgruijterX <- opmds(as.matrix(ggruijter), itmax = 10000, verbose = FALSE)
+hgruijter
+hgruijterX
+
+ekv <- as.vector(ggruijter)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hgruijter$d))[ord]
+epv <- as.vector(as.dist(hgruijter$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+plot(hgruijterX, "Shepard",shepard.lin=FALSE)
+
+
+r <- seq(1.0, 1.5, length = 99)
+s <- rep(0, 99)
+for (i in 1:99) {
+h <- smacofPO(as.matrix(ggruijter), interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+r <- seq(1.2, 1.3, length = 99)
+s <- rep(0, 99)
+for (i in 1:99) {
+h <- smacofPO(as.matrix(ggruijter), interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+gmax <- max(gruijter)
+mgruijter <- gruijter / gmax
+hgruijter <- smacofPO(as.matrix(mgruijter), itmax = 10000, verbose = FALSE)
+print(sum(log(as.matrix(mgruijter) + diag(9)) * (1 - hzero$d)))
+ekv <- as.vector(mgruijter)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hgruijter$d))[ord]
+epv <- as.vector(as.dist(hgruijter$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+r <- seq(2.6, 2.7, length = 99)
+s <- rep(0, 99)
+for (i in 1:99) {
+if (i == 1) {
+  xe <- NULL
+}
+h <- smacofPO(as.matrix(mgruijter), xe = xe, interval = c(r[i],r[i]), itmax = 10000, verbose = FALSE)
+s[i] <- h$stress
+xe <-h$x
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+hgruijter <- smacofPO(as.matrix(gruijter), itmax = 10000, eps = 1e-15, verbose = FALSE)
+print(sum(log(as.matrix(gruijter) + diag(9)) * (1 - hzero$d)))
+ekv <- as.vector(gruijter)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hgruijter$d))[ord]
+epv <- as.vector(as.dist(hgruijter$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+r <- seq(0, 2, length = 100)
+s <- rep(0, 100)
+for (i in 1:100) {
+if (i == 1) {
+  xe <- NULL
+}
+h <- smacofPO(as.matrix(gruijter), xe = xe, interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+xe <- h$x
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+r <- seq(0, .01, length = 100)
+s <- rep(0, 100)
+for (i in 1:100) {
+if (i == 1) {
+xe <- NULL
+}
+h <- smacofPO(as.matrix(gruijter), xe = xe, interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+xe <- h$x
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+hzero <- smacofPO(1 - diag(12), interval = c(0, 0), verbose = FALSE)
+
+gmin <- min(wish)
+gmax <- max(wish)
+gwish <- (wish - gmin) / (gmax - gmin)
+hwish <- smacofPO(as.matrix(gwish), itmax = 1000, verbose = FALSE)
+ekv <- as.vector(gwish)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hwish$d))[ord]
+epv <- as.vector(as.dist(hwish$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+gmax <- max(wish)
+mwish <- wish / gmax
+hwish <- smacofPO(as.matrix(mwish), itmax = 1000, verbose = FALSE)
+ekv <- as.vector(mwish)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hwish$d))[ord]
+epv <- as.vector(as.dist(hwish$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+hwish <- smacofPO(as.matrix(wish), itmax = 10000, verbose = FALSE)
+ekv <- as.vector(mwish)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hwish$d))[ord]
+epv <- as.vector(as.dist(hwish$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+r <- seq(0, 4, length = 100)
+s <- rep(0, 100)
+for (i in 1:100) {
+h <- smacofPO(as.matrix(wish), interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
+
+hzero <- smacofPO(1 - diag(36), xe = matrix(rnorm(72), 36, 2), interval = c(0, 0), verbose = FALSE, itmax = 10000)
+hone <- smacofPO(as.matrix(morse), xe = NULL, interval = c(1, 1), verbose = FALSE, itmax = 10000)
+
+hmorse <- smacofPO(as.matrix(morse), interval = c(0, 10), itmax = 1000, verbose = FALSE)
+ekv <- as.vector(morse)
+ord <- order(ekv)
+ekv <- ekv[ord]
+dev <- as.vector(as.dist(hmorse$d))[ord]
+epv <- as.vector(as.dist(hmorse$e))[ord]
+plot(ekv, dev, col = "BLUE", pch = 16, xlab = "delta", ylab = "dist and dhat")
+lines(ekv, epv, col = "RED", lwd = 2)
+
+r <- seq(0, 8, length = 100)
+s <- rep(0, 100)
+for (i in 1:100) {
+if (i == 1) {
+xe <- NULL
+}
+h <- smacofPO(as.matrix(morse), xe = xe, interval = c(r[i],r[i]), itmax = 10000, 
+  verbose = FALSE)
+s[i] <- h$stress
+xe <- h$x
+}
+plot(r, s, type = "l", lwd = 2, col = "RED", ylab = "stress")
