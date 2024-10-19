@@ -1,3 +1,6 @@
+Version 1.14-1:
+  - Added msplines to copsc.
+
 Version 1.13-1:
   - copsc now supports any fitted Minkowski distance in the configuration.
 

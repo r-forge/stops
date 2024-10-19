@@ -1,6 +1,6 @@
 #' Fitting a COPS-C Model (COPS Variant 1).
 #'
-#' Minimizing Copstress to obtain a clustered ratio, interval or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
+#' Minimizing Copstress to obtain a clustered ratio, interval, spline or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
 #'
 #' This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
 #'
@@ -34,6 +34,8 @@
 #' @param stresstype which stress to use in the copstress. Defaults to stress-1. If anything else is set, explicitly normed stress which is (stress-1)^2 is used. Using stress-1 puts more weight on MDS fit.
 #' @param principal If ‘TRUE’, principal axis transformation is applied to the final configuration.
 #' @param minkp Power of the Minkowski distance. Defaults to 2 (Euclidean distance).
+#' @param spline.degree Degree of the spline for ‘mspline’ MDS type
+#' @param spline.intKnots Number of interior knots of the spline for ‘mspline’ MDS type
 #' @param ... additional arguments to be passed to the optimization procedure
 #'
 #' @return A copsc object (inheriting from smacofP). A list with the components
@@ -98,8 +100,8 @@
 #'                   cordweight=0.25,itmax=100) 
 #'
 #'
-#' ## Elastic scaling ordinal s-stress with cops penalty
-#' res3<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
+#' ## Elastic scaling mspline s-stress in L1 with cops penalty
+#' res3<-copsc(dis,type="mspline",kappa=2,nu=-2,weightmat=dis,
 #'             stressweight=0.5, cordweight=0.5,itmax=100)
 #' 
 #' 
@@ -122,7 +124,7 @@
 #' 
 #' @keywords clustering multivariate
 #' @export
-copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=max(10,max(delta)),dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 10000, stresstype=c("stress-1","stress"),principal=FALSE, minkp=2, ...)
+copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,nu), type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)),  ndim = 2, init=NULL, stressweight=0.975,cordweight=0.025,q=1,minpts=ndim+1,epsilon=max(10,max(delta)),dmax=NULL,rang,optimmethod=c("NelderMead","Newuoa","BFGS","SANN","hjk","solnl","solnp","subplex","snomadr","hjk-Newuoa","hjk-BFGS","BFGS-hjk","Newuoa-hjk","cmaes","direct","direct-Newuoa","direct-BFGS","genoud","gensa"),verbose=0,scale=c("sd","rmsq","proc","none"),normed=TRUE, accuracy = 1e-7, itmax = 10000, stresstype=c("stress-1","stress"),principal=FALSE, minkp=2,  spline.degree = 2, spline.intKnots = 2, ...)
 {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("Delta is not symmetric.\n")
@@ -130,25 +132,24 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE) 
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"),several.ok = FALSE) 
     trans <- type
     typo <- type
     if (trans=="ratio"){
-    trans <- "none"
+      trans <- "none"
     }
-    #TODO: if we want other optimal scalings as well
     else if (trans=="ordinal" & ties=="primary"){
-    trans <- "ordinalp"
-    typo <- "ordinal (primary)"
-   } else if(trans=="ordinal" & ties=="secondary"){
-    trans <- "ordinals"
-    typo <- "ordinal (secondary)"
-  } else if(trans=="ordinal" & ties=="tertiary"){
-    trans <- "ordinalt"
-    typo <- "ordinal (tertiary)"
-  #} else if(trans=="spline"){
-  #  trans <- "mspline"
-   }
+      trans <- "ordinalp"
+      typo <- "ordinal (primary)"
+    } else if(trans=="ordinal" & ties=="secondary"){
+      trans <- "ordinals"
+      typo <- "ordinal (secondary)"
+    } else if(trans=="ordinal" & ties=="tertiary"){
+      trans <- "ordinalt"
+      typo <- "ordinal (tertiary)"
+    } else if(trans=="spline"){
+      trans <- "mspline"
+    }
     if(type =="ordinal") theta <- c(kappa,1,nu) #We dont allow powers for dissimilarities in nonmetric MDS
     kappa <- theta[1]
     lambda <- theta[2]
@@ -172,11 +173,11 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     weightmato <- weightmat
     weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0 #new
-    deltaold <- delta
-    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
+    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = spline.intKnots, spline.degree = spline.degree) 
     ## Add an intercept to the spline base transformation
-    #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
+    if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
     delta <- delta / enorm (delta, weightmat) #normalize to sum=1
+    deltaold <- delta
     ## --- starting rang if not given
     if(missing(rang))
         #perhaps put this into the optimization function?

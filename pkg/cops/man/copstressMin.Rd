@@ -35,6 +35,8 @@ copstressMin(
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
   minkp = 2,
+  spline.degree = 2,
+  spline.intKnots = 2,
   ...
 )
 
@@ -67,6 +69,8 @@ copsc(
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
   minkp = 2,
+  spline.degree = 2,
+  spline.intKnots = 2,
   ...
 )
 
@@ -99,6 +103,8 @@ copStressMin(
   stresstype = c("stress-1", "stress"),
   principal = FALSE,
   minkp = 2,
+  spline.degree = 2,
+  spline.intKnots = 2,
   ...
 )
 }
@@ -155,6 +161,10 @@ copStressMin(
 
 \item{minkp}{Power of the Minkowski distance. Defaults to 2 (Euclidean distance).}
 
+\item{spline.degree}{Degree of the spline for ‘mspline’ MDS type}
+
+\item{spline.intKnots}{Number of interior knots of the spline for ‘mspline’ MDS type}
+
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
 \value{
@@ -190,7 +200,7 @@ A copsc object (inheriting from smacofP). A list with the components
 }
 }
 \description{
-Minimizing Copstress to obtain a clustered ratio, interval or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
+Minimizing Copstress to obtain a clustered ratio, interval, spline or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
 }
 \details{
 This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
@@ -226,8 +236,8 @@ res1<-copsc(dis,stressweight=0.75,
                   cordweight=0.25,itmax=100) 
 
 
-## Elastic scaling ordinal s-stress with cops penalty
-res3<-copsc(dis,type="ordinal",kappa=2,nu=-2,weightmat=dis,
+## Elastic scaling mspline s-stress in L1 with cops penalty
+res3<-copsc(dis,type="mspline",kappa=2,nu=-2,weightmat=dis,
             stressweight=0.5, cordweight=0.5,itmax=100)
 
 
