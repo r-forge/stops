@@ -1,6 +1,6 @@
 Version 1.7-1
 
-- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO).
+- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO but with explicitly normalized stress). Added msplines for r-stress. 
 
 Version 1.6-1
 

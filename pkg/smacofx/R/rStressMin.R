@@ -1,10 +1,10 @@
 #' R stress SMACOF
 #'
-#' An implementation to minimize r-stress by majorization with ratio, interval and ordinal optimal scaling. Uses a repeat loop.
+#' An implementation to minimize r-stress by majorization with ratio, interval, monotonic spline and ordinal optimal scaling. Uses a repeat loop.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param r power of the transformation of the fitted distances (corresponds to kappa/2 in power stress); defaults to 0.5 for standard stress
-#' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
+#' @param type what type of MDS to fit. Currently one of "ratio", "interval", "mspline" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param weightmat a matrix of finite weights. 
 #' @param init starting configuration
@@ -13,6 +13,8 @@
 #' @param itmax maximum number of iterations. Default is 10000.
 #' @param verbose should iteration output be printed; if > 1 then yes
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
+#' @param spline.degree Degree of the spline for ‘mspline’ MDS type
+#' @param spline.intKnots Number of interior knots of the spline for ‘mspline’ MDS type
 #'
 #' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link[smacof]{smacofSym}}). It is a list with the components
 #' \itemize{
@@ -48,13 +50,21 @@
 #' 
 #' @examples
 #' dis<-smacof::kinshipdelta
-#' res<-rStressMin(as.matrix(dis),type="ordinal",r=1,itmax=1000)
+#'
+#' ## ordinal MDS
+#' res<-rStressMin(as.matrix(dis), type = "ordinal", r = 1, itmax = 1000)
 #' res
 #' summary(res)
 #' plot(res)
+#'
+#' ## spline MDS 
+#' ress<-rStressMin(as.matrix(dis), type = "mspline", r = 1,
+#'       itmax = 1000, spline.intKnots = 3, spline.degree = 3)
+#' ress
+#' plot
 #' 
 #' @export
-rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","mspline"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal = FALSE, spline.degree = 2, spline.intKnots = 2) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     #if(missing(weightmat)) weightmat <-
@@ -63,8 +73,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
     #r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE) 
-    #    "mspline"), several.ok = FALSE)
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
     if (trans=="ratio") {
@@ -82,8 +91,9 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
         trans <- "ordinalt"
         typo <- "ordinal (tertiary)"
         }
-   #} else if(trans=="spline"){
-  #  trans <- "mspline"
+    else if(trans=="spline"){
+        trans <- "mspline"
+        }
     if(verbose>0) cat(paste("Minimizing",type,"rStress with r=",r,"\n"))
     n <- nrow (delta)
     normi <- 0.5
@@ -97,11 +107,10 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
     #delta <- delta^lambda
     #weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0
-    delta <- delta / enorm (delta, weightmat)
-    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
+    delta <- delta / enorm (delta, weightmat) #CHECK: do this before or after the transPrep (as in smacofSym)? 
+    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = spline.intKnots, spline.degree = spline.degree) 
     ## Add an intercept to the spline base transformation
-                                        #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
-    #delta <- delta / enorm (delta, weightmat)
+    if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
     deltaold <- delta
     itel <- 1
     ##Starting Configs
@@ -115,9 +124,8 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
     ## eold <- as.dist(sqrt(dold)) #was bug prior to 1.6-1
     eold <- as.dist(mkPower(dold,r))
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = normi)
-    dhatt <- dhat$res #I need the structure here to reconstruct the delta; alternatively turn all into vectors? - checked how they do it in smacof
+    dhatt <- dhat$res 
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-    #FIXME: labels
     delta <- as.matrix(dhatd)
     rold <- sum (weightmat * delta * mkPower (dold, r))
     nold <- sum (weightmat * mkPower (dold, 2 * r))
@@ -148,7 +156,6 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
       dhatt <- dhat2$res 
       dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
       delta <- as.matrix(dhatd)
-      #delta <- as.matrix(dhatt) #In cops this is <<- because we need to change it outside of copsf() but here we don't need that 
       rnew <- sum (weightmat * delta * mkPower (dnew, r))
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
@@ -209,7 +216,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal"), ties=
     resmat<-spoint$resmat
     rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
     spp <- spoint$spp
-    #spp <- colMeans(resmat)
+    if (itel == itmax) warning("Iteration limit reached! You may want to increase the itmax argument!")
     if (principal) {
         xnew_svd <- svd(xnew)
         xnew <- xnew %*% xnew_svd$v
