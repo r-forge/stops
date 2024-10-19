@@ -59,9 +59,9 @@
 #'
 #' ## spline MDS 
 #' ress<-rStressMin(as.matrix(dis), type = "mspline", r = 1,
-#'       itmax = 1000, spline.intKnots = 3, spline.degree = 3)
+#'       itmax = 1000)
 #' ress
-#' plot
+#' plot(ress,"Shepard")
 #' 
 #' @export
 rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","mspline"), ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal = FALSE, spline.degree = 2, spline.intKnots = 2) {
@@ -107,8 +107,8 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
     #delta <- delta^lambda
     #weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0
-    delta <- delta / enorm (delta, weightmat) #CHECK: do this before or after the transPrep (as in smacofSym)? 
-    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = spline.intKnots, spline.degree = spline.degree) 
+    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = spline.intKnots, spline.degree = spline.degree)
+    delta <- delta / enorm (delta, weightmat) #CHECK: Was before before disobj before
     ## Add an intercept to the spline base transformation
     if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
     deltaold <- delta
@@ -224,7 +224,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress 1 (default reported):",sqrt(snew),"\n")
     #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
-    out <- list(delta=deltaorig, tdelta=deltaold, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, parameters=c(r=r), pars=c(r=r), theta=c(r=r), tweightmat=NULL)
+    out <- list(delta=deltaorig, tdelta=deltaold, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmat, resmat=resmat, rss=rss, init=xstart, model="r-stress SMACOF", niter = itel, nobj = dim(xnew)[1], type = typo, call=match.call(), stress.m = snew, alpha = anew, sigma = snew, parameters=c(r=r), pars=c(r=r), theta=c(r=r), tweightmat=NULL)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
