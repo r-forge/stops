@@ -1,3 +1,7 @@
+Version 1.8-2
+
+- Changed jackmds.stops itmax default. 
+
 Version 1.8-1
 
 - Added a registry feature for the structuredness indices. This now creates a registry of the indices with name and function. This can be extended/changed by a user that woudl like to have other c-structuŕedness as well. 

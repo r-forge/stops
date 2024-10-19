@@ -9,10 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-In this document we introduce the functionality available in `stops` for fitting multidimensional scaling (MDS; Borg & Groenen 2005) or proximity scaling (PS) models either on their own or by utilizing the STOPS idea. We start with a short introduction to PS and the models that are available. We then explain fitting of these models with the `stops` package. Next, we introduce the reader to STOPS (Rusch, Mair & Hornik, 2020; Rusch, Mair & Hornik, 2023a), a method to select hyperparameters in flexible mutlidimensional scaling methods based on structures in the configuration. We show how to fit those. We also mention P-COPS as a special case and show the connection to COPS (Rusch, Mair & Hornik, 2021). For illustration throughout this document we use the `smacof::kinshipdelta` data set (Rosenberg & Kim, 1975) which lists percentages of how often 15 kinship terms were not grouped together by college students. 
+In this document we introduce the functionality available in `stops` for fitting multidimensional scaling (MDS; Borg & Groenen 2005) or proximity scaling (PS) models by utilizing the STOPS framework. We start with a short introduction to PS and the models that are available. Next, we introduce the reader to STOPS (Rusch, Mair & Hornik, 2020; Rusch, Mair & Hornik, 2023a), a method to select hyperparameters in flexible mutlidimensional scaling methods based on structures in the configuration. We show how to fit those. We also mention P-COPS as a special case and show the connection to COPS (Rusch, Mair & Hornik, 2021). For illustration throughout this document we use the `smacof::kinshipdelta` data set (Rosenberg & Kim, 1975) which lists percentages of how often 15 kinship terms were not grouped together by college students. 
 
 ```{r,chunk1,message=FALSE,warning=FALSE}
-library(stops)
+library("stops")
 ```
 
 ## Proximity Scaling
@@ -27,19 +27,23 @@ The loss function used is then minimized to find the vectors $x_1,\dots,x_N$, i.
 \end{equation}
 
 ### Stress Models
+
+The MDS models we list below can be fitted with the **smacofx** package. 
+
 The first popular type of PS supported in `stops` is based on the loss function type _stress_ (Kruskall 1964), employing a quadratic loss function. 
 
-A general formulation of a loss function based on a quadratic loss is 
+A general formulation of a loss function based on a quadratic loss for $i,j = 1, \dots, N$ is 
 \begin{equation}
  \label{eq:stress}
- \sigma_{PS}(X)=\sigma_{stress}(X)=\sum^N_{i=1}\sum^N_{j=1} w^*_{ij}\left[d^*_{ij}(X)-\delta^*_{ij}\right]^2=\sum^N_{i=1}\sum^N_{j=1} h(w_{ij})\left[g\left(d_{ij}(X)\right)-f(\delta_{ij})\right]^2
+ \sigma_{PS}(X)=\sigma_{stress}(X)=\sum_{i<j} w^*_{ij}\left[d^*_{ij}(X)-\delta^*_{ij}\right]^2=\sum^N_{i=1}\sum^N_{j=1} h(w_{ij})\left[g\left(d_{ij}(X)\right)-f(\delta_{ij})\right]^2 
 \end{equation}
-Here, the $w_{ij}$ are finite weights, with $w_{ij}=0$ if the entry is missing and $w_{ij}=1$ otherwise. There are a number of optimization techniques one can use to solve this optimization problem. 
 
-The distances used is usually some type of Minkowski distance ($p > 0$) as the distance fitted to the points in the configuration, 
+Here, the $w_{ij}$ are finite weights, with $w_{ij}=0$ if the entry is missing and $w_{ij}\neq 0$ otherwise. There are a number of optimization techniques one can use to solve this optimization problem. 
+
+The distances used is usually the Euclidian distance as the distance fitted to the points in the configuration, 
 \begin{equation}
 \label{eq:dist}
-d_{ij}(X) = ||x_{i}-x_{j}||_p=\left( \sum_{m=1}^M |x_{im}-x_{jm}|^p \right)^{1/p} \ i,j = 1, \dots, N.
+d_{ij}(X) = ||x_{i}-x_{j}||_2=\left( \sum_{m=1}^M |x_{im}-x_{jm}|^2 \right)^{1/2} \ i,j = 1, \dots, N.
 \end{equation}
 Typically, the norm used is the Euclidean norm, so $p=2$. In standard MDS $g(\cdot)=f(\cdot)=I(\cdot)$, the identity function. 
 
@@ -78,24 +82,18 @@ d_{ij}(X) &\mbox{ if } (i,j) \in N_k\\
 \end{equation}
 where $\delta_{\infty} \rightarrow \infty$ is a large ``imputed'' dissimilarity that is constant and $w$ a small weight. For simplification, one takes $w \sim 1/\delta_{\infty}$ in the standard lMDS objective, so one uses the tuning parameter $\tau=2w\delta_{\infty}$ for given $k$.
 
-For all of the above models but local MDS one can use the function `powerStressMin` which uses majorization to find the solution (De Leeuw, 2014) . The function allows to specify a `kappa`, `lambda` and `nu` argument as well as a `weightmat` (the $w_{ij}$). LMDS can be fitted with the `lmds` function. For approximate power stress there also is a convenience function `apStressMin`.
-
-Note that the implementation in `powerStressMin` is more a proof-of-concept than optimal. Majorizing this type of stress is a pretty hard problem and the code we use relies on a while loop in pure R. We plan to speed the loop up with a re-implementation in C in the future.
-
 ### Strain Models
 The second popular type of PS supported in `stops` is based on the loss function type \emph{strain}. Here the $\Delta^*$ are a transformation of the $\Delta$, $\Delta^*= f (\Delta)$ so that $f(\cdot)=-(h\circ l)(\cdot)$ where $l$ is any function and $h(\cdot)$ is a double centering operation, $h(\Delta)=\Delta-\Delta_{i.}-\Delta_{.j}+\Delta_{..}$ where $\Delta_{i.}, \Delta_{.j}, \Delta_{..}$ are matrices consisting of the row, column and grand marginal means respectively. These then get approximated by (functions of) the inner product matrices of $X$ 
 \begin{equation}
 \label{eq:dist2}
 d_{ij}(X) = \langle x_{i},x_{j} \rangle
 \end{equation}
+
 We can thus express classical scaling as a special case of the general PS loss with $d_{ij}(X)$ as an inner product, $g(\cdot) = I(\cdot)$ and $f(\cdot)=-(h \circ I)(\cdot)$.
 
 If we again allow power transformations for $g(\cdot)$ and $f(\cdot)$ one can fit the following strain models with `stops` 
 
-* **Classical scaling** (Torgerson, 1958): $\delta^*_{ij}=-h(\delta_{ij})$ and $d^*_{ij}=d_{ij}$ 
 * **Powerstrain** (Buja et al. 2008, Rusch, Mair & Hornik 2021): $\delta^*_{ij}=-h(\delta_{ij}^\lambda)$, $d^*_{ij}=d_{ij}$ and $w_{ij}=w_{ij}^\rho$ for arbitrary $w_{ij}$
-
-In `stops` we have a wrapper to `cmdscale` (overloading the `base` function) which extend functionality by offering an object that matches `smacofP` objects with corresponding methods.
  
 ### Energy Models
 The third type of PS supported in `stops` is based on the energy type losses of pairwise attraction and repulsion between objects (Chen & Buja, 2014, Rusch, Mair, Hornik 2023a). It is related to graph drawing: if vertices are equated with objects, the edge weights are the $\delta^*_{ij}$, the node positions in the layout is the $X$ and the distance between nodes in the layout are $d_{ij}(X)$.
@@ -124,150 +122,11 @@ BC_{\alpha}(d)=\begin{cases}
 \end{equation}
 For $w_{ij}=\delta_{ij}, \mu=\lambda=1$ this is very similar to the stress-equivalent energy MDS model. Note that here the distance transformation functions in the attraction and repulsion parts need not be equal. $\sigma_{\text{BC}}(X)$ shares close similarities with stress with power transformations (power stress): They will often lead to a similar configurations for the same parameters (even equivalent if the exponents for repulsion and attraction parts are the same).
 
-### Usage of flexible MDS models
-
-The objects returned from `powerStressMin`, `lmds`, `bcStressMin` and `apStressMin` inherit from class `smacofP` which extends the `smacof` classes (De Leeuw & Mair, 2009) to allow for the transformations. Apart from that all the objects are made so that they are compatible to methods from `smacof` and also inherit from `smacof`. Accordingly, the following S3 methods are available:
-
-| Method      | Description                   |        
-|:------------|:------------------------------|   
-|print        | Prints the object             |
-|summary      | A summary of the object       |
-|plot         | 2D Plots of the object        |
-|plot3d       | Dynamic 3D configuration plot |
-|plot3dstatic | Static 3D configuration plot  |
-|residuals    | Residuals                     |
-|coef         | Model Coefficients            | 
-
-
-Let us illustrate the usage.
-
-First we setup our dissimilarity matrix $[\delta_{ij}]$ and call it `dis`.
-
-```{r}
-dis<-as.matrix(smacof::kinshipdelta)
-```  
-
-We now fit a series of MDS models available in `stops`.
-
-* A standard MDS (`stress`)
-```{r}
-res1<-powerStressMin(dis,kappa=1,lambda=1)
-res1
-```
-
-* A `sammon` mapping
-```{r}
-res2<-powerStressMin(dis,kappa=1,lambda=1,nu=-1,weightmat=dis)
-res2
-```
-
-Alternatively, one can use the faster `sammon` function from `MASS` (Venables & Ripley, 2002) for which we provide a wrapper that adds class attributes and methods (and overloads the function). 
-
-```{r}
-res2a<-sammon(dis)
-res2a
-```
-
-
-* An `elastic` scaling
-```{r}
-res3<-powerStressMin(dis,kappa=1,lambda=1,nu=-2,weightmat=dis)
-res3
-```
-
-* A `sstress` model 
-```{r}
-res4<-powerStressMin(dis,kappa=2,lambda=2)
-res4
-```
-
-* An `rstress` model (with $r=1$ as $r=\kappa/2$)
-```{r}
-res5<-powerStressMin(dis,kappa=2,lambda=1)
-res5
-```
-
-* A `powermds` model (i.e., $\rho=1$)
-```{r}
-res6<-powerStressMin(dis,kappa=2,lambda=1.5)
-res6
-```
-
-* A `powersammon` model 
-```{r}
-res7<-powerStressMin(dis,kappa=2,lambda=1.5,nu=-1,weightmat=dis)
-res7
-```
-
-* A `powerelastic` scaling
-```{r}
-res8<-powerStressMin(dis,kappa=2,lambda=1.5,nu=-2,weightmat=dis)
-res8
-```
-
-* A `powerstress` model 
-```{r}
-res9<-powerStressMin(dis,kappa=2,lambda=1.5,nu=-1.5,weightmat=2*1-diag(nrow(dis)))
-res9
-summary(res9)
-```
-
-* An `lmds` model 
-```{r}
-res10<-lmds(dis,tau=0.5,k=3)
-res10
-```
-
-* An `apstress` model (approximate power stress) 
-```{r}
-res11<-apStressMin(dis,tau=0.5,ups=2)
-res11
-```
-
-We can visualize the obtained configurations with plot. For `smacofP` objects we have the following plots. 
-
-```{r,eval=TRUE,fig.show='hold',fig.width=8, fig.height = 8}
-plot(res9)
-plot(res9,"transplot")
-plot(res9,"Shepard")
-plot(res9,"resplot")
-plot(res9,"bubbleplot")
-```
-
-* `powerstrain` model is rather easy to fit with simply subjecting the dissimilarity matrix to some power. Here we use $\lambda=3$.
-
-```{r}
-resc<-cmdscale(kinshipdelta^3)
-resc
-```
-
-```{r}
-summary(resc)
-```
-
-
-```{r,eval=FALSE,fig.show='hold',fig.width=8, fig.height=8}
-summary(resc)
-plot(resc)
-```
-
-
-* A BC MDS with `bcStressMin`
-
-```{r}
-resbc<-bcStressMin(dis,mu=3,lambda=2,nu=2)
-resbc
-```
-
-```{r,eval=TRUE,fig.show='hold',fig.width=8, fig.height = 8}
-plot(resbc)
-```
-
 ## Selecting Hyperparameters by Structure Considerations: STOPS
 
-We saw that these flexible models from above ( _power stress_, _power strain_, _approximate power stress_, _local MDS_, _Box-Cox MDS_ and their variants) all have hyperparameters $\theta$; for example, the hyperparameter vector for power stress is $\theta=(\kappa,\lambda,\rho)$. That begs the question which hyperparameters should be chosenas the chosen values have a huge impact on how the final configuration looks like (clearly a $kappa=2$ will lead to a different configuration than $\kappa=0.5$). So far, we have simply assumed the analyst knows the "right" $\theta$; indeed often (and as we did so far) they are simply chosen ad hoc. 
+The flexible models from above ( _power stress_, _power strain_, _approximate power stress_, _local MDS_, _Box-Cox MDS_ and their variants) all have hyperparameters $\theta$; for example, the hyperparameter vector for power stress is $\theta=(\kappa,\lambda,\rho)$. That begs the question which hyperparameters should be chosenas the chosen values have a huge impact on how the final configuration looks like (clearly a $kappa=2$ will lead to a different configuration than $\kappa=0.5$). So far, we have simply assumed the analyst knows the "right" $\theta$; indeed often (and as we did so far) they are simply chosen ad hoc. 
         
-The main contribution of the `stops` package is not solely in fitting the flexible MDS models for given $\theta$. The idea behind STOPS is to also allow to automatically select good hyperparameters $\theta^*$ to achieve a "structured" MDS configuration. This can be useful in a variety of contexts: to explore or generate structures, to restrict the target space, to avoid artifacts, to preserve certain types of structures and so forth. 
+The main contribution of the `stops` package and idea behind STOPS is to allow to automatically select good hyperparameters $\theta^*$ to achieve a "structured" MDS configuration. This can be useful in a variety of contexts: to explore or generate structures, to restrict the target space, to avoid artifacts, to preserve certain types of structures and so forth. 
 
 For this, the flexible MDS loss functions as described above are augmented to include penalties for the type of structures one is aiming for. This combination of an MDS loss with a structuredness penalty is what we call "structure optimized loss" (stoploss) and the resulting method is coined "Structured Optimized Proximity Scaling" (or STOPS, Rusch, Mair & Hornik, 2023a). STOPS is related to "Cluster Optimized Proximity Scaling" (COPS; Rusch, Mair & Hornik, 2021) which allows to select optimal parameters so that the clusteredness appearance of the configuation is improved (see below). 
 
@@ -343,7 +202,9 @@ See Rusch, Mair, Hornik (2020) or Rusch, Mair, Hornik (2023b) for a precise defi
 One can also call each index with the function `c_foo` where foo stands for the structure, so e.g. `c_stringiness(X)` will give the value of c-stringiness for object `X`. Note that the c-structuredness functions may have additional metaparameters. For example:
 
 ```{r}
-X<-res9$conf
+data(kinshipdelta)
+dis<-kinshipdelta
+X<-mds(dis)$conf
 c_stringiness(X)
 c_clumpiness(X)
 c_association(X,alpha=0.7,C=10)
@@ -352,31 +213,38 @@ c_clusteredness(X,minpts=3)
 
 If we have a single $I(X)=OC(X)$, the OPTICS cordillera (Rusch, Hornik & Mair 2018), and the transformations applied are power transformations and the weights for the $I(X)$ is negative we essentially have P-COPS (see below).
 
-<!--
-[!!]: c-evenness: How even and/or spread out are observations ($I_k$ is a function of the Ripley's K and L functions; not yet implemented) * c-randomness: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented) * c-separability: How well are classes (linear and nonlinear) separable. Perhaps only useful if there are labels. ($I_k$ is a separation index; not yet implemented) * c-sparsity: How sparse is the representation (percentage of vectors with 0 or percentage of weights that are zero; not yet implemented) * c-optimality: Finding the global minimum of stress by adding a penalty when the optimum is local ($I_k$ is Jan's idea; not yet implemented)* **c-randomness**: How close to a random pattern (under some model) is the configuration ($I_k$ is not clear yet; not yet implemented)
--->
-
 #### MDS models for STOPS
 
 For the MDS loss (argument `loss` in functions `stops`), the functions currently support all losses derived from _powerstress_, _powerstrain_, _lmds_ and _bcStress_. We offer dedicated functions that either use workhorses that are more optimized for the problem at hand and/or restrict the parameter space for the distance/proximity transformations and thus can be faster. They are: 
 
-* `stress`, `smacofSym`: Kruskal's stress; Workhorse: `smacofSym`, Optimization over $\theta=\lambda$
-* `smacofSphere`: Kruskal's stress for projection onto a sphere; Workhorse `smacofSphere`, Optimization over $\theta=\lambda$
-* `strain`, `powerstrain`: Classical scaling; Workhorse: `cmdscale`, Optimization over $\theta=\lambda$
-* `sammon`, `sammon2`: Sammon scaling; Workhorse: `sammon` or `smacofSym`, Optimization over $\theta=\lambda$
-* `elastic`: Elastic scaling; Workhorse: `smacofSym`, Optimization over $\theta=\lambda$
-* `sstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\theta=\lambda$ 
-* `rstress`: S-stress; Workhorse: `powerStressMin`, Optimization over $\theta=\kappa$
+* `stress`, `smacofSym`: Kruskal's stress and power transformations $\lambda$; Workhorse: `smacofSym`, Optimization over $\theta=\lambda$
+* `smacofSphere`: Kruskal's stress and power transformations $\lambda$ for the dissimilarities for projection onto a sphere; Workhorse `smacofSphere`, Optimization over $\theta=\lambda$
+* `strain`, `powerstrain`: Classical scaling with power transformations $\lambda$ for the dissimilarities; Workhorse: `cmdscale`, Optimization over $\theta=\lambda$
+* `sammon`, `sammon2`: Sammon scaling with power transformations $\lambda$ for the dissimilarities; Workhorse: `sammon` or `smacofSym`, Optimization over $\theta=\lambda$
+* `elastic`: Elastic scaling with power transformations $\lambda$ for the dissimilarities; Workhorse: `smacofSym`, Optimization over $\theta=\lambda$
+* `sstress`: S-stress with power transformations $\lambda$ for the dissimilarities; Workhorse: `powerStressMin`, Optimization over $\theta=\lambda$ 
+* `rstress`: r-stress with power transfromations of the with power transformations $\kappa$ of the fitted distances; Workhorse: `powerStressMin`, Optimization over $\theta=\kappa$
 * `powermds`: MDS with powers; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda)$
-* `powersammon`: Sammon scaling with powers; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda)$
-* `powerelastic`: Elastic scaling with powers; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda)$
-* `powerstress`: Power stress model; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda,\rho)$
+* `powersammon`: Sammon scaling with power transformation for the dissimilarities and fitted distances; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda)$
+* `powerelastic`: Elastic scaling with power transformation for the dissimilarities and fitted distances; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda)$
+* `powerstress`: Power stress model with power transformation for the dissimilarities and fitted distances and weights; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda,\rho)$
 * `rpowerstress`: restricted power stress model; Workhorse: `powerStressMin`, Optimization over $\theta=(\kappa,\lambda,\rho)$
 * `apstress`: Approximate power stress model; Workhorse: `powerStressMin`, Optimization over $\theta=(\tau,\upsilon)$
 * `lmds`: LMDS; Workhorse: `lmds`, Optimization over $\theta=(\tau, k)$.
 * `bcstress`: Box-Cox MDS; Workhorse: `bcStressMin`, Optimization over $\theta=(\mu,\lambda,\rho)$.
 
 #### Usage 
+
+The objects returned from `stops()` contain an object of `smacofP` or `smacofB` or `cmdscalex`  in the slots `$fit`. Apart from that all the objects are made so that they are compatible to methods from `smacof`. Accordingly, the following S3 methods are available:
+
+| Method      | Description                   |        
+|:------------|:------------------------------|   
+|print        | Prints the object             |
+|summary      | A summary of the object       |
+|plot         | 2D Plots of the object        |
+|residuals    | Residuals                     |
+|coef         | Model Coefficients            | 
+
 
 The syntax for fitting a `stops` model is rather straightforward. One has to supply the arguments `dis` which is a dissimilarity matrix and `structures` a character vector listing the c-structuredness type that should be used to augment the PS loss (see above for the types of structures and losses). The metaparameters for the structuredness indices should be given via the `strucpars` argument; it should be a list whose elements are again lists corresponding to each structuredness index and listing the parameters (if the default should be used the list element should be set to `NULL`). See the example below. The PS loss can be chosen with the argument `loss`. The type of aggregation for the multi-objective optimization is specified in `type` and can be one of `additive` or `multiplicative`. As starting value for the $\theta$ one can supply (`theta`). If not this will be a scalar $1$.
 
@@ -414,9 +282,9 @@ Since we use mSTOPS and a negative weight for c-linearity and c-dependence, a c-
 
 We now run `stops`.
 
-```{r}
+```{r,eval=TRUE}
 set.seed(666)
-ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="multiplicative",lower=0,upper=8)
+ressm<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,stoptype="multiplicative",lower=0,upper=8)
 ressm
 ```
 
@@ -433,7 +301,7 @@ We can see that the configuration mimics the structuredness we wanted (there is 
 Let us compare this with the corresponding aSTOPS
 
 ```{r}
-ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,type="additive",lower=0,upper=8)
+ressa<-stops(kinshipdelta,loss="stress",stressweight=1,structures=c("cclusteredness","clinearity","cdependence"),strucweight=c(-0.33,0.33,-0.33),verbose=0,strucpars=strucpars,stoptype="additive",lower=0,upper=8)
 ressa
 ```
 
@@ -449,7 +317,7 @@ We use `tgp` as optimization method for `itmax=10` steps and restrict the search
 
 ```{r,stopsbn}
 set.seed(666)
-resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1),strucpars=list(NULL,NULL,NULL),type="additive",strucweight=c(-0.5,-0.5,0.5),lower=c(0,0),upper=c(5,5),optimmethod="tgp",itmaxps=1000,itmax=10)
+resa<-stops(kinshipdelta,structures=c("cassociation","cmanifoldness","clinearity"),loss="powermds",theta=c(1,1),strucpars=list(NULL,NULL,NULL),strucweight=c(-0.5,-0.5,0.5),lower=c(0,0),upper=c(5,5),optimmethod="tgp",itmaxps=1000,itmax=10)
 ```
 
 ```{r}
@@ -480,7 +348,7 @@ Indeed one can even optimize for c-clusteredness alone (setting `stressweight=0`
 
 ```{r,eval=TRUE}
 set.seed(666)
-resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",strucpars=list(list(epsilon=10,dmax=NULL,minpts=2)),type="additive",strucweight=-1,stressweight=0,lower=0.1,upper=10,optimmethod="tgp",itmax=20)
+resa2<-stops(kinshipdelta,structures=c("cclusteredness"),loss="powermds",strucpars=list(list(epsilon=10,dmax=NULL,minpts=2)),strucweight=-1,stressweight=0,lower=c(0.1,0.1),upper=c(5,5),theta=c(1,1), optimmethod="tgp",itmax=20,verbose=3)
 resa2
 ```
 Then we get a projection with c-clusteredness of `r resa2$strucindices[1]`. This can of course be done for an c-structuredness. 
@@ -499,6 +367,7 @@ A special STOPS model is P-COPS (Rusch, Mair & Hornik 2021). Along the lines of 
 \label{eq:spstress}
 \text{coploss}(\theta) = v_1 \cdot \sigma_{PS}\left(X(\theta) | \theta \right) - v_2 \cdot \text{OC}\left(X(\theta);\epsilon,k,q\right) 
 \end{equation}
+
 with $v_1,v_2 \in \mathbb{R}$ controlling how much weight should be given to the scaling fit measure and the c-clusteredness.
 
 The c-clusteredness index we use is the OPTICS cordillera which measures how clustered a configuration appears. It is based on the OPTICS algorithm that outputs an ordering together with a distance. The OPTICS cordillera is now simply an agregation of that information. Since we know what constitutes a maximally clustered result, we can derive an upper bound and normalize the index to lie between 0 and 1. If it is maximally clustered, the index gets a value of 1,and it gets 0 if all points are equidistant to their nearest neighbours (a matchstick embedding). See the vignette in the COPS package for more. 
@@ -545,7 +414,7 @@ Next we set up the structures and the parameters for the structuredness indices
 ```{r, strucsetup}
 # #c-structuredness metaparameters 
 strucpars <- list(list(minpts=minpts,epsilon=eps,rang=rang,scale=scale), #cordillera 
-                  list(alpha=0.9,C=15,var.thr=1e-5,zeta=NULL)  #manifoldness
+                  list(NULL)  #manifoldness
                   ) 
 structures <- c("cclusteredness","cmanifoldness") #structures
 ```
@@ -573,7 +442,7 @@ timelmds <- system.time(restgplmds <- stops(dis,theta=c(14.5,3),loss="lmds",weig
 
 #approx p stress
 set.seed(670)
-timeaps <- system.time(restgpaps <- stops(dis,theta=c(0.53,2.85),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=c(0.1,0.1),upper=c(6,6),optimmethod="ALJ",itmax=20,itmaxps=1e4))
+timeaps <- system.time(restgpaps <- stops(dis,theta=c(1,1,1),loss="apstress",structures=structures,stressweight=1,strucweight=strucweight,strucpars=strucpars,lower=c(0.1,0.1,0.1),upper=c(3,3,3),optimmethod="ALJ",itmax=20,itmaxps=1e4,verbose=4))
 ```
 ```{r,echo=FALSE,eval=FALSE}
 save(restgp,restgpbc,restgplmds,restgpaps,timesam,timebc,timelmds,timeaps,file="../.devel/dataobj/pendigresults.rda")

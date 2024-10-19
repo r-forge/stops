@@ -139,10 +139,10 @@ summary(res)
 plot(res)
 
 ## spline MDS 
-ress<-rStressMin(as.matrix(dis), type = "mspline", r = 2,
-      itmax = 1000, spline.intKnots = 3, spline.degree = 3)
+ress<-rStressMin(as.matrix(dis), type = "mspline", r = 1,
+      itmax = 1000)
 ress
-plot
+plot(ress,"Shepard")
 
 }
 \seealso{
