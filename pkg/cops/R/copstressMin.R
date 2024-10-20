@@ -2,15 +2,15 @@
 #'
 #' Minimizing Copstress to obtain a clustered ratio, interval, spline or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
 #'
-#' This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
+#' This is a flexible approach to least squares proximity scaling: It subsumes ratio power stress; ratio, interval, mspline and ordinal r stress and ratio, interval, mspline and ordinal MDS all with or without a COPS penalty and weighting. Famous special cases of these models that can be fitted are multiscale MDS if kappa -> 0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, Sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
 #'
-#' If one wants to fit these models without the cops penalty, we recommend to use \code{\link[smacofx]{powerStressMin}} (for ratio and interval MDS with any power transformation for weights, dissimilarities and distances) or \code{\link[smacofx]{rStressMin}} (for ratio, interval and ordinal MDS with power transformations for distances and weights) as these use majorization.  
+#' If one wants to fit these models without the cops penalty, we recommend to use \code{\link[smacofx]{powerStressMin}} (for ratio and interval MDS with any power transformation for weights, dissimilarities and distances) or \code{\link[smacofx]{rStressMin}} (for ratio, interval, mspline and ordinal MDS with power transformations for distances and weights) as these use majorization.  
 #'
 #' @rdname copstressMin
 #' 
 #' @param delta numeric matrix or dist object of a matrix of proximities
 #' @param kappa power transformation for fitted distances
-#' @param lambda power transformation for proximities (only used if type="ratio" or "interval")
+#' @param lambda power transformation for proximities (only used with type="ratio" or "interval", otherwise ignored)
 #' @param nu power transformation for weights
 #' @param theta the theta vector of powers; the first is kappa (for the fitted distances if it exists), the second lambda (for the observed proximities if it exist and type="ratio" or "interval"), the third is nu (for the weights if it exists). If less than three elements are is given as argument, it will be recycled. Defaults to 1 1 1. Will override any kappa, lambda, nu parameters if they are given and do not match.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
@@ -150,7 +150,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     } else if(trans=="spline"){
       trans <- "mspline"
     }
-    if(type =="ordinal") theta <- c(kappa,1,nu) #We dont allow powers for dissimilarities in nonmetric MDS
+    if(type %in% c("ordinal","mspline")) theta <- c(kappa,1,nu) #We dont allow powers for dissimilarities in nonmetric and splines MDS
     kappa <- theta[1]
     lambda <- theta[2]
     nu <- theta[3]
