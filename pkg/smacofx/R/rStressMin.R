@@ -73,7 +73,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
     #r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"), several.ok = FALSE)
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline","spline"), several.ok = FALSE)
     trans <- type
     typo <- type
     if (trans=="ratio") {
@@ -93,6 +93,8 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
         }
     else if(trans=="spline"){
         trans <- "mspline"
+        typo <- "mspline"
+        type <- "mspline"
         }
     if(verbose>0) cat(paste("Minimizing",type,"rStress with r=",r,"\n"))
     n <- nrow (delta)

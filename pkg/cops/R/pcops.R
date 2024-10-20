@@ -5,7 +5,7 @@
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to strain. See Details.
 #' @param theta the theta vector of free parameters; see details for the number of free parameters for each loss function. Defaults to 1 for all free parameters. Make sure to supply a theta of the correct length as the mechanisms in place to automatically choose theta/upper/lower are dependent on the optimizer and ad hoc: If this is a vector with more elements than necessary, it is either cut (so for a vector of length 3 and a function with 2 free parameters, the first two elements of the vector are used) or there will be an error. If a scalar is given as argument and the number of free parameters is larger than 1, the scalar will be recycled and this may also make the optimizers equate all free parameters. 
-#' @param type MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.   
+#' @param type MDS type which may be one of "ratio", interval", "mspline", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.   
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 
 #' @param init (optional) initial configuration. If not supplied, the Torgerson scaling result of the dissimilarity matrix dis^theta[2]/enorm(dis^theta[2],weightmat) is used.

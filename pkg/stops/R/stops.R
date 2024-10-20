@@ -8,7 +8,7 @@
 #' @param dis numeric matrix or dist object of a matrix of proximities
 #' @param loss which loss function to be used for fitting, defaults to stress. 
 #' @param theta hyperparameter vector starting values for the transformation functions. If the length is smaller than the number of hyperparameters for the MDS version the vector gets recycled (see the corresponding stop_XXX function or the vignette for how theta must look like exactly for each loss). If larger than the number of hyperparameters for the MDS method, an error is thrown. If completely missing theta is set to 1 and recycled.
-#' @param type type of MDS optimal scaling (implicit transformation). One of "ratio", "interval" or "ordinal". Default is "ratio". Not every type can be used with every loss, only ratio works with all.
+#' @param type type of MDS optimal scaling (implicit transformation). One of "ratio", "interval", "mspline" or "ordinal". Default is "ratio". Not every type can be used with every loss, only ratio works with all.
 #' @param structures character vector of which c-structuredness indices should be considered; if missing no structure is considered.
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals 

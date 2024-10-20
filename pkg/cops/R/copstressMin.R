@@ -132,7 +132,7 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
     if(!isSymmetric(weightmat)) stop("weightmat is not symmetric.\n")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"),several.ok = FALSE) 
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline","spline"),several.ok = FALSE) 
     trans <- type
     typo <- type
     if (trans=="ratio"){
@@ -148,7 +148,9 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
       trans <- "ordinalt"
       typo <- "ordinal (tertiary)"
     } else if(trans=="spline"){
-      trans <- "mspline"
+        trans <- "mspline"
+        typo <- "mspline"
+        type <- "mspline"
     }
     if(type %in% c("ordinal","mspline")) theta <- c(kappa,1,nu) #We dont allow powers for dissimilarities in nonmetric and splines MDS
     kappa <- theta[1]
