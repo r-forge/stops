@@ -11,12 +11,14 @@
 #' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'spmds' and 'smds' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'so_spmds' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
+#' @param spline.degree Degree of the spline for ‘mspline’ MDS type
+#' @param spline.intKnots Number of interior knots of the spline for ‘mspline’ MDS type
 #' @param weightmat a matrix of finite weights. 
 #' @param init starting configuration. If NULL (default) we fit a full rstress model.
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
-#' @param verbose should iteration output be printed; if > 1 then yes
+#' @param verbose should fitting information be printed; if > 0 then yes
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #' @param epochs for 'so_spmds' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.
 #'
@@ -77,7 +79,7 @@
 #' }
 #' 
 #' @export
-spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
@@ -91,8 +93,8 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     if(tau<=0) stop("tau must be positive.")
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal"),several.ok = FALSE)
-    #if(type =="ordinal") lambda <- 1 #We dont allow powers for dissimilarities in nonmetric MDS
+    type <- match.arg(type, c("ratio", "interval", "ordinal", "mspline"),several.ok = FALSE)
+    if(type %in% c("ordinal","mspline")) lambda <- 1 #We dont allow powers for dissimilarities in nonmetric and spline MDS
     #    "mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
@@ -108,8 +110,10 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
   } else if(trans=="ordinal" & ties=="tertiary"){
     trans <- "ordinalt"
     typo <- "ordinal (tertiary)"
-  #} else if(trans=="spline"){
-  #  trans <- "mspline"
+  } else if(trans=="spline"){
+    trans <- "mspline"
+    type <- "mspline"
+    typo <- "mspline"
   }
     if(verbose>0) cat(paste("Fitting",type,"spmds with lambda=",lambda, "kappa=",kappa,"nu=",nu, "and tau=",tau,"\n"))
     n <- nrow (delta)
@@ -127,15 +131,16 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
     if(missing(tau)) tau <- stats::quantile(delta,0.9)
-    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = 2, spline.degree = 2)#spline.intKnots = spline.intKnots, spline.degree = spline.degree) #FIXME: only works with dist() style object 
+    disobj <- smacof::transPrep(as.dist(delta), trans = trans, spline.intKnots = spline.intKnots, spline.degree = spline.degree)
     ## Add an intercept to the spline base transformation
-                                        #if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
+    if (trans == "mspline") disobj$base <- cbind(rep(1, nrow(disobj$base)), disobj$base)
     #delta <- delta / enorm (delta, weightmat)
     deltaold <- delta
     itel <- 1
     ##Starting Configs
     xold  <- init
-    if(is.null(init)) xold <- smacofx::rStressMin (delta,r=kappa/2,type=type,ties=ties,weightmat=weightmat,ndim=ndim,init=init,itmax=itmax,principal=principal)$conf
+    # if(is.null(init)) xold <- smacof::torgerson (delta,r=kappa/2,type=type,ties=ties,weightmat=weightmat,ndim=ndim,init=init,itmax=itmax,principal=principal)$conf
+    if(is.null(init)) xold <- smacof::torgerson(delta, p = p)
     xstart <- xold
     xold <- xold / enorm (xold) 
     nn <- diag (n)
@@ -145,9 +150,8 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     ##first optimal scaling
     eold <- as.dist(mkPower(dold,r))
     dhat <- smacof::transform(eold, disobj, w = as.dist(weightmat), normq = normi)
-    dhatt <- dhat$res #I need the structure here to reconstruct the delta; alternatively turn all into vectors? - checked how they do it in smacof
+    dhatt <- dhat$res
     dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
-    #FIXME: labels
     delta <- as.matrix(dhatd)
     rold <- sum (weightmat * delta * mkPower (dold, r))
     nold <- sum (weightmat * mkPower (dold, 2 * r))
@@ -186,7 +190,6 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
       dhatt <- dhat2$res 
       dhatd <- structure(dhatt, Size = n, call = quote(as.dist.default(m=b)), class = "dist", Diag = FALSE, Upper = FALSE)
       delta <- as.matrix(dhatd)
-      #delta <- as.matrix(dhatt) #In cops this is <<- because we need to change it outside of copsf() but here we don't need that 
       rnew <- sum (weightmat * delta * mkPower (dnew, r))
       nnew <- sum (weightmat * mkPower (dnew, 2 * r))
       anew <- rnew / nnew
@@ -249,6 +252,7 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
     spp <- spoint$spp
     #spp <- colMeans(resmat)
+    if (verbose > 0 && itel == itmax) warning("Iteration limit reached! You may want to increase the itmax argument!")
     if (principal) {
         xnew_svd <- svd(xnew)
         xnew <- xnew %*% xnew_svd$v

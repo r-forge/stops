@@ -1,6 +1,10 @@
-Version 1.7-1
+Version 1.17-2
 
-- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO but with explicitly normalized stress). Added msplines for r-stress. 
+- Added msplines for spmds. Added a convergence warning that gets output for verbose > 0 (not automatically as in stops it may create many warnings).  
+
+Version 1.17-1
+
+- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO but with explicitly normalized stress). Added msplines for r-stress. Made a versionin typo, so it is now 1.17 instead of 1.7. 
 
 Version 1.6-1
 

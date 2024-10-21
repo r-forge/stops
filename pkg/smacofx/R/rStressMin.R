@@ -11,7 +11,7 @@
 #' @param ndim dimension of the configuration; defaults to 2
 #' @param acc numeric accuracy of the iteration. Default is 1e-6.
 #' @param itmax maximum number of iterations. Default is 10000.
-#' @param verbose should iteration output be printed; if > 1 then yes
+#' @param verbose should fitting information be printed; if > 0 then yes
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #' @param spline.degree Degree of the spline for ‘mspline’ MDS type
 #' @param spline.intKnots Number of interior knots of the spline for ‘mspline’ MDS type
@@ -73,7 +73,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
     #r <- kappa/2
     ## -- Setup for MDS type
     if(missing(type)) type <- "ratio"
-    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline","spline"), several.ok = FALSE)
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"), several.ok = FALSE)
     trans <- type
     typo <- type
     if (trans=="ratio") {
@@ -218,7 +218,7 @@ rStressMin <- function(delta, r=0.5, type=c("ratio","interval","ordinal","msplin
     resmat<-spoint$resmat
     rss <- sum(spoint$resmat[lower.tri(spoint$resmat)])
     spp <- spoint$spp
-    if (itel == itmax) warning("Iteration limit reached! You may want to increase the itmax argument!")
+    if (verbose > 0 && itel == itmax) warning("Iteration limit reached! You may want to increase the itmax argument!")
     if (principal) {
         xnew_svd <- svd(xnew)
         xnew <- xnew %*% xnew_svd$v
