@@ -1,3 +1,7 @@
+Version 1.18-1
+
+- Added a traceIt argument to the SPMDS variants which allows monitoring of the quasi-majorization..  
+
 Version 1.17-2
 
 - Added msplines for spmds. Added a convergence warning that gets output for verbose > 0 (not automatically as in stops it may create many warnings).  

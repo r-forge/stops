@@ -21,7 +21,8 @@
 #' @param verbose should fitting information be printed; if > 0 then yes
 #' @param principal If 'TRUE', principal axis transformation is applied to the final configuration
 #' @param epochs for 'so_spmds' and tau being scalar, it gives the number of passes through the data. The sequence of taus created is 'seq(tau,tau/epochs,length.out=epochs)'. If tau is of length >1, this argument is ignored.
-#'
+#' @param traceIt save the iteration progress in a vector (stress values)
+#' 
 #' @return a 'smacofP' object (inheriting from 'smacofB', see \code{\link[smacof]{smacofSym}}). It is a list with the components
 #' \itemize{
 #' \item delta: Observed, untransformed dissimilarities
@@ -38,7 +39,8 @@
 #' \item type: Type of MDS model
 #' \item weightmat: weighting matrix as supplied
 #' \item stress.m: Default stress (stress-1^2)
-#' \item tweightmat: transformed weighting matrix; it is weightmat but containing all the 0s for the distances set to 0. 
+#' \item tweightmat: transformed weighting matrix; it is weightmat but containing all the 0s for the distances set to 0.
+#' \item trace: if 'traceIt=TRUE' a vector with the iteration progress
 #'}
 #'
 #'
@@ -56,7 +58,7 @@
 #' @examples
 #' dis<-smacof::morse
 #' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.3,itmax=100) #use higher itmax
-#' res2<-smds(dis,type="interval",tau=0.3,itmax=500) #use higher itmax
+#' res2<-smds(dis,type="interval",tau=0.3,itmax=500,traceIt=TRUE) #use higher itmax
 #' res
 #' res2
 #' summary(res)
@@ -69,6 +71,9 @@
 #' res$tweightmat
 #' res2$tweightmat
 #'
+#' # We use Quasi-Majorization
+#' res2$trace
+#'
 #' \donttest{
 #' ## Self-organizing map style (as in the clca publication)
 #' #run the som-style (p)smds 
@@ -79,7 +84,7 @@
 #' }
 #' 
 #' @export
-spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2) {
+spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2, traceIt=FALSE) {
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
     if(inherits(weightmat,"dist") || is.data.frame(weightmat)) weightmat <- as.matrix(weightmat)
@@ -157,6 +162,8 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     nold <- sum (weightmat * mkPower (dold, 2 * r))
     aold <- rold / nold
     sold <- 1 - 2 * aold * rold + (aold ^ 2) * nold
+    tracev <- NULL
+    if(isTRUE(traceIt)) tracev <- rep(NA,itmax)
     ## Optimizing
     repeat {
       if(tau<=min(doldpow[lower.tri(doldpow)])) stop("Current tau is lower than the smallest fitted distance (so all distances are set to 0). Increase tau.")
@@ -219,8 +226,13 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
           "\n"
         )
       }
+      if(isTRUE(traceIt)) tracev[itel] <- snew
       if ((itel == itmax) || (abs(sold - snew) < acc)) #new
-        break ()
+      {
+       if(sold < snew) itel <- itel-1
+       snew <- min(sold,snew) #to make sure we use the lowest stress as it is quasi majorization and sold might be < snew at this point
+       break ()
+      }    
       itel <- itel + 1
       xold <- xnew
       dold <- dnew
@@ -257,10 +269,11 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
         xnew_svd <- svd(xnew)
         xnew <- xnew %*% xnew_svd$v
     }
+    if(isTRUE(traceIt)) tracev <- tracev[!is.na(tracev)] 
     #stressen <- sum(weightmat*(doute-delta)^2)
     if(verbose>1) cat("*** Stress:",snew, "; Stress-1 (default reported):",sqrt(snew),"\n")
     #delta is input delta, tdelta is input delta with explicit transformation and normalized, dhat is dhats 
-    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="power SMDS", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau), pars=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau), theta=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau),tweightmat=weightmat)
+    out <- list(delta=deltaorig, dhat=delta, confdist=dout, iord=dhat2$iord.prim, conf = xnew, stress=sqrt(snew), spp=spp,  ndim=p, weightmat=weightmato, resmat=resmat, rss=rss, init=xstart, model="power SMDS", niter = itel, nobj = dim(xnew)[1], type = type, call=match.call(), stress.m=snew, alpha = anew, sigma = snew, tdelta=deltaold, parameters=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau), pars=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau), theta=c(kappa=kappa,lambda=lambda,nu=nu,tau=tau),tweightmat=weightmat, trace = tracev)
     class(out) <- c("smacofP","smacofB","smacof")
     out
   }
@@ -268,11 +281,11 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
 
 #' @rdname spmds
 #' @export
-smds <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+smds <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, traceIt=FALSE) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal)
+    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt)
     out$model <- "SMDS"
     out$call <- cc
     out$parameters <- out$theta <- out$pars  <- c(tau=tau)
