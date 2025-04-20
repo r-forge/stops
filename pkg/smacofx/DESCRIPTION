@@ -1,6 +1,6 @@
 Package: smacofx
 Title: Flexible Multidimensional Scaling and 'smacof' Extensions
-Version: 1.18-1
+Version: 1.18-2
 Authors@R: c(
     person(given="Thomas", family="Rusch", email="thomas.rusch@wu.ac.at", role = c("aut","cre"), comment = c(ORCID = "0000-0002-7773-2096")),
     person(given="Jan",family="de Leeuw", role = c("aut")),

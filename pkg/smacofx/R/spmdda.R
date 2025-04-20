@@ -1,8 +1,8 @@
-#' Sparse (POST-)Multidimensional Distance Analysis (SPMDDA or SMDDA) either as self-organizing or not 
+#' Extended Curvilinear (Power) Distance Analysis (eCLPDA or eCLDA) aka Sparse (POST-)Multidimensional Distance Analysis (SPMDDA or SMDDA) either as self-organizing or not 
 #'
 #' An implementation of a sparsified version of (POST-)MDS by pseudo-majorization with ratio, interval and ordinal optimal scaling for geodesic distances and optional power transformations. This is inspired by curvilinear distance analysis but works differently: It finds an initial weightmatrix where w_ij(X^0)=0 if d_ij(X^0)>tau and fits a POST-MDS with these weights. Then in each successive iteration step, the weightmat is recalculated so that w_ij(X^(n+1))=0 if d_ij(X^(n+1))>tau. Right now the zero weights are not found by the correct optimization, but we're working on that. 
 #'
-#' In 'spmdda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling. There is a wrapper 'smdda' where the exponents are 1, which is standard SMDDA but extend to allow optimal scaling. The neighborhood parameter tau is kept fixed in 'spmdda' and 'smdda'. The functions 'so_spmdda' and 'so_smdda' implement a self-organising principle where the is repeatedly fitted for a decreasing sequence of taus.
+#' In 'spmdda' the logic is that we first transform to geodesic distance, then apply the explicit power transformation and then the implicit optimal scaling. There is a wrapper 'smdda', 'eCLDA' where the exponents are 1, which is standard SMDDA or eCLPDA but extend to allow optimal scaling. The neighborhood parameter tau is kept fixed in 'spmdda', 'eCLPDA' and 'smdda', 'eCLDA'. The functions 'so_spmdda', 'so_eCLPDA' and 'so_smdda', 'so_eCLDA' implement a self-organising principle where the is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'smdda'
@@ -181,3 +181,20 @@ so_smdda <- function(delta, tau=max(delta), epochs=10, type=c("ratio"), ties="pr
     finmod$model  <- "SO-SMDDA"
     return(finmod)
     }
+
+
+#' @rdname eCLDA
+#' @export
+eCLDA <- smdda
+
+#' @rdname eCLPDA
+#' @export
+eCLPDA <- spmdda
+
+#' @rdname so_eCLPDA
+#' @export
+so_eCLPDA <- so_spmdda
+
+#' @rdname so_eCLDA
+#' @export
+so_eCLDA <- so_smdda

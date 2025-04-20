@@ -1,6 +1,10 @@
+Version 1.18-2
+
+- Added eCLCA, eCLPCA, eCLDA, eCLPDA aliases for sparsified MDS.
+
 Version 1.18-1
 
-- Added a traceIt argument to the SPMDS variants which allows monitoring of the quasi-majorization..  
+- Added a traceIt argument to the SPMDS variants which allows monitoring of the quasi-majorization. 
 
 Version 1.17-2
 

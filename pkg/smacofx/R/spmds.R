@@ -1,8 +1,8 @@
-#' Sparsified (POST-) Multidimensional Scaling (SPMDS or SMDS) either as self-organizing or not
+#' Extended Curvilinear (Power) Component Analysis aka Sparsified (POST-) Multidimensional Scaling (SPMDS or SMDS) either as self-organizing or not
 #'
-#' An implementation of a sparsified version of (POST-)MDS by pseudo-majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. This is inspired by curvilinear component analysis but works differently: It finds an initial weightmatrix where w_ij(X^0)=0 if d_ij(X^0)>tau and fits a POST-MDS with these weights. Then in each successive iteration step, the weightmat is recalculated so that w_ij(X^(n+1))=0 if d_ij(X^(n+1))>tau. 
+#' An implementation of extended CLPCA which is a sparsified version of (POST-)MDS by quasi-majorization with ratio, interval and ordinal optimal scaling for dissimilarities and optional power transformations. This is inspired by curvilinear component analysis but works differently: It finds an initial weightmatrix where w_ij(X^0)=0 if d_ij(X^0)>tau and fits a POST-MDS with these weights. Then in each successive iteration step, the weightmat is recalculated so that w_ij(X^(n+1))=0 if d_ij(X^(n+1))>tau. 
 #'
-#' There is a wrapper 'smds' where the exponents are 1, which is standard SMDS but extend to allow optimal scaling. The neighborhood parameter tau is kept fixed in 'spmds' and 'smds'. The functions 'so_spmds' and 'so_smds' implement a self-organising principle, where the SMDS is repeatedly fitted for a decreasing sequence of taus.
+#' There are a wrappers 'smds' and 'eCLCA'  where the exponents are 1. The neighborhood parameter tau is kept fixed in 'spmds', 'smds', 'eCLCA' and 'eCLPCA'. The functions 'so_spmds', 'so_eCLPCA' and 'so_smds', 'so_eCLCA' implement a self-organising principle, where the model is repeatedly fitted for a decreasing sequence of taus.
 #' 
 #' @param delta dist object or a symmetric, numeric data.frame or matrix of distances
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'smds'
@@ -343,3 +343,20 @@ so_smds <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primar
     finmod$model  <- "SO-SMDS"
     return(finmod)
     }
+
+
+#' @rdname eCLCA
+#' @export
+eCLCA <- smds
+
+#' @rdname eCLPCA
+#' @export
+eCLPCA <- spmds
+
+#' @rdname so_eCLPCA
+#' @export
+so_eCLPCA <- so_spmds
+
+#' @rdname so_eCLPCA
+#' @export
+so_eCLCA <- so_smds
