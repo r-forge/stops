@@ -9,7 +9,7 @@
 #' @param kappa exponent of the power transformation of the fitted distances; defaults to 1, which is also the setup of 'smds'.
 #' @param nu exponent of the power of the weighting matrix; defaults to 1 which is also the setup for 'smds'. 
 #' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'spmds' and 'smds' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 90\% quantile of delta. For 'so_spmds' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
-#' @param type what type of MDS to fit. Currently one of "ratio", "interval" or "ordinal". Default is "ratio".
+#' @param type what type of MDS to fit. Currently one of "ratio", "interval", "mspline" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param spline.degree Degree of the spline for ‘mspline’ MDS type
 #' @param spline.intKnots Number of interior knots of the spline for ‘mspline’ MDS type
@@ -281,11 +281,12 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
 
 #' @rdname spmds
 #' @export
-smds <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, traceIt=FALSE) {
+smds <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, traceIt=FALSE, spline.degree = 2, spline.intKnots = 2) {
     cc <- match.call()
+    type <- match.arg(type, c("ratio", "interval", "ordinal","mspline"), several.ok = FALSE)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt)
+    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
     out$model <- "SMDS"
     out$call <- cc
     out$parameters <- out$theta <- out$pars  <- c(tau=tau)
@@ -294,7 +295,7 @@ smds <- function(delta, tau=stats::quantile(delta,0.9), type="ratio", ties="prim
 
 #' @rdname spmds
 #' @export
-so_spmds <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_spmds <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -309,7 +310,7 @@ so_spmds <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, 
     for(i in 1:length(taus))
     {
       if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
-      tmp<-spmds(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, acc=acc, itmax=itmax, principal=principal)
+      tmp<-spmds(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose-1, acc=acc, itmax=itmax, principal=principal, spline.degree=spline.degree, spline.intKnots=spline.intKnots)
       finconf<-tmp$conf
       finmod<-tmp
     }
@@ -320,7 +321,7 @@ so_spmds <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10, 
 
 #' @rdname spmds
 #' @export
-so_smds <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE) {
+so_smds <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-6, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2) {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -335,7 +336,7 @@ so_smds <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primar
     for(i in 1:length(taus))
     {
       if(verbose>0) cat(paste0("Epoch ",i,": tau=",taus[i],"\n"))  
-      tmp<-smds(delta=delta, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose,  acc=acc, itmax=itmax, principal=principal)
+      tmp<-smds(delta=delta, tau=taus[i], type=type, ties=ties, weightmat=weightmat, init=finconf, ndim=ndim, verbose=verbose,  acc=acc, itmax=itmax, principal=principal, spline.degree=spline.degree, spline.intKnots=spline.intKnots)
       finconf<-tmp$conf
       finmod<-tmp
     }
@@ -345,18 +346,18 @@ so_smds <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primar
     }
 
 
-#' @rdname eCLCA
+#' @rdname spmds
 #' @export
 eCLCA <- smds
 
-#' @rdname eCLPCA
+#' @rdname spmds
 #' @export
 eCLPCA <- spmds
 
-#' @rdname so_eCLPCA
+#' @rdname spmds
 #' @export
 so_eCLPCA <- so_spmds
 
-#' @rdname so_eCLPCA
+#' @rdname spmds
 #' @export
 so_eCLCA <- so_smds
