@@ -16,7 +16,7 @@
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param strucweight vector of weights to be used for the c-structuredness indices (in the same order as in structures); defaults to -1/length(structures) for each index 
 #' @param strucpars (possibly named with the structure). Metaparameters for the structuredness indices (gamma in the article). It's safest for it be a list of lists with the named arguments for the structuredness indices and the order of the lists must be like the order of structures. So something like this \code{list(list(par1Struc1=par1Struc1,par2Struc1=par2Struc1),list(par1Struc2=par1Struc2,par2Struc2=par2Struc2),...)} where parYStrucX are the named arguments for the metaparameter Y of the structure X the list elements corresponds to. For a structure without parameters, set NULL. Parameters in different list elements parYStrucX can have the same name. For example, say we want to use cclusteredness with metaparameters epsilon=10 and k=4 (and the default for the other parameters), cdependence with no metaparameters and cfaithfulness with metaparameter k=7 one would \code{list(list(epsilon=10,k=4),list(NULL),list(dis=obdiss,k=6))}  for structures vector ("cclusteredness","cdependence","cfaithfulness"). The parameter lists must be in the same ordering as the indices in structures. If missing it is set to NULL and defaults are used. It is also possible to supply a structure's metaparameters as a list of vectors with named elements if the metaparameters are scalars, so like \code{list(c(par1Struc1=parStruc1,par2Struc1=par1Struc1,...),c(par1Struc2=par1Struc2,par2Struc2=par2Struc2,...))}. That can have unintended consequences if the metaparameter is a vector or matrix.  
-#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging", see \code{\link[DiceOptim]{EGO.nsteps}}), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp", see \code{\link[tgp]{dopt.gp}}), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso", see \code{\link[pso]{psoptim}}), simulated annealing ("SANN", \code{\link[stats]{optim}}), "direct (\code{\link[nloptr]{direct}})", Stochastic Global Optimization ("stogo", \code{\link[nloptr]{stogo}}), COBYLA ("cobyla", \code{\link[nloptr]{cobyla}}), Controlled Random Search 2 with local mutation ("crs2lm", \code{\link[nloptr]{crs2lm}}), Improved Stochastic Ranking Evolution Strategy ("isres", \code{\link[nloptr]{isres}}), Multi-Level Single-Linkage ("mlsl", \code{\link[nloptr]{mlsl}}), Nelder-Mead ("neldermead", \code{\link[nloptr]{neldermead}}), Subplex ("sbplx", \code{\link[nloptr]{sbplx}}), Hooke-Jeeves Pattern Search ("hjk", \code{\link[dfoptim]{hjk}}), CMA-ES ("cmaes", \code{\link[cmaes]{cma_es}}). Defaults to "ALJ" version. "tgp", "ALJ", "Kriging" and "pso" usually work well for relatively low values of 'itmax'. 
+#' @param optimmethod What solver to use. Currently supported are Bayesian optimization with Gaussian Process priors and Kriging ("Kriging", for which the archived package 'DiceOptim' must be installed), Bayesian optimization with treed Gaussian processes with jump to linear models ("tgp", see \code{\link[tgp]{dopt.gp}}), Adaptive LJ Search ("ALJ"), Particle Swarm optimization ("pso", see \code{\link[pso]{psoptim}}), simulated annealing ("SANN", \code{\link[stats]{optim}}), "direct (\code{\link[nloptr]{direct}})", Stochastic Global Optimization ("stogo", \code{\link[nloptr]{stogo}}), COBYLA ("cobyla", \code{\link[nloptr]{cobyla}}), Controlled Random Search 2 with local mutation ("crs2lm", \code{\link[nloptr]{crs2lm}}), Improved Stochastic Ranking Evolution Strategy ("isres", \code{\link[nloptr]{isres}}), Multi-Level Single-Linkage ("mlsl", \code{\link[nloptr]{mlsl}}), Nelder-Mead ("neldermead", \code{\link[nloptr]{neldermead}}), Subplex ("sbplx", \code{\link[nloptr]{sbplx}}), Hooke-Jeeves Pattern Search ("hjk", \code{\link[dfoptim]{hjk}}), CMA-ES ("cmaes", \code{\link[cmaes]{cma_es}}). Defaults to "ALJ" version. "tgp", "ALJ", "Kriging" and "pso" usually work well for relatively low values of 'itmax'. 
 #' @param lower The lower contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta. 
 #' @param upper The upper contraints of the search region. Needs to be a numeric vector of the same length as the parameter vector theta.  
 #' @param verbose numeric value hat prints information on the fitting process; >2 is very verbose.
@@ -74,8 +74,8 @@
 #' @importFrom stats dist as.dist optim
 #' @importFrom utils capture.output
 #' @importFrom pso psoptim
-#' @importFrom DiceOptim EGO.nsteps
-#' @importFrom DiceKriging km
+# @importFrom DiceOptim EGO.nsteps
+# @importFrom DiceKriging km
 #' @importFrom tgp lhs dopt.gp
 #' @importFrom pomp sannbox
 #' @importFrom nloptr direct stogo cobyla crs2lm isres mlsl neldermead sbplx
@@ -136,6 +136,7 @@ stops <- function(dis,loss="stress", theta=1, type="ratio",structures, ndim=2, w
     }    
     if(optimmethod=="Kriging")
     {
+        if (!requireNamespace("DiceOptim", quietly = TRUE)) stop("Package \"DiceOptim\" must be installed to use this optimazation method. I suggest you use 'optimmethod=tgp'.", call. = FALSE)
         if(missing(model)) model <- "powexp"
        # optdim <- 3 #dimensions
        # if(loss%in%c("powerstrain","stress","smacofSym","smacofSphere","strain","sammon","elastic","sammon2","sstress","rstress")) optdim <- 1

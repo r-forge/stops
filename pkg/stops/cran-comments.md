@@ -1,5 +1,5 @@
 ## Test environments
-* local Linux Mint 21.4 install, R 4.4.1
+* local Linux Mint 22.1 install, R 4.5.0
 * win-builder (devel, release, oldrel)
 
 ## R CMD check results (via devtools::check())

@@ -306,15 +306,6 @@
 #' summary(resclca)
 #' plot(resclca)
 #'
-#' #STOPS with clda with eps 
-#' set.seed(123)
-#' respcldae<-stops(dissm,loss="spmdda_eps",theta=c(1,1,1,1,2),
-#' structures=structures,strucpars=strucpars,
-#' strucweight=strucweight,lower=c(0.1,0.1,0.1,0.1,1),upper=c(5,5,5,5,10),
-#' optimmethod="tgp",itmax=im)
-#' respcldae
-#' summary(respcldae)
-#' plot(respcldae)
 #'
 #' }
 #' @keywords internal

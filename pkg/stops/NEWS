@@ -1,3 +1,7 @@
+Version 1.9-1
+
+- Removed archived package DiceOptim from Imports and moved to Suggests. Added a check to whether DiceOptim is installed if optimmethod="Kriging". 
+
 Version 1.8-2
 
 - Changed jackmds.stops itmax default. 
