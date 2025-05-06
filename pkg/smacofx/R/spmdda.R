@@ -70,6 +70,10 @@
 #' coef(res)
 #'
 #' res2<-smdda(dis,type="interval",tau=0.4,epsilon=1,itmax=500) #use higher itmax
+#' #aliases:
+#' resa<-eCLPDA(dis,kappa=2,lambda=2,tau=0.4,k=5,itmax=500) #use higher itmax
+#' res2a<-eCLDA(dis,type="interval",tau=0.4,epsilon=1,itmax=500) #use higher itmax
+#' 
 #' res2
 #' summary(res)
 #' oldpar<-par(mfrow=c(1,2))

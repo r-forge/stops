@@ -1,3 +1,11 @@
+Version 1.20-1
+
+- Added sphere data, ufold data and two rings data.
+
+Version 1.19-1
+
+- Added an acc argument to lmds and bcmds.
+
 Version 1.18-2
 
 - Added eCLCA, eCLPCA, eCLDA, eCLPDA aliases for sparsified MDS. Added mspline ot spmds variants.
@@ -12,7 +20,7 @@ Version 1.17-2
 
 Version 1.17-1
 
-- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO but with explicitly normalized stress). Added msplines for r-stress. Made a versionin typo, so it is now 1.17 instead of 1.7. 
+- Added opmds for nonlinear MDS with power functions (based on Jan's smacofPO but with explicitly normalized stress). Added msplines for r-stress. Made a versioning typo, so it is now 1.17 instead of 1.7. 
 
 Version 1.6-1
 

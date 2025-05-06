@@ -59,6 +59,10 @@
 #' dis<-smacof::morse
 #' res<-spmds(dis,type="interval",kappa=2,lambda=2,tau=0.3,itmax=100) #use higher itmax
 #' res2<-smds(dis,type="interval",tau=0.3,itmax=500,traceIt=TRUE) #use higher itmax
+#' #Aliases
+#' resa<-eCLPCA(dis,type="interval",kappa=2,lambda=2,tau=0.3,itmax=100) #use higher itmax
+#' res2a<-eCLCA(dis,type="interval",tau=0.3,itmax=500,traceIt=TRUE) #use higher itmax
+#' 
 #' res
 #' res2
 #' summary(res)
@@ -74,6 +78,8 @@
 #' # We use Quasi-Majorization
 #' res2$trace
 #'
+
+#' 
 #' \donttest{
 #' ## Self-organizing map style (as in the clca publication)
 #' #run the som-style (p)smds 
