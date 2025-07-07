@@ -22,6 +22,7 @@ stop_cmdscale(
   verbose = 0,
   stoptype = c("additive", "multiplicative"),
   itmaxi = 1000,
+  acc = 1e-09,
   add = TRUE,
   registry = struc_reg
 )
@@ -54,6 +55,8 @@ stop_cmdscale(
 \item{stoptype}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
 
 \item{itmaxi}{number of iterations. No effect here.}
+
+\item{acc}{accuarcy. No effect.}
 
 \item{add}{if TRUE dis is made to Euclidean distances}
 

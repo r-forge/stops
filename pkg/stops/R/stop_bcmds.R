@@ -6,7 +6,8 @@
 #' @param weightmat (not used) 
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
-#' @param itmaxi number of iterations
+#' @param itmaxi number of iterations. default is 10000.
+#' @param acc accurcay. Default is 1e-8.
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
@@ -29,7 +30,7 @@
 #' @keywords multivariate
 #' @importFrom smacofx bcmds 
 #' @export
-stop_bcmds<- function(dis,theta=c(1,1,0),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_bcmds<- function(dis,theta=c(1,1,0),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist") || is.data.frame(dis)) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -42,8 +43,8 @@ stop_bcmds<- function(dis,theta=c(1,1,0),type="ratio",weightmat=NULL,init=NULL,n
   mu <- theta[1]
   lambda <- theta[2]
   rho <- theta[3]
-  fit <- smacofx::bcmds(delta=dis,mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::bcmds(delta=dis,mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc, ...)
+  ncall <- do.call(substitute,list(fit$call,list(mu=mu,lambda=lambda,rho=rho,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                
   fit$mu <- mu
   fit$lambda <- lambda

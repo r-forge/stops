@@ -11,7 +11,8 @@ stop_lmds(
   weightmat = NULL,
   init = NULL,
   ndim = 2,
-  itmaxi = 5000,
+  itmaxi = 10000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -38,7 +39,9 @@ stop_lmds(
 
 \item{ndim}{number of dimensions of the target space}
 
-\item{itmaxi}{number of iterations}
+\item{itmaxi}{maximum number of iterations}
+
+\item{acc}{accuracy}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

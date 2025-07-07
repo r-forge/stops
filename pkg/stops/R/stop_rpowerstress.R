@@ -9,7 +9,8 @@
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
-#' @param itmaxi number of iterations. default is 10000.
+#' @param itmaxi maximum number of iterations. default is 10000.
+#' @param acc accuracy (defaults to 1e-8)
 #' @param ... additional arguments to be passed to the fitting procedure powerStressMin
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures a character vector listing the structure indices to use. They always are called "cfoo" with foo being the structure.
@@ -31,7 +32,7 @@
 #' }
 #' @importFrom smacofx powerStressMin
 #' @keywords multivariate
-stop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -43,8 +44,8 @@ stop_rpowerstress <- function(dis,theta=c(1,1,1),type="ratio",weightmat=NULL,ini
   #diag(wght) <- 1
   expo <- theta[1]
   nu <- theta[3]
-  fit <- smacofx::rpStressMin(delta=dis,expo=expo,nu=nu,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(expo=expo,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::rpStressMin(delta=dis,expo=expo,nu=nu,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc,...)
+  ncall <- do.call(substitute,list(fit$call,list(expo=expo,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                 
   fit$kappa <- expo
   fit$lambda <- expo

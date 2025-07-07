@@ -8,7 +8,8 @@
 #' @param ndim number of dimensions of the target space
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param init (optional) initial configuration
-#' @param itmaxi number of iterations
+#' @param itmaxi maximum number of iterations
+#' @param acc accuracy (eps in smcacofSym), Default is 1e-8.
 #' @param ... additional arguments to be passed to the fitting
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -33,7 +34,7 @@
 #'@import smacof
 #'@importFrom stats as.dist
 #'@export
-stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=10000,acc=1e-8,...,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"),stressweight=1,strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(is.null(init)) init <- "torgerson"  
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -45,7 +46,7 @@ stop_smacofSym <- function(dis, theta=1, type="ratio", ndim=2,weightmat=1-diag(n
   #if(length(theta)==2) lambda <- theta[2]
   #if(length(theta)==3) lambda <- theta[2]
   lambda <- theta[1]
-  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,eps=acc,...) #optimize with smacof
   #fit$kappa <- 1
   fit$lambda <- lambda
   #fit$nu <- 1

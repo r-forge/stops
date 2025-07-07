@@ -10,6 +10,7 @@
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations
+#' @param acc accuracy (defaults to 1e-9)
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures a character vector listing the structure indices to use. They always are called "cfoo" with foo being the structure.
@@ -31,7 +32,7 @@
 #' }
 #' @keywords multivariate
 #' @export
-stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,acc=1e-9,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -42,8 +43,8 @@ stop_cldak <- function(dis,theta=c(3*max(sd(dis)),nrow(dis)/4),type="ratio",weig
   #diag(wght) <- 1
   lambda0 <- theta[1]
   k <- theta[2]
-  fit <- smacofx::clda(delta=dis,lambda0=lambda0,k=k,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(lambda0=lambda0,k=k,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::clda(delta=dis,lambda0=lambda0,k=k,Epochs=20,alpha0=0.5,weightmat=wght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda0=lambda0,k=k,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall               
   fit$lambda0 <- theta[1]
   fit$k <- theta[2]

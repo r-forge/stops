@@ -21,6 +21,7 @@ stop_isomap1(
   verbose = 0,
   stoptype = c("additive", "multiplicative"),
   itmaxi = NULL,
+  acc = 1e-08,
   registry = struc_reg
 )
 }
@@ -50,6 +51,8 @@ stop_isomap1(
 \item{stoptype}{How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative'}
 
 \item{itmaxi}{placeholder for compatibility in stops call; not used}
+
+\item{acc}{placeholder for compatibility in stops call; not used}
 
 \item{registry}{registry object with c-structuredness indices.}
 }

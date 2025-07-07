@@ -9,7 +9,8 @@
 #' @param ndim number of dimensions of the target space
 #' @param weightmat a matrix of nonnegative weights. Has no effect here.
 #' @param init (optional) initial configuration
-#' @param itmaxi number of iterations
+#' @param itmaxi maximum number of iterations
+#' @param acc accuracy
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -37,7 +38,7 @@
 #'
 #' 
 #' @export
-stop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL,itmaxi=1000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   if(missing(stoptype)) stoptype <- "additive"
@@ -48,7 +49,7 @@ stop_sammon <- function(dis,theta=1,type="ratio",ndim=2,init=NULL,weightmat=NULL
   #if(length(theta)==2L) lambda <- theta[2]
   #if(length(theta)==3L) lambda <- theta[2]
   #nu <- -1
-  fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,...)
+  fit <- smacofx::sammon(dis^lambda,k=ndim,y=init,trace=isTRUE(verbose>1),niter=itmaxi,tol=acc,...)
   fit$lambda <- lambda
   #fit$kappa <- 1
   #fit$nu <- -1

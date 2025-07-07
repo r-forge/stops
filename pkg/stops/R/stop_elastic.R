@@ -9,6 +9,7 @@
 #' @param weightmat (optional) a matrix of nonnegative weights (NOT the elscal weights)
 #' @param init (optional) initial configuration
 #' @param itmaxi number of iterations
+#' @param acc accuracy (defaults ot 1e-8) 
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param stressweight weight to be used for the fit measure; defaults to 1
@@ -33,7 +34,7 @@
 #'@import smacof 
 #'@keywords multivariate
 #'@export
-stop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(dis)),init=NULL,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
                                         #TODO Unfolding
   if(is.null(init)) init <- "torgerson" 
   theta <- as.numeric(theta)
@@ -50,7 +51,7 @@ stop_elastic <- function(dis,theta=1,type="ratio",ndim=2,weightmat=1-diag(nrow(d
   diag(elscalw) <- 1
   verbose <- isTRUE(verbose>=2)  
   combwght <- stats::as.dist(weightmat*elscalw) #combine the user weights and the elastic scaling weights
-  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=verbose,itmax=itmaxi,...) #optimize with smacof
+  fit <- smacof::smacofSym(dis^lambda,type=type,ndim=ndim,weightmat=combwght,init=init,verbose=verbose,itmax=itmaxi,eps=acc,...) #optimize with smacof
   #ncall <- do.call(substitute,list(fit$call,list(type=type,weightmat=combwght,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
   #fit$call <- ncall                  
   #fit$kappa <- 1

@@ -378,6 +378,7 @@ eCLPCA <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="pri
     out$call <- cc
     out$parameters <- out$pars <- out$theta <- c(kappa=kappa,lambda=lambda,nu=nu,tau=tau)
     out    
+}
 
 #' @rdname spmds
 #' @export
@@ -407,7 +408,7 @@ so_eCLPCA <- function(delta, kappa=1, lambda=1, nu=1, tau=max(delta), epochs=10,
 
 #' @rdname spmds
 #' @export
-so_eCLCA <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-8, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2) {
+so_eCLCA <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="primary", weightmat=1-diag(nrow(delta)), init=NULL, ndim = 2, acc= 1e-8, itmax = 10000, verbose = FALSE, principal=FALSE, spline.degree = 2, spline.intKnots = 2)   {
     cc <- match.call()
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
@@ -429,8 +430,9 @@ so_eCLCA <- function(delta, tau=max(delta), epochs=10, type="ratio", ties="prima
     finmod$call  <- cc
     finmod$model  <- "SO-eCLCA"
     return(finmod)
-    }
+}
 
+    
 #' @rdname spmds
 #' @export
 eclca <- eCLCA
@@ -441,8 +443,9 @@ eclpca <- eCLPCA
 
 #' @rdname spmds
 #' @export
-so_eclpca <- so_eCLPCA
+so_eclca <- so_eCLCA
 
 #' @rdname spmds
 #' @export
-so_eclca <- so_eCLCA
+so_eclpca <- so_eCLPCA
+

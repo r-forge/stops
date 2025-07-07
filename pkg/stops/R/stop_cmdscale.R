@@ -7,6 +7,7 @@
 #' @param type MDS type. Ignored here. 
 #' @param ndim number of dimensions of the target space
 #' @param itmaxi number of iterations. No effect here.
+#' @param acc accuarcy. No effect.
 #' @param add should the dissimilarities be made Euclidean? Defaults to TRUE.
 #' @param weightmat (optional) a matrix of nonnegative weights. Not used. 
 #' @param init (optional) initial configuration
@@ -35,7 +36,7 @@
 #' @importFrom stats dist as.dist
 #' @importFrom smacofx cmdscale
 #' @keywords multivariate
-stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000,add=TRUE,registry=struc_reg) {
+stop_cmdscale <- function(dis,theta=1,type="ratio",weightmat=NULL,ndim=2,init=NULL,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=1000,acc=1e-9,add=TRUE,registry=struc_reg) {
   theta <- as.numeric(theta)
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
   type <- match.arg(type,'ratio')

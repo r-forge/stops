@@ -6,7 +6,8 @@
 #' @param weightmat (not used) 
 #' @param init (optional) initial configuration
 #' @param ndim number of dimensions of the target space
-#' @param itmaxi number of iterations 
+#' @param itmaxi maximum number of iterations
+#' @param acc accuracy
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures which structures to look for
@@ -29,7 +30,7 @@
 #' @keywords multivariate
 #' @importFrom smacofx lmds 
 #' @export
-stop_lmds <- function(dis,theta=c(2,0.5),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=5000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_lmds <- function(dis,theta=c(2,0.5),type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")|| is.data.frame(dis)) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
@@ -42,8 +43,8 @@ stop_lmds <- function(dis,theta=c(2,0.5),type="ratio",weightmat=NULL,init=NULL,n
   k <- theta[1]
   tau <- theta[2]
   verbose <- verbose+2
-  fit <- lmds(delta=dis,k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- lmds(delta=dis,k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc,...)
+  ncall <- do.call(substitute,list(fit$call,list(k=k,tau=tau,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                
   fit$k <- k
   fit$tau <- tau

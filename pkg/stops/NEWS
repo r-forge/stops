@@ -1,3 +1,7 @@
+Version 1.10-1
+
+- Added an accuracy control (accps argument) to all the stop_ function and stops. 
+
 Version 1.9-1
 
 - Removed archived package DiceOptim from Imports and moved to Suggests. Added a check to whether DiceOptim is installed if optimmethod="Kriging". 

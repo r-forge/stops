@@ -7,9 +7,10 @@
 #' @param theta the theta vector of parameters to optimize over. Must be of length three, with the first the kappa argument, the second the lambda argument and the third the nu argument. One cannot supply upsilon and tau as of yet. Defaults to 1 1 1.
 #' @param type MDS type.
 #' @param ndim number of dimensions of the target space
-#' @param itmaxi number of iterations. default is 1000.
+#' @param itmaxi number of iterations. default is 10000.
 #' @param weightmat (optional) a binary matrix of nonnegative weights
 #' @param init (optional) initial configuration
+#' @param acc accuracy. default is 1e-8. 
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param structures a character vector listing the structure indices to use. They always are called "cfoo" with foo being the structure.
@@ -35,7 +36,7 @@
 #'@import smacof
 #' 
 #'@keywords multivariate
-stop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat= 1-diag(nrow(dis)),init=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat= 1-diag(nrow(dis)),init=NULL,itmaxi=10000,acc=1e-9,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   if(inherits(dis,"dist") || is.data.frame(dis)) dis <- as.matrix(dis)
   if(missing(stoptype)) stoptype <- "additive"
   if(length(setdiff(unique(unlist(as.vector(weightmat))),c(0,1)))>0) stop("For approximated power stress, only binary weight matrices are allowed.")  
@@ -47,8 +48,8 @@ stop_apstress <- function(dis,theta=c(1,1,1),type="ratio",ndim=2,weightmat= 1-di
   lambda <- theta[2]
   nu <- theta[3]
   verbose <- isTRUE(verbose>=2)
-  fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, init=init, weightmat=weightmat,verbose=verbose, itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::apStressMin(dis, kappa=kappa, lambda=lambda, nu=nu, type=type, ndim=ndim, init=init, weightmat=weightmat,verbose=verbose, itmax=itmaxi, acc=acc, ...)
+  ncall <- do.call(substitute,list(fit$call,list(kappa=kappa,lambda=lambda,nu=nu,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                
   #fit$kappa <- 1
   #fit$tau <- tau

@@ -11,7 +11,8 @@ stop_sstress(
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
   ndim = 2,
-  itmaxi = 1e+05,
+  itmaxi = 10000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -28,7 +29,7 @@ stop_sstress(
 \arguments{
 \item{dis}{numeric matrix or dist object of a matrix of proximities}
 
-\item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).}
+\item{theta}{the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a factor of 2 (as sstress has f(delta^2)).}
 
 \item{type}{MDS type.}
 
@@ -39,6 +40,8 @@ stop_sstress(
 \item{ndim}{the number of dimensions of the target space}
 
 \item{itmaxi}{number of iterations}
+
+\item{acc}{accuracy (default is 1e-8)}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 
@@ -69,6 +72,6 @@ A list with the components
 }
 }
 \description{
-Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
+Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a factor of 2 (as sstress has f(delta^2), so we do f(delta^(2*lambda))).
 }
 \keyword{multivariate}

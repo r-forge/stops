@@ -113,7 +113,7 @@ copStressMin(
 
 \item{kappa}{power transformation for fitted distances}
 
-\item{lambda}{power transformation for proximities (only used if type="ratio" or "interval")}
+\item{lambda}{power transformation for proximities (only used with type="ratio" or "interval", otherwise ignored)}
 
 \item{nu}{power transformation for weights}
 
@@ -203,9 +203,9 @@ A copsc object (inheriting from smacofP). A list with the components
 Minimizing Copstress to obtain a clustered ratio, interval, spline or ordinal PS configuration with given explicit power transformations theta. The function allows mix-and-match of explicit (via theta) and implicit (via type) transformations by setting the kappa, lambda, nu (or theta) and type arguments. This function also supports fitting any Minkowski distance in the configuration.
 }
 \details{
-This is an extremely flexible approach to least squares proximity scaling: It supports ratio power stress; ratio, interval and ordinal r stress and ratio, interval and ordinal MDS with or without a COPS penalty. Famous special cases of these models that can be fitted are multiscale MDS if kappa->0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
+This is a flexible approach to least squares proximity scaling: It subsumes ratio power stress; ratio, interval, mspline and ordinal r stress and ratio, interval, mspline and ordinal MDS all with or without a COPS penalty and weighting. Famous special cases of these models that can be fitted are multiscale MDS if kappa -> 0 and delta=log(delta), Alscal MDS (sstress) with lambda=kappa=2, Sammon type mapping with weightmat=delta and nu=-1, elastic scaling with weightmat=delta and nu=-2. Due to mix-and-match this function also allows to fit models that have not yet been published, such as for example an "elastic scaling ordinal s-stress with cops penalty".
 
-If one wants to fit these models without the cops penalty, we recommend to use \code{\link[smacofx]{powerStressMin}} (for ratio and interval MDS with any power transformation for weights, dissimilarities and distances) or \code{\link[smacofx]{rStressMin}} (for ratio, interval and ordinal MDS with power transformations for distances and weights) as these use majorization.
+If one wants to fit these models without the cops penalty, we recommend to use \code{\link[smacofx]{powerStressMin}} (for ratio and interval MDS with any power transformation for weights, dissimilarities and distances) or \code{\link[smacofx]{rStressMin}} (for ratio, interval, mspline and ordinal MDS with power transformations for distances and weights) as these use majorization.
 
 
 Some optimizers (including the default hjk-Newuoa) will print a warning if itmax is (too) small or if there was no convergence. Consider increasing itmax then.

@@ -11,7 +11,8 @@ stop_apstress(
   ndim = 2,
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
-  itmaxi = 1000,
+  itmaxi = 10000,
+  acc = 1e-09,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -38,7 +39,9 @@ stop_apstress(
 
 \item{init}{(optional) initial configuration}
 
-\item{itmaxi}{number of iterations. default is 1000.}
+\item{itmaxi}{number of iterations. default is 10000.}
+
+\item{acc}{accuracy. default is 1e-8.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

@@ -1,15 +1,16 @@
 #' STOPS version of sstress
 #'
-#' Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)).
+#' Free parameter is lambda for the observed proximities. Fitted distances are transformed with power 2, weights have exponent of 1. Note that the lambda here works as a factor of 2 (as sstress has f(delta^2), so we do f(delta^(2*lambda))).
 #' 
 #' @param dis numeric matrix or dist object of a matrix of proximities
-#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a multiplicator of 2 (as sstress has f(delta^2)). 
+#' @param theta the theta vector of powers; this must be a scalar of the lambda transformation for the observed proximities. Defaults to 1. Note that the lambda here works as a factor of 2 (as sstress has f(delta^2)). 
 #' @param weightmat (optional) a matrix of nonnegative weights
 #' @param type MDS type.
 #' @param init (optional) initial configuration
 #' @param ndim the number of dimensions of the target space
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param itmaxi number of iterations
+#' @param acc accuracy (default is 1e-8)
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -32,7 +33,7 @@
 #' @importFrom smacofx powerStressMin
 #' @keywords multivariate
 #' @export
-stop_sstress <- function(dis,theta=1,type=type,weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=100000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_sstress <- function(dis,theta=1,type=type,weightmat=1-diag(nrow(dis)),init=NULL,ndim=2,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)  
   if(missing(stoptype)) stoptype <- "additive"
@@ -41,8 +42,8 @@ stop_sstress <- function(dis,theta=1,type=type,weightmat=1-diag(nrow(dis)),init=
   #if(length(theta)<3) theta <- rep(theta, length.out=3)
   lambda <- theta[1]
   flambda <- lambda*2 #sstress is d^2 and delta^2 so f(delta^2)=delta^(2*1); lambda works in factors of 2  
-  fit <- smacofx::powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(lambda=flambda,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::powerStressMin(delta=dis,kappa=2,lambda=flambda,nu=1,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc,...)
+  ncall <- do.call(substitute,list(fit$call,list(lambda=flambda,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                
   fit$kappa <- 2
   fit$lambda <- lambda

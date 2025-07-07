@@ -25,6 +25,7 @@ stops(
   initpoints = 10,
   itmax = 50,
   itmaxps = 10000,
+  accps = 1e-08,
   model,
   control,
   registry = struc_reg,
@@ -70,7 +71,9 @@ stops(
 
 \item{itmaxps}{maximum number of iterations of the inner optimization (to obtain the PS configuration)}
 
-\item{model}{a character specifying the surrogate model to use. For Kriging it specifies the covariance kernel for the GP prior; see \code{\link[DiceKriging]{covTensorProduct-class}} defaults to "powerexp". For tgp it specifies the non stationary process used see \code{\link[tgp]{bgp}}, defaults to "btgpllm"}
+\item{accps}{accuracy of the inner optimization (to obtain the PS configuration)}
+
+\item{model}{a character specifying the surrogate model to use. For "Kriging" it specifies the covariance kernel for the GP prior; see \code{\link[DiceKriging]{covTensorProduct-class}} defaults to "powerexp". For "tgp" it specifies the non stationary process used see \code{\link[tgp]{bgp}}, defaults to "btgpllm"}
 
 \item{control}{a control argument passed to the outer optimization procedure. Will override any other control arguents passed, especially verbose and itmax. For the effect of control, see the functions pomp::sannbox for SANN and pso::psoptim for pso, cmaes::cma_es for cmaes, dfoptim::hjkb for hjk and the nloptr docs for the algorithms direct, stogo, cobyla, crs2lm, isres, mlsl, neldermead, sbplx.}
 

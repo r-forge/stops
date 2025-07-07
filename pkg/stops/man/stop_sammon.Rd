@@ -12,6 +12,7 @@ stop_sammon(
   init = NULL,
   weightmat = NULL,
   itmaxi = 1000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -38,7 +39,9 @@ stop_sammon(
 
 \item{weightmat}{a matrix of nonnegative weights. Has no effect here.}
 
-\item{itmaxi}{number of iterations}
+\item{itmaxi}{maximum number of iterations}
+
+\item{acc}{accuracy}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

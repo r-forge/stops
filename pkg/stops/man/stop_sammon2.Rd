@@ -12,6 +12,7 @@ stop_sammon2(
   weightmat = NULL,
   init = NULL,
   itmaxi = 1000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -39,6 +40,8 @@ stop_sammon2(
 \item{init}{(optional) initial configuration}
 
 \item{itmaxi}{number of iterations}
+
+\item{acc}{accuracy (defaults to 1e-8)}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

@@ -17,6 +17,7 @@
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
 #' @param itmaxi placeholder for compatibility in stops call; not used
+#' @param acc placeholder for compatibility in stops call; not used
 #' @param registry registry object with c-structuredness indices.
 #' 
 #' @return A list with the components
@@ -36,7 +37,7 @@
 #' @importFrom smacofx cmdscale 
 #' @keywords multivariate
 #' @export
-stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=NULL,registry=struc_reg) {
+stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=NULL,acc=1e-8,registry=struc_reg) {
   theta <- as.numeric(theta)
   type <- "ratio"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")
@@ -82,6 +83,7 @@ stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NUL
 #' @param verbose numeric value hat prints information on the fitting process; >2 is extremely verbose
 #' @param stoptype How to construct the target function for the multi objective optimization? Either 'additive' (default) or 'multiplicative' 
 #' @param itmaxi placeholder for compatibility in stops call; not used
+#' @param acc placeholder for compatibility in stops call; not used
 #' @param registry registry object with c-structuredness indices.
 #' 
 #' @return A list with the components
@@ -101,7 +103,7 @@ stop_isomap1 <- function(dis,theta=3,type="ratio",weightmat=NULL,ndim=2,init=NUL
 #' @importFrom smacofx cmdscale
 #' @keywords multivariate
 #' @export
-stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),type="ratio",weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=NULL,registry=struc_reg) {
+stop_isomap2 <- function(dis,theta=stats::quantile(dis,0.1),type="ratio",weightmat=NULL,ndim=2,init=NULL,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),itmaxi=NULL,acc=1e-8,registry=struc_reg) {
   theta <- as.numeric(theta)
   type <- "ratio"
   if(length(theta)>3) stop("There are too many parameters in the theta argument.")

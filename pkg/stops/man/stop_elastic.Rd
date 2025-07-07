@@ -11,7 +11,8 @@ stop_elastic(
   ndim = 2,
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
-  itmaxi = 1000,
+  itmaxi = 10000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -39,6 +40,8 @@ stop_elastic(
 \item{init}{(optional) initial configuration}
 
 \item{itmaxi}{number of iterations}
+
+\item{acc}{accuracy (defaults ot 1e-8)}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

@@ -12,6 +12,7 @@ stop_rpowerstress(
   init = NULL,
   ndim = 2,
   itmaxi = 10000,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -38,7 +39,9 @@ stop_rpowerstress(
 
 \item{ndim}{number of dimensions of the target space}
 
-\item{itmaxi}{number of iterations. default is 10000.}
+\item{itmaxi}{maximum number of iterations. default is 10000.}
+
+\item{acc}{accuracy (defaults to 1e-8)}
 
 \item{...}{additional arguments to be passed to the fitting procedure powerStressMin}
 

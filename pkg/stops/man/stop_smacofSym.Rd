@@ -11,7 +11,8 @@ stop_smacofSym(
   ndim = 2,
   weightmat = 1 - diag(nrow(dis)),
   init = NULL,
-  itmaxi = 1000,
+  itmaxi = 10000,
+  acc = 1e-08,
   ...,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
     "cassociation", "cnonmonotonicity", "cfunctionality", "ccomplexity", "cfaithfulness",
@@ -38,7 +39,9 @@ stop_smacofSym(
 
 \item{init}{(optional) initial configuration}
 
-\item{itmaxi}{number of iterations}
+\item{itmaxi}{maximum number of iterations}
+
+\item{acc}{accuracy (eps in smcacofSym), Default is 1e-8.}
 
 \item{...}{additional arguments to be passed to the fitting}
 

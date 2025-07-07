@@ -10,6 +10,7 @@
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param itmaxi number of iterations
+#' @param acc accuracy (defaults to 1e-8)
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -34,7 +35,7 @@
 #'@importFrom stats dist as.dist
 #'@keywords multivariate
 #'@export
-stop_smacofSphere <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_smacofSphere <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,init=NULL,itmaxi=1000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   if(is.null(init)) init <- "torgerson"
   theta <- as.numeric(theta)
   if(inherits(dis,"dist")) dis <- as.matrix(dis)
@@ -44,7 +45,7 @@ stop_smacofSphere <- function(dis,theta=1,type="ratio",ndim=2,weightmat=NULL,ini
   if(length(theta)>1) stop("There are too many parameters in the theta argument.")
   #if(length(theta)<3) theta <- rep(theta,length.out=3)
   lambda <- theta[1]
-  fit <- smacof::smacofSphere(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,...) #optimize with smacof
+  fit <- smacof::smacofSphere(dis^lambda,type=type,ndim=ndim,weightmat=weightmat,init=init,verbose=isTRUE(verbose==2),itmax=itmaxi,eps=acc,...) #optimize with smacof
   #fit$kappa <- 1
   fit$lambda <- lambda
   #fit$nu <- 1

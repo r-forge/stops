@@ -12,6 +12,7 @@ stop_powerelastic(
   init = NULL,
   ndim = 2,
   itmaxi = 1e+05,
+  acc = 1e-08,
   ...,
   stressweight = 1,
   structures = c("cclusteredness", "clinearity", "cdependence", "cmanifoldness",
@@ -39,6 +40,8 @@ stop_powerelastic(
 \item{ndim}{number of dimensions of the target space}
 
 \item{itmaxi}{number of iterations}
+
+\item{acc}{accuracy. default is 1e-8.}
 
 \item{...}{additional arguments to be passed to the fitting procedure}
 

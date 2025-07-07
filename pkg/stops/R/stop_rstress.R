@@ -10,6 +10,7 @@
 #' @param init (optional) initial configuration
 #' @param stressweight weight to be used for the fit measure; defaults to 1
 #' @param itmaxi number of iterations.
+#' @param acc accuracy (defaults t 1e-8)
 #' @param ... additional arguments to be passed to the fitting procedure
 #' @param structures which structuredness indices to be included in the loss
 #' @param strucweight weight to be used for the structuredness indices; ; defaults to 1/#number of structures
@@ -33,7 +34,7 @@
 #' @keywords multivariate
 #' @importFrom smacofx rStressMin
 #' @export
-stop_rstress <- function(dis,theta=1,type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
+stop_rstress <- function(dis,theta=1,type="ratio",weightmat=NULL,init=NULL,ndim=2,itmaxi=10000,acc=1e-8,...,stressweight=1,structures=c("cclusteredness","clinearity","cdependence","cmanifoldness","cassociation","cnonmonotonicity","cfunctionality","ccomplexity","cfaithfulness","cregularity","chierarchy","cconvexity","cstriatedness","coutlying","cskinniness","csparsity","cstringiness","cclumpiness","cinequality"), strucweight=rep(1/length(structures),length(structures)),strucpars,verbose=0,stoptype=c("additive","multiplicative"),registry=struc_reg) {
   if(inherits(dis,"dist")) dis <- as.matrix(dis)   
   if(is.null(weightmat)) weightmat <- 1-diag(nrow(dis))
   #itmaxi2 <- itmaxi
@@ -44,8 +45,8 @@ stop_rstress <- function(dis,theta=1,type="ratio",weightmat=NULL,init=NULL,ndim=
   weightmat <- as.matrix(weightmat)
   #if(length(theta)<3) theta <- rep(theta,length.out=3)
   r <- theta[1]/2
-  fit <- smacofx::rStressMin(delta=dis,r=r,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,...)
-  ncall <- do.call(substitute,list(fit$call,list(r=r,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi)))
+  fit <- smacofx::rStressMin(delta=dis,r=r,type=type,weightmat=weightmat,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc,...)
+  ncall <- do.call(substitute,list(fit$call,list(r=r,type=type,init=init,ndim=ndim,verbose=verbose,itmax=itmaxi,acc=acc)))
   fit$call <- ncall                 
   fit$r <- r
   #fit$lambda <- 1

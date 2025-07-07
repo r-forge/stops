@@ -38,7 +38,7 @@ pcops(
 
 \item{loss}{which loss function to be used for fitting, defaults to strain. See Details.}
 
-\item{type}{MDS type which may be one of "ratio", interval", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.}
+\item{type}{MDS type which may be one of "ratio", interval", "mspline", "ordinal". Defaults to "ratio". Note not all loss arguments support all types; if not there will be an error and infor which types are supported. In that case choose another type.}
 
 \item{weightmat}{(optional) a matrix of nonnegative weights; defaults to 1 for all off diagonals}
 
