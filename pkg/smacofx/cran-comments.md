@@ -1,5 +1,5 @@
 ## Test environments
-* local Linux Mint 22.1 install, R 4.5.0
+* local Linux Mint 22.1 install, R 4.5.1
 * win-builder (devel, release, oldrel)
 
 ## R CMD check results (via devtools::check())
@@ -7,16 +7,16 @@ There were no ERRORs or WARNINGs or NOTEs.
 
 ## Win-builder results
 ## r-release, r-devel and r-oldrel
-There were no ERRORs or WARNINGs.
+There were no ERRORs or WARNINGs or NOTEs.
 
-There was 1 NOTE.
+There was 1 NOTE for r-oldrel
 
-Version jumps in minor (submitted: 1.20.1, existing: 1.6.1)
+* checking DESCRIPTION meta-information ... NOTE
+Author field differs from that derived from Authors@R
+  Author:    'Thomas Rusch [aut, cre] (ORCID: <https://orcid.org/0000-0002-7773-2096>), Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut] (ORCID: <https://orcid.org/0000-0003-0100-6511>)'
+  Authors@R: 'Thomas Rusch [aut, cre] (<https://orcid.org/0000-0002-7773-2096>), Jan de Leeuw [aut], Lisha Chen [aut], Patrick Mair [aut] (<https://orcid.org/0000-0003-0100-6511>)'
 
-Possibly misspelled words in DESCRIPTION:
-  nonmetric (10:889, 10:2111)
-
-The version jump is correct. The misspelled word is a false positive.
+I'm not sure about this NOTE, there is only an Authors@R field in the DESCRIPTION file.
 
 ## Downstream dependencies
 I have also run R CMD check on downstream dependencies of smacofx. All packages passed.

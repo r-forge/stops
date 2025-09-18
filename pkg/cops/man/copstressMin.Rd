@@ -37,6 +37,7 @@ copstressMin(
   minkp = 2,
   spline.degree = 2,
   spline.intKnots = 2,
+  ncores = 1,
   ...
 )
 
@@ -71,6 +72,7 @@ copsc(
   minkp = 2,
   spline.degree = 2,
   spline.intKnots = 2,
+  ncores = 1,
   ...
 )
 
@@ -105,6 +107,7 @@ copStressMin(
   minkp = 2,
   spline.degree = 2,
   spline.intKnots = 2,
+  ncores = 1,
   ...
 )
 }
@@ -143,7 +146,7 @@ copStressMin(
 
 \item{rang}{range of the reachabilities to be considered. If missing it is found from the initial configuration by taking 0 as the lower boundary and dmax (see above) as upper boundary. See also \code{\link[cordillera]{cordillera}}}
 
-\item{optimmethod}{What optimizer to use? Choose one string of 'Newuoa' (\code{\link[minqa]{newuoa}}), 'NelderMead' (see \code{\link[stats]{optim}}), 'hjk' (Hooke-Jeeves algorithm from \code{\link[dfoptim]{hjk}}), 'solnl' (from \code{\link[NlcOptim]{solnl}}), 'solnp' (from \code{\link[Rsolnp]{solnp}}), 'subplex' (from \code{\link[subplex]{subplex}}), 'SANN' (simulated annealing, \code{\link[stats]{optim}}), 'BFGS' (see \code{\link[stats]{optim}}), 'snomadr' (from \code{\link[crs]{snomadr}}), 'genoud' (from \code{\link[rgenoud]{genoud}}), 'gensa' (from \code{\link[GenSA]{GenSA}}), 'cmaes' (from \code{\link[cmaes]{cma_es}}) and 'direct' (from \code{\link[nloptr]{direct}}). See the linked functions for details on these solvers. There are also combinations that proved to work well good, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually everything with 'hjk', 'BFGS', 'Newuoa', 'subplex' and 'solnl' in it work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
+\item{optimmethod}{What optimizer to use? Choose one string of 'SQG-DE' (\code{\link[graDiEnt]{optim_SQGDE}}), 'Newuoa' (\code{\link[minqa]{newuoa}}), 'NelderMead' (see \code{\link[stats]{optim}}), 'hjk' (Hooke-Jeeves algorithm from \code{\link[dfoptim]{hjk}}), 'solnl' (from \code{\link[NlcOptim]{solnl}}), 'solnp' (from \code{\link[Rsolnp]{solnp}}), 'subplex' (from \code{\link[subplex]{subplex}}), 'SANN' (simulated annealing, \code{\link[stats]{optim}}), 'BFGS' (see \code{\link[stats]{optim}}), 'snomadr' (from \code{\link[crs]{snomadr}}), 'genoud' (from \code{\link[rgenoud]{genoud}}), 'gensa' (from \code{\link[GenSA]{GenSA}}), 'cmaes' (from \code{\link[cmaes]{cma_es}}) and 'direct' (from \code{\link[nloptr]{direct}}). See the linked functions for details on these solvers. There are also combinations that proved to work well, like 'hjk-Newuoa', 'hjk-BFGS', 'BFGS-hjk', 'Newuoa-hjk', 'direct-Newuoa' and 'direct-BFGS'. Usually everything with 'hjk', 'BFGS', 'Newuoa', 'subplex' and 'solnl' in it work rather well in an acceptable time frame (depending on the smoothness of copstress). Default is 'hjk-Newuoa'.}
 
 \item{verbose}{numeric value hat prints information on the fitting process; >2 is very verbose}
 
@@ -164,6 +167,8 @@ copStressMin(
 \item{spline.degree}{Degree of the spline for ‘mspline’ MDS type}
 
 \item{spline.intKnots}{Number of interior knots of the spline for ‘mspline’ MDS type}
+
+\item{ncores}{number of cores for parallelization (currently only for "SQG-DE").}
 
 \item{...}{additional arguments to be passed to the optimization procedure}
 }
