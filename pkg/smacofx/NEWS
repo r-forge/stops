@@ -1,3 +1,7 @@
+Version 1.23-0
+
+- Set all default taus s(p)mds, s(P)mda, ecl(p)ca, ecl(p)da to 25% quantiles of the enormed delta. Fixed bug in these functions that caused an error when no tau was supplied. Fixed bug in lmds and bcmds for input deltas being 0; it now exists cleanly with an error message.  
+
 Version 1.22-0
 
 - Added function alignplot.

@@ -8,7 +8,7 @@
 #' @param lambda exponent of the power transformation of the dissimilarities; defaults to 1, which is also the setup of 'smds'
 #' @param kappa exponent of the power transformation of the fitted distances; defaults to 1, which is also the setup of 'smds'.
 #' @param nu exponent of the power of the weighting matrix; defaults to 1 which is also the setup for 'smds'. 
-#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'spmds' and 'smds' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 1\% quantile of delta. For 'so_spmds' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence.
+#' @param tau the boundary/neighbourhood parameter(s) (called lambda in the original paper). For 'spmds' and 'smds' it is supposed to be a numeric scalar (if a sequence is supplied the maximum is taken as tau) and all the transformed fitted distances exceeding tau are set to 0 via the weightmat (assignment can change between iterations). It defaults to the 25\% quantile of the explictly normalized (power transformed) delta. For 'so_spmds' tau is supposed to be either a user supplied decreasing sequence of taus or if a scalar the maximum tau from which a decreasing sequence of taus is generated automatically as 'seq(from=tau,to=tau/epochs,length.out=epochs)' and then used in sequence. We recommend not to use the defaults! 
 #' @param type what type of MDS to fit. Currently one of "ratio", "interval", "mspline" or "ordinal". Default is "ratio".
 #' @param ties the handling of ties for ordinal (nonmetric) MDS. Possible are "primary" (default), "secondary" or "tertiary".
 #' @param spline.degree Degree of the spline for ‘mspline’ MDS type
@@ -134,7 +134,7 @@ spmds <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="prim
     weightmat <- weightmat^nu
     weightmat[!is.finite(weightmat)] <- 0
     delta <- delta / enorm (delta, weightmat)
-    if(missing(tau)) tau <- stats::quantile(delta[delta>0],0.1)
+    if(missing(tau)) tau <- stats::quantile(delta,0.25)
     if(length(tau)>1)
     {
         warning("Supplied tau is of length >1. The min(tau) was used as tau.")
@@ -292,7 +292,10 @@ smds <- function(delta, tau, type="ratio", ties="primary", weightmat=1-diag(nrow
     type <- match.arg(type, c("ratio", "interval", "ordinal","mspline","spline"), several.ok = FALSE)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
+    weightmato <- weightmat
+    weightmat[!is.finite(weightmat)] <- 0
+    if(missing(tau)) tau <- stats::quantile((delta/enorm(delta,weightmat)),0.25)
+    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmato, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
     out$model <- "SMDS"
     out$call <- cc
     out$parameters <- out$theta <- out$pars  <- c(tau=tau)
@@ -359,7 +362,10 @@ eCLCA <- function(delta, tau, type="ratio", ties="primary", weightmat=1-diag(nro
     type <- match.arg(type, c("ratio", "interval","mspline","spline"), several.ok = FALSE)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
+    weightmato <- weightmat
+    weightmat[!is.finite(weightmat)] <- 0
+    if(missing(tau)) tau <- stats::quantile((delta/enorm(delta,weightmat)),0.25)
+    out <- spmds(delta=delta, lambda=1, kappa=1, nu=1, tau=tau, type=type, ties=ties, weightmat=weightmato, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
     out$model <- "eCLCA"
     out$call <- cc
     out$parameters <- out$theta <- out$pars  <- c(tau=tau)
@@ -373,7 +379,10 @@ eCLPCA <- function (delta, lambda=1, kappa=1, nu=1, tau, type="ratio", ties="pri
     type <- match.arg(type, c("ratio", "interval","mspline","spline"), several.ok = FALSE)
     if(inherits(delta,"dist") || is.data.frame(delta)) delta <- as.matrix(delta)
     if(!isSymmetric(delta)) stop("delta is not symmetric.\n")
-    out <- spmds(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmat, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
+    weightmato <- weightmat
+    weightmat[!is.finite(weightmat)] <- 0
+    if(missing(tau)) tau <- stats::quantile((delta^lambda/enorm(delta^lambda,weightmat^nu)),0.25)
+    out <- spmds(delta=delta, lambda=lambda, kappa=kappa, nu=nu, tau=tau, type=type, ties=ties, weightmat=weightmato, init=init, ndim=ndim, acc=acc, itmax=itmax, verbose=verbose, principal=principal,traceIt=traceIt,  spline.degree=spline.degree, spline.intKnots=spline.intKnots)
     out$model <- "eCLPCA"
     out$call <- cc
     out$parameters <- out$pars <- out$theta <- c(kappa=kappa,lambda=lambda,nu=nu,tau=tau)
