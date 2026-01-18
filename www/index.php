@@ -124,7 +124,7 @@ The most recent builds of the software packages is available for Windows and Lin
 
 <h3>People:</h3>
 <dl>
-<li><a href="http://www.wu.ac.at/methods/team/dr-thomas-rusch/en/">Thomas Rusch</a></li> 
+<li><a href="https://www.wu.ac.at/en/competence-center-for-empirical-research-methods/team/dr-thomas-rusch">Thomas Rusch</a></li> 
 <li><a href="http://gifi.stat.ucla.edu/">Jan de Leeuw</a></li>
 <li><a href="http://scholar.harvard.edu/mair/home">Patrick Mair</a></li>
 <li><a href="http://www.wu.ac.at/statmath/en/faculty_staff/faculty/khornik">Kurt Hornik</a></li> 
