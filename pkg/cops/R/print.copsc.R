@@ -14,4 +14,5 @@ print.copsc <- function(x,...)
     cat("Stress weight:", x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$niter, "\n")
     cat("\n")
+    invisible(x)
     }

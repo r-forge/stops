@@ -15,4 +15,5 @@ print.pcops <- function(x,...)
     cat("MDS loss weight:",x$stressweight," OPTICS Cordillera weight:",x$cordweight,"\n")
     cat("Number of iterations of",x$optimethod,"optimization:", x$optim$counts["function"], "\n")
     cat("\n")
+    invisible(x)
     }

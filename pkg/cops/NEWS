@@ -1,3 +1,6 @@
+Version 1.15-0:
+  - Added invisible return values to print methods. 
+
 Version 1.14-1:
   - Added msplines to copsc.
 

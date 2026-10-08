@@ -27,4 +27,5 @@ print.summary.pcops <- function(x,...)
       print(round(x$sppmat[,2], 4))
       cat("\n")
      }
+    invisible(x)
     }
