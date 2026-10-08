@@ -9,4 +9,5 @@ print.smacofP <- function(x,...)
     cat("Stress-1 value:", round(x$stress, 3), "\n")
     cat("Number of iterations:", x$niter, "\n")
     cat("\n")
+    invisible(x)
 }

@@ -13,13 +13,15 @@ summary.smacofP <- function(object,...)
 
 #'@export
 print.summary.smacofP <- function(x,...)
-    {
+{
+    if(missing(digits)) digits <- 4
     cat("\n")
     cat("Configurations:\n")
-    print(round(x$conf, 4))
+    print(round(x$conf, digits = digits))
     cat("\n\n")
     cat("Stress per point (in %):\n")
     print(round(x$sppmat[,2], 2))
     cat("\n")
+    invisible(x)
     }
 

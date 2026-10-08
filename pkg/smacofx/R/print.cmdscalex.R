@@ -8,4 +8,5 @@ print.cmdscalex <- function(x,...)
     cat("Number of objects:", dim(x$points)[1], "\n")
     cat("GOF:", round(x$GOF,2), "\n")
     cat("\n")
+    invisible(x)
     }
