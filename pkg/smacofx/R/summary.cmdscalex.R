@@ -7,10 +7,10 @@ summary.cmdscalex <- function(object,...)
     }
 
 
-#'@export
-print.summary.cmdscalex <- function(x,...)
+#' @export
+#' @rdname print.cmdscalex
+print.summary.cmdscalex <- function(x, digits = max(4L, getOption("digits") - 4L), ...)
 {
-    if(missing(digits)) digits <- 4
     cat("\n")
     cat("Configurations:\n")
     print(round(x, digits = digits))

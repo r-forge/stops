@@ -12,7 +12,7 @@
 #'@importFrom graphics layout
 #'@importFrom smacof Procrustes
 #' 
-#'@return no return value; just plots
+#'@return no return value; just plots. returns the objectlist invisibly.
 #' 
 #'@export
 #' 
@@ -44,5 +44,6 @@ alignplot <- function(objectlist, reference, layoutmat=NULL,mains=NULL,...)
             objectlist[[i]]$conf <- smacof::Procrustes(reference,objectlist[[i]]$conf)$Yhat
             plot(objectlist[[i]],main=mains[[i]],...)
         }
-    on.exit(par(op))
+   on.exit(par(op))
+   invisible(objectlist)
 }

@@ -6,13 +6,13 @@ summary.sammon <- function(object,...)
         out
     }
 
-#'@export
-print.summary.sammon <- function(x,...)
+#' @export
+#' @rdname print.sammon
+print.summary.sammon <- function(x, digits = max(4L, getOption("digits") - 4L),...)
 {
-    if(missing(digits)) digits <-  4
     cat("\n")
     cat("Configurations:\n")
-    print(round(x, digits=digits))
+    print(round(x, digits = digits))
     cat("\n")
     invisible(x)
     }

@@ -1,5 +1,3 @@
-
-
 #'@export
 summary.smacofP <- function(object,...)
     {
@@ -11,16 +9,16 @@ summary.smacofP <- function(object,...)
       res
     }
 
-#'@export
-print.summary.smacofP <- function(x,...)
+#' @export
+#' @rdname print.smacofP
+print.summary.smacofP <- function(x, digits = max(4L, getOption("digits") - 4L), ...)
 {
-    if(missing(digits)) digits <- 4
     cat("\n")
     cat("Configurations:\n")
     print(round(x$conf, digits = digits))
     cat("\n\n")
     cat("Stress per point (in %):\n")
-    print(round(x$sppmat[,2], 2))
+    print(round(x$sppmat[,2], digits = digits))
     cat("\n")
     invisible(x)
     }
