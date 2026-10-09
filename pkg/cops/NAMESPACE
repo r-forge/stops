@@ -29,30 +29,38 @@ importFrom(cmaes,cma_es)
 importFrom(crs,snomadr)
 importFrom(dfoptim,hjk)
 importFrom(minqa,newuoa)
-importFrom(nloptr,direct)
-importFrom(nloptr,directL)
-importFrom(nloptr,stogo)
+importFrom(nloptr,
+  direct,
+  directL,
+  stogo
+)
 importFrom(pso,psoptim)
 importFrom(rgenoud,genoud)
-importFrom(smacof,biplotmds)
-importFrom(smacof,bootmds)
-importFrom(smacof,jackmds)
-importFrom(smacof,smacofSphere)
-importFrom(smacof,smacofSym)
-importFrom(smacof,transPrep)
-importFrom(smacof,transform)
-importFrom(smacofx,apStressMin)
-importFrom(smacofx,cmdscale)
-importFrom(smacofx,powerStressMin)
-importFrom(smacofx,rStressMin)
-importFrom(smacofx,sammon)
-importFrom(smacofx,spp)
-importFrom(stats,as.dist)
-importFrom(stats,coef)
-importFrom(stats,dist)
-importFrom(stats,optim)
-importFrom(stats,runif)
-importFrom(stats,sd)
-importFrom(stats,uniroot)
+importFrom(smacof,
+  biplotmds,
+  bootmds,
+  jackmds,
+  smacofSphere,
+  smacofSym,
+  transPrep,
+  transform
+)
+importFrom(smacofx,
+  apStressMin,
+  cmdscale,
+  powerStressMin,
+  rStressMin,
+  sammon,
+  spp
+)
+importFrom(stats,
+  as.dist,
+  coef,
+  dist,
+  optim,
+  runif,
+  sd,
+  uniroot
+)
 importFrom(subplex,subplex)
 importFrom(utils,tail)

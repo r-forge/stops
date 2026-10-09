@@ -7,9 +7,9 @@
 \method{plot}{pcops}(x, plot.type, main, asp = 1, ...)
 }
 \arguments{
-\item{x}{an object of class cops}
+\item{x}{an object of class \code{"cops"}}
 
-\item{plot.type}{String indicating which type of plot to be produced: can be one of "confplot", "reachplot", "resplot", "transplot", "Shepard", "stressplot", "bubbleplot", "histogram" *see plot.smacofP, plot.smacofB and plot.copsc). Note that not all plots might be available for all losses.}
+\item{plot.type}{String indicating which type of plot to be produced: can be one of "confplot", "reachplot", "resplot", "transplot", "Shepard", "stressplot", "bubbleplot", "histogram" (see 'plot.smacofP', 'plot.smacofB' and 'plot.copsc'). Note that not all plots might be available for all losses.}
 
 \item{main}{the main title of the plot}
 
@@ -17,13 +17,16 @@
 
 \item{...}{Further plot arguments passed: see 'plot.smacofP', 'plot.smacofB' and 'plot' for detailed information.}
 }
+\value{
+no value just plots. Input object is returned invisibly.
+
+#@importFrom smacofx plot
+}
 \description{
 S3 plot method for p-cops objects
 }
 \details{
-See plot.smacofP
-
-#@importFrom smacofx plot
+See \code{plot.smacofP}
 }
 \examples{
 dis<-as.matrix(smacof::kinshipdelta)

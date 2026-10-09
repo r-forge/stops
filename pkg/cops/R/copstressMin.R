@@ -121,6 +121,7 @@
 #' @importFrom minqa newuoa
 #' @importFrom smacof transPrep transform
 #' @importFrom smacofx spp
+#' @importFrom graDiEnt GetAlgoParams optim_SQGDE
 #'
 #' 
 #' @keywords clustering multivariate
@@ -299,9 +300,8 @@ copstressMin <- function (delta, kappa=1, lambda=1, nu=1, theta=c(kappa,lambda,n
         qval <- q
         npart <- length(xold)
         if(ncores>1)  ptype <- "PSOCK" else ptype <- "none"
-        sqgde_control <- GetAlgoParams(n_params=length(xold), n_cores_use = ncores, init_center=xold, return_trace=TRUE, purify=10, stop_tol=accuracy, n_particles=npart, n_iter=itmax/npart, parallel_type = ptype) 
+        sqgde_control <- graDiEnt::GetAlgoParams(n_params=length(xold), n_cores_use = ncores, init_center=xold, return_trace=TRUE, purify=10, stop_tol=accuracy, n_particles=npart, n_iter=itmax/npart, parallel_type = ptype) 
         optimized <- graDiEnt::optim_SQGDE(function(par) copsf(par,delta=delta,disobj=disobj,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=q,minpts=minpts,epsilon=epsilon,rang=rang,scale=scale,normed=normed,init=init,minkp=minkp),control_params=sqgde_control,...)
-     #optimized <- graDiEnt::optim_SQGDE(function(par) copsf(par,delta=delta,disobj=disobj,r=r,ndim=ndim,weightmat=weightmat,stressweight=stressweight,cordweight=cordweight,q=qval,minpts=minpts,epsilon=epsilon,rang=rang,scale=scalval,normed=normed,init=init,minkp=minkp),control_params=sqgde_control)
        xnew <- matrix(optimized$solution,ncol=ndim)
        ovalue <-optimized$weight
        itel <- sum(is.finite(optimized$weights_trace))

@@ -1,4 +1,4 @@
-#'S3 plot method for cops objects
+#' S3 plot method for cops objects
 #' 
 #'@param x an object of class cops
 #'@param plot.type String indicating which type of plot to be produced: "confplot", "reachplot", "resplot","transplot", "Shepard", "stressplot", "bubblepot", "histogram"  (see details)
@@ -17,6 +17,7 @@
 #' \item Bubble plot (plot.type = "bubbleplot", only available for SMACOF objects $fit): Combines the configuration plot with the point stress contribution. The larger the bubbles, the better the fit.
 #'}
 #'
+#' @return no values just plots. Input object is returned invisibly. 
 #' #@importFrom smacofx plot
 #' 
 #'@export
@@ -37,5 +38,6 @@ plot.copsc <- function(x,plot.type, main, asp=1,...)
          class(x) <- c("smacofP",class(x))
          plot(x,plot.type=plot.type,main=main,asp=asp,...)
          class(x) <- class(x)[-1]
-   }
+     }
+     invisible(x)
  }

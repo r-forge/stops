@@ -15,16 +15,17 @@ summary.pcops <- function(object,...)
     }
 
 #'@export
-print.summary.pcops <- function(x,...)
+#'@rdname print.cops 
+print.summary.pcops <- function(x, digits = max(4L, getOption("digits") - 4L), ...)
     {
     cat("\n")
     cat("Configurations:\n")
-    print(round(x$conf, 4))
+    print(round(x$conf, digits = digits))
     cat("\n\n")
     if(!is.null(x$sppmat))
      {   
       cat("Stress per point (%):\n")
-      print(round(x$sppmat[,2], 4))
+      print(round(x$sppmat[,2], digits = digits))
       cat("\n")
      }
     invisible(x)
